@@ -32,7 +32,7 @@ We'll send our API requests using the `requests` library, and handle the diction
   "nonce": "2021-10-22T16:42:45ZeDCE7H9OEkGizRgxFa9Wj0mdwArOkP3PtZJWmgUTj8k"
 }
 ```
-Within the response dictionary is the `access_token` as well as the number of seconds for which the access token is valid in `expires_in`. In this case, the access token is valid for 32,103 more seconds. For simplicity, we'll just use the access token, and bundle this process into a function:
+Within the response dictionary is the `access_token` as well as the number of seconds for which the access token is valid in `expires_in`. In this case, the access token is valid for 32,103 more seconds. For simplicity, we'll just use the access token, and bundle this process into a function. We'll set the default values of `client_id` and `secret` to be `PARTNER_CLIENT_ID` and `PARTNER_SECRET`, respectively.
 
 ```python
 def request_access_token(client_id, secret):
@@ -50,10 +50,10 @@ def request_access_token(client_id, secret):
 ---
 <br>
 
-Each of our subsequent API requests will include a header with the `Content-Type`, which will be `application/json`, and an `Authorization`, which will be the string `Bearer {access_token}`, where `{access_token}` will be replaced with the access token obtained above. We write a small function that will build these headers with a fresh access token on each call. Note that in practice, we should reuse access tokens whenever possible to help avoid rate limits on API calls.
+Each of our subsequent API requests will include a header with the `Content-Type`, which will be `application/json`, and an `Authorization`, which will be the string `Bearer {access_token}`, where `{access_token}` will be replaced with the access token obtained above. We write a small function that will build these headers with a fresh access token on each call. Note that in practice, we should reuse access tokens whenever possible to help avoid rate limits on API calls. 
 ```python
-def build_headers():
-    access_token = request_access_token(PARTNER_CLIENT_ID, PARTNER_SECRET)
+def build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET):
+    access_token = request_access_token(client_id, secret)
     return {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {access_token}",
@@ -132,9 +132,9 @@ The second link, the one with labeled as the `action_url`, is the link that we s
 "https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=NjY1ZDZiM2EtYmQ4Yi00ZjJmLWJmYzItNDM1OTU2NmM4ZmRlbUFjbEtKRHBVUXVWc2ZTYjJBZDRlbHpVRFo4UE5ZbjZQVlZSc2JpS2N6Yz12Mg=="
 ```
 
-We can package all of this into a function that takes the `tracking_id` and `return_url` as inputs and returns the sign-up link:
+We can package all of this into a function that takes the `tracking_id` and `return_url` as inputs and returns the sign-up link. For convenience, we'll set the defaults for these inputs to be `"8675209"` and `"paypal.com"`, repectively.
 ```python
-def generate_sign_up_link(tracking_id, return_url):
+def generate_sign_up_link(tracking_id="8675309", return_url="paypal.com"):
     data = {
         "tracking_id": tracking_id,
         "operations": [
@@ -163,7 +163,7 @@ def generate_sign_up_link(tracking_id, return_url):
 
     response = requests.post(
         "https://api-m.sandbox.paypal.com/v2/customer/partner-referrals",
-        headers=headers,
+        headers=build_headers(),
         data=json.dumps(data),
     )
     response_dict = response.json()
@@ -206,7 +206,7 @@ def get_status(merchant_id):
 
 ## A Sign-up Webpage
 
-We'll now combine all of this and display it to a prospective merchant. For this example, we'll use the `flask` Python library, but it's not vitally important that you know the details of `flask`. In our `src/` directory, we create a barebones initialization file:
+We'll now combine all of this and display it to a prospective merchant. For this example, we'll use the `flask` Python library, but it's not vitally important that you know the details of `flask`. In our `src/` directory, we create a barebones [initialization file](https://flask.palletsprojects.com/en/2.0.x/tutorial/factory/):
 
 ```python
 import os
@@ -220,7 +220,7 @@ def create_app():
 
     from . import api
 
-    app.register(api.bp)
+    app.register_blueprint(api.bp)
     return app
 ```
 > `src/__init__.py`
@@ -232,22 +232,28 @@ We'll also add a [blueprint](https://flask.palletsprojects.com/en/2.0.x/blueprin
 ```python
 ...
 bp = Blueprint("api", __name__, url_prefix="/api")
-
-@bp.route("/access-token")
-def request_access_token(client_id, secret):
-    endpoint = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
-    response = requests.post(
-        endpoint,
-        headers={"Content-Type": "application/json", "Accept-Language": "en_US"},
-        data={"grant_type": "client_credentials"},
-        auth=(client_id, secret),
-    )
-    response_dict = response.json()
-    return response_dict["access_token"]
+...
+@bp.route("/sign-up", methods=("POST",))
+def generate_sign_up_link(tracking_id="8675309", return_url="paypal.com"):
+    data = {
 ...
 ```
 > `src/api.py`
 ---
 <br>
 
-With the above `bp.route` decorator in place, any HTTP request to `/access-token` will recieve an acess token back.
+With the above `bp.route` decorator in place, any GET request to `/sign-up` will recieve an acess token back. We run our webserver after setting our app name and environment: 
+```bash
+$ export FLASK_APP=src
+$ export FLASK_ENV=development
+$ python -m flask run
+ * Serving Flask app 'flaskr' (lazy loading)
+ * Environment: development
+ * Debug mode: on
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 101-820-955
+ * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+```
+
+Then, we can navigate to `http://127.0.0.1:5000/api/sign-up`, and we'll be presented with a sign-up link. 

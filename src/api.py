@@ -8,7 +8,6 @@ from flask import Blueprint
 bp = Blueprint("api", __name__, url_prefix="/api")
 
 
-@bp.route("/access-token")
 def request_access_token(client_id, secret):
     endpoint = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
     response = requests.post(
@@ -21,15 +20,16 @@ def request_access_token(client_id, secret):
     return response_dict["access_token"]
 
 
-def build_headers():
-    access_token = request_access_token(PARTNER_CLIENT_ID, PARTNER_SECRET)
+def build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET):
+    access_token = request_access_token(client_id, secret)
     return {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {access_token}",
     }
 
 
-def generate_sign_up_link(tracking_id, return_url):
+@bp.route("/sign-up", methods=("GET",))
+def generate_sign_up_link(tracking_id="8675309", return_url="paypal.com"):
     data = {
         "tracking_id": tracking_id,
         "operations": [
