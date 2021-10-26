@@ -34,10 +34,7 @@ We'll send our API requests using the `requests` library, and handle the diction
 ```
 Within the response dictionary is the `access_token` as well as the number of seconds for which the access token is valid in `expires_in`. In this case, the access token is valid for 32,103 more seconds. For simplicity, we'll just use the access token, and bundle this process into a function:
 
----
-> `api.py`
 ```python
-
 def request_access_token(client_id, secret):
     endpoint = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
     response = requests.post(
@@ -49,6 +46,7 @@ def request_access_token(client_id, secret):
     response_dict = response.json()
     return response_dict["access_token"]
 ```
+> `src/api.py`
 ---
 <br>
 
