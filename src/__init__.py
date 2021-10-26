@@ -8,7 +8,8 @@ def create_app():
 
     os.makedirs(app.instance_path, exist_ok=True)
 
-    from . import api
+    from . import partner
 
-    app.register_blueprint(api.bp)
+    app.register_blueprint(partner.bp)
+
     return app

@@ -1,11 +1,10 @@
 import json
 import requests
 
-from my_secrets import PARTNER_CLIENT_ID, PARTNER_ID, PARTNER_SECRET
+from .my_secrets import PARTNER_CLIENT_ID, PARTNER_ID, PARTNER_SECRET
 
-from flask import Blueprint
-
-bp = Blueprint("api", __name__, url_prefix="/api")
+# from flask import Blueprint
+# bp = Blueprint("api", __name__, url_prefix="/api")
 
 
 def request_access_token(client_id, secret):
@@ -28,8 +27,7 @@ def build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET):
     }
 
 
-@bp.route("/sign-up", methods=("GET",))
-def generate_sign_up_link(tracking_id="8675309", return_url="paypal.com"):
+def generate_sign_up_link(tracking_id, return_url="paypal.com"):
     data = {
         "tracking_id": tracking_id,
         "operations": [
@@ -71,17 +69,16 @@ def generate_sign_up_link(tracking_id="8675309", return_url="paypal.com"):
         raise Exception("No action url found!")
 
 
-def get_merchant_id(tracking_id):
-    endpoint = f"https://api-m.sandbox.paypal.com/v1/customer/partners/{PARTNER_ID}/merchant-integrations?tracking_id={tracking_id}"
-
+def get_merchant_id(tracking_id, partner_id=PARTNER_ID):
+    endpoint = f"https://api-m.sandbox.paypal.com/v1/customer/partners/{partner_id}/merchant-integrations?tracking_id={tracking_id}"
     response = requests.get(endpoint, headers=build_headers())
 
     response_dict = response.json()
     return response_dict["merchant_id"]
 
 
-def get_status(merchant_id):
-    endpoint = f"https://api-m.sandbox.paypal.com/v1/customer/partners/{PARTNER_ID}/merchant-integrations/{merchant_id}"
+def get_status(merchant_id, partner_id=PARTNER_ID):
+    endpoint = f"https://api-m.sandbox.paypal.com/v1/customer/partners/{partner_id}/merchant-integrations/{merchant_id}"
 
     response = requests.get(endpoint, headers=build_headers())
 
