@@ -1,6 +1,6 @@
 # A Partner Integration --- An example in Python
 
-Let's set up a PPCP Connected Path integration in the sandbox using Python 3.9.6. 
+Let's set up a PPCP Connected Path integration in the sandbox using Python 3.9.6. This project is **purely** for teaching purposes. Coding best practices are frequently forgone here in favor of simplicity.  
 
 ## Sign-up
 
@@ -59,6 +59,9 @@ def build_headers():
         "Authorization": f"Bearer {access_token}",
     }
 ```
+> `src/api.py`
+---
+<br>
 
 With a (process to generate an) access token in hand, we'll request a sign-up link for each of our prospective merchants to use. We'll use the v2 API, but v1 can be used as well. To generate a sign-up link, we need to 
 - assign each merchant a distinct `tracking_id` (`5675309` in this case),
@@ -129,7 +132,6 @@ The second link, the one with labeled as the `action_url`, is the link that we s
 "https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=NjY1ZDZiM2EtYmQ4Yi00ZjJmLWJmYzItNDM1OTU2NmM4ZmRlbUFjbEtKRHBVUXVWc2ZTYjJBZDRlbHpVRFo4UE5ZbjZQVlZSc2JpS2N6Yz12Mg=="
 ```
 
-
 We can package all of this into a function that takes the `tracking_id` and `return_url` as inputs and returns the sign-up link:
 ```python
 def generate_sign_up_link(tracking_id, return_url):
@@ -173,6 +175,9 @@ def generate_sign_up_link(tracking_id, return_url):
         # If we're here, no `action_url` was found!
         raise Exception("No action url found!")
 ```
+> `src/api.py`
+---
+<br>
 
 When a merchant has begun the sign-up process, you can track their progress with a GET request to `/v1/customer/partners/{partner_id}/merchant-integrations/{merchant_id}`, where `partner_id` and `merchant_id` are the "PayPal Merchant ID" for the partner and merchant, respectively. We import `PARTNER_ID` from our `my_secrets` file. The merchant's `merchant_id` can be discovered using a GET request to `/v1/customer/partners/{partner_id}/merchant-integrations?tracking_id={tracking_id}`:
 
@@ -195,7 +200,54 @@ def get_status(merchant_id):
     response_dict = response.json()
     return response_dict
 ```
+> `src/api.py`
+---
+<br>
 
 ## A Sign-up Webpage
 
-We can combine all of this and display it to a prospective merchant. For this example, we'll use the `flask` Python library.
+We'll now combine all of this and display it to a prospective merchant. For this example, we'll use the `flask` Python library, but it's not vitally important that you know the details of `flask`. In our `src/` directory, we create a barebones initialization file:
+
+```python
+import os
+from flask import Flask
+
+def create_app():
+    app = Flask(__name__, instance_relative_config=True)
+    app.config.from_mapping(SECRET_KEY="dev")
+
+    os.makedirs(app.instance_path, exist_ok=True)
+
+    from . import api
+
+    app.register(api.bp)
+    return app
+```
+> `src/__init__.py`
+---
+<br>
+
+We'll also add a [blueprint](https://flask.palletsprojects.com/en/2.0.x/blueprints/) to `src/api.py` and [decorate](https://www.python.org/dev/peps/pep-0318/) some of its methods to allow them to be accessed through various URLs:
+
+```python
+...
+bp = Blueprint("api", __name__, url_prefix="/api")
+
+@bp.route("/access-token")
+def request_access_token(client_id, secret):
+    endpoint = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
+    response = requests.post(
+        endpoint,
+        headers={"Content-Type": "application/json", "Accept-Language": "en_US"},
+        data={"grant_type": "client_credentials"},
+        auth=(client_id, secret),
+    )
+    response_dict = response.json()
+    return response_dict["access_token"]
+...
+```
+> `src/api.py`
+---
+<br>
+
+With the above `bp.route` decorator in place, any HTTP request to `/access-token` will recieve an acess token back.
