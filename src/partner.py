@@ -1,7 +1,7 @@
 import json
 
-from .api import generate_sign_up_link, get_merchant_id, get_status, url_for
-from flask import Blueprint, render_template
+from .api import generate_sign_up_link, get_merchant_id, get_status
+from flask import Blueprint, render_template, url_for
 
 bp = Blueprint("partner", __name__, url_prefix="/partner")
 
@@ -11,7 +11,7 @@ def sign_up(tracking_id="8675309"):
     sign_up_link = generate_sign_up_link(tracking_id)
 
     # Get the URL for the corresponding status page
-    tracking_url = url_for("status", tracking_id=tracking_id)
+    tracking_url = url_for("partner.status", tracking_id=tracking_id)
 
     return render_template(
         "sign_up.html", sign_up_link=sign_up_link, tracking_url=tracking_url
