@@ -266,7 +266,7 @@ def status(tracking_id):
 ---
 <br>
 
-With the above `bp.route` decorator in place, any GET request to `/sign-up` will recieve an acess token back. We run our webserver after setting our app name and environment: 
+With the above `bp.route` decorators in place, navigating to `http://127.0.0.1:5000/partner/sign-up` will present a simple page that includes our sign-up link and a link to a sign-up status page. These pages are built from two simple templates, `templates/sign_up.html` and `templates/status.html`. Finally, we can run our webserver after setting our app name and environment: 
 ```bash
 $ export FLASK_APP=src
 $ export FLASK_ENV=development
@@ -280,6 +280,6 @@ $ python -m flask run
  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 ```
 
-Then, we can navigate to `http://127.0.0.1:5000/partner/sign-up`, and we'll be presented with a sign-up link and a link to a status page, located at `http://127.0.0.1:5000/partner/status/{tracking_id}`.
+Then, we can navigate to `http://127.0.0.1:5000/partner/sign-up`, click the sign-up link, and sign in with a Sandbox merchant's credentials. Once you are finished signing up, click the status link. 
 
 ## Processing Orders
