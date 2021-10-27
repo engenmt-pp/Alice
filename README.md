@@ -218,27 +218,47 @@ def create_app():
 
     os.makedirs(app.instance_path, exist_ok=True)
 
-    from . import api
+    from . import partner
 
-    app.register_blueprint(api.bp)
+    app.register_blueprint(partner.bp)
+
     return app
 ```
 > `src/__init__.py`
 ---
 <br>
 
-We'll also add a [blueprint](https://flask.palletsprojects.com/en/2.0.x/blueprints/) to `src/api.py` and [decorate](https://www.python.org/dev/peps/pep-0318/) some of its methods to allow them to be accessed through various URLs:
+We'll also add a [blueprint](https://flask.palletsprojects.com/en/2.0.x/blueprints/) to a new file `src/partner.py` and [decorate](https://www.python.org/dev/peps/pep-0318/) its methods to allow them to be accessed through various URLs:
 
 ```python
 ...
-bp = Blueprint("api", __name__, url_prefix="/api")
-...
-@bp.route("/sign-up", methods=("POST",))
-def generate_sign_up_link(tracking_id="8675309", return_url="paypal.com"):
-    data = {
-...
+bp = Blueprint(
+    "partner", 
+    __name__, 
+    url_prefix="/partner" # Routes on this page will be prefixed with /partner
+) 
+
+
+@bp.route("/sign-up")
+def sign_up(tracking_id="8675309"):
+    sign_up_link = generate_sign_up_link(tracking_id)
+
+    # Get the URL for the corresponding status page
+    tracking_url = url_for("status", tracking_id=tracking_id)
+
+    return render_template(
+        "sign_up.html", sign_up_link=sign_up_link, tracking_url=tracking_url
+    )
+
+
+@bp.route("/status/<tracking_id>")
+def status(tracking_id):
+    merchant_id = get_merchant_id(tracking_id)
+    status = get_status(merchant_id)
+    status_text = json.dumps(status, indent=2)
+    return render_template("status.html", status=status_text)
 ```
-> `src/api.py`
+> `src/partner.py`
 ---
 <br>
 
@@ -256,4 +276,4 @@ $ python -m flask run
  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 ```
 
-Then, we can navigate to `http://127.0.0.1:5000/api/sign-up`, and we'll be presented with a sign-up link. 
+Then, we can navigate to `http://127.0.0.1:5000/partner/sign-up`, and we'll be presented with a sign-up link and a link to a status page, located at `http://127.0.0.1:5000/partner/status/{tracking_id}`.
