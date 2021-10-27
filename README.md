@@ -231,7 +231,11 @@ def create_app():
 We'll also add a [blueprint](https://flask.palletsprojects.com/en/2.0.x/blueprints/) to a new file `src/partner.py` and [decorate](https://www.python.org/dev/peps/pep-0318/) its methods to allow them to be accessed through various URLs:
 
 ```python
-...
+import json
+
+from .api import generate_sign_up_link, get_merchant_id, get_status, url_for
+from flask import Blueprint, render_template
+
 bp = Blueprint(
     "partner", 
     __name__, 
