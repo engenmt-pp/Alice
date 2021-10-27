@@ -24,7 +24,3 @@ def status(tracking_id):
     status = get_status(merchant_id)
     status_text = json.dumps(status, indent=2)
     return render_template("status.html", status=status_text)
-
-
-# , methods=("GET",)
-# , methods=("GET",)
