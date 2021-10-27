@@ -132,9 +132,9 @@ The second link, the one with labeled as the `action_url`, is the link that we s
 "https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=NjY1ZDZiM2EtYmQ4Yi00ZjJmLWJmYzItNDM1OTU2NmM4ZmRlbUFjbEtKRHBVUXVWc2ZTYjJBZDRlbHpVRFo4UE5ZbjZQVlZSc2JpS2N6Yz12Mg=="
 ```
 
-We can package all of this into a function that takes the `tracking_id` and `return_url` as inputs and returns the sign-up link. For convenience, we'll set the defaults for these inputs to be `"8675209"` and `"paypal.com"`, repectively.
+We can package all of this into a function that takes the `tracking_id` and `return_url` as inputs and returns the sign-up link. For convenience, we'll set the default `return_url` to be `"paypal.com"`.
 ```python
-def generate_sign_up_link(tracking_id="8675309", return_url="paypal.com"):
+def generate_sign_up_link(tracking_id, return_url="paypal.com"):
     data = {
         "tracking_id": tracking_id,
         "operations": [
@@ -277,3 +277,5 @@ $ python -m flask run
 ```
 
 Then, we can navigate to `http://127.0.0.1:5000/partner/sign-up`, and we'll be presented with a sign-up link and a link to a status page, located at `http://127.0.0.1:5000/partner/status/{tracking_id}`.
+
+## Processing Orders
