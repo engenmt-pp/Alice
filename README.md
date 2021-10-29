@@ -284,6 +284,61 @@ $ python -m flask run
 Then, we can navigate to `http://127.0.0.1:5000/partner/sign-up`, click the sign-up link, and sign in with a Sandbox merchant's credentials. Once you are finished signing up, click the status link. 
 
 
-Note: In the templates, [jinja](https://jinja.palletsprojects.com/en/3.0.x/) formatting is used. Within the double curly braces, Python code is executed with the supplied variables. For example, the snippet `{{ status }}` in `status.html` is replaced with the `status_text` properly in `render_template("status.html", status=status_text)`. We'll continue to use this throughout the walkthrough.
+Note: In the templates, [jinja](https://jinja.palletsprojects.com/en/3.0.x/) formatting is used. Within the double curly braces, Python code is executed with the supplied variables. For example, the snippet `{{ status }}` in `status.html` is replaced with the `status_text` properly in `render_template("status.html", status=status_text)`. We'll continue to use this templating throughout the walkthrough.
 
 ## Processing Orders
+
+It's time to process some orders! In many cases, PayPal's Javascript SDK alone can be used to create orders and capture their funds, but the Javascript SDK alone does not suffice for PPCP Connected Path integrations. In addition to the Javascript SDK, we'll also use the [Orders API v2](https://developer.paypal.com/docs/api/orders/v2/) to create and capture our orders. 
+
+To begin, we'll write a function that creates an order. In addition to the partner credentials above, we'll also need the Partner's build notation (BN) code (also called their ["PayPal-Partner-Attribution-Id"](https://developer.paypal.com/docs/api/orders/v2/?mark=partner-attribution#orders-create-header-parameters),) and the Merchant's ID (also called the Merchant's "merchant ID" or the `payee_merchant_id`.) The BN code is typically assigned to a partner through Salesforce, but we'll pick ours arbitrarily and hardcode both it and the `payee_merchant_id`.
+
+```python
+>>> PAYEE_MERCHANT_ID = "NY9D8KUEC8W54"
+>>> PARTNER_BN_CODE = "my_bn_code"
+>>> def create_order(price):
+...     endpoint = "https://api-m.sandbox.paypal.com/v2/checkout/orders"
+...     headers = build_headers()
+...     headers["PayPal-Partner-Attribution-Id"] = PARTNER_BN_CODE
+...     data = {
+...         "intent": "CAPTURE",
+...         "purchase_units": [
+...             {
+...                 "amount": {
+...                     "currency_code": "USD",
+...                     "value": price
+...                 }
+...             }
+...         ],
+...         "payee": PAYEE_MERCHANT_ID,
+...     }
+...     response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+...     return response.json()
+...
+>>> print(json.dumps(create_order(3.14), indent=2))
+{
+  "id": "23Y06805N9867673S",
+  "status": "CREATED",
+  "links": [
+    {
+      "href": "https://api.sandbox.paypal.com/v2/checkout/orders/23Y06805N9867673S",
+      "rel": "self",
+      "method": "GET"
+    },
+    {
+      "href": "https://www.sandbox.paypal.com/checkoutnow?token=23Y06805N9867673S",
+      "rel": "approve",
+      "method": "GET"
+    },
+    {
+      "href": "https://api.sandbox.paypal.com/v2/checkout/orders/23Y06805N9867673S",
+      "rel": "update",
+      "method": "PATCH"
+    },
+    {
+      "href": "https://api.sandbox.paypal.com/v2/checkout/orders/23Y06805N9867673S/capture",
+      "rel": "capture",
+      "method": "POST"
+    }
+  ]
+}
+```

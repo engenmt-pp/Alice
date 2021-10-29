@@ -3,8 +3,9 @@ import requests
 
 from .my_secrets import PARTNER_CLIENT_ID, PARTNER_ID, PARTNER_SECRET
 
-# from flask import Blueprint
-# bp = Blueprint("api", __name__, url_prefix="/api")
+from flask import Blueprint, request, jsonify
+
+bp = Blueprint("api", __name__, url_prefix="/api")
 
 
 def request_access_token(client_id, secret):
@@ -82,5 +83,51 @@ def get_status(merchant_id, partner_id=PARTNER_ID):
 
     response = requests.get(endpoint, headers=build_headers())
 
+    response_dict = response.json()
+    return response_dict
+
+
+@bp.route("/create-order", methods=("POST",))
+def create_order():
+    endpoint = "https://api-m.sandbox.paypal.com/v2/checkout/orders"
+
+    headers = build_headers()
+    headers["PayPal-Partner-Attribution-Id"] = request.json["bn_code"]
+
+    data = {
+        "intent": "CAPTURE",
+        "purchase_units": [
+            {
+                "amount": {
+                    "currency_code": "USD",
+                    "value": request.json["price"],
+                }
+            }
+        ],
+        "payee": request.json["payee_merchant_id"],
+    }
+
+    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+    response_dict = response.json()
+    return jsonify(response_dict)
+
+
+@bp.route("/capture-order", methods=("POST",))
+def capture_order():
+    endpoint = f"https://api-m.sandbox.paypal.com/v2/checkout/orders/{request.json['orderId']}/capture"
+
+    headers = build_headers()
+
+    response = requests.post(endpoint, headers=headers)
+    response_dict = response.json()
+    return jsonify(response_dict)
+
+
+def get_order_details(order_id):
+    endpoint = f"https://api-m.sandbox.paypal.com/v2/checkout/orders/{order_id}"
+
+    headers = build_headers()
+
+    response = requests.get(endpoint, headers=headers)
     response_dict = response.json()
     return response_dict
