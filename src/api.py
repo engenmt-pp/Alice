@@ -98,13 +98,13 @@ def create_order():
         "intent": "CAPTURE",
         "purchase_units": [
             {
+                "payee": {"merchant_id": request.json["payee_merchant_id"]},
                 "amount": {
                     "currency_code": "USD",
                     "value": request.json["price"],
-                }
+                },
             }
         ],
-        "payee": request.json["payee_merchant_id"],
     }
 
     response = requests.post(endpoint, headers=headers, data=json.dumps(data))

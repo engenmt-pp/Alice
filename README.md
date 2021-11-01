@@ -318,7 +318,6 @@ def checkout():
         "checkout.html",
         product=product,
         partner_client_id=PARTNER_CLIENT_ID,
-        partner_merchant_id=PARTNER_ID,
         payee_merchant_id=PAYEE_MERCHANT_ID,
         bn_code=MERCHANT_BN_CODE,
     )
@@ -345,8 +344,8 @@ Additionally, we'll need to register the above blueprint in our `__init__.py` fi
       </div>
     </div>
     
-    <!-- Import PayPal Javascript SDK with Partner's credentials -->
-    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ partner_merchant_id }}&currency=USD&intent=capture" data-partner-attribution-id="{{ bn_code }}"></script>
+    <!-- Import PayPal Javascript SDK with Partner's Client Id and the Merchant's Merchant ID -->
+    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_merchant_id }}&currency=USD&intent=capture" data-partner-attribution-id="{{ bn_code }}"></script>
 
     <script>
       function initPayPalButton() {
@@ -409,13 +408,13 @@ def create_order():
         "intent": "CAPTURE",
         "purchase_units": [
             {
+                "payee": {"merchant_id": request.json["payee_merchant_id"]},
                 "amount": {
                     "currency_code": "USD",
                     "value": request.json["price"],
                 }
             }
         ],
-        "payee": request.json["payee_merchant_id"],
     }
 
     response = requests.post(endpoint, headers=headers, data=json.dumps(data))

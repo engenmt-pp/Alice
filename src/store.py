@@ -22,7 +22,6 @@ def checkout():
         "checkout.html",
         product=product,
         partner_client_id=PARTNER_CLIENT_ID,
-        partner_merchant_id=PARTNER_ID,
         payee_merchant_id=PAYEE_MERCHANT_ID,
         bn_code=MERCHANT_BN_CODE,
     )

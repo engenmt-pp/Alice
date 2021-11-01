@@ -15,7 +15,7 @@
     </div>
     
     <!-- Import PayPal Javascript SDK with Partner's credentials -->
-    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ partner_merchant_id }}&currency=USD&intent=capture" data-partner-attribution-id="{{ bn_code }}"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_merchant_id }}&currency=USD&intent=capture" data-partner-attribution-id="{{ bn_code }}"></script>
 
     <script>
       function initPayPalButton() {
