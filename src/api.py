@@ -65,9 +65,9 @@ def generate_sign_up_link(tracking_id, return_url="paypal.com"):
     for link in response_dict["links"]:
         if link["rel"] == "action_url":
             return link["href"]
-    else:
-        # If we're here, no `action_url` was found!
-        raise Exception("No action url found!")
+
+    # If we're here, no `action_url` was found!
+    raise Exception("No action url found!")
 
 
 def get_merchant_id(tracking_id, partner_id=PARTNER_ID):
