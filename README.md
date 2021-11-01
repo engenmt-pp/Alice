@@ -290,55 +290,185 @@ Note: In the templates, [jinja](https://jinja.palletsprojects.com/en/3.0.x/) for
 
 It's time to process some orders! In many cases, PayPal's Javascript SDK alone can be used to create orders and capture their funds, but the Javascript SDK alone does not suffice for PPCP Connected Path integrations. In addition to the Javascript SDK, we'll also use the [Orders API v2](https://developer.paypal.com/docs/api/orders/v2/) to create and capture our orders. 
 
-To begin, we'll write a function that creates an order. In addition to the partner credentials above, we'll also need the Partner's build notation (BN) code (also called their ["PayPal-Partner-Attribution-Id"](https://developer.paypal.com/docs/api/orders/v2/?mark=partner-attribution#orders-create-header-parameters),) and the Merchant's ID (also called the Merchant's "merchant ID" or the `payee_merchant_id`.) The BN code is typically assigned to a partner through Salesforce, but we'll pick ours arbitrarily and hardcode both it and the `payee_merchant_id`.
+Before we begin, we'll need the Partner's build notation (BN) code (also called their ["PayPal-Partner-Attribution-Id"](https://developer.paypal.com/docs/api/orders/v2/?mark=partner-attribution#orders-create-header-parameters)) and the Merchant's ID (also called the Merchant's "merchant ID" or the `payee_merchant_id`.) The BN code is typically assigned to a partner through Salesforce, but we'll pick ours arbitrarily and hardcode both it and the `payee_merchant_id`.
+
+For our simple example, we'll integrate [Smart Payment Buttons](https://developer.paypal.com/docs/checkout/) onto our website. To begin, we'll create checkout page for a single hardcoded product, an apple pie. In a new file `src/store.py`, we'll include some standard imports and a route for hosting our checkout page: 
 
 ```python
->>> PAYEE_MERCHANT_ID = "NY9D8KUEC8W54"
->>> PARTNER_BN_CODE = "my_bn_code"
->>> def create_order(price):
-...     endpoint = "https://api-m.sandbox.paypal.com/v2/checkout/orders"
-...     headers = build_headers()
-...     headers["PayPal-Partner-Attribution-Id"] = PARTNER_BN_CODE
-...     data = {
-...         "intent": "CAPTURE",
-...         "purchase_units": [
-...             {
-...                 "amount": {
-...                     "currency_code": "USD",
-...                     "value": price
-...                 }
-...             }
-...         ],
-...         "payee": PAYEE_MERCHANT_ID,
-...     }
-...     response = requests.post(endpoint, headers=headers, data=json.dumps(data))
-...     return response.json()
-...
->>> print(json.dumps(create_order(3.14), indent=2))
-{
-  "id": "23Y06805N9867673S",
-  "status": "CREATED",
-  "links": [
-    {
-      "href": "https://api.sandbox.paypal.com/v2/checkout/orders/23Y06805N9867673S",
-      "rel": "self",
-      "method": "GET"
-    },
-    {
-      "href": "https://www.sandbox.paypal.com/checkoutnow?token=23Y06805N9867673S",
-      "rel": "approve",
-      "method": "GET"
-    },
-    {
-      "href": "https://api.sandbox.paypal.com/v2/checkout/orders/23Y06805N9867673S",
-      "rel": "update",
-      "method": "PATCH"
-    },
-    {
-      "href": "https://api.sandbox.paypal.com/v2/checkout/orders/23Y06805N9867673S/capture",
-      "rel": "capture",
-      "method": "POST"
+import json
+
+from .api import get_order_details
+from .my_secrets import PARTNER_CLIENT_ID, PARTNER_ID
+from flask import Blueprint, render_template
+
+bp = Blueprint("store", __name__, url_prefix="/store")
+
+PAYEE_MERCHANT_ID = "NY9D8KUEC8W54"
+MERCHANT_BN_CODE = "my_bn_code"
+
+@bp.route("/checkout")
+def checkout():
+    product = {
+        "name": "An apple pie",
+        "description": "It's a pie made from apples.",
+        "price": 3.14,
     }
-  ]
-}
+
+    return render_template(
+        "checkout.html",
+        product=product,
+        partner_client_id=PARTNER_CLIENT_ID,
+        partner_merchant_id=PARTNER_ID,
+        payee_merchant_id=PAYEE_MERCHANT_ID,
+        bn_code=MERCHANT_BN_CODE,
+    )
 ```
+> `src/store.py`
+---
+<br>
+
+Additionally, we'll need to register the above blueprint in our `__init__.py` file as we did with `store.py`. Our HTML template will be fairly barebones, including just some product information and our Smart Payment buttons:
+```html
+<article>
+  <body>
+    
+    <!-- Information about the product -->
+    <h1>Product Page</h1>
+    <p>Product name: {{ product['name'] }}</p>
+    <p>Price: ${{ product['price'] }}</p>
+    <p>Description: {{ product['description'] }}</p> 
+
+    <!-- Empty (for now) button container -->
+    <div class="smart-button-container", id="smart-button-container">
+      <div style="text-align: center;">
+        <div id="paypal-button-container"></div>
+      </div>
+    </div>
+    
+    <!-- Import PayPal Javascript SDK with Partner's credentials -->
+    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ partner_merchant_id }}&currency=USD&intent=capture" data-partner-attribution-id="{{ bn_code }}"></script>
+
+    <script>
+      function initPayPalButton() {
+        paypal.Buttons({
+          createOrder: function (data, actions) {
+            return fetch('/api/create-order', {
+              headers: {'Content-Type': 'application/json'},
+              method: 'POST',
+              body: JSON.stringify({
+                price: "{{ product['price'] }}", 
+                payee_merchant_id: "{{ payee_merchant_id }}", 
+                bn_code: "{{ bn_code }}"
+              })
+            }).then(function(res) {
+              return res.json();
+            }).then(function(data) {
+              return data.id;
+            })
+          },
+          onApprove: function(data, actions) {
+            return fetch('/api/capture-order', {
+              headers: {'Content-Type': 'application/json'},
+              method: 'POST',
+              body: JSON.stringify({orderId: data.orderID})
+            }).then(function(res) {
+              return res.json();
+            }).then(function(captureData) {
+              // Your server response structure and key names are what you choose
+              if (captureData.error === 'INSTRUMENT_DECLINED') {
+                return actions.restart();
+              } else {
+                window.location.replace("/store/order-details/" + data.orderID);
+              }
+            })  
+          }
+        }).render('#paypal-button-container');
+      }
+      initPayPalButton();
+    </script>
+  </body>
+</article>
+```
+> `src/templates/checkout.html`
+---
+<br>
+
+The kernel of the checkout page lies in the `initPayPalButton` call with the functions passed into the `createOrder` and `onApprove` keys. Where simpler contexts allow for the Javascript SDK itself to create and capture the order, PPCP requires our server to make the API calls, so we begin by submitting a POST request to our server through `/api/create-order` containing the price, Payee's (Merchant's) Merchant ID, and the Partner's BN code. 
+
+To consume this API call, we'll create a new function in `api.py` that calls out to the [Orders v2 API](https://developer.paypal.com/docs/api/orders/v2/#orders_create). We can extract the contents of the request using the [`flask.request` object](https://flask.palletsprojects.com/en/2.0.x/api/#flask.request). In addition to the usual authentication headers, we also need to add the Partner's BN code under the key `PayPal-Partner-Attribution-Id` for PayPal to properly associate the order with the partner. Moreover, the order will only be associated with the Merchant if the Merchant's "Merchant ID" is passed into the API request in the `payee` field.
+
+```python
+@bp.route("/create-order", methods=("POST",))
+def create_order():
+    endpoint = "https://api-m.sandbox.paypal.com/v2/checkout/orders"
+
+    headers = build_headers()
+    headers["PayPal-Partner-Attribution-Id"] = request.json["bn_code"]
+
+    data = {
+        "intent": "CAPTURE",
+        "purchase_units": [
+            {
+                "amount": {
+                    "currency_code": "USD",
+                    "value": request.json["price"],
+                }
+            }
+        ],
+        "payee": request.json["payee_merchant_id"],
+    }
+
+    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+    response_dict = response.json()
+    return jsonify(response_dict)
+```
+> `src/api.py`
+---
+<br>
+
+The other piece of the puzzle is order capture, which we accomplish in a manner similar to order creation, but with the [Capture Orders v2 API](https://developer.paypal.com/docs/api/orders/v2/#orders_capture). In this case, the client-side SDK needs only to send the order ID to `/api/capture-order`, and our server-side code will take care of the API call:
+
+```python
+@bp.route("/capture-order", methods=("POST",))
+def capture_order():
+    endpoint = f"https://api-m.sandbox.paypal.com/v2/checkout/orders/{request.json['orderId']}/capture"
+
+    headers = build_headers()
+
+    response = requests.post(endpoint, headers=headers)
+    response_dict = response.json()
+    return jsonify(response_dict)
+```
+> `src/api.py`
+---
+<br>
+
+Finally, we'll set up a simple order details page to redirect customers to after their successful purchase. To get the order details, we'll use the [Get Orders v2 API](https://developer.paypal.com/docs/api/orders/v2/#orders_get):
+```python
+def get_order_details(order_id):
+    endpoint = f"https://api-m.sandbox.paypal.com/v2/checkout/orders/{order_id}"
+
+    headers = build_headers()
+
+    response = requests.get(endpoint, headers=headers)
+    response_dict = response.json()
+    return response_dict
+```
+> `src/api.py
+---
+<br>
+
+Our store page will be located at `/store/order-details/{order_id}`, and we'll reuse our `status.html` template from before.
+```python
+@bp.route("/order-details/<order_id>")
+def order_details(order_id):
+    order_details_dict = get_order_details(order_id)
+    order_details_str = json.dumps(order_details_dict, indent=2)
+    return render_template("status.html", status=order_details_str)
+
+```
+> `src/store.py`
+---
+<br>
+
+With these store pages and API endpoints set up, we can navigate to [127.0.0.1:5000/store/checkout](127.0.0.1:5000/store/checkout) and be presented with our simple checkout page. Upon payment completion, we are appropriately rerouted to our order details page.

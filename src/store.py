@@ -6,9 +6,8 @@ from flask import Blueprint, render_template
 
 bp = Blueprint("store", __name__, url_prefix="/store")
 
-
 PAYEE_MERCHANT_ID = "NY9D8KUEC8W54"
-PAYEE_BN_CODE = "my_bn_code"
+MERCHANT_BN_CODE = "my_bn_code"
 
 
 @bp.route("/checkout")
@@ -25,11 +24,10 @@ def checkout():
         partner_client_id=PARTNER_CLIENT_ID,
         partner_merchant_id=PARTNER_ID,
         payee_merchant_id=PAYEE_MERCHANT_ID,
-        bn_code=PAYEE_BN_CODE,
+        bn_code=MERCHANT_BN_CODE,
     )
 
 
-@bp.route("/order-details")
 @bp.route("/order-details/<order_id>")
 def order_details(order_id):
     order_details_dict = get_order_details(order_id)
