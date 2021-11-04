@@ -228,7 +228,7 @@ def create_app():
 ---
 <br>
 
-We'll also add a [blueprint](https://flask.palletsprojects.com/en/2.0.x/blueprints/) to a new file `src/partner.py` and [decorate](https://www.python.org/dev/peps/pep-0318/) its methods to allow them to be accessed through various URLs:
+The sign-up webpage will be based on the template `src/templates/sign_up.html`, which can will contain two links: one for signing up and one for navigating to the status. The best practice for the sign-up link is to open it in a mini-browser, as described [here](https://developer.paypal.com/docs/multiparty/seller-onboarding/before-payment/), so this is how we have implemented it. We'll also add a [blueprint](https://flask.palletsprojects.com/en/2.0.x/blueprints/) to a new file `src/partner.py` and [decorate](https://www.python.org/dev/peps/pep-0318/) its methods to allow them to be accessed through various URLs:
 
 ```python
 import json
