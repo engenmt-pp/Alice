@@ -2,14 +2,14 @@
 
 Let's set up a PPCP Connected Path integration in the sandbox using Python 3.9.6. This project is **purely** for teaching purposes. Coding best practices are frequently forgone here in favor of simplicity.  
 
-## Sign-up
+## Onboarding
 
 To begin acting as a Partner, we need an access token. To request an access token, we need the `client_id` and `secret` for our Partner. Below, these are saved in the `PARTNER_CLIENT_ID` and `PARTNER_SECRET` variables, which we import from `my_secrets.py`:
 ```python
 >>> from my_secrets import PARTNER_CLIENT_ID, PARTNER_SECRET 
 ```
 
-We'll send our API requests using the `requests` library, and handle the dictionary-to-string conversions with the `json` library where needed. To generate an access token, we'll send a POST request to the `v1/oauth2/token` endpoint with our `client_id` and `secret`:
+We'll send our API requests using the `requests` library and handle the dictionary-to-string conversions with the `json` library where needed. To generate an access token, we'll send a POST request to the `v1/oauth2/token` endpoint with our `client_id` and `secret`:
 
 ```python
 >>> import json, requests
@@ -204,7 +204,7 @@ def get_status(merchant_id):
 ---
 <br>
 
-## A Sign-up Webpage
+## An Onboarding Webpage
 
 We'll now combine all of this and display it to a prospective merchant. For this example, we'll use the `flask` Python library, but it's not vitally important that you know the details of `flask`. In our `src/` directory, we create a barebones [initialization file](https://flask.palletsprojects.com/en/2.0.x/tutorial/factory/):
 
