@@ -1,4 +1,5 @@
 import json
+import secrets
 
 from .api import generate_sign_up_link, get_merchant_id, get_status
 from flask import Blueprint, render_template, url_for
@@ -6,8 +7,17 @@ from flask import Blueprint, render_template, url_for
 bp = Blueprint("partner", __name__, url_prefix="/partner")
 
 
+def generate_tracking_id():
+    """Generate a `length`-length hexadecimal tracking_id.
+
+    Collisions are unlikely (1 in 281_474_976_710_656 chance)."""
+    length = 12
+    return secrets.token_hex(length)
+
+
 @bp.route("/sign-up")
-def sign_up(tracking_id="8675309"):
+def sign_up():
+    tracking_id = generate_tracking_id()
     sign_up_link = generate_sign_up_link(tracking_id)
 
     # Get the URL for the corresponding status page
@@ -18,9 +28,43 @@ def sign_up(tracking_id="8675309"):
     )
 
 
+def is_ready_to_transact(status):
+    """Return whether or not the merchant is ready to process transactions based on its status.
+
+    As the requested features list is hardcoded as [
+        "PAYMENT",
+        "REFUND",
+        "PARTNER_FEE",
+        "DELAY_FUNDS_DISBURSEMENT",
+    ],
+    we can just check for the corresponding URLs in the third party scopes.
+    """
+    scopes_required = [
+        "https://uri.paypal.com/services/payments/realtimepayment",
+        "https://uri.paypal.com/services/payments/payment/authcapture",
+        "https://uri.paypal.com/services/payments/refund",
+        "https://uri.paypal.com/services/payments/partnerfee",
+        "https://uri.paypal.com/services/payments/delay-funds-disbursement",
+    ]
+    try:
+        oauth_integrations = status["oauth_integrations"][0]
+        scopes_present = oauth_integrations["oauth_third_party"][0]["scopes"]
+    except (IndexError, KeyError):
+        return False
+
+    return (
+        status["payments_receivable"]
+        and status["primary_email_confirmed"]
+        and all(required_scope in scopes_present for required_scope in scopes_required)
+    )
+
+
 @bp.route("/status/<tracking_id>")
 def status(tracking_id):
     merchant_id = get_merchant_id(tracking_id)
     status = get_status(merchant_id)
     status_text = json.dumps(status, indent=2)
-    return render_template("status.html", status=status_text)
+
+    is_ready = is_ready_to_transact(status)
+    context = f"Ready to transact: {is_ready}"
+    return render_template("status.html", status=status_text, context=context)
