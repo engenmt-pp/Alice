@@ -1,0 +1,5 @@
+TODO:
+- Webhooks!
+- Onboarding:
+  - Partner should check merchant status after onboarding and periodically thereafter.
+  - If the product is PPCP, then the paartner should check the product's status to make sure they're "subscribed", as otherwise they won't be able to use the ACDC payment fields.
