@@ -1,6 +1,6 @@
 # PPCP Connected Path Demo
 
-Let's set up a PPCP Connected Path integration in the sandbox using Python 3.9.6. This project is **purely** for teaching purposes. Coding best practices are frequently forgone here in favor of simplicity.  
+Let's set up a PPCP Connected Path integration with Upfront Onboarding in the sandbox using Python 3.9.6. This project is **purely** for teaching purposes. Coding best practices are frequently forgone here in favor of simplicity.  
 
 ## Onboarding
 
@@ -97,12 +97,14 @@ With a (process to generate an) access token in hand, we'll request a sign-up li
 ...     "legal_consents": [{"type": "SHARE_DATA_CONSENT", "granted": True}],
 ...     "partner_config_override": {"return_url": return_url},
 ... }
+...
 >>> headers = build_headers()
 >>> response = requests.post(
 ...     "https://api-m.sandbox.paypal.com/v2/customer/partner-referrals",
 ...     headers=headers,
 ...     data=json.dumps(data),
 ... )
+...
 >>> response_dict = response.json()
 >>> print(json.dumps(response_dict, indent=2))
 {
@@ -132,7 +134,7 @@ The second link, the one with labeled as the `action_url`, is the link that we s
 "https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=NjY1ZDZiM2EtYmQ4Yi00ZjJmLWJmYzItNDM1OTU2NmM4ZmRlbUFjbEtKRHBVUXVWc2ZTYjJBZDRlbHpVRFo4UE5ZbjZQVlZSc2JpS2N6Yz12Mg=="
 ```
 
-We can package all of this into a function that takes the `tracking_id` and `return_url` as inputs and returns the sign-up link. For convenience, we'll set the default `return_url` to be `"paypal.com"`.
+We can package all of this into a function that takes the `tracking_id` and `return_url` as inputs and returns the sign-up link. For convenience, we'll set the default `return_url` to be `"paypal.com"`. In the `products` field, we pass just `"PPCP"`, as this allows our merchant to use Advanced Card Processing.
 ```python
 def generate_sign_up_link(tracking_id, return_url="paypal.com"):
     data = {
@@ -171,15 +173,15 @@ def generate_sign_up_link(tracking_id, return_url="paypal.com"):
     for link in response_dict["links"]:
         if link["rel"] == "action_url":
             return link["href"]
-    else:
-        # If we're here, no `action_url` was found!
-        raise Exception("No action url found!")
+    
+    # If we're here, no `action_url` was found!
+    raise Exception("No action url found!")
 ```
 > `src/api.py`
 ---
 <br>
 
-When a merchant has begun the sign-up process, you can track their progress with a GET request to `/v1/customer/partners/{partner_id}/merchant-integrations/{merchant_id}`, where `partner_id` and `merchant_id` are the "PayPal Merchant ID" for the partner and merchant, respectively. We import `PARTNER_ID` from our `my_secrets` file. The merchant's `merchant_id` can be discovered using a GET request to `/v1/customer/partners/{partner_id}/merchant-integrations?tracking_id={tracking_id}`:
+Once a merchant has begun the sign-up process, you can track their progress with a GET request to `/v1/customer/partners/{partner_id}/merchant-integrations/{merchant_id}`, where `partner_id` and `merchant_id` are the "PayPal Merchant ID" for the partner and merchant, respectively. We'll import `PARTNER_ID` from our `my_secrets` file, and the merchant's `merchant_id` can be discovered using a GET request to `/v1/customer/partners/{partner_id}/merchant-integrations?tracking_id={tracking_id}`:
 
 ```python
 from my_secrets import PARTNER_ID
@@ -187,16 +189,14 @@ from my_secrets import PARTNER_ID
 def get_merchant_id(tracking_id):
     endpoint = f"https://api-m.sandbox.paypal.com/v1/customer/partners/{PARTNER_ID}/merchant-integrations?tracking_id={tracking_id}"
 
-    response = requests.get(endpoint, headers=headers)
-
+    response = requests.get(endpoint, headers=build_headers())
     response_dict = response.json()
     return response_dict["merchant_id"]
 
 def get_status(merchant_id):
     endpoint = f"https://api-m.sandbox.paypal.com/v1/customer/partners/{PARTNER_ID}/merchant-integrations/{merchant_id}"
 
-    response = requests.get(endpoint, headers=headers)
-
+    response = requests.get(endpoint, headers=build_headers())
     response_dict = response.json()
     return response_dict
 ```
@@ -228,10 +228,11 @@ def create_app():
 ---
 <br>
 
-The sign-up webpage will be based on the template `src/templates/sign_up.html`, which can will contain two links: one for signing up and one for navigating to the status. The best practice for the sign-up link is to open it in a mini-browser, as described [here](https://developer.paypal.com/docs/multiparty/seller-onboarding/before-payment/), so this is how we have implemented it. We'll also add a [blueprint](https://flask.palletsprojects.com/en/2.0.x/blueprints/) to a new file `src/partner.py` and [decorate](https://www.python.org/dev/peps/pep-0318/) its methods to allow them to be accessed through various URLs:
+The sign-up webpage will be derived from the template `src/templates/sign_up.html`, which contains just two links: one to initiate onboarding and one tonavigate to a status page. The best practice is to have the onboarding link open in a mini-browser, as described [here](https://developer.paypal.com/docs/multiparty/seller-onboarding/before-payment/), so we've used PayPal's `partner.js` SDK to implement this. In a new `partner.py` file, we'll add a [blueprint](https://flask.palletsprojects.com/en/2.0.x/blueprints/) and [decorate](https://www.python.org/dev/peps/pep-0318/) the file's methods to allow them to be accessed through various routes on our server:
 
 ```python
 import json
+import secrets
 
 from .api import generate_sign_up_link, get_merchant_id, get_status
 from flask import Blueprint, render_template, url_for
@@ -240,11 +241,20 @@ bp = Blueprint(
     "partner", 
     __name__, 
     url_prefix="/partner" # Routes on this page will be prefixed with /partner
-) 
+)
+
+
+def generate_tracking_id():
+    """Generate a `length`-length hexadecimal tracking_id.
+    
+    Collisions are unlikely (1 in 281_474_976_710_656 chance)."""
+    length = 12
+    return secrets.token_hex(length)
 
 
 @bp.route("/sign-up")
-def sign_up(tracking_id="8675309"):
+def sign_up():
+    tracking_id = generate_tracking_id()
     sign_up_link = generate_sign_up_link(tracking_id)
 
     # Get the URL for the corresponding status page
@@ -260,14 +270,13 @@ def status(tracking_id):
     merchant_id = get_merchant_id(tracking_id)
     status = get_status(merchant_id)
     status_text = json.dumps(status, indent=2)
-    return render_template("status.html", status=status_text)
-
+    return render_template("status.html", status=status_text, contexts=[])
 ```
 > `src/partner.py`
 ---
 <br>
 
-With the above `bp.route` decorators in place, navigating to `http://127.0.0.1:5000/partner/sign-up` will present a simple page that includes our sign-up link and a link to a sign-up status page. These pages are built from two simple templates, `templates/sign_up.html` and `templates/status.html`. Finally, we can run our webserver after setting our app name and environment: 
+With the above `bp.route` decorators in place, navigating to `http://127.0.0.1:5000/partner/sign-up` will present a simple page that includes our sign-up link and a link to a sign-up status page. These pages are built from two templates, `templates/sign_up.html` and `templates/status.html`. Finally, we can run our webserver after setting our app name and environment: 
 ```bash
 $ export FLASK_APP=src
 $ export FLASK_ENV=development
@@ -283,8 +292,100 @@ $ python -m flask run
 
 Then, we can navigate to `http://127.0.0.1:5000/partner/sign-up`, click the sign-up link, and sign in with a Sandbox merchant's credentials. Once you are finished signing up, click the status link. 
 
-
 Note: In the templates, [jinja](https://jinja.palletsprojects.com/en/3.0.x/) formatting is used. Within the double curly braces, Python code is executed with the supplied variables. For example, the snippet `{{ status }}` in `status.html` is replaced with the `status_text` properly in `render_template("status.html", status=status_text)`. We'll continue to use this templating throughout the walkthrough.
+
+Before processing orders, we should check to see if our merchant is ready to do so. To be ready to process transactions, the following must be true about the merchant:
+- the `payments_receivable` flag should be enabled,
+- the `primary_email_confirmed` flag should be enabled, and
+- the `oauth_third_party` field should contain each of the permissions granted.
+
+These flags and fields are returned in the onboarding status API call (`api.get_status` in our case.) [TODO: Once a good reference is found, improve this.] Each feature granted to a merchant in its onboarding API call (in `api.generate_sign_up_link` for us) corresponds to one or more URLs that should appear in the `oauth_third_party` of the status call. 
+
+```python
+def is_ready_to_transact(status):
+    """Return whether or not the merchant is ready to process transactions based on its status.
+
+    As the requested features list is hardcoded as [
+        "PAYMENT",
+        "REFUND",
+        "PARTNER_FEE",
+        "DELAY_FUNDS_DISBURSEMENT",
+    ],
+    we can just check for the corresponding URLs in the third party scopes.
+    """
+    scopes_required = [
+        "https://uri.paypal.com/services/payments/realtimepayment",
+        "https://uri.paypal.com/services/payments/payment/authcapture",
+        "https://uri.paypal.com/services/payments/refund",
+        "https://uri.paypal.com/services/payments/partnerfee",
+        "https://uri.paypal.com/services/payments/delay-funds-disbursement",
+    ]
+    try:
+        oauth_integrations = status["oauth_integrations"][0]
+        scopes_present = oauth_integrations["oauth_third_party"][0]["scopes"]
+    except (IndexError, KeyError):
+        return False
+
+    return (
+        status["payments_receivable"]
+        and status["primary_email_confirmed"]
+        and all(required_scope in scopes_present for required_scope in scopes_required)
+    )
+```
+> `src.partner.py
+---
+<br>
+
+As we're using [Advanced Card Processing](https://developer.paypal.com/docs/business/checkout/advanced-card-payments/), we also need to verify the "vetting status" of the `PPCP_CUSTOM` product in our status call. The Partner should take different actions based on its status:
+
+```python
+def parse_vetting_status(status):
+    for product in status["products"]:
+        if product["name"] == "PPCP_CUSTOM":
+            vetting_status = product["vetting_status"]
+            break
+    else:
+        # If we're here, PPCP_CUSTOM wasn't found!
+        return "PPCP_CUSTOM is not a registered product!"
+
+    if vetting_status == "DENIED":
+        return "Enable PayPal Payment Buttons!"
+    elif vetting_status == "SUBSCRIBED":
+        has_inactive_capabilities = any(
+            capability["status"] != "ACTIVE" for capability in status["capabilities"]
+        )
+        if has_inactive_capabilities:
+            return (
+                "Enable PayPal Payment Buttons and wait for "
+                "CUSTOMER.MERCHANT-INTEGRATION.CAPABILITY-UPDATED webhook!"
+            )
+
+        return "Enable Advanced Card Processing!"
+    else:
+        if status["primary_email_confirmed"]:
+            return (
+                "Enable PayPal Payment Buttons and wait for "
+                "CUSTOMER.MERCHANT-INTEGRATION.PRODUCT-SUBSCRIPTION-UPDATED webhook!"
+            )
+        return "Something is wrong with PPCP_CUSTOM!"
+
+
+@bp.route("/status/<tracking_id>")
+def status(tracking_id):
+    merchant_id = get_merchant_id(tracking_id)
+    status = get_status(merchant_id)
+    status_text = json.dumps(status, indent=2)
+
+    is_ready = is_ready_to_transact(status)
+    contexts = [
+        f"Ready to transact: {is_ready}",
+        f"Partner should: {parse_vetting_status(status)}",
+    ]
+    return render_template("status.html", status=status_text, contexts=contexts)
+```
+> `src.partner.py`
+---
+<br>
 
 ## Processing Orders
 
