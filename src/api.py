@@ -99,6 +99,7 @@ def create_order():
         "purchase_units": [
             {
                 "payee": {"merchant_id": request.json["payee_merchant_id"]},
+                "payment_instruction": {"disbursement_mode": "INSTANT"},
                 "amount": {
                     "currency_code": "USD",
                     "value": request.json["price"],
