@@ -1,6 +1,6 @@
 # A Partner Integration --- An example in Python
 
-Let's set up a PPCP Connected Path integration in the sandbox using Python 3.9.6. This project is **purely** for teaching purposes. Coding best practices are frequently forgone here in favor of simplicity.  
+Let's set up a PPCP Connected Path integration with Upfront Onboarding in the sandbox using Python 3.9.6. This project is **purely** for teaching purposes. Coding best practices are frequently forgone here in favor of simplicity.  
 
 ## Onboarding
 
@@ -134,7 +134,7 @@ The second link, the one with labeled as the `action_url`, is the link that we s
 "https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=NjY1ZDZiM2EtYmQ4Yi00ZjJmLWJmYzItNDM1OTU2NmM4ZmRlbUFjbEtKRHBVUXVWc2ZTYjJBZDRlbHpVRFo4UE5ZbjZQVlZSc2JpS2N6Yz12Mg=="
 ```
 
-We can package all of this into a function that takes the `tracking_id` and `return_url` as inputs and returns the sign-up link. For convenience, we'll set the default `return_url` to be `"paypal.com"`.
+We can package all of this into a function that takes the `tracking_id` and `return_url` as inputs and returns the sign-up link. For convenience, we'll set the default `return_url` to be `"paypal.com"`. In the `products` field, we pass just `"PPCP"`, as this allows our merchant to use Advanced Card Processing.
 ```python
 def generate_sign_up_link(tracking_id, return_url="paypal.com"):
     data = {
@@ -173,9 +173,9 @@ def generate_sign_up_link(tracking_id, return_url="paypal.com"):
     for link in response_dict["links"]:
         if link["rel"] == "action_url":
             return link["href"]
-    else:
-        # If we're here, no `action_url` was found!
-        raise Exception("No action url found!")
+    
+    # If we're here, no `action_url` was found!
+    raise Exception("No action url found!")
 ```
 > `src/api.py`
 ---
@@ -270,7 +270,7 @@ def status(tracking_id):
     merchant_id = get_merchant_id(tracking_id)
     status = get_status(merchant_id)
     status_text = json.dumps(status, indent=2)
-    return render_template("status.html", status=status_text, context='')
+    return render_template("status.html", status=status_text, contexts=[])
 ```
 > `src/partner.py`
 ---
@@ -331,6 +331,43 @@ def is_ready_to_transact(status):
         and status["primary_email_confirmed"]
         and all(required_scope in scopes_present for required_scope in scopes_required)
     )
+```
+> `src.partner.py
+---
+<br>
+
+As we're using [Advanced Card Processing](https://developer.paypal.com/docs/business/checkout/advanced-card-payments/), we also need to verify the "vetting status" of the `PPCP_CUSTOM` product in our status call. The Partner should take different actions based on its status:
+
+```python
+def parse_vetting_status(status):
+    for product in status["products"]:
+        if product["name"] == "PPCP_CUSTOM":
+            vetting_status = product["vetting_status"]
+            break
+    else:
+        # If we're here, PPCP_CUSTOM wasn't found!
+        return "PPCP_CUSTOM is not a registered product!"
+
+    if vetting_status == "DENIED":
+        return "Enable PayPal Payment Buttons!"
+    elif vetting_status == "SUBSCRIBED":
+        has_inactive_capabilities = any(
+            capability["status"] != "ACTIVE" for capability in status["capabilities"]
+        )
+        if has_inactive_capabilities:
+            return (
+                "Enable PayPal Payment Buttons and wait for "
+                "CUSTOMER.MERCHANT-INTEGRATION.CAPABILITY-UPDATED webhook!"
+            )
+
+        return "Enable Advanced Card Processing!"
+    else:
+        if status["primary_email_confirmed"]:
+            return (
+                "Enable PayPal Payment Buttons and wait for "
+                "CUSTOMER.MERCHANT-INTEGRATION.PRODUCT-SUBSCRIPTION-UPDATED webhook!"
+            )
+        return "Something is wrong with PPCP_CUSTOM!"
 
 
 @bp.route("/status/<tracking_id>")
@@ -340,8 +377,11 @@ def status(tracking_id):
     status_text = json.dumps(status, indent=2)
 
     is_ready = is_ready_to_transact(status)
-    context = f"Ready to transact: {is_ready}"
-    return render_template("status.html", status=status_text, context=context)
+    contexts = [
+        f"Ready to transact: {is_ready}",
+        f"Partner should: {parse_vetting_status(status)}",
+    ]
+    return render_template("status.html", status=status_text, contexts=contexts)
 ```
 > `src.partner.py`
 ---

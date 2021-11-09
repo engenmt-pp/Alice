@@ -3,9 +3,9 @@
         code { white-space: pre; }
     </style>
 </head>
-<p>
-    {{ context }}
-</p>
+{% for context in contexts %}
+    <p>{{ context }}</p>
+{% endfor %}
 <code>
 {{ status }}
 </code>

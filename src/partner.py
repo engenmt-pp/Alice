@@ -59,6 +59,37 @@ def is_ready_to_transact(status):
     )
 
 
+def parse_vetting_status(status):
+    for product in status["products"]:
+        if product["name"] == "PPCP_CUSTOM":
+            vetting_status = product["vetting_status"]
+            break
+    else:
+        # If we're here, PPCP_CUSTOM wasn't found!
+        return "PPCP_CUSTOM is not a registered product!"
+
+    if vetting_status == "DENIED":
+        return "Enable PayPal Payment Buttons!"
+    elif vetting_status == "SUBSCRIBED":
+        has_inactive_capabilities = any(
+            capability["status"] != "ACTIVE" for capability in status["capabilities"]
+        )
+        if has_inactive_capabilities:
+            return (
+                "Enable PayPal Payment Buttons and wait for "
+                "CUSTOMER.MERCHANT-INTEGRATION.CAPABILITY-UPDATED webhook!"
+            )
+
+        return "Enable Advanced Card Processing!"
+    else:
+        if status["primary_email_confirmed"]:
+            return (
+                "Enable PayPal Payment Buttons and wait for "
+                "CUSTOMER.MERCHANT-INTEGRATION.PRODUCT-SUBSCRIPTION-UPDATED webhook!"
+            )
+        return "Something is wrong with PPCP_CUSTOM!"
+
+
 @bp.route("/status/<tracking_id>")
 def status(tracking_id):
     merchant_id = get_merchant_id(tracking_id)
@@ -66,5 +97,8 @@ def status(tracking_id):
     status_text = json.dumps(status, indent=2)
 
     is_ready = is_ready_to_transact(status)
-    context = f"Ready to transact: {is_ready}"
-    return render_template("status.html", status=status_text, context=context)
+    contexts = [
+        f"Ready to transact: {is_ready}",
+        f"To-do: {parse_vetting_status(status)}",
+    ]
+    return render_template("status.html", status=status_text, contexts=contexts)
