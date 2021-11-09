@@ -99,6 +99,6 @@ def status(tracking_id):
     is_ready = is_ready_to_transact(status)
     contexts = [
         f"Ready to transact: {is_ready}",
-        f"To-do: {parse_vetting_status(status)}",
+        f"Partner should: {parse_vetting_status(status)}",
     ]
     return render_template("status.html", status=status_text, contexts=contexts)
