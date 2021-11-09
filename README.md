@@ -270,7 +270,7 @@ def status(tracking_id):
     merchant_id = get_merchant_id(tracking_id)
     status = get_status(merchant_id)
     status_text = json.dumps(status, indent=2)
-    return render_template("status.html", status=status_text)
+    return render_template("status.html", status=status_text, context='')
 ```
 > `src/partner.py`
 ---
@@ -331,7 +331,21 @@ def is_ready_to_transact(status):
         and status["primary_email_confirmed"]
         and all(required_scope in scopes_present for required_scope in scopes_required)
     )
+
+
+@bp.route("/status/<tracking_id>")
+def status(tracking_id):
+    merchant_id = get_merchant_id(tracking_id)
+    status = get_status(merchant_id)
+    status_text = json.dumps(status, indent=2)
+
+    is_ready = is_ready_to_transact(status)
+    context = f"Ready to transact: {is_ready}"
+    return render_template("status.html", status=status_text, context=context)
 ```
+> `src.partner.py`
+---
+<br>
 
 ## Processing Orders
 
