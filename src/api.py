@@ -585,3 +585,18 @@ def list_payment_tokens(customer_id=None):
 
     response = log_and_request("GET", endpoint, headers=headers)
     return response
+    
+
+def refund_order(capture_id, client_id):
+    endpoint = (
+        f"https://api-m.sandbox.paypal.com/v2/payments/captures/{capture_id}/refund"
+    )
+
+    headers = build_headers()
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+
+    data = {"note_to_payer": "Apologies for the inconvenience!"}
+
+    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+    response_dict = response.json()
+    return response_dict
