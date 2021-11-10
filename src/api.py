@@ -676,3 +676,36 @@ def get_transactions():
     response = requests.get(endpoint, headers=headers)
     response_dict = response.json()
     return response_dict
+
+
+def build_auth_assertion(client_id, merchant_payer_id):
+    """Build and return the PayPal Auth Assertion.
+
+    See https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion for details.
+    """
+    header = {"alg": "none"}
+    payload = {"iss": client_id, "payer_id": merchant_payer_id}
+    signature = b""
+    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
+    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
+    return b".".join([header_b64, payload_b64, signature])
+
+
+def refund_order(capture_id):
+    client_id = PARTNER_CLIENT_ID  # partner client ID
+    merchant_payer_id = merchant_id  # merchant merchant ID
+
+    endpoint = (
+        f"https://api-m.sandbox.paypal.com/v2/payments/captures/{capture_id}/refund"
+    )
+
+    headers = build_headers()
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion(
+        client_id, merchant_payer_id
+    )
+
+    data = {"note_to_payer": "Apologies for the inconvenience!"}
+
+    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+    response_dict = response.json()
+    return response_dict
