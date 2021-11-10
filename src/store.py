@@ -1,6 +1,6 @@
 import json
 
-from .api import get_order_details
+from .api import get_order_details, refund_order
 from .my_secrets import PARTNER_CLIENT_ID, PARTNER_ID
 from flask import Blueprint, render_template
 
@@ -32,3 +32,20 @@ def order_details(order_id):
     order_details_dict = get_order_details(order_id)
     order_details_str = json.dumps(order_details_dict, indent=2)
     return render_template("status.html", status=order_details_str)
+
+
+@bp.route("/order-refund/<order_id>")
+def order_refund(order_id):
+    order_details = get_order_details(order_id)
+    try:
+        capture_id = order_details["purchase_units"][0]["payments"]["captures"][0]["id"]
+    except (IndexError, KeyError) as exc:
+        print(
+            f"Encountered {exc} while trying to extract capture ID from the below order details!"
+        )
+        print(json.dumps(order_details, indent=2))
+        raise exc
+    refund_order(capture_id)
+
+    # This will intentionally poll the order status again
+    return order_details(order_id)
