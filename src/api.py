@@ -5,7 +5,9 @@ import requests
 import paramiko
 import secrets
 
+from datetime import datetime, timedelta, timezone
 from flask import Blueprint, current_app, request, jsonify
+from urllib.parse import urlencode
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -13,10 +15,15 @@ REPORTS_DIR = "/ppreports/outgoing"
 CUSTOMER_ID = "customer_1236"
 
 
-def build_endpoint(route):
+def build_endpoint(route, query=None):
     """Build the appropriate API endpoint given the suffix/route."""
     endpoint_prefix = current_app.config["ENDPOINT_PREFIX"]
-    return f"{endpoint_prefix}{route}"
+    endpoint = f"{endpoint_prefix}{route}"
+    if query is None:
+        return endpoint
+
+    query_string = urlencode(query)
+    return f"{endpoint}?{query_string}"
 
 
 def log_and_request(method, endpoint, **kwargs):
@@ -57,7 +64,15 @@ def request_access_token(client_id, secret):
 
     response = requests.post(endpoint, headers=headers, data=data, auth=(client_id, secret))
     response_dict = response.json()
-    return response_dict["access_token"]
+
+    try:
+        return response_dict["access_token"]
+    except KeyError as exc:
+        current_app.logger.error(f"Encountered a KeyError: {exc}")
+        current_app.logger.error(
+            f"response_dict = {json.dumps(response_dict, indent=2)}"
+        )
+        raise exc
 
 
 def build_headers(client_id=None, secret=None, include_bn_code=False):
@@ -598,5 +613,26 @@ def refund_order(capture_id, client_id):
     data = {"note_to_payer": "Apologies for the inconvenience!"}
 
     response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+    response_dict = response.json()
+    return response_dict
+
+
+def get_transactions():
+    """Get the transactions from the preceding four weeks.
+
+    Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
+    """
+    end_date = datetime.now(tz=timezone.utc)
+    start_date = end_date - timedelta(days=28)
+
+    headers = build_headers()
+
+    query = {
+        "start_date": start_date.isoformat(timespec="seconds"),
+        "end_date": end_date.isoformat(timespec="seconds"),
+    }
+    endpoint = build_endpoint("/v1/reporting/transactions", query)
+
+    response = requests.get(endpoint, headers=headers)
     response_dict = response.json()
     return response_dict
