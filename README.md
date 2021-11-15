@@ -228,7 +228,7 @@ def create_app():
 ---
 <br>
 
-The sign-up webpage will be derived from the template `src/templates/sign_up.html`, which contains just two links: one to initiate onboarding and one tonavigate to a status page. The best practice is to have the onboarding link open in a mini-browser, as described [here](https://developer.paypal.com/docs/multiparty/seller-onboarding/before-payment/), so we've used PayPal's `partner.js` SDK to implement this. In a new `partner.py` file, we'll add a [blueprint](https://flask.palletsprojects.com/en/2.0.x/blueprints/) and [decorate](https://www.python.org/dev/peps/pep-0318/) the file's methods to allow them to be accessed through various routes on our server:
+The sign-up webpage will be derived from the template `src/templates/sign_up.html`, which contains just two links: one to initiate onboarding and one tonavigate to a status page. The best practice is to have the onboarding link open in a mini-browser, as described [here](https://developer.paypal.com/docs/platforms/seller-onboarding/before-payment/#3-add-sign-up-link-to-your-site), so we've used PayPal's `partner.js` SDK to implement this. In a new `partner.py` file, we'll add a [blueprint](https://flask.palletsprojects.com/en/2.0.x/blueprints/) and [decorate](https://www.python.org/dev/peps/pep-0318/) the file's methods to allow them to be accessed through various routes on our server:
 
 ```python
 import json

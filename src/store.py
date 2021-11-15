@@ -1,8 +1,8 @@
 import json
 
-from .api import get_order_details, refund_order
-from .my_secrets import PARTNER_CLIENT_ID, PARTNER_ID
-from flask import Blueprint, render_template
+from .api import get_order_details, refund_order, get_transactions
+from .my_secrets import PARTNER_CLIENT_ID
+from flask import Blueprint, render_template, url_for
 
 bp = Blueprint("store", __name__, url_prefix="/store")
 
@@ -28,10 +28,18 @@ def checkout():
 
 
 @bp.route("/order-details/<order_id>")
-def order_details(order_id):
+def order_details(order_id, **kwargs):
     order_details_dict = get_order_details(order_id)
     order_details_str = json.dumps(order_details_dict, indent=2)
-    return render_template("status.html", status=order_details_str)
+    try:
+        status_str = f"Order {order_details_dict['status'].lower()}!"
+    except KeyError as exc:
+        print(f"Tried to find 'status' of the below order:\n{order_details_str}.")
+        raise exc
+
+    return render_template(
+        "status.html", status=order_details_str, contexts=[status_str], **kwargs
+    )
 
 
 @bp.route("/order-refund/<order_id>")
@@ -48,4 +56,44 @@ def order_refund(order_id):
     refund_order(capture_id)
 
     # This will intentionally poll the order status again
-    return order_details(order_id)
+    return order_details(order_id, contexts=["Refund initiated!"])
+
+
+@bp.route("/recent-orders")
+def recent_orders():
+    transactions = get_transactions()
+
+    for t in transactions["transaction_details"]:
+        print(json.dumps(t, indent=2))
+        print()
+
+    transactions_list = [
+        t["transaction_info"] for t in transactions["transaction_details"][::-1]
+    ]
+    # transaction_list is in reverse-chronological order now.
+
+    status_dict = {"D": "Denied", "P": "Pending", "S": "Successful", "V": "Reversed"}
+
+    type_dict = {
+        "ODR": "Order",
+        "TXN": "Transaction",
+        "SUB": "Subscription",
+        "PAP": "Pre-approved Payment",
+        "UNK": "Unknown",
+    }
+
+    for t in transactions_list:
+        t["status"] = status_dict[t["transaction_status"]]
+        ref_id_type = t.get("paypal_reference_id_type", "UNK")
+        t["type"] = type_dict[ref_id_type]
+
+        if t["type"] == "Order":
+            id = t["transaction_id"]
+            # id = t.get("paypal_reference_id", t["transaction_id"])
+            t["refund_link"] = url_for("store.order_refund", order_id=id)
+            t["status_link"] = url_for("store.order_details", order_id=id)
+        else:
+            t["refund_link"] = ""
+            t["status_link"] = ""
+
+    return render_template("transactions.html", transactions=transactions_list)
