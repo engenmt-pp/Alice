@@ -37,12 +37,11 @@ Within the response dictionary is the `access_token` as well as the number of se
 ```python
 def request_access_token(client_id, secret):
     endpoint = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
+    headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
+    data = {"grant_type": "client_credentials"}
 
     response = requests.post(
-        endpoint,
-        headers={"Content-Type": "application/json", "Accept-Language": "en_US"},
-        data={"grant_type": "client_credentials"},
-        auth=(client_id, secret),
+        endpoint, headers=headers, data=data, auth=(client_id, secret)
     )
     response_dict = response.json()
     return response_dict["access_token"]
