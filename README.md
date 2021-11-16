@@ -37,6 +37,7 @@ Within the response dictionary is the `access_token` as well as the number of se
 ```python
 def request_access_token(client_id, secret):
     endpoint = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
+
     response = requests.post(
         endpoint,
         headers={"Content-Type": "application/json", "Accept-Language": "en_US"},
@@ -137,6 +138,8 @@ The second link, the one with labeled as the `action_url`, is the link that we s
 We can package all of this into a function that takes the `tracking_id` and `return_url` as inputs and returns the sign-up link. For convenience, we'll set the default `return_url` to be `"paypal.com"`. In the `products` field, we pass just `"PPCP"`, as this allows our merchant to use Advanced Card Processing.
 ```python
 def generate_sign_up_link(tracking_id, return_url="paypal.com"):
+    endpoint = "https://api-m.sandbox.paypal.com/v2/customer/partner-referrals"
+    headers = build_headers()
     data = {
         "tracking_id": tracking_id,
         "operations": [
@@ -163,11 +166,7 @@ def generate_sign_up_link(tracking_id, return_url="paypal.com"):
         "partner_config_override": {"return_url": return_url},
     }
 
-    response = requests.post(
-        "https://api-m.sandbox.paypal.com/v2/customer/partner-referrals",
-        headers=build_headers(),
-        data=json.dumps(data),
-    )
+    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
     response_dict = response.json()
 
     for link in response_dict["links"]:
@@ -188,15 +187,17 @@ from my_secrets import PARTNER_ID
 
 def get_merchant_id(tracking_id):
     endpoint = f"https://api-m.sandbox.paypal.com/v1/customer/partners/{PARTNER_ID}/merchant-integrations?tracking_id={tracking_id}"
+    headers = build_headers()
 
-    response = requests.get(endpoint, headers=build_headers())
+    response = requests.get(endpoint, headers=headers)
     response_dict = response.json()
     return response_dict["merchant_id"]
 
 def get_status(merchant_id):
     endpoint = f"https://api-m.sandbox.paypal.com/v1/customer/partners/{PARTNER_ID}/merchant-integrations/{merchant_id}"
+    headers = build_headers()
 
-    response = requests.get(endpoint, headers=build_headers())
+    response = requests.get(endpoint, headers=headers)
     response_dict = response.json()
     return response_dict
 ```
@@ -532,7 +533,6 @@ The other piece of the puzzle is order capture, which we accomplish in a manner 
 @bp.route("/capture-order", methods=("POST",))
 def capture_order():
     endpoint = f"https://api-m.sandbox.paypal.com/v2/checkout/orders/{request.json['orderId']}/capture"
-
     headers = build_headers()
 
     response = requests.post(endpoint, headers=headers)
@@ -547,7 +547,6 @@ Finally, we'll set up a simple order details page to redirect customers to after
 ```python
 def get_order_details(order_id):
     endpoint = f"https://api-m.sandbox.paypal.com/v2/checkout/orders/{order_id}"
-
     headers = build_headers()
 
     response = requests.get(endpoint, headers=headers)
