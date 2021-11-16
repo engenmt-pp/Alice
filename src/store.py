@@ -63,12 +63,18 @@ def order_refund(order_id):
 def recent_orders():
     transactions = get_transactions()
 
+<<<<<<< HEAD
     # verbose = True
     verbose = False
     if verbose:
         for t in transactions["transaction_details"]:
             print(json.dumps(t, indent=2))
             print()
+=======
+    for t in transactions["transaction_details"]:
+        print(json.dumps(t, indent=2))
+        print()
+>>>>>>> 8adb7b7fbefbfffc592dc91a670d32db969f13a0
 
     transactions_list = [
         t["transaction_info"] for t in transactions["transaction_details"][::-1]
