@@ -622,10 +622,10 @@ def get_transactions():
 
     Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
     """
+    headers = build_headers()
+
     end_date = datetime.now(tz=timezone.utc)
     start_date = end_date - timedelta(days=28)
-
-    headers = build_headers()
 
     query = {
         "start_date": start_date.isoformat(timespec="seconds"),
