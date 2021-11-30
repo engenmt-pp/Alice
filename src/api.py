@@ -62,9 +62,12 @@ def build_auth_assertion(client_id, merchant_payer_id):
     """
     header = {"alg": "none"}
     payload = {"iss": client_id, "payer_id": merchant_payer_id}
-    signature = b""
+
     header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
     payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
+
+    signature = b""
+
     return b".".join([header_b64, payload_b64, signature])
 
 
