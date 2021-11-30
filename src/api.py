@@ -636,12 +636,10 @@ def build_auth_assertion(client_id, merchant_payer_id):
 
 def refund_order(capture_id):
 
-    endpoint = (
-        f"https://api-m.sandbox.paypal.com/v2/payments/captures/{capture_id}/refund"
-    )
+    endpoint = f"{ENDPOINT_PREFIX}/v2/payments/captures/{capture_id}/refund"
 
     client_id = PARTNER_CLIENT_ID  # partner client ID
-    merchant_payer_id = merchant_id  # merchant merchant ID
+    merchant_payer_id = MERCHANT_ID  # merchant merchant ID
     headers = build_headers()
     headers["PayPal-Auth-Assertion"] = build_auth_assertion(
         client_id, merchant_payer_id
@@ -670,8 +668,7 @@ def get_transactions():
     }
     data_encoded = urlencode(data)
 
-    endpoint_prefix = "https://api-m.sandbox.paypal.com/v1/reporting/transactions"
-    endpoint = f"{endpoint_prefix}?{data_encoded}"
+    endpoint = f"{ENDPOINT_PREFIX}/v1/reporting/transactions?{data_encoded}"
 
     response = requests.get(endpoint, headers=headers)
     response_dict = response.json()
@@ -680,11 +677,9 @@ def get_transactions():
 
 def refund_order(capture_id):
     client_id = PARTNER_CLIENT_ID  # partner client ID
-    merchant_payer_id = merchant_id  # merchant merchant ID
+    merchant_payer_id = MERCHANT_ID  # merchant merchant ID
 
-    endpoint = (
-        f"https://api-m.sandbox.paypal.com/v2/payments/captures/{capture_id}/refund"
-    )
+    endpoint = f"{ENDPOINT_PREFIX}/v2/payments/captures/{capture_id}/refund"
 
     client_id = PARTNER_CLIENT_ID  # partner client ID
     merchant_payer_id = MERCHANT_ID  # merchant merchant ID
@@ -725,8 +720,7 @@ def get_transactions(as_merchant=False):
     }
     data_encoded = urlencode(data)
 
-    endpoint_prefix = "https://api-m.sandbox.paypal.com/v1/reporting/transactions"
-    endpoint = f"{endpoint_prefix}?{data_encoded}"
+    endpoint = f"{ENDPOINT_PREFIX}/v1/reporting/transactions?{data_encoded}"
 
     response = requests.get(endpoint, headers=headers)
     response_dict = response.json()
