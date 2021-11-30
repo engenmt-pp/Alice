@@ -693,19 +693,6 @@ def get_transactions():
     return response_dict
 
 
-def build_auth_assertion(client_id, merchant_payer_id):
-    """Build and return the PayPal Auth Assertion.
-
-    See https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion for details.
-    """
-    header = {"alg": "none"}
-    payload = {"iss": client_id, "payer_id": merchant_payer_id}
-    signature = b""
-    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
-    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
-    return b".".join([header_b64, payload_b64, signature])
-
-
 def refund_order(capture_id):
 
     endpoint = (
@@ -713,7 +700,7 @@ def refund_order(capture_id):
     )
 
     client_id = PARTNER_CLIENT_ID  # partner client ID
-    merchant_payer_id = merchant_id  # merchant merchant ID
+    merchant_payer_id = MERCHANT_ID  # merchant merchant ID
     headers = build_headers()
     headers["PayPal-Auth-Assertion"] = build_auth_assertion(
         client_id, merchant_payer_id
@@ -726,7 +713,7 @@ def refund_order(capture_id):
     return response_dict
 
 
-def get_transactions():
+def get_transactions(as_merchant=False):
     """Get the transactions from the preceding four weeks.
 
     Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
@@ -734,7 +721,15 @@ def get_transactions():
     end_date = datetime.now(tz=timezone.utc)
     start_date = end_date - timedelta(days=28)
 
-    headers = build_headers()
+    if as_merchant:
+        # This doesn't work!
+        headers = build_headers(client_id=MERCHANT_CLIENT_ID, secret=MERCHANT_SECRET)
+    else:
+        headers = build_headers()
+
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion(
+        client_id=PARTNER_CLIENT_ID, merchant_payer_id=MERCHANT_ID
+    )
 
     data = {
         "start_date": start_date.isoformat(timespec="seconds"),
