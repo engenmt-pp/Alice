@@ -369,10 +369,10 @@ def get_transactions(as_merchant=False):
     else:
         headers = build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET)
 
-    # This works, but is unnecessary.
-    headers["PayPal-Auth-Assertion"] = build_auth_assertion(
-        client_id=PARTNER_CLIENT_ID, merchant_payer_id=MERCHANT_ID
-    )
+    # Including "PayPal-Auth-Assertion" never works.
+    # headers["PayPal-Auth-Assertion"] = build_auth_assertion(
+    #     client_id=PARTNER_CLIENT_ID, merchant_payer_id=MERCHANT_ID
+    # )
 
     end_date = datetime.now(tz=timezone.utc)
     start_date = end_date - timedelta(days=28)
