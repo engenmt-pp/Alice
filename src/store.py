@@ -70,9 +70,14 @@ def recent_orders():
     # verbose = True
     verbose = False
     if verbose:
-        for t in transactions["transaction_details"]:
-            print(json.dumps(t, indent=2))
-            print()
+        try:
+            for t in transactions["transaction_details"]:
+                print(json.dumps(t, indent=2))
+                print()
+        except Exception as exc:
+            print(f"Encountered {exc}!")
+            print(f"Transactions received: {json.dumps(transactions, indent=2)}")
+            raise exc
 
     transactions_list = [
         t["transaction_info"] for t in transactions["transaction_details"][::-1]

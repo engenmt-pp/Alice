@@ -29,7 +29,7 @@ def sign_up():
 
 
 def is_ready_to_transact(status):
-    """Return whether or not the merchant is ready to process transactions based on its status.
+    """Return whether or not the merchant is ready to process transactions based on the merchant's status.
 
     As the requested features list is hardcoded as [
         "PAYMENT",
