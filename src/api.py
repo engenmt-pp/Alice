@@ -840,19 +840,20 @@ def get_transactions(as_merchant=False):
 
     Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
     """
-    end_date = datetime.now(tz=timezone.utc)
-    start_date = end_date - timedelta(days=28)
 
     if as_merchant:
         # This doesn't work!
         headers = build_headers(client_id=MERCHANT_CLIENT_ID, secret=MERCHANT_SECRET)
     else:
-        headers = build_headers()
+        headers = build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET)
 
+    # This works, but is unnecessary.
     headers["PayPal-Auth-Assertion"] = build_auth_assertion(
         client_id=PARTNER_CLIENT_ID, merchant_payer_id=MERCHANT_ID
     )
 
+    end_date = datetime.now(tz=timezone.utc)
+    start_date = end_date - timedelta(days=28)
     data = {
         "start_date": start_date.isoformat(timespec="seconds"),
         "end_date": end_date.isoformat(timespec="seconds"),
