@@ -200,121 +200,13 @@ def get_order_details(order_id):
     return response_dict
 
 
-def build_auth_assertion(client_id, merchant_payer_id):
-    """Build and return the PayPal Auth Assertion.
-
-    See https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion for details.
-    """
-    header = {"alg": "none"}
-    payload = {"iss": client_id, "payer_id": merchant_payer_id}
-    signature = b""
-    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
-    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
-    return b".".join([header_b64, payload_b64, signature])
-
-
 def refund_order(capture_id):
 
     endpoint = f"{ENDPOINT_PREFIX}/v2/payments/captures/{capture_id}/refund"
 
-    client_id = PARTNER_CLIENT_ID  # partner client ID
-    merchant_payer_id = MERCHANT_ID  # merchant merchant ID
     headers = build_headers()
-    headers["PayPal-Auth-Assertion"] = build_auth_assertion(
-        client_id, merchant_payer_id
-    )
-
-    data = {"note_to_payer": "Apologies for the inconvenience!"}
-
-    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
-    response_dict = response.json()
-    return response_dict
-
-
-def get_transactions():
-    """Get the transactions from the preceding four weeks.
-
-    Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
-    """
-    end_date = datetime.now(tz=timezone.utc)
-    start_date = end_date - timedelta(days=28)
-
-    headers = build_headers()
-
-    data = {
-        "start_date": start_date.isoformat(timespec="seconds"),
-        "end_date": end_date.isoformat(timespec="seconds"),
-    }
-    data_encoded = urlencode(data)
-
-    endpoint = f"{ENDPOINT_PREFIX}/v1/reporting/transactions?{data_encoded}"
-
-    response = requests.get(endpoint, headers=headers)
-    response_dict = response.json()
-    return response_dict
-
-
-def refund_order(capture_id):
-    client_id = PARTNER_CLIENT_ID  # partner client ID
-    merchant_payer_id = MERCHANT_ID  # merchant merchant ID
-
-    endpoint = f"{ENDPOINT_PREFIX}/v2/payments/captures/{capture_id}/refund"
-
-    client_id = PARTNER_CLIENT_ID  # partner client ID
-    merchant_payer_id = MERCHANT_ID  # merchant merchant ID
-    headers = build_headers()
-    headers["PayPal-Auth-Assertion"] = build_auth_assertion(
-        client_id, merchant_payer_id
-    )
-
-    data = {"note_to_payer": "Apologies for the inconvenience!"}
-
-    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
-    response_dict = response.json()
-    return response_dict
-
-
-def get_transactions(as_merchant=False):
-    """Get the transactions from the preceding four weeks.
-
-    Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
-    """
-
-    if as_merchant:
-        # This doesn't work!
-        headers = build_headers(client_id=MERCHANT_CLIENT_ID, secret=MERCHANT_SECRET)
-    else:
-        headers = build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET)
-
-    # This works, but is unnecessary.
     headers["PayPal-Auth-Assertion"] = build_auth_assertion(
         client_id=PARTNER_CLIENT_ID, merchant_payer_id=MERCHANT_ID
-    )
-
-    end_date = datetime.now(tz=timezone.utc)
-    start_date = end_date - timedelta(days=28)
-    data = {
-        "start_date": start_date.isoformat(timespec="seconds"),
-        "end_date": end_date.isoformat(timespec="seconds"),
-    }
-    data_encoded = urlencode(data)
-
-    endpoint = f"{ENDPOINT_PREFIX}/v1/reporting/transactions?{data_encoded}"
-
-    response = requests.get(endpoint, headers=headers)
-    response_dict = response.json()
-    return response_dict
-
-
-def refund_order(capture_id):
-
-    endpoint = f"{ENDPOINT_PREFIX}/v2/payments/captures/{capture_id}/refund"
-
-    client_id = PARTNER_CLIENT_ID  # partner client ID
-    merchant_payer_id = MERCHANT_ID  # merchant merchant ID
-    headers = build_headers()
-    headers["PayPal-Auth-Assertion"] = build_auth_assertion(
-        client_id, merchant_payer_id
     )
 
     data = {"note_to_payer": "Apologies for the inconvenience!"}
