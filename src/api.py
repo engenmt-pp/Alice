@@ -84,6 +84,15 @@ def request_access_token(client_id, secret):
         raise exc
 
 
+def build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET):
+    """Build commonly used headers using a new PayPal access token."""
+    access_token = request_access_token(client_id, secret)
+    return {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {access_token}",
+    }
+
+
 def build_auth_assertion(client_id, merchant_payer_id):
     """Build and return the PayPal Auth Assertion.
 
