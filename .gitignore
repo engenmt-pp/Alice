@@ -1,2 +1,5 @@
 **/__pycache__/
 src/my_secrets.py
+tester.py
+.vscode/
+*.pyc
