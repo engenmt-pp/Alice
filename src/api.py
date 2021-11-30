@@ -249,9 +249,7 @@ def build_auth_assertion(client_id=None, merchant_id=None):
 
 
 def refund_order(capture_id, client_id):
-    endpoint = (
-        f"https://api-m.sandbox.paypal.com/v2/payments/captures/{capture_id}/refund"
-    )
+    endpoint = build_endpoint(f"/v2/payments/captures/{capture_id}/refund")
 
     headers = build_headers()
     headers["PayPal-Auth-Assertion"] = build_auth_assertion()
