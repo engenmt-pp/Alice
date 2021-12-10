@@ -202,6 +202,7 @@ def create_partner_referral_v2(tracking_id, return_url):
                                 "PARTNER_FEE",
                                 "DELAY_FUNDS_DISBURSEMENT",
                                 "VAULT"
+                                "ADVANCED_TRANSACTIONS_SEARCH",
                             ]
                         },
                     }
@@ -599,9 +600,12 @@ def refund_order(capture_id, client_id):
 def get_transactions():
     """Get the transactions from the preceding four weeks.
 
+    This requires the "ADVANCED_TRANSACTIONS_SEARCH" option enabled at onboarding.
+
     Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
     """
     headers = build_headers()
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
 
     end_date = datetime.now(tz=timezone.utc)
     start_date = end_date - timedelta(days=28)
