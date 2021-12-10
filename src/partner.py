@@ -36,15 +36,23 @@ def is_ready_to_transact(status):
         "REFUND",
         "PARTNER_FEE",
         "DELAY_FUNDS_DISBURSEMENT",
+        "ADVANCED_TRANSACTIONS_SEARCH",
     ],
     we can just check for the corresponding URLs in the third party scopes.
     """
+    debug = True
+    if debug:
+        print(f"========")
+        print(f"Status")
+        print(f"========")
+        print(json.dumps(status, indent=2))
     scopes_required = [
         "https://uri.paypal.com/services/payments/realtimepayment",
         "https://uri.paypal.com/services/payments/payment/authcapture",
         "https://uri.paypal.com/services/payments/refund",
         "https://uri.paypal.com/services/payments/partnerfee",
         "https://uri.paypal.com/services/payments/delay-funds-disbursement",
+        "https://uri.paypal.com/services/reporting/search/read",  # Present if "ADVANCED_TRANSACTIONS_SEARCH" is included
     ]
     try:
         oauth_integrations = status["oauth_integrations"][0]
