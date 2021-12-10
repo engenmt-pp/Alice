@@ -680,22 +680,17 @@ def refund_order(capture_id):
     return response_dict
 
 
-def get_transactions(as_merchant=False):
+def get_transactions():
     """Get the transactions from the preceding four weeks.
+
+    This requires the "ADVANCED_TRANSACTIONS_SEARCH" option enabled at onboarding.
 
     Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
     """
-
-    if as_merchant:
-        # This doesn't work!
-        headers = build_headers(client_id=MERCHANT_CLIENT_ID, secret=MERCHANT_SECRET)
-    else:
-        headers = build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET)
-
-    # Including "PayPal-Auth-Assertion" never works.
-    # headers["PayPal-Auth-Assertion"] = build_auth_assertion(
-    #     client_id=PARTNER_CLIENT_ID, merchant_payer_id=MERCHANT_ID
-    # )
+    headers = build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET)
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion(
+        client_id=PARTNER_CLIENT_ID, merchant_payer_id=MERCHANT_ID
+    )
 
     end_date = datetime.now(tz=timezone.utc)
     start_date = end_date - timedelta(days=28)
