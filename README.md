@@ -598,4 +598,47 @@ Once ngrok is running, log into the [PayPal Developer Dashboard](https://develop
 
 ![Webhooks in the PayPal Developer Dashboard](screenshots/webhooks.png "Webhooks in the PayPal Developer Dashboard")
 
+We can now set up our local server to receive the webhooks forwarded by ngrok. The webhooks are merely POST requests, so we need only to set up the route `/api/webhooks` to accept POST requests. In a new file `webhooks.py` we set a basic listener:
 
+```python
+import json
+
+from flask import Blueprint, request
+
+bp = Blueprint("webhooks", __name__, url_prefix="/webhooks")
+
+
+@bp.route("/", methods=("POST",))
+def listener():
+    webhook_dict = request.json
+    print(f"Webhook received:\n{json.dumps(webhook_dict, indent=2)}")
+    return "", 204
+```
+> `src/webhooks.py`
+---
+<br>
+
+This will simply dump any received webhooks to standard output. Of course, more complex processing could take place here. To receive webhooks at `/api/webhooks` instead of at `/webhooks`, we just need to register our blueprint slightly differently:
+
+```python
+def create_app():
+    app = Flask(__name__, instance_relative_config=True)
+    app.config.from_mapping(SECRET_KEY="dev")
+
+    os.makedirs(app.instance_path, exist_ok=True)
+
+    from . import api, partner, store, webhooks
+
+    # This makes the route 127.0.0.1:5000/api/webhooks
+    api.bp.register_blueprint(webhooks.bp)
+    app.register_blueprint(api.bp)
+    
+    app.register_blueprint(partner.bp)
+    app.register_blueprint(store.bp)
+    app.add_url_rule("/", endpoint="store.checkout")
+
+    return app
+```
+> `src/__init__.py`
+---
+<br>
