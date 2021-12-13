@@ -1,9 +1,6 @@
 import json
 
-# import requests
-# from .my_secrets import PARTNER_CLIENT_ID, PARTNER_ID, PARTNER_SECRET
-
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 
 bp = Blueprint("webhooks", __name__, url_prefix="/webhooks")
 
