@@ -133,6 +133,24 @@ def create_order():
                     "currency_code": "USD",
                     "value": request.json["price"],
                 },
+                "shipping": {
+                    "options": [
+                        {
+                            "id": "SHIP_123",
+                            "label": "Free Shipping",
+                            "type": "SHIPPING",
+                            "selected": True,
+                            "amount": {"value": "3.00", "currency_code": "USD"},
+                        },
+                        {
+                            "id": "SHIP_456",
+                            "label": "Pick up in Store",
+                            "type": "SHIPPING",
+                            "selected": False,
+                            "amount": {"value": "0.00", "currency_code": "USD"},
+                        },
+                    ]
+                },
             }
         ],
     }
@@ -154,6 +172,47 @@ def capture_order():
     response = requests.post(endpoint, headers=headers)
     response_dict = response.json()
     return jsonify(response_dict)
+
+
+@bp.route("/update-shipping", methods=("POST",))
+def update_shipping():
+    """Call the /v2/checkout/orders API to update the shipping on an order.
+
+    Docs: https://developer.paypal.com/api/orders/v2/#orders_patch
+    """
+    print(f"It's time to update shipping! Received data:")
+    print(json.dumps(request.json, indent=2))
+
+    my_json = request.json
+    endpoint = f"{ENDPOINT_PREFIX}/v2/checkout/orders/{my_json['order_id']}"
+    headers = build_headers()
+    data = {
+        "op": "replace",
+        "path": "/purchase_units/@reference_id=='default'/shipping/options",
+        "value": [
+            {
+                "id": "SHIP_420",
+                "label": "Nice, cheap shipping",
+                "type": "SHIPPING",
+                "selected": True,
+                "amount": {"value": "0.99", "currency_code": "USD"},
+            },
+            {
+                "id": "SHIP_421",
+                "label": "Inconvenient shipping",
+                "type": "SHIPPING",
+                "selected": False,
+                "amount": {"value": "0.01", "currency_code": "USD"},
+            },
+        ],
+    }
+
+    response = requests.patch(endpoint, headers=headers, data=json.dumps(data))
+
+    response_dict = response.json()
+    print(f"Shipping update response: \n{json.dumps(response_dict, indent=2)}")
+    return jsonify(response_dict)
+    # return "", 204
 
 
 def get_order_details(order_id):
