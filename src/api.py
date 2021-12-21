@@ -390,14 +390,19 @@ def create_order_vault():
                 "shipping": {
                     "options": [
                         {
-                            "id": "shipping-default",
-                            "label": "A default shipping option",
+                            "id": "SHIP_123",
+                            "label": "Free Shipping",
+                            "type": "SHIPPING",
                             "selected": True,
-                            "amount": {
-                                "value": "9.99",
-                                "currency_code": "USD",
-                            },
-                        }
+                            "amount": {"value": "3.00", "currency_code": "USD"},
+                        },
+                        {
+                            "id": "SHIP_456",
+                            "label": "Pick up in Store",
+                            "type": "SHIPPING",
+                            "selected": False,
+                            "amount": {"value": "0.00", "currency_code": "USD"},
+                        },
                     ]
                 },
             }

@@ -55,8 +55,7 @@
           onShippingChange: function(data, actions) {
             console.log("Shipping address: ", data.shipping_address);
             console.log("Selected shipping option: ", data.selected_shipping_option);
-
-            fetch('/api/update-shipping', {
+            return fetch('/api/update-shipping', {
               headers: {'Content-Type': 'application/json'},
               method: 'POST',
               body: JSON.stringify({
@@ -64,8 +63,8 @@
                 shipping_address: data.shipping_address,
                 shipping_option: data.shipping_option,
               })
-            });
-          },
+            })
+          }
         }).render('#paypal-button-container');
       }
       initPayPalButton();
