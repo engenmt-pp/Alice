@@ -570,3 +570,75 @@ def order_details(order_id):
 <br>
 
 With these store pages and API endpoints set up, we can navigate to [127.0.0.1:5000/store/checkout](127.0.0.1:5000/store/checkout) and be presented with our simple checkout page. Upon payment completion, we are appropriately rerouted to our order details page.
+
+
+## Webhooks
+
+Our website isn't currently accessible outside our local network, but we can nevertheless test receiving webhooks using a tool called [ngrok](https://ngrok.com/). After making a free account, download, unzip, and run the resulting `ngrok` file:
+```zsh
+$ ./ngrok http 5000
+ngrok by @inconshreveable                                    (Ctrl+C to quit)
+                                                                               
+Session Status  online                                                       
+Account         Michael Engen (Plan: Free)                                   
+Version         2.3.40                                                       
+Region          United States (us)                                           
+Web Interface   http://127.0.0.1:4040                                        
+Forwarding      http://0faf-173-224-163-115.ngrok.io -> http://localhost:5000
+Forwarding      https://0faf-173-224-163-115.ngrok.io -> http://localhost:500
+                                                                             
+Connections                   ttl     opn     rt1     rt5     p50     p90    
+                              0       0       0.00    0.00    0.00    0.00   
+```
+<br>
+
+`ngrok` randomly generates a long hexadecimal subdomain of `ngrok.io` to forward to `localhost` on port 5000. Thus, if we add subscribe to a webhook to be sent to the endpoint `http://0faf-173-224-163-115.ngrok.io` and `ngrok` is running locally, then `ngrok` will forward the webhook to `localhost:5000`. This hexadecimal subdomain is different each time ngrok is run, which mean that we will need to change the webhook's endpoint each time. (With a $5 USD/month plan, we can specify the subdomain, avoiding this hassle.)
+
+Once ngrok is running, log into the [PayPal Developer Dashboard](https://developer.paypal.com) and subscribe to any webhooks that you'd like to receive at the endpoint provided by ngrok. As in the image below, you can suffix the endpoint whichever route you'd like to receive the webhooks through:
+
+![Webhooks in the PayPal Developer Dashboard](screenshots/webhooks.png "Webhooks in the PayPal Developer Dashboard")
+
+We can now set up our local server to receive the webhooks forwarded by ngrok. The webhooks are merely POST requests, so we need only to set up the route `/api/webhooks` to accept POST requests. In a new file `webhooks.py` we set a basic listener:
+
+```python
+import json
+
+from flask import Blueprint, request
+
+bp = Blueprint("webhooks", __name__, url_prefix="/webhooks")
+
+
+@bp.route("/", methods=("POST",))
+def listener():
+    webhook_dict = request.json
+    print(f"Webhook received:\n{json.dumps(webhook_dict, indent=2)}")
+    return "", 204
+```
+> `src/webhooks.py`
+---
+<br>
+
+This will simply dump any received webhooks to standard output. Of course, more complex processing could take place here. To receive webhooks at `/api/webhooks` instead of at `/webhooks`, we just need to register our blueprint slightly differently:
+
+```python
+def create_app():
+    app = Flask(__name__, instance_relative_config=True)
+    app.config.from_mapping(SECRET_KEY="dev")
+
+    os.makedirs(app.instance_path, exist_ok=True)
+
+    from . import api, partner, store, webhooks
+
+    # This makes the route 127.0.0.1:5000/api/webhooks
+    api.bp.register_blueprint(webhooks.bp)
+    app.register_blueprint(api.bp)
+    
+    app.register_blueprint(partner.bp)
+    app.register_blueprint(store.bp)
+    app.add_url_rule("/", endpoint="store.checkout")
+
+    return app
+```
+> `src/__init__.py`
+---
+<br>
