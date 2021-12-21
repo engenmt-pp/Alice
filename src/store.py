@@ -53,6 +53,7 @@ def order_refund(order_id):
         )
         print(json.dumps(order_details, indent=2))
         raise exc
+
     refund_order(capture_id)
 
     # This will intentionally poll the order status again
@@ -95,13 +96,18 @@ def recent_orders():
         ref_id_type = t.get("paypal_reference_id_type", "UNK")
         t["type"] = type_dict[ref_id_type]
 
-        if t["type"] == "Order":
-            id = t["transaction_id"]
-            # id = t.get("paypal_reference_id", t["transaction_id"])
-            t["refund_link"] = url_for("store.order_refund", order_id=id)
-            t["status_link"] = url_for("store.order_details", order_id=id)
-        else:
-            t["refund_link"] = ""
-            t["status_link"] = ""
+        id = t["transaction_id"]
+        # id = t.get("paypal_reference_id", t["transaction_id"])
+        t["refund_link"] = url_for("store.order_refund", order_id=id)
+        t["status_link"] = url_for("store.order_details", order_id=id)
+        # if t["type"] == "Order":
+        #     id = t["transaction_id"]
+        #     # id = t.get("paypal_reference_id", t["transaction_id"])
+        #     t["refund_link"] = url_for("store.order_refund", order_id=id)
+        #     t["status_link"] = url_for("store.order_details", order_id=id)
+        # else:
+        #     print(f"Transaction is not an order: {json.dumps(t,indent=2)}")
+        #     t["refund_link"] = ""
+        #     t["status_link"] = ""
 
     return render_template("transactions.html", transactions=transactions_list)
