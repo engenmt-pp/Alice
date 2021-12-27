@@ -20,7 +20,8 @@
     <script>
       function initPayPalButton() {
         paypal.Buttons({
-          createOrder: function(data, actions) {
+          createOrder: function (data, actions) {
+            console.log("Creating the order!")
             return fetch('/api/create-order', {
               headers: {'Content-Type': 'application/json'},
               method: 'POST',
@@ -54,15 +55,37 @@
           onShippingChange: function(data, actions) {
             console.log("Shipping address: ", data.shipping_address);
             console.log("Selected shipping option: ", data.selected_shipping_option);
-            return fetch('/api/update-shipping', {
-              headers: {'Content-Type': 'application/json'},
-              method: 'POST',
-              body: JSON.stringify({
-                order_id: data.orderID,
-                shipping_address: data.shipping_address,
-                shipping_option: data.shipping_option,
-              })
-            })
+            return actions.order.patch([
+              {
+                op:    "replace",
+                path:  "/purchase_units/@reference_id=='default'/shipping/options",
+                value: [
+                  {
+                    "id": "SHIP_222",
+                    "label": "Cool, Fun Shipping",
+                    "type": "SHIPPING",
+                    "selected": False,
+                    "amount": {"value": "4.20", "currency_code": "USD"},
+                  },
+                  {
+                    "id": "SHIP_333",
+                    "label": "Walk here and get it",
+                    "type": "SHIPPING",
+                    "selected": False,
+                    "amount": {"value": "0.69", "currency_code": "USD"},
+                  }
+                ],
+              }
+            ]);
+            // return fetch('/api/update-shipping', {
+            //   headers: {'Content-Type': 'application/json'},
+            //   method: 'POST',
+            //   body: JSON.stringify({
+            //     order_id: data.orderID,
+            //     shipping_address: data.shipping_address,
+            //     shipping_option: data.shipping_option,
+            //   })
+            // })
           }
         }).render('#paypal-button-container');
       }

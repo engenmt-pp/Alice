@@ -271,7 +271,6 @@ def update_shipping():
     response_dict = response.json()
     print(f"Shipping update response: \n{json.dumps(response_dict, indent=2)}")
     return jsonify(response_dict)
-    # return "", 204
 
 
 def get_order_details(order_id):
