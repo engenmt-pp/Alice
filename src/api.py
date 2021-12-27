@@ -582,11 +582,9 @@ def update_shipping():
     ]
     response = requests.patch(endpoint, headers=headers, data=json.dumps(data))
 
-    if response.status_code != 204:
-        print(f"Encountered a non-204 response from PATCH: \n{response.text}")
-        raise Exception("update_shipping PATCH didn't go as expected!")
-
-    return "", 204
+    response_dict = response.json()
+    print(f"Shipping update response: \n{json.dumps(response_dict, indent=2)}")
+    return jsonify(response_dict)
 
 
 def get_order_details(order_id):
