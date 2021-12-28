@@ -133,24 +133,24 @@ def create_order():
                     "currency_code": "USD",
                     "value": request.json["price"],
                 },
-                "shipping": {
-                    "options": [
-                        {
-                            "id": "SHIP_123",
-                            "label": "Free Shipping",
-                            "type": "SHIPPING",
-                            "selected": True,
-                            "amount": {"value": "3.00", "currency_code": "USD"},
-                        },
-                        {
-                            "id": "SHIP_456",
-                            "label": "Pick up in Store",
-                            "type": "SHIPPING",
-                            "selected": False,
-                            "amount": {"value": "0.00", "currency_code": "USD"},
-                        },
-                    ]
-                },
+                # "shipping": {
+                #     "options": [
+                #         {
+                #             "id": "SHIP_123",
+                #             "label": "Default Shipping",
+                #             "type": "SHIPPING",
+                #             "selected": True,
+                #             "amount": {"value": "10.00", "currency_code": "USD"},
+                #         },
+                # {
+                #     "id": "SHIP_456",
+                #     "label": "Pick up in Store",
+                #     "type": "SHIPPING",
+                #     "selected": False,
+                #     "amount": {"value": "0.00", "currency_code": "USD"},
+                # },
+                #     ]
+                # },
             }
         ],
     }
@@ -174,6 +174,26 @@ def capture_order():
     return jsonify(response_dict)
 
 
+@bp.route("/determine-shipping", methods=("POST",))
+def determine_shipping():
+    print(f"It's time to determine shipping! Shipping address:")
+    print(json.dumps(request.json["shipping_address"], indent=2))
+    data = {
+        "options": [
+            {
+                "id": "shipping-10",
+                "label": "A shipping option",
+                "selected": True,
+                "amount": {
+                    "value": "9.99",
+                    "currency_code": "USD",
+                },
+            }
+        ]
+    }
+    return jsonify(data)
+
+
 @bp.route("/update-shipping", methods=("POST",))
 def update_shipping():
     """Call the /v2/checkout/orders API to update the shipping on an order.
@@ -188,25 +208,55 @@ def update_shipping():
     headers = build_headers()
     data = {
         "op": "replace",
-        "path": "/purchase_units/@reference_id=='default'/shipping/options",
+        "path": "/purchase_units/@reference_id=='default'/amount",
         "value": [
             {
-                "id": "SHIP_420",
-                "label": "Nice, cheap shipping",
-                "type": "SHIPPING",
-                "selected": True,
-                "amount": {"value": "0.99", "currency_code": "USD"},
+                "id": "UPS10",
+                "label": "UPS Label 100",
+                "selected": "false",
+                "amount": {
+                    "value": "10.00",
+                    "currency_code": "USD",
+                },
             },
             {
-                "id": "SHIP_421",
-                "label": "Inconvenient shipping",
-                "type": "SHIPPING",
-                "selected": False,
-                "amount": {"value": "0.01", "currency_code": "USD"},
+                "id": "UPS20",
+                "label": "UPS Label 200",
+                "selected": "true",
+                "amount": {
+                    "value": "20.00",
+                    "currency_code": "USD",
+                },
+            },
+            {
+                "id": "UPS30",
+                "label": "UPS Label 300",
+                "selected": "false",
+                "amount": {
+                    "value": "30.00",
+                    "currency_code": "USD",
+                },
             },
         ],
     }
-
+    # data = {
+    #     "op": "replace",
+    #     "path": "/purchase_units/@reference_id=='default'/amount",
+    #     "value": {"currency_code": "USD", "value": "1.23"},
+    # }
+    # data = {
+    #     "op": "replace",
+    #     "path": "/purchase_units/@reference_id=='default'/shipping/options",
+    #     "value": [
+    #         {
+    #             "id": "SHIP_420",
+    #             "label": "Nice, cheap shipping",
+    #             "type": "SHIPPING",
+    #             "selected": "TRUE",
+    #             "amount": {"value": "0.99", "currency_code": "USD"},
+    #         }
+    #     ],
+    # }
     response = requests.patch(endpoint, headers=headers, data=json.dumps(data))
 
     response_dict = response.json()
