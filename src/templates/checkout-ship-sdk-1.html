@@ -1,0 +1,218 @@
+<article>
+    <body>
+      
+      <!-- Information about the product -->
+      <h1>Product Page</h1>
+      <p>Product name: {{ product['name'] }}</p>
+      <p>Price: ${{ product['price'] }}</p>
+      <p>Description: {{ product['description'] }}</p> 
+  
+      <!-- Empty (for now) button container -->
+      <div class="smart-button-container", id="smart-button-container">
+        <div style="text-align: center;">
+          <div id="paypal-button-container"></div>
+        </div>
+      </div>
+      
+      <!-- Import PayPal Javascript SDK with Partner's credentials -->
+      <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_merchant_id }}&currency=USD&intent=capture&commit=true" data-partner-attribution-id="{{ bn_code }}"></script>
+  
+      <script>
+        function initPayPalButton() {
+          paypal.Buttons({
+            createOrder: function (data, actions) {
+              console.log("Creating the order!")
+              return fetch('/api/create-order', {
+                headers: {'Content-Type': 'application/json'},
+                method: 'POST',
+                body: JSON.stringify({
+                  price: "{{ product['price'] }}", 
+                  payee_merchant_id: "{{ payee_merchant_id }}", 
+                  bn_code: "{{ bn_code }}"
+                })
+              }).then(function(res) {
+                return res.json();
+              }).then(function(data) {
+                return data.id;
+              })
+            },
+            onApprove: function(data, actions) {
+              return fetch('/api/capture-order', {
+                headers: {'Content-Type': 'application/json'},
+                method: 'POST',
+                body: JSON.stringify({orderId: data.orderID})
+              }).then(function(res) {
+                return res.json();
+              }).then(function(captureData) {
+                // Your server response structure and key names are what you choose
+                if (captureData.error === 'INSTRUMENT_DECLINED') {
+                  return actions.restart();
+                } else {
+                  window.location.replace("/store/order-details/" + data.orderID);
+                }
+              })
+            },
+            onShippingChange: function(data, actions) {
+              console.log("Shipping address: ", data.shipping_address);
+              console.log("Selected shipping option: ", data.selected_shipping_option);
+  
+              fetch('/api/determine-shipping', {
+                headers: {'Content-Type': 'application/json'},
+                method: 'POST',
+                body: JSON.stringify({
+                  shipping_address: data.shipping_address,
+                  shipping_option: data.shipping_option,
+                })
+              }).then(function(res) {
+                return res.json();
+              }).then(function(responseData) {
+                console.log("Response data: ", responseData);
+                return actions.order.patch([
+                  {
+                    op: "add",
+                    path: "/purchase_units/@reference_id=='default'/shipping/options",
+                    value: responseData.options
+                  }
+                ]);
+              });
+  
+              // actions.order.patch([
+              //   {
+              //     op: "add",
+              //     path: "/purchase_units/@reference_id=='default'/shipping/options",
+              //     value: [
+              //       {
+              //         id: 'shipping-1',
+              //         label: 'Shipping Option 1',
+              //         selected: true,
+              //         amount: {
+              //           value: '10.00',
+              //           currency_code: 'USD',
+              //         },
+              //       }, 
+              //     ]
+              //   }
+              // ]);
+              
+              // return actions.order.patch([
+              //   {
+              //     op: "add",
+              //     path: "/purchase_units/@reference_id=='default'/shipping/options",
+              //     value: [
+              //       {
+              //         id: 'UPS10',
+              //         label: 'UPS Label 100',
+              //         selected: true,
+              //         amount: {
+              //           value: '10.00',
+              //           currency_code: 'USD',
+              //         },
+              //       }, 
+              //       {
+              //         id: 'UPS20',
+              //         label: 'UPS Label 200',
+              //         selected: false,
+              //         amount: {
+              //           value: '20.00',
+              //           currency_code: 'USD',
+              //         },
+              //       }, 
+              //       {
+              //         id: 'UPS30',
+              //         label: 'UPS Label 300',
+              //         selected: false,
+              //         amount: {
+              //           value: '30.00',
+              //           currency_code: 'USD',
+              //         }
+              //       }
+              //     ]
+              //   }
+              // ]);
+              
+              // if (data.selected_shipping_option !== null) {
+              //   console.log("Current shipping option is not null: ", data.selected_shipping_option);
+              //   console.log("Looping...");
+                
+              //   for (var idx in options) {
+              //     console.log("idx = ", idx);
+              //     if (options[idx].id == data.selected_shipping_option.id) {
+              //       console.log("Selected shipping option is in the options array!");
+              //       options[idx].selected = true;
+              //       return actions.order.patch([
+              //         {
+              //           op: "replace",
+              //           path: "/purchase_units/@reference_id=='default'/shipping/options",
+              //           value: options
+              //         }
+              //       ]);
+              //     } else {
+              //       console.log("Option id = ", options[idx].id, " does not match that of the selected shipping option: ", data.selected_shipping_option.id);
+              //     }
+              //   }
+              // } else {
+              //   console.log("No current shipping option selected!");
+              // }
+  
+              // console.log("Making some options...")
+  
+              // if (data.selected_shipping_option !== null) {
+              //   console.log("Just going to replace these: ", options);
+              //   return actions.order.patch([
+              //     {
+              //       op: "replace",
+              //       path: "/purchase_units/@reference_id=='default'/shipping/options",
+              //       value: options
+              //     }
+              //   ]);
+              // } else {
+              //   console.log("Just going to add these: ", options);
+              //   return actions.order.patch([
+              //     {
+              //       op: "add",
+              //       path: "/purchase_units/@reference_id=='default'/shipping/options",
+              //       value: options
+              //     }
+              //   ]);
+              // }
+              // return actions.order.patch([
+              //   {
+              //     op:    "replace",
+              //     path:  "/purchase_units/@reference_id==\'default\'/shipping/options",
+              //     value: [
+              //       {
+              //         "id": "SHIP_222",
+              //         "label": "Cool, Fun Shipping",
+              //         "type": "SHIPPING",
+              //         "selected": True,
+              //         "amount": {"value": "4.20", "currency_code": "USD"},
+              //       },
+              //       {
+              //         "id": "SHIP_333",
+              //         "label": "Walk here and get it",
+              //         "type": "SHIPPING",
+              //         "selected": False,
+              //         "amount": {"value": "0.69", "currency_code": "USD"},
+              //       }
+              //     ],
+              //   }
+              // ]);
+  
+              // var resp = fetch('/api/update-shipping', {
+              //   headers: {'Content-Type': 'application/json'},
+              //   method: 'POST',
+              //   body: JSON.stringify({
+              //     order_id: data.orderID,
+              //     shipping_address: data.shipping_address,
+              //     shipping_option: data.shipping_option,
+              //   })
+              // })
+              // // actions.updateProps();
+              // return resp;
+            },
+          }).render('#paypal-button-container');
+        }
+        initPayPalButton();
+      </script>
+    </body>
+  </article>
