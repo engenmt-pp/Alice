@@ -192,24 +192,6 @@ def create_order():
                     "currency_code": "USD",
                     "value": request.json["price"],
                 },
-                # "shipping": {
-                #     "options": [
-                #         {
-                #             "id": "SHIP_123",
-                #             "label": "Default Shipping",
-                #             "type": "SHIPPING",
-                #             "selected": True,
-                #             "amount": {"value": "10.00", "currency_code": "USD"},
-                #         },
-                # {
-                #     "id": "SHIP_456",
-                #     "label": "Pick up in Store",
-                #     "type": "SHIPPING",
-                #     "selected": False,
-                #     "amount": {"value": "0.00", "currency_code": "USD"},
-                # },
-                #     ]
-                # },
             }
         ],
         "application_context": {"shipping_preference": "GET_FROM_FILE"},
@@ -282,9 +264,11 @@ def update_shipping():
     ]
     response = requests.patch(endpoint, headers=headers, data=json.dumps(data))
 
-    response_dict = response.json()
-    print(f"Shipping update response: \n{json.dumps(response_dict, indent=2)}")
-    return jsonify(response_dict)
+    if response.status_code != 204:
+        print(f"Encountered a non-204 response from PATCH: \n{response.text}")
+        raise Exception("update_shipping PATCH didn't go as expected!")
+
+    return "", 204
 
 
 def get_order_details(order_id):
