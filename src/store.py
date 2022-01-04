@@ -33,7 +33,7 @@ def checkout_vaulting():
 
 
 @bp.route("/checkout-api")
-def checkout_ship_js_sdk():
+def checkout_ship_api():
     template = ("checkout-ship-api.html",)
     return checkout(template)
 

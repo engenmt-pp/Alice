@@ -438,6 +438,7 @@ def create_order_auth():
                 },
             }
         ],
+        "application_context": {"shipping_preference": "GET_FROM_FILE"},
     }
     data_str = json.dumps(data)
 
