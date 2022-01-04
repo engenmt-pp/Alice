@@ -22,7 +22,24 @@ def checkout(partner_client_id=None, payee_id=None, bn_code=None):
     }
 
     return render_template(
-        "checkout.html",
+        "checkout-ship-api.html",
+        product=product,
+        partner_client_id=PARTNER_CLIENT_ID,
+        payee_merchant_id=PAYEE_MERCHANT_ID,
+        bn_code=MERCHANT_BN_CODE,
+    )
+
+
+@bp.route("/checkout-js")
+def checkout_ship_js_sdk():
+    product = {
+        "name": "An apple pie",
+        "description": "It's a pie made from apples.",
+        "price": 3.14,
+    }
+
+    return render_template(
+        "checkout-ship-js-sdk.html",
         product=product,
         partner_client_id=partner_client_id,
         payee_id=payee_id,

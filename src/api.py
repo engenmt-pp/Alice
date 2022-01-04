@@ -192,26 +192,9 @@ def create_order():
                     "currency_code": "USD",
                     "value": request.json["price"],
                 },
-                # "shipping": {
-                #     "options": [
-                #         {
-                #             "id": "SHIP_123",
-                #             "label": "Default Shipping",
-                #             "type": "SHIPPING",
-                #             "selected": True,
-                #             "amount": {"value": "10.00", "currency_code": "USD"},
-                #         },
-                # {
-                #     "id": "SHIP_456",
-                #     "label": "Pick up in Store",
-                #     "type": "SHIPPING",
-                #     "selected": False,
-                #     "amount": {"value": "0.00", "currency_code": "USD"},
-                # },
-                #     ]
-                # },
             }
         ],
+        "application_context": {"shipping_preference": "GET_FROM_FILE"},
     }
 
     response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
@@ -240,8 +223,8 @@ def determine_shipping():
     data = {
         "options": [
             {
-                "id": "shipping-10",
-                "label": "A shipping option",
+                "id": "shipping-determined",
+                "label": "A determined shipping option",
                 "selected": True,
                 "amount": {
                     "value": "9.99",
@@ -265,62 +248,32 @@ def update_shipping():
     my_json = request.json
     endpoint = f"{ENDPOINT_PREFIX}/v2/checkout/orders/{my_json['order_id']}"
     headers = build_headers()
-    data = {
-        "op": "replace",
-        "path": "/purchase_units/@reference_id=='default'/amount",
-        "value": [
-            {
-                "id": "UPS10",
-                "label": "UPS Label 100",
-                "selected": "false",
-                "amount": {
-                    "value": "10.00",
-                    "currency_code": "USD",
-                },
-            },
-            {
-                "id": "UPS20",
-                "label": "UPS Label 200",
-                "selected": "true",
-                "amount": {
-                    "value": "20.00",
-                    "currency_code": "USD",
-                },
-            },
-            {
-                "id": "UPS30",
-                "label": "UPS Label 300",
-                "selected": "false",
-                "amount": {
-                    "value": "30.00",
-                    "currency_code": "USD",
-                },
-            },
-        ],
-    }
-    # data = {
-    #     "op": "replace",
-    #     "path": "/purchase_units/@reference_id=='default'/amount",
-    #     "value": {"currency_code": "USD", "value": "1.23"},
-    # }
-    # data = {
-    #     "op": "replace",
-    #     "path": "/purchase_units/@reference_id=='default'/shipping/options",
-    #     "value": [
-    #         {
-    #             "id": "SHIP_420",
-    #             "label": "Nice, cheap shipping",
-    #             "type": "SHIPPING",
-    #             "selected": "TRUE",
-    #             "amount": {"value": "0.99", "currency_code": "USD"},
-    #         }
-    #     ],
-    # }
+    data = [
+        {
+            "op": "add",
+            "path": "/purchase_units/@reference_id=='default'/shipping/options",
+            "value": [
+                {
+                    "id": "shipping-update",
+                    "label": "An updated shipping option",
+                    "selected": True,
+                    "amount": {
+                        "value": "9.99",
+                        "currency_code": "USD",
+                    },
+                }
+            ],
+        }
+    ]
+
+    print(f"Sending out PATCH with data = {json.dumps(data, indent=2)}")
     response = requests.patch(endpoint, headers=headers, data=json.dumps(data))
 
-    response_dict = response.json()
-    print(f"Shipping update response: \n{json.dumps(response_dict, indent=2)}")
-    return jsonify(response_dict)
+    if response.status_code != 204:
+        print(f"Encountered a non-204 response from PATCH: \n{response.text}")
+        raise Exception("update_shipping PATCH didn't go as expected!")
+
+    return "", 204
 
 
 def get_order_details(order_id):
