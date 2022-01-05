@@ -610,8 +610,8 @@ bp = Blueprint("webhooks", __name__, url_prefix="/webhooks")
 
 @bp.route("/", methods=("POST",))
 def listener():
-    webhook_dict = request.json
-    print(f"Webhook received:\n{json.dumps(webhook_dict, indent=2)}")
+    webhook_body = request.json
+    print(f"Webhook received:\n{json.dumps(webhook_body, indent=2)}")
     return "", 204
 ```
 > `src/webhooks.py`
@@ -642,3 +642,114 @@ def create_app():
 > `src/__init__.py`
 ---
 <br>
+
+With this in place, we can place an order on our test store. Upon completion, a webhook should be received by ngrok, forwarded to `127.0.0.1:5000`, and printed to the terminal (some lines omitted for brevity):
+```
+Webhook received:
+{
+  "id": "WH-0V837781MF065033D-68B68945DM982564C",
+  "event_version": "1.0",
+  "create_time": "2022-01-05T14:50:39.578Z",
+  "resource_type": "capture",
+  "resource_version": "2.0",
+  "event_type": "PAYMENT.CAPTURE.PENDING",
+  "summary": "Payment pending for $ 3.14 USD",
+  "resource": {
+    ...
+  },
+  "links": [
+    ...
+  ]
+}
+```
+
+Partners may want to *verify* the webhook, whereby they check with our API whether or not the webhook is genuine. They can use our [verify webhook signature](https://developer.paypal.com/api/webhooks/v1/#verify-webhook-signature_post) API to accomplish this. To ready our webhook for verification, we need to pull out a few of the received webhooks headers and include them (under new names), as well as the webhook body, in a new `dict`:
+```python
+from my_secrets import WEBHOOK_ID
+
+def to_verification_dict(webhook_headers, webhook_body):
+    mapping = [
+        ("transmission_id", "PayPal-Transmission-Id"),
+        ("transmission_time", "PayPal-Transmission-Time"),
+        ("cert_url", "PayPal-Cert-Url"),
+        ("auth_algo", "PayPal-Auth-Algo"),
+        ("transmission_sig", "PayPal-Transmission-Sig"),
+    ]
+
+    verification_dict = {
+        verification_key: webhook_headers[header_received]
+        for verification_key, header_received in mapping
+    }
+
+    # Hardcoded ID for the webhook from developer.paypal.com
+    verification_dict["webhook_id"] = WEBHOOK_ID
+    verification_dict["webhook_event"] = webhook_body
+
+    return verification_dict
+```
+> `src/webhooks.py`
+---
+<br>
+
+Once we have the verification `dict`, using the verification API is as simple as POSTing it to the right endpoint:
+```python
+def verify_webhook_signature(verification_dict):
+    endpoint = f"{ENDPOINT_PREFIX}/v1/notifications/verify-webhook-signature"
+    headers = build_headers()
+
+    response = requests.post(
+        endpoint, headers=headers, data=json.dumps(verification_dict)
+    )
+    response_dict = response.json()
+    return response_dict
+```
+> `src/api.py`
+---
+<br>
+
+Finally, we can verify every received webhook, again printing the result to the terminal:
+```python
+@bp.route("/", methods=("POST",))
+def listener():
+
+    webhook_body = request.json
+    print(f"Webhook received:\n{json.dumps(webhook_body, indent=2)}")
+
+    webhook_headers = request.headers
+
+    verification_dict = to_verification_dict(webhook_headers, webhook_body)
+    resp = verify_webhook_signature(verification_dict)
+
+    if resp.get("verification_status") == "SUCCESS":
+        print("Verification successful!")
+    else:
+        print("Verification unsuccessful. Response dict:")
+        print(json.dumps(resp, indent=2))
+
+    return "", 204
+```
+> `src/webhooks.py`
+---
+<br>
+
+After receiving a genuine webhook, we'll see the reassuring "Verification successful" prompt:
+```
+Webhook received:
+{
+  "id": "WH-0T230099770855054-26N31629Y1862384A",
+  "event_version": "1.0",
+  "create_time": "2022-01-05T15:25:39.845Z",
+  "resource_type": "capture",
+  "resource_version": "2.0",
+  "event_type": "PAYMENT.CAPTURE.PENDING",
+  "summary": "Payment pending for $ 3.14 USD",
+  "resource": {
+    ...
+  },
+  "links": [
+    ...
+    }
+  ]
+}
+Verification successful!
+```

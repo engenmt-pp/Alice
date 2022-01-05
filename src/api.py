@@ -170,7 +170,7 @@ def get_order_details(order_id):
 
 
 def verify_webhook_signature(verification_dict):
-    """Verify the signature of the webhook to ensure
+    """Verify the signature of the webhook to ensure it is genuine.
 
     Docs: https://developer.paypal.com/api/webhooks/v1/#verify-webhook-signature_post
     """
