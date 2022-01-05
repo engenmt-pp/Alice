@@ -167,3 +167,18 @@ def get_order_details(order_id):
     response = requests.get(endpoint, headers=headers)
     response_dict = response.json()
     return response_dict
+
+
+def verify_webhook_signature(verification_dict):
+    """Verify the signature of the webhook to ensure it is genuine.
+
+    Docs: https://developer.paypal.com/api/webhooks/v1/#verify-webhook-signature_post
+    """
+    endpoint = f"{ENDPOINT_PREFIX}/v1/notifications/verify-webhook-signature"
+    headers = build_headers()
+
+    response = requests.post(
+        endpoint, headers=headers, data=json.dumps(verification_dict)
+    )
+    response_dict = response.json()
+    return response_dict
