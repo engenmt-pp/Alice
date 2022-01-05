@@ -50,5 +50,3 @@ def listener():
     else:
         print("Verification unsuccessful. Response dict:")
         print(json.dumps(resp, indent=2))
-
-    return "", 204
