@@ -12,14 +12,6 @@ from .api import (
 bp = Blueprint("store", __name__, url_prefix="/store")
 
 
-def apple_pie():
-    return {
-        "name": "An apple pie",
-        "description": "It's a pie made from apples.",
-        "price": 3.14,
-    }
-
-
 @bp.route("/checkout")
 def checkout_capture():
     template = "checkout.html"
@@ -60,7 +52,11 @@ def checkout(template, partner_client_id=None, payee_id=None, bn_code=None, **kw
     if bn_code is None:
         bn_code = current_app.config["PARTNER_BN_CODE"]
 
-    product = apple_pie()
+    product = {
+        "name": "An apple pie",
+        "description": "It's a pie made from apples.",
+        "price": 3.14,
+    }
 
     return render_template(
         template,
