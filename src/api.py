@@ -387,6 +387,19 @@ def create_order_vault():
                     "currency_code": "USD",
                     "value": request.json["price"],
                 },
+                "shipping": {
+                    "options": [
+                        {
+                            "id": "shipping-default",
+                            "label": "A default shipping option",
+                            "selected": True,
+                            "amount": {
+                                "value": "9.99",
+                                "currency_code": "USD",
+                            },
+                        }
+                    ]
+                },
             }
         ],
         "application_context": {
