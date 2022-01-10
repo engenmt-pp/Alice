@@ -1,45 +1,43 @@
 import json
 
 from .api import get_order_details
-from .my_secrets import PARTNER_CLIENT_ID, PARTNER_ID
+from .my_secrets import PARTNER_CLIENT_ID, MERCHANT_ID, MERCHANT_BN_CODE
 from flask import Blueprint, render_template
 
 bp = Blueprint("store", __name__, url_prefix="/store")
 
-PAYEE_MERCHANT_ID = "NY9D8KUEC8W54"
-MERCHANT_BN_CODE = "my_bn_code"
 
-
-@bp.route("/checkout")
-def checkout():
-    product = {
+def apple_pie():
+    return {
         "name": "An apple pie",
         "description": "It's a pie made from apples.",
         "price": 3.14,
     }
 
+
+@bp.route("/checkout")
+def checkout():
+    product = apple_pie()
+
     return render_template(
-        "checkout-ship-api.html",
+        # "checkout-ship-api.html",
+        "checkout-ship-sdk.html",
         product=product,
         partner_client_id=PARTNER_CLIENT_ID,
-        payee_merchant_id=PAYEE_MERCHANT_ID,
+        payee_merchant_id=MERCHANT_ID,
         bn_code=MERCHANT_BN_CODE,
     )
 
 
 @bp.route("/checkout-js")
 def checkout_ship_js_sdk():
-    product = {
-        "name": "An apple pie",
-        "description": "It's a pie made from apples.",
-        "price": 3.14,
-    }
+    product = apple_pie()
 
     return render_template(
-        "checkout-ship-js-sdk.html",
+        "checkout-ship-sdk.html",
         product=product,
         partner_client_id=PARTNER_CLIENT_ID,
-        payee_merchant_id=PAYEE_MERCHANT_ID,
+        payee_merchant_id=MERCHANT_ID,
         bn_code=MERCHANT_BN_CODE,
     )
 

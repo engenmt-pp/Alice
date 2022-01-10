@@ -133,15 +133,23 @@ def create_order():
                     "currency_code": "USD",
                     "value": request.json["price"],
                 },
+                "shipping": {
+                    "options": [
+                        {
+                            "id": "shipping-default",
+                            "label": "A default shipping option",
+                            "selected": True,
+                            "amount": {
+                                "value": "9.99",
+                                "currency_code": "USD",
+                            },
+                        }
+                    ]
+                },
             }
         ],
         "application_context": {"shipping_preference": "GET_FROM_FILE"},
     }
-
-    print(json.dumps(data, indent=2))
-
-    kwargs = {"headers": headers, "data": json.dumps(data)}
-    print(json.dumps(kwargs, indent=2))
 
     response = requests.post(endpoint, headers=headers, data=json.dumps(data))
     response_dict = response.json()
