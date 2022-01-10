@@ -32,8 +32,7 @@ We'll send our API requests using the `requests` library and handle the dictiona
   "nonce": "2021-10-22T16:42:45ZeDCE7H9OEkGizRgxFa9Wj0mdwArOkP3PtZJWmgUTj8k"
 }
 ```
-Within the response dictionary is the `access_token` as well as the number of seconds for which the access token is valid in `expires_in`. In this case, the access token is valid for 32,103 more seconds. For simplicity, we'll just use the access token, and bundle this process into a function. We'll set the default values of `client_id` and `secret` to be `PARTNER_CLIENT_ID` and `PARTNER_SECRET`, respectively.
-
+Within the response dictionary is the `access_token` as well as the number of seconds for which the access token is valid in `expires_in`. In this case, the access token is valid for 32,103 more seconds. For simplicity, we'll just use the access token, and bundle this process into a function:
 ```python
 def request_access_token(client_id, secret):
     endpoint = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
@@ -50,7 +49,7 @@ def request_access_token(client_id, secret):
 ---
 <br>
 
-Each of our subsequent API requests will include a header with the `Content-Type`, which will be `application/json`, and an `Authorization`, which will be the string `Bearer {access_token}`, where `{access_token}` will be replaced with the access token obtained above. We write a small function that will build these headers with a fresh access token on each call. Note that in practice, we should reuse access tokens whenever possible to help avoid rate limits on API calls. 
+Each of our subsequent API requests will include a header with the `Content-Type`, which will be `application/json`, and an `Authorization`, which will be the string `Bearer {access_token}`, where `{access_token}` will be replaced with the access token obtained above. Below, we write a small function that will build these headers with a fresh access token on each call. Note that in practice, we should reuse access tokens whenever possible to help avoid rate limits on API calls. Finally, we'll set the default values of `client_id` and `secret` to be `PARTNER_CLIENT_ID` and `PARTNER_SECRET`, respectively.
 ```python
 def build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET):
     access_token = request_access_token(client_id, secret)
@@ -64,7 +63,7 @@ def build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET):
 <br>
 
 With a (process to generate an) access token in hand, we'll request a sign-up link for each of our prospective merchants to use. We'll use the v2 API, but v1 can be used as well. To generate a sign-up link, we need to 
-- assign each merchant a distinct `tracking_id` (`5675309` in this case),
+- assign each merchant a distinct `tracking_id` (`8675309` in this case),
 - choose which features the merchant will have access to (`PAYMENT`, `REFUND`, `PARTNER_FEE`, and `DELAY_FUNDS_DISBURSEMENT` in this case),
 - decide which product to sign the merchant up for (`PPCP` in this case),
 - and provide a `return_url` that the merchant will be redirected to upon completing the sign-up process (`paypal.com` in this case).
@@ -493,7 +492,7 @@ Additionally, we'll need to register the above blueprint in our `__init__.py` fi
 ---
 <br>
 
-The kernel of the checkout page lies in the `initPayPalButton` call with the functions passed into the `createOrder` and `onApprove` keys. Where simpler contexts allow for the Javascript SDK itself to create and capture the order, PPCP requires our server to make the API calls, so we begin by submitting a POST request to our server through `/api/create-order` containing the price, Payee's (Merchant's) Merchant ID, and the Partner's BN code. 
+The kernel of the checkout page lies in the `initPayPalButton` call with the functions passed into the `createOrder` and `onApprove` keys. Where simpler contexts allow for the Javascript SDK itself to create and capture the order, PPCP requires our server to make the API calls, so we begin by submitting a POST request to our server through `/api/create-order` containing the price, the Payee's (Merchant's) Merchant ID, and the Partner's BN code. 
 
 To consume this API call, we'll create a new function in `api.py` that calls out to the [Orders v2 API](https://developer.paypal.com/docs/api/orders/v2/#orders_create). We can extract the contents of the request using the [`flask.request` object](https://flask.palletsprojects.com/en/2.0.x/api/#flask.request). In addition to the usual authentication headers, we also need to add the Partner's BN code under the key `PayPal-Partner-Attribution-Id` for PayPal to properly associate the order with the partner. Moreover, the order will only be associated with the Merchant if the Merchant's "Merchant ID" is passed into the API request in the `payee` field.
 
