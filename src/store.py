@@ -12,6 +12,14 @@ from .api import (
 bp = Blueprint("store", __name__, url_prefix="/store")
 
 
+def apple_pie():
+    return {
+        "name": "An apple pie",
+        "description": "It's a pie made from apples.",
+        "price": 3.14,
+    }
+
+
 @bp.route("/checkout")
 def checkout_capture():
     template = "checkout.html"
@@ -40,7 +48,7 @@ def checkout_ship_js_sdk():
 
 @bp.route("/checkout-js")
 def checkout_ship_js_sdk():
-    template = ("checkout-ship-js-sdk.html",)
+    template = ("checkout-ship-sdk.html",)
     return checkout(template)
 
 
@@ -52,11 +60,7 @@ def checkout(template, partner_client_id=None, payee_id=None, bn_code=None, **kw
     if bn_code is None:
         bn_code = current_app.config["PARTNER_BN_CODE"]
 
-    product = {
-        "name": "An apple pie",
-        "description": "It's a pie made from apples.",
-        "price": 3.14,
-    }
+    product = apple_pie()
 
     return render_template(
         template,
