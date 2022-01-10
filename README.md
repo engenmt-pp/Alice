@@ -332,7 +332,7 @@ def is_ready_to_transact(status):
         and all(required_scope in scopes_present for required_scope in scopes_required)
     )
 ```
-> `src.partner.py
+> `src.partner.py`
 ---
 <br>
 
@@ -571,6 +571,59 @@ def order_details(order_id):
 
 With these store pages and API endpoints set up, we can navigate to [127.0.0.1:5000/store/checkout](127.0.0.1:5000/store/checkout) and be presented with our simple checkout page. Upon payment completion, we are appropriately rerouted to our order details page.
 
+
+## Shipping
+
+In this section, we'll add a default shipping option for our order and update them upon learning the customer's shipping address.
+
+To begin, we'll add a default shipping option by modifying our API request to create an order:
+
+```python
+@bp.route("/create-order", methods=("POST",))
+def create_order():
+    """Call the /v2/checkout/orders API to create an order.
+
+    Requires `bn_code`, `price`, and `payee_merchant_id` fields in the request body.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
+    """
+    endpoint = f"{ENDPOINT_PREFIX}/v2/checkout/orders"
+
+    headers = build_headers()
+    headers["PayPal-Partner-Attribution-Id"] = request.json["bn_code"]
+
+    data = {
+        "intent": "CAPTURE",
+        "purchase_units": [
+            {
+                "payee": {"merchant_id": request.json["payee_merchant_id"]},
+                "payment_instruction": {"disbursement_mode": "INSTANT"},
+                "amount": {
+                    "currency_code": "USD",
+                    "value": request.json["price"],
+                },
+                "shipping": {
+                    "options": [
+                        {
+                            "id": "shipping-default",
+                            "label": "A default shipping option",
+                            "selected": True,
+                            "amount": {
+                                "value": "9.99",
+                                "currency_code": "USD",
+                            },
+                        }
+                    ]
+                },
+            }
+        ],
+        "application_context": {"shipping_preference": "GET_FROM_FILE"},
+    }
+
+    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+    response_dict = response.json()
+    return jsonify(response_dict)
+```
 
 ## Webhooks
 
