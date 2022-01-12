@@ -573,7 +573,7 @@ With these store pages and API endpoints set up, we can navigate to [127.0.0.1:5
 
 ## Shipping
 
-In this section, we'll add a default shipping option for our order and update them upon learning the customer's shipping address.
+In this section, we'll add a default shipping option for our order and update the shipping options upon learning the customer's shipping address.
 
 To begin, we'll add a default shipping option by modifying our API request to create an order:
 
@@ -623,6 +623,48 @@ def create_order():
     response_dict = response.json()
     return jsonify(response_dict)
 ```
+> `src/api.py`
+---
+<br/>
+
+Using `PATCH /v2/checkout/orders/{order_id}` ([docs here](https://developer.paypal.com/api/orders/v2/#orders_patch)), we can update various properties of an order with a `CREATED` or `APPROVED` status. 
+
+```python
+@bp.route("/update-shipping", methods=("POST",))
+def update_shipping():
+    order_id = request.json["order_id"]
+    endpoint = f"{ENDPOINT_PREFIX}/v2/checkout/orders/{order_id}"
+    headers = build_headers()
+    data = [
+        {
+            "op": "add",
+            "path": "/purchase_units/@reference_id=='default'/shipping/options",
+            "value": [
+                {
+                    "id": "shipping-update",
+                    "label": "An updated shipping option",
+                    "selected": False,
+                    "amount": {
+                        "value": "4.99",
+                        "currency_code": "USD",
+                    },
+                }
+            ],
+        }
+    ]
+    response = requests.patch(endpoint, headers=headers, data=json.dumps(data))
+
+    if response.status_code != 204:
+        print(f"Encountered a non-204 response from PATCH: \n{response.text}")
+        raise Exception("update_shipping PATCH didn't go as expected!")
+
+    return "", 204
+```
+> `src/api.py`
+---
+<br/>
+
+We can add a shipping option, as we have above, but we can also replace shipping options if needed. 
 
 ## Webhooks
 

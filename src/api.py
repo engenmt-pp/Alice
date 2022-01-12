@@ -196,11 +196,8 @@ def update_shipping():
 
     Docs: https://developer.paypal.com/api/orders/v2/#orders_patch
     """
-    print(f"It's time to update shipping! Received data:")
-    print(json.dumps(request.json, indent=2))
-
-    my_json = request.json
-    endpoint = f"{ENDPOINT_PREFIX}/v2/checkout/orders/{my_json['order_id']}"
+    order_id = request.json["order_id"]
+    endpoint = f"{ENDPOINT_PREFIX}/v2/checkout/orders/{order_id}"
     headers = build_headers()
     data = [
         {
@@ -210,17 +207,15 @@ def update_shipping():
                 {
                     "id": "shipping-update",
                     "label": "An updated shipping option",
-                    "selected": True,
+                    "selected": False,
                     "amount": {
-                        "value": "9.99",
+                        "value": "4.99",
                         "currency_code": "USD",
                     },
                 }
             ],
         }
     ]
-
-    print(f"Sending out PATCH with data = {json.dumps(data, indent=2)}")
     response = requests.patch(endpoint, headers=headers, data=json.dumps(data))
 
     if response.status_code != 204:
