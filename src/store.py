@@ -20,8 +20,7 @@ def checkout():
     product = apple_pie()
 
     return render_template(
-        # "checkout-ship-api.html",
-        "checkout-ship-sdk.html",
+        "checkout.html",
         product=product,
         partner_client_id=PARTNER_CLIENT_ID,
         payee_merchant_id=MERCHANT_ID,
@@ -29,12 +28,12 @@ def checkout():
     )
 
 
-@bp.route("/checkout-js")
-def checkout_ship_js_sdk():
+@bp.route("/checkout-api")
+def checkout_ship_api():
     product = apple_pie()
 
     return render_template(
-        "checkout-ship-sdk.html",
+        "checkout-ship-api.html",
         product=product,
         partner_client_id=PARTNER_CLIENT_ID,
         payee_merchant_id=MERCHANT_ID,
