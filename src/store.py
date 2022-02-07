@@ -26,8 +26,7 @@ def checkout(partner_client_id=None, payee_id=None, bn_code=None):
     product = apple_pie()
 
     return render_template(
-        # "checkout-ship-api.html",
-        "checkout-ship-sdk.html",
+        "checkout.html",
         product=product,
         partner_client_id=partner_client_id,
         payee_merchant_id=payee_id,
@@ -47,7 +46,7 @@ def checkout_ship_js_sdk(partner_client_id=None, payee_id=None, bn_code=None):
     product = apple_pie()
 
     return render_template(
-        "checkout-ship-sdk.html",
+        "checkout-ship-api.html",
         product=product,
         partner_client_id=partner_client_id,
         payee_id=payee_id,
