@@ -172,8 +172,11 @@ def capture_order():
 
 @bp.route("/determine-shipping", methods=("POST",))
 def determine_shipping():
-    print(f"It's time to determine shipping! Shipping address:")
-    print(json.dumps(request.json["shipping_address"], indent=2))
+    """Determine new shipping options given a customer's shipping address.
+
+    Notes: This method returns a hard-coded determined shipping option.
+        More could happen here, of course.
+    """
     data = {
         "options": [
             {
