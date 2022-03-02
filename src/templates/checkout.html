@@ -20,7 +20,7 @@
     <script>
       function initPayPalButton() {
         paypal.Buttons({
-          createOrder: function (data, actions) {
+          createOrder: function(data, actions) {
             return fetch('/api/create-order', {
               headers: {'Content-Type': 'application/json'},
               method: 'POST',
