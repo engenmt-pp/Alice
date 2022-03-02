@@ -628,6 +628,7 @@ def create_order():
 ---
 <br/>
 
+To update a previously created order, we can either use a REST API or PayPal's JS SDK. 
 Using `PATCH /v2/checkout/orders/{order_id}` ([docs here](https://developer.paypal.com/api/orders/v2/#orders_patch)), we can update various properties of an order with a `CREATED` or `APPROVED` status. 
 
 ```python
