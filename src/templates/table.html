@@ -1,0 +1,39 @@
+
+<style>
+    table {
+        text-align: left;
+        border-width: 1px 0px;
+        border-style: solid;
+        font-family: monospace;
+        font-size: 12pt;
+        white-space: nowrap;
+    }
+
+    table * {
+        padding: 0.25em 1em 0.25em 0;
+        border-width: 1px 0px 0 0;
+        font-size: 10pt;
+    }
+</style>
+<table>
+    <tr>
+        {% for col_header in cols %}
+            <th>
+                {{ col_header }}
+            </th>
+        {% endfor %}
+    </tr>
+    {% for row in rows %}
+        <tr>
+            {% for col_header, entry in zip(cols, row) %}
+                <td>
+                    {% if col_header == 'Link' %}
+                        <a href="{{ entry }}">Link</a>
+                    {% else %}
+                        {{ entry }}
+                    {% endif %}
+                </td>
+            {% endfor %}        
+        </tr>
+    {% endfor %}
+</table>
