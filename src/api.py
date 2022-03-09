@@ -1,18 +1,34 @@
 import json
+import logging
 import requests
 
 from .my_secrets import PARTNER_CLIENT_ID, PARTNER_ID, PARTNER_SECRET
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, current_app, request, jsonify
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
 
-ENVIRONMENT = "sandbox"
-if ENVIRONMENT == "live":
-    ENDPOINT_PREFIX = "https://api-m.paypal.com"
-else:
-    ENDPOINT_PREFIX = "https://api-m.sandbox.paypal.com"
+def build_endpoint(route):
+    """Build the appropriate API endpoint given the suffix/route."""
+    endpoint_prefix = current_app.config["ENDPOINT_PREFIX"]
+    return f"{endpoint_prefix}{route}"
+
+
+def log_and_request(method, endpoint, **kwargs):
+    """Log the HTTP request, make the request, and return the response."""
+    methods_dict = {
+        "POST": requests.post,
+        "GET": requests.get,
+    }
+    if method not in methods_dict:
+        raise Exception(f"HTTP request method '{method}' not recognized!")
+
+    current_app.logger.debug(
+        f"\nSending {method} request to {endpoint}:\n{json.dumps(kwargs, indent=2)}"
+    )
+
+    return methods_dict[method](endpoint, **kwargs)
 
 
 def request_access_token(client_id, secret):
@@ -20,12 +36,12 @@ def request_access_token(client_id, secret):
 
     Docs: https://developer.paypal.com/docs/api/reference/get-an-access-token/
     """
-    endpoint = f"{ENDPOINT_PREFIX}/v1/oauth2/token"
+    endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
     data = {"grant_type": "client_credentials"}
 
-    response = requests.post(
-        endpoint, headers=headers, data=data, auth=(client_id, secret)
+    response = log_and_request(
+        "POST", endpoint, headers=headers, data=data, auth=(client_id, secret)
     )
     response_dict = response.json()
     return response_dict["access_token"]
@@ -45,7 +61,7 @@ def generate_sign_up_link(tracking_id, return_url="paypal.com"):
 
     Docs: https://developer.paypal.com/docs/api/partner-referrals/v2/#partner-referrals_create
     """
-    endpoint = f"{ENDPOINT_PREFIX}/v2/customer/partner-referrals"
+    endpoint = build_endpoint("/v2/customer/partner-referrals")
     headers = build_headers()
     data = {
         "tracking_id": tracking_id,
@@ -73,7 +89,7 @@ def generate_sign_up_link(tracking_id, return_url="paypal.com"):
         "partner_config_override": {"return_url": return_url},
     }
 
-    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
     response_dict = response.json()
 
     for link in response_dict["links"]:
@@ -89,10 +105,12 @@ def get_merchant_id(tracking_id, partner_id=PARTNER_ID):
 
     Docs: https://developer.paypal.com/docs/platforms/seller-onboarding/before-payment/#5-track-seller-onboarding-status
     """
-    endpoint = f"{ENDPOINT_PREFIX}/v1/customer/partners/{partner_id}/merchant-integrations?tracking_id={tracking_id}"
+    endpoint = endpoint = build_endpoint(
+        f"/v1/customer/partners/{partner_id}/merchant-integrations?tracking_id={tracking_id}"
+    )
     headers = build_headers()
 
-    response = requests.get(endpoint, headers=headers)
+    response = log_and_request("GET", endpoint, headers=headers)
     response_dict = response.json()
     return response_dict["merchant_id"]
 
@@ -102,10 +120,12 @@ def get_status(merchant_id, partner_id=PARTNER_ID):
 
     Docs: https://developer.paypal.com/docs/platforms/seller-onboarding/before-payment/#5-track-seller-onboarding-status
     """
-    endpoint = f"{ENDPOINT_PREFIX}/v1/customer/partners/{partner_id}/merchant-integrations/{merchant_id}"
+    endpoint = build_endpoint(
+        "/v1/customer/partners/{partner_id}/merchant-integrations/{merchant_id}"
+    )
     headers = build_headers()
 
-    response = requests.get(endpoint, headers=headers)
+    response = log_and_request("GET", endpoint, headers=headers)
     response_dict = response.json()
     return response_dict
 
@@ -118,7 +138,7 @@ def create_order():
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
     """
-    endpoint = f"{ENDPOINT_PREFIX}/v2/checkout/orders"
+    endpoint = build_endpoint("/v2/checkout/orders")
 
     headers = build_headers()
     headers["PayPal-Partner-Attribution-Id"] = request.json["bn_code"]
@@ -137,7 +157,7 @@ def create_order():
         ],
     }
 
-    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
     response_dict = response.json()
     return jsonify(response_dict)
 
@@ -148,10 +168,10 @@ def capture_order():
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
     """
-    endpoint = f"{ENDPOINT_PREFIX}/v2/checkout/orders/{request.json['orderId']}/capture"
+    endpoint = build_endpoint(f"/v2/checkout/orders/{request.json['orderId']}/capture")
     headers = build_headers()
 
-    response = requests.post(endpoint, headers=headers)
+    response = log_and_request("POST", endpoint, headers=headers)
     response_dict = response.json()
     return jsonify(response_dict)
 
@@ -161,10 +181,10 @@ def get_order_details(order_id):
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_get
     """
-    endpoint = f"{ENDPOINT_PREFIX}/v2/checkout/orders/{order_id}"
+    endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}")
     headers = build_headers()
 
-    response = requests.get(endpoint, headers=headers)
+    response = log_and_request("GET", endpoint, headers=headers)
     response_dict = response.json()
     return response_dict
 
@@ -174,11 +194,11 @@ def verify_webhook_signature(verification_dict):
 
     Docs: https://developer.paypal.com/api/webhooks/v1/#verify-webhook-signature_post
     """
-    endpoint = f"{ENDPOINT_PREFIX}/v1/notifications/verify-webhook-signature"
+    endpoint = build_endpoint("/v1/notifications/verify-webhook-signature")
     headers = build_headers()
 
-    response = requests.post(
-        endpoint, headers=headers, data=json.dumps(verification_dict)
+    response = log_and_request(
+        "POST", endpoint, headers=headers, data=json.dumps(verification_dict)
     )
     response_dict = response.json()
     return response_dict

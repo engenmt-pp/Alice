@@ -1,8 +1,8 @@
 import json
 
+from flask import Blueprint, render_template
 from .api import get_order_details
 from .my_secrets import PARTNER_CLIENT_ID, PARTNER_BN_CODE, MERCHANT_ID
-from flask import Blueprint, render_template
 
 bp = Blueprint("store", __name__, url_prefix="/store")
 

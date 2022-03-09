@@ -18,11 +18,11 @@ We'll send our API requests using the `requests` library and handle the dictiona
 ...     endpoint,
 ...     headers={"Content-Type": "application/json", "Accept-Language": "en_US"},
 ...     data={"grant_type": "client_credentials"},
-...     auth=(client_id, secret),
+...     auth=(PARTNER_CLIENT_ID, PARTNER_SECRET),
 ... )
 ...
 >>> response_dict = response.json() # Extracts the dictionary from the response.
->>> print(json.dumps(response_dict, indent=2)) # Prints the dictionary nicely formatted.
+>>> print(json.dumps(response_dict, indent=2)) # Prints the dictionary formatted nicely.
 {
   "scope": "https://uri.paypal.com/services/customer/partner-referrals/readwrite https://uri.paypal.com/services/invoicing https://uri.paypal.com/services/vault/payment-tokens/read https://uri.paypal.com/services/disputes/read-buyer https://uri.paypal.com/services/payments/realtimepayment https://uri.paypal.com/services/customer/onboarding/user https://api.paypal.com/v1/vault/credit-card https://api.paypal.com/v1/payments/.* https://uri.paypal.com/services/payments/referenced-payouts-items/readwrite https://uri.paypal.com/services/reporting/search/read https://uri.paypal.com/services/customer/partner https://uri.paypal.com/services/vault/payment-tokens/readwrite https://uri.paypal.com/services/customer/merchant-integrations/read https://uri.paypal.com/services/applications/webhooks https://uri.paypal.com/services/disputes/update-seller https://uri.paypal.com/services/payments/payment/authcapture openid https://uri.paypal.com/services/disputes/read-seller https://uri.paypal.com/services/payments/refund https://uri.paypal.com/services/risk/raas/transaction-context https://uri.paypal.com/services/partners/merchant-accounts/readwrite https://uri.paypal.com/services/identity/grantdelegation https://uri.paypal.com/services/customer/onboarding/account https://uri.paypal.com/payments/payouts https://uri.paypal.com/services/customer/onboarding/sessions https://api.paypal.com/v1/vault/credit-card/.* https://uri.paypal.com/services/subscriptions",
   "access_token": "A21AAIVFhh3qBLX6wt_md89b6CVIFnKnQ8qDp9wrJn7wSyS9iC7MzIl_1Hw6LtEngDWnKyJD4GXPFthPyKDsbHMrNiTDmtCbA",
@@ -32,7 +32,8 @@ We'll send our API requests using the `requests` library and handle the dictiona
   "nonce": "2021-10-22T16:42:45ZeDCE7H9OEkGizRgxFa9Wj0mdwArOkP3PtZJWmgUTj8k"
 }
 ```
-Within the response dictionary is the `access_token` as well as the number of seconds for which the access token is valid in `expires_in`. In this case, the access token is valid for 32,103 more seconds. For simplicity, we'll just use the access token, and bundle this process into a function:
+
+Within the response dictionary is the `access_token` as well as the number of seconds for which the access token is valid in `expires_in`. In this case, the access token is valid for 32,103 more seconds. For simplicity, we'll use only the access token and bundle this process into a function:
 ```python
 def request_access_token(client_id, secret):
     endpoint = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
@@ -49,7 +50,7 @@ def request_access_token(client_id, secret):
 ---
 <br>
 
-Each of our subsequent API requests will include a header with the `Content-Type`, which will be `application/json`, and an `Authorization`, which will be the string `Bearer {access_token}`, where `{access_token}` will be replaced with the access token obtained above. Below, we write a small function that will build these headers with a fresh access token on each call. Note that in practice, we should reuse access tokens whenever possible to help avoid rate limits on API calls. Finally, we'll set the default values of `client_id` and `secret` to be `PARTNER_CLIENT_ID` and `PARTNER_SECRET`, respectively.
+Each of our subsequent API requests will include a header with the `"Content-Type"`, which will be `"application/json"`, and an `Authorization`, which will be the string `"Bearer {access_token}"`, where `{access_token}` will be replaced with the access token obtained above. Below, we write a small function that will build these headers with a fresh access token on each call. Note that in practice, we should reuse access tokens whenever possible to help avoid rate limits on API calls. Finally, we'll set the default values of `client_id` and `secret` to be `PARTNER_CLIENT_ID` and `PARTNER_SECRET`, respectively.
 ```python
 def build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET):
     access_token = request_access_token(client_id, secret)
@@ -63,7 +64,7 @@ def build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET):
 <br>
 
 With a (process to generate an) access token in hand, we'll request a sign-up link for each of our prospective merchants to use. We'll use the v2 API, but v1 can be used as well. To generate a sign-up link, we need to 
-- assign each merchant a distinct `tracking_id` (`8675309` in this case),
+- assign each merchant a distinct `tracking_id` (chosen to be `8675309` in this case),
 - choose which features the merchant will have access to (`PAYMENT`, `REFUND`, `PARTNER_FEE`, and `DELAY_FUNDS_DISBURSEMENT` in this case),
 - decide which product to sign the merchant up for (`PPCP` in this case),
 - and provide a `return_url` that the merchant will be redirected to upon completing the sign-up process (`paypal.com` in this case).
