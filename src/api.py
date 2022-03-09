@@ -1,9 +1,13 @@
+import csv
 import json
 import requests
+import paramiko
 
 from flask import Blueprint, current_app, request, jsonify
 
 bp = Blueprint("api", __name__, url_prefix="/api")
+
+REPORTS_DIR = "/ppreports/outgoing"
 
 
 def build_endpoint(route):
