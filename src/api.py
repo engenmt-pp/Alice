@@ -1,18 +1,29 @@
+import csv
 import json
 import requests
+import paramiko
 
-from .my_secrets import PARTNER_CLIENT_ID, PARTNER_ID, PARTNER_SECRET
+from .my_secrets import (
+    PARTNER_CLIENT_ID,
+    PARTNER_ID,
+    PARTNER_SECRET,
+    SFTP_USERNAME,
+    SFTP_PASSWORD,
+)
 
 from flask import Blueprint, request, jsonify
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
+REPORTS_DIR = "/ppreports/outgoing"
 
 ENVIRONMENT = "sandbox"
 if ENVIRONMENT == "live":
     ENDPOINT_PREFIX = "https://api-m.paypal.com"
+    REPORTS_SFTP = "reports.paypal.com"
 else:
     ENDPOINT_PREFIX = "https://api-m.sandbox.paypal.com"
+    REPORTS_SFTP = "reports.sandbox.paypal.com"
 
 
 def request_access_token(client_id, secret):
