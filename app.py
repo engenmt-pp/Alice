@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
     app = create_app()
 
-    testing = False
+    testing = True
     if testing:
         app.config.from_object(TestingConfig)  # Enables debug-level logging
     else:

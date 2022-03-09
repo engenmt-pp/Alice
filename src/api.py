@@ -1,8 +1,5 @@
 import json
-import logging
 import requests
-
-from .my_secrets import PARTNER_CLIENT_ID, PARTNER_ID, PARTNER_SECRET
 
 from flask import Blueprint, current_app, request, jsonify
 
@@ -47,8 +44,12 @@ def request_access_token(client_id, secret):
     return response_dict["access_token"]
 
 
-def build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET):
+def build_headers(client_id=None, secret=None):
     """Build commonly used headers using a new PayPal access token."""
+    if client_id is None:
+        client_id = current_app.config["PARTNER_CLIENT_ID"]
+    if secret is None:
+        secret = current_app.config["PARTNER_SECRET"]
     access_token = request_access_token(client_id, secret)
     return {
         "Content-Type": "application/json",
@@ -100,11 +101,14 @@ def generate_sign_up_link(tracking_id, return_url="paypal.com"):
     raise Exception("No action url found!")
 
 
-def get_merchant_id(tracking_id, partner_id=PARTNER_ID):
+def get_merchant_id(tracking_id, partner_id=None):
     """Call the /v1/customer/partners API to get a merchant's merchant_id.
 
     Docs: https://developer.paypal.com/docs/platforms/seller-onboarding/before-payment/#5-track-seller-onboarding-status
     """
+    if partner_id is None:
+        partner_id = current_app.config["PARTNER_ID"]
+
     endpoint = endpoint = build_endpoint(
         f"/v1/customer/partners/{partner_id}/merchant-integrations?tracking_id={tracking_id}"
     )
@@ -115,13 +119,16 @@ def get_merchant_id(tracking_id, partner_id=PARTNER_ID):
     return response_dict["merchant_id"]
 
 
-def get_status(merchant_id, partner_id=PARTNER_ID):
+def get_status(merchant_id, partner_id=None):
     """Call the /v1/customer/partners API to get the status of a merchant's onboarding.
 
     Docs: https://developer.paypal.com/docs/platforms/seller-onboarding/before-payment/#5-track-seller-onboarding-status
     """
+    if partner_id is None:
+        partner_id = current_app.config["PARTNER_ID"]
+
     endpoint = build_endpoint(
-        "/v1/customer/partners/{partner_id}/merchant-integrations/{merchant_id}"
+        f"/v1/customer/partners/{partner_id}/merchant-integrations/{merchant_id}"
     )
     headers = build_headers()
 
@@ -147,7 +154,7 @@ def create_order():
         "intent": "CAPTURE",
         "purchase_units": [
             {
-                "payee": {"merchant_id": request.json["payee_merchant_id"]},
+                "payee": {"merchant_id": request.json["payee_id"]},
                 "payment_instruction": {"disbursement_mode": "INSTANT"},
                 "amount": {
                     "currency_code": "USD",
