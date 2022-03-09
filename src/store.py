@@ -1,14 +1,20 @@
 import json
 
+from flask import Blueprint, current_app, render_template
 from .api import get_order_details
-from .my_secrets import PARTNER_CLIENT_ID, PARTNER_BN_CODE, MERCHANT_ID
-from flask import Blueprint, render_template
 
 bp = Blueprint("store", __name__, url_prefix="/store")
 
 
 @bp.route("/checkout")
-def checkout():
+def checkout(partner_client_id=None, payee_id=None, bn_code=None):
+    if partner_client_id is None:
+        partner_client_id = current_app.config["PARTNER_CLIENT_ID"]
+    if payee_id is None:
+        payee_id = current_app.config["MERCHANT_ID"]
+    if bn_code is None:
+        bn_code = current_app.config["PARTNER_BN_CODE"]
+
     product = {
         "name": "An apple pie",
         "description": "It's a pie made from apples.",
@@ -18,9 +24,9 @@ def checkout():
     return render_template(
         "checkout.html",
         product=product,
-        partner_client_id=PARTNER_CLIENT_ID,
-        payee_merchant_id=MERCHANT_ID,
-        bn_code=PARTNER_BN_CODE,
+        partner_client_id=partner_client_id,
+        payee_id=payee_id,
+        bn_code=bn_code,
     )
 
 

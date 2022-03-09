@@ -1,19 +1,21 @@
 import json
 
-from flask import Blueprint, request
+from flask import Blueprint, current_app, request
 
 from .api import verify_webhook_signature
-from .my_secrets import WEBHOOK_ID
 
 
 bp = Blueprint("webhooks", __name__, url_prefix="/webhooks")
 
 
-def to_verification_dict(webhook_headers, webhook_body):
+def to_verification_dict(webhook_headers, webhook_body, webhook_id=None):
     """Create the verification dict from a webhook's headers and event body.
 
     Docs: https://developer.paypal.com/api/webhooks/v1/#verify-webhook-signature_post
     """
+    if webhook_id is None:
+        webhook_id = current_app.config["WEBHOOK_ID"]
+
     mapping = [
         ("transmission_id", "PayPal-Transmission-Id"),
         ("transmission_time", "PayPal-Transmission-Time"),
@@ -28,7 +30,7 @@ def to_verification_dict(webhook_headers, webhook_body):
     }
 
     # Hardcoded webhook ID from developer.paypal.com
-    verification_dict["webhook_id"] = WEBHOOK_ID
+    verification_dict["webhook_id"] = webhook_id
     verification_dict["webhook_event"] = webhook_body
 
     return verification_dict

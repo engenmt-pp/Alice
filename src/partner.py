@@ -1,8 +1,8 @@
 import json
 import secrets
 
-from .api import generate_sign_up_link, get_merchant_id, get_status
 from flask import Blueprint, render_template, url_for
+from .api import generate_sign_up_link, get_merchant_id, get_status
 
 bp = Blueprint("partner", __name__, url_prefix="/partner")
 
