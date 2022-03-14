@@ -7,8 +7,6 @@ from flask import Blueprint, current_app, request, jsonify
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
-REPORTS_DIR = "/ppreports/outgoing"
-
 
 def build_endpoint(route):
     """Build the appropriate API endpoint given the suffix/route."""
@@ -54,6 +52,7 @@ def build_headers(client_id=None, secret=None):
         client_id = current_app.config["PARTNER_CLIENT_ID"]
     if secret is None:
         secret = current_app.config["PARTNER_SECRET"]
+
     access_token = request_access_token(client_id, secret)
     return {
         "Content-Type": "application/json",
