@@ -1,4 +1,6 @@
 **/__pycache__/
+**/.DS_Store
 .env
 .vscode/
+test.py
 src/my_secrets.py
