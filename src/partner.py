@@ -94,11 +94,12 @@ def parse_vetting_status(status):
 def status(tracking_id):
     merchant_id = get_merchant_id(tracking_id)
     status = get_status(merchant_id)
-    status_text = json.dumps(status, indent=2)
 
     is_ready = is_ready_to_transact(status)
     contexts = [
         f"Ready to transact: {is_ready}",
         f"Partner should: {parse_vetting_status(status)}",
     ]
+
+    status_text = json.dumps(status, indent=2)
     return render_template("status.html", status=status_text, contexts=contexts)
