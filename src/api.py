@@ -154,6 +154,7 @@ def create_order():
         "intent": "CAPTURE",
         "purchase_units": [
             {
+                "custom_id": "Up to 127 characters can go here!",
                 "payee": {"merchant_id": request.json["payee_id"]},
                 "payment_instruction": {"disbursement_mode": "INSTANT"},
                 "amount": {
