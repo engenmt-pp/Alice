@@ -1,4 +1,7 @@
+import flask
 import os
+
+flask.cli.load_dotenv()
 
 
 class Config(object):
