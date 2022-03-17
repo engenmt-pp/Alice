@@ -80,8 +80,8 @@ def build_headers(client_id=None, secret=None, include_bn_code=False):
     if client_id is None:
         client_id = current_app.config["PARTNER_CLIENT_ID"]
     if secret is None:
-        secret = current_app.config["PARTNER_SECRET"] 
-    
+        secret = current_app.config["PARTNER_SECRET"]
+
     access_token = request_access_token(client_id, secret)
     headers = {
         "Accept": "application/json", 
@@ -584,7 +584,7 @@ def list_payment_tokens(customer_id=None):
     return response
     
 
-def refund_order(capture_id, client_id):
+def refund_order(capture_id):
     endpoint = build_endpoint(f"/v2/payments/captures/{capture_id}/refund")
 
     headers = build_headers()
