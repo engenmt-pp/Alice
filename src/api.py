@@ -74,6 +74,22 @@ def build_headers(client_id=None, secret=None):
     }
 
 
+def build_auth_assertion(client_id, merchant_payer_id):
+    """Build and return the PayPal Auth Assertion.
+
+    See https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion for details.
+    """
+    header = {"alg": "none"}
+    payload = {"iss": client_id, "payer_id": merchant_payer_id}
+
+    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
+    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
+
+    signature = b""
+
+    return b".".join([header_b64, payload_b64, signature])
+
+
 def generate_sign_up_link(tracking_id, return_url="paypal.com"):
     """Call the /v2/customer/partner-referrals API to generate a sign-up link.
 
@@ -282,5 +298,43 @@ def verify_webhook_signature(verification_dict):
     response = log_and_request(
         "POST", endpoint, headers=headers, data=json.dumps(verification_dict)
     )
+    response_dict = response.json()
+    return response_dict
+
+
+def refund_order(capture_id):
+
+    endpoint = build_endpoint(f"/v2/payments/captures/{capture_id}/refund")
+
+    headers = build_headers()
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+
+    data = {"note_to_payer": "Apologies for the inconvenience!"}
+
+    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+    response_dict = response.json()
+    return response_dict
+
+
+def get_transactions():
+    """Get the transactions from the preceding four weeks.
+
+    This requires the "ADVANCED_TRANSACTIONS_SEARCH" option enabled at onboarding.
+
+    Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
+    """
+    headers = build_headers()
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+
+    end_date = datetime.now(tz=timezone.utc)
+    start_date = end_date - timedelta(days=28)
+    query = {
+        "start_date": start_date.isoformat(timespec="seconds"),
+        "end_date": end_date.isoformat(timespec="seconds"),
+    }
+
+    endpoint = build_endpoint(f"/v1/reporting/transactions", query)
+
+    response = requests.get(endpoint, headers=headers)
     response_dict = response.json()
     return response_dict
