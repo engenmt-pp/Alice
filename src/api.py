@@ -27,7 +27,7 @@ def log_and_request(method, endpoint, **kwargs):
 
     response = methods_dict[method](endpoint, **kwargs)
     if not response.ok:
-        raise Exception(f"API response is not okay: {response.text}")
+        current_app.logger.error(f"Error: {response.text}")
 
     return response
 
@@ -93,8 +93,9 @@ def generate_onboarding_urls(tracking_id, return_url="paypal.com"):
         "legal_consents": [{"type": "SHARE_DATA_CONSENT", "granted": True}],
         "partner_config_override": {"return_url": return_url},
     }
+    data_str = json.dumps(data)
 
-    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
 
     onboarding_url = None
@@ -195,8 +196,9 @@ def create_order():
             }
         ],
     }
+    data_str = json.dumps(data)
 
-    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return jsonify(response_dict)
 
@@ -236,8 +238,23 @@ def verify_webhook_signature(verification_dict):
     endpoint = build_endpoint("/v1/notifications/verify-webhook-signature")
     headers = build_headers()
 
-    response = log_and_request(
-        "POST", endpoint, headers=headers, data=json.dumps(verification_dict)
-    )
+    verification_str = json.dumps(verification_dict)
+
+    response = log_and_request("POST", endpoint, headers=headers, data=verification_str)
     response_dict = response.json()
     return response_dict
+
+
+@bp.route("/gen-client-token")
+def generate_client_token():
+    headers = build_headers()
+    headers |= {"Accept": "application/json", "Accept-Language": "en_US"}
+
+    endpoint = build_endpoint("/v1/identity/generate-token")
+
+    data = {"customer_id": "customer_1234"}
+    data_str = json.dumps(data)
+
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    response_dict = response.json()
+    return response_dict["client_token"]
