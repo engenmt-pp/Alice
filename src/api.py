@@ -31,11 +31,11 @@ def log_and_request(method, endpoint, **kwargs):
     )
 
     response = methods_dict[method](endpoint, **kwargs)
+    response_dict = response.json()
     if response.ok:
-        print(f'Response: {json.dumps(response.json(),indent=2)}')
+        current_app.logger.debug(f"Response: {json.dumps(response_dict, indent=2)}")
     else:
-        response_dict = json.loads(response.text)
-        raise Exception(f"API response is not okay: {json.dumps(response_dict,indent=2)}")
+        current_app.logger.error(f"Error Response: {json.dumps(response_dict, indent=2)}")
 
     return response
 
@@ -438,7 +438,7 @@ def capture_authorization(auth_id, partner_fees = True):
     else:
         data = {}
 
-    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return jsonify(response_dict)
 
