@@ -209,9 +209,11 @@ def create_partner_referral_v2(tracking_id, return_url):
         "legal_consents": [{"type": "SHARE_DATA_CONSENT", "granted": True}],
         "partner_config_override": {"return_url": return_url},
     }
+    data_str = json.dumps(data)
 
-    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
-    return response.json()
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    response_dict = response.json()
+    return response_dict
 
 
 def get_merchant_id(tracking_id, partner_id=None):
@@ -307,7 +309,9 @@ def create_order(include_platform_fees = True):
             ]
         }
 
-    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
+    data_str = json.dumps(data)
+
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return jsonify(response_dict)
 
@@ -428,8 +432,23 @@ def verify_webhook_signature(verification_dict):
     endpoint = build_endpoint("/v1/notifications/verify-webhook-signature")
     headers = build_headers()
 
-    response = log_and_request(
-        "POST", endpoint, headers=headers, data=json.dumps(verification_dict)
-    )
+    verification_str = json.dumps(verification_dict)
+
+    response = log_and_request("POST", endpoint, headers=headers, data=verification_str)
     response_dict = response.json()
     return response_dict
+
+
+@bp.route("/gen-client-token")
+def generate_client_token():
+    headers = build_headers()
+    headers |= {"Accept": "application/json", "Accept-Language": "en_US"}
+
+    endpoint = build_endpoint("/v1/identity/generate-token")
+
+    data = {"customer_id": "customer_1234"}
+    data_str = json.dumps(data)
+
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    response_dict = response.json()
+    return response_dict["client_token"]
