@@ -21,7 +21,7 @@
       function initPayPalButton() {
         paypal.Buttons({
           createOrder: function(data, actions) {
-            return fetch('/api/create-order', {
+            return fetch('/api/create-order-vault', {
               headers: {'Content-Type': 'application/json'},
               method: 'POST',
               body: JSON.stringify({

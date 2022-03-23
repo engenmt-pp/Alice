@@ -292,6 +292,7 @@ def create_order(include_platform_fees = True):
                     "currency_code": "USD",
                     "value": request.json["price"],
                 },
+                "soft_descriptor": "1234567890111213141516",
             }
         ],
     }
@@ -313,6 +314,50 @@ def create_order(include_platform_fees = True):
 
     response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
+
+    current_app.logger.debug(f"Created an order:\n{json.dumps(response_dict,indent=2)}")
+    return jsonify(response_dict)
+
+
+@bp.route("/create-order-vault", methods=("POST",))
+def create_order_vault():
+    """Call the /v2/checkout/orders API to create an order.
+
+    Requires `bn_code`, `price`, and `payee_merchant_id` fields in the request body.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
+    """
+    endpoint = build_endpoint("/v2/checkout/orders")
+
+    headers = build_headers()
+    headers["PayPal-Partner-Attribution-Id"] = request.json["bn_code"]
+
+    data = {
+        "processing_instruction": "NO_INSTRUCTION",
+        "intent": "CAPTURE",
+        "purchase_units": [
+            {
+                "custom_id": "Up to 127 characters can go here!",
+                "payee": {"merchant_id": request.json["payee_id"]},
+                "payment_instruction": {"disbursement_mode": "INSTANT"},
+                "amount": {
+                    "currency_code": "USD",
+                    "value": request.json["price"],
+                },
+            }
+        ],
+        "application_context": {
+            "return_url": "https://paypal.com",
+        },
+    }
+    data_str = json.dumps(data)
+
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    response_dict = response.json()
+
+    current_app.logger.debug(
+        f"Created an order for vaulting:\n{json.dumps(response_dict,indent=2)}"
+    )
     return jsonify(response_dict)
 
 
@@ -405,9 +450,50 @@ def capture_order(order_id):
     """
     endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}/capture")
     headers = build_headers()
-
     response = log_and_request("POST", endpoint, headers=headers)
     response_dict = response.json()
+
+    current_app.logger.debug(
+        f"Captured an order:\n{json.dumps(response_dict,indent=2)}"
+    )
+    return jsonify(response_dict)
+
+
+@bp.route("/capture-order-vault", methods=("POST",))
+def capture_order_vault():
+    """Call the /v2/checkout/orders API to capture an order.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
+    """
+    endpoint = build_endpoint(f"/v2/checkout/orders/{request.json['orderId']}/capture")
+    headers = build_headers()
+
+    data = {
+        "payment_source": {
+            "paypal": {
+                "attributes": {
+                    "customer": {"id": "customer_1234"},
+                    "vault": {
+                        "confirm_payment_token": "ON_ORDER_COMPLETION",
+                        "usage_type": "MERCHANT",
+                        "customer_type": "CONSUMER",
+                    },
+                }
+            }
+        },
+        "application_context": {
+            "cancel_url": "https://paypal.com",
+            "return_url": "https://paypal.com",
+        },
+    }
+    data_str = json.dumps(data)
+
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    response_dict = response.json()
+
+    current_app.logger.debug(
+        f"Captured an order for vaulting:\n{json.dumps(response_dict,indent=2)}"
+    )
     return jsonify(response_dict)
 
 
