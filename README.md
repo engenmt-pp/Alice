@@ -1,6 +1,6 @@
 # PPCP Connected Path Demo
 
-Let's set up a PPCP Connected Path integration with Upfront Onboarding in the sandbox using Python 3.9.6. This project is **purely** for teaching purposes. Coding best practices are frequently forgone here in favor of simplicity.  
+Let's set up a PPCP Connected Path integration with Upfront Onboarding in the sandbox using Python 3.10. This project is **purely** for teaching purposes. Coding best practices are frequently forgone here in favor of simplicity.  
 
 ## Onboarding
 
