@@ -25,7 +25,11 @@ def log_and_request(method, endpoint, **kwargs):
         f"\nSending {method} request to {endpoint}:\n{json.dumps(kwargs, indent=2)}"
     )
 
-    return methods_dict[method](endpoint, **kwargs)
+    response = methods_dict[method](endpoint, **kwargs)
+    if not response.ok:
+        raise Exception(f"API response is not okay: {response.text}")
+
+    return response
 
 
 def request_access_token(client_id, secret):
@@ -57,7 +61,7 @@ def build_headers(client_id=None, secret=None):
     }
 
 
-def generate_sign_up_link(tracking_id, return_url="paypal.com"):
+def generate_onboarding_urls(tracking_id, return_url="paypal.com"):
     """Call the /v2/customer/partner-referrals API to generate a sign-up link.
 
     Docs: https://developer.paypal.com/docs/api/partner-referrals/v2/#partner-referrals_create
@@ -93,13 +97,21 @@ def generate_sign_up_link(tracking_id, return_url="paypal.com"):
     response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
     response_dict = response.json()
 
+    onboarding_url = None
+    referral_url = None
     for link in response_dict["links"]:
-        if link["rel"] == "action_url":
-            return link["href"]
+        match link["rel"]:
+            case "action_url":
+                onboarding_url = link["href"]
+            case "self":
+                referral_url = link["href"]
+            case other:
+                raise Exception(f"Unknown onboarding URL relation: {other}")
 
-    # If we're here, no `action_url` was found!
-    raise Exception("No action url found!")
-
+    if onboarding_url is None or referral_url is None:
+        raise Exception("Not all onboarding URLs found!")
+    
+    return onboarding_url, referral_url
 
 def get_merchant_id(tracking_id, partner_id=None):
     """Call the /v1/customer/partners API to get a merchant's merchant_id.
@@ -109,7 +121,7 @@ def get_merchant_id(tracking_id, partner_id=None):
     if partner_id is None:
         partner_id = current_app.config["PARTNER_ID"]
 
-    endpoint = endpoint = build_endpoint(
+    endpoint = build_endpoint(
         f"/v1/customer/partners/{partner_id}/merchant-integrations?tracking_id={tracking_id}"
     )
     headers = build_headers()
@@ -119,7 +131,7 @@ def get_merchant_id(tracking_id, partner_id=None):
     return response_dict["merchant_id"]
 
 
-def get_status(merchant_id, partner_id=None):
+def get_onboarding_status(merchant_id, partner_id=None):
     """Call the /v1/customer/partners API to get the status of a merchant's onboarding.
 
     Docs: https://developer.paypal.com/docs/platforms/seller-onboarding/before-payment/#5-track-seller-onboarding-status
@@ -129,6 +141,25 @@ def get_status(merchant_id, partner_id=None):
 
     endpoint = build_endpoint(
         f"/v1/customer/partners/{partner_id}/merchant-integrations/{merchant_id}"
+    )
+    headers = build_headers()
+
+    response = log_and_request("GET", endpoint, headers=headers)
+    response_dict = response.json()
+    return response_dict
+
+
+def get_partner_referral_id(referral_data_url):
+    return referral_data_url.split('/')[-1]
+
+
+def get_referral_status(partner_referral_id):
+    """Call the /v2/customer/partner-referrals API to get the status of a referral.
+
+    Docs: https://developer.paypal.com/api/partner-referrals/v2/#partner-referrals_read
+    """
+    endpoint = build_endpoint(
+        f"/v2/customer/partner-referrals/{partner_referral_id}"
     )
     headers = build_headers()
 
