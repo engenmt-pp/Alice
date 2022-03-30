@@ -149,8 +149,8 @@ def get_onboarding_status(merchant_id, partner_id=None):
     return response_dict
 
 
-def get_partner_referral_id(referral_data_url):
-    return referral_data_url.split('/')[-1]
+def get_partner_referral_id(referral_url):
+    return referral_url.split('/')[-1]
 
 
 def get_referral_status(partner_referral_id):
