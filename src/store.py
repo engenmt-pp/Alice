@@ -54,6 +54,19 @@ def checkout_ship_js_sdk(partner_client_id=None, payee_id=None, bn_code=None):
     )
 
 
+@bp.route("/checkout-api")
+def checkout_ship_api():
+    product = apple_pie()
+
+    return render_template(
+        "checkout-ship-api.html",
+        product=product,
+        partner_client_id=PARTNER_CLIENT_ID,
+        payee_merchant_id=MERCHANT_ID,
+        bn_code=PARTNER_BN_CODE,
+    )
+
+
 @bp.route("/order-details/<order_id>")
 def order_details(order_id):
     order_details_dict = get_order_details(order_id)
