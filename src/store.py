@@ -1,7 +1,7 @@
 import json
 
 from flask import Blueprint, current_app, render_template
-from .api import get_order_details, generate_client_token
+from .api import get_order_details, generate_client_token, list_payment_tokens
 
 bp = Blueprint("store", __name__, url_prefix="/store")
 
@@ -104,3 +104,10 @@ def order_details(order_id):
     order_details_dict = get_order_details(order_id)
     order_details_str = json.dumps(order_details_dict, indent=2)
     return render_template("status.html", status=order_details_str)
+
+
+@bp.route("/payment-tokens")
+def payment_tokens(customer_id=None):
+    tokens = list_payment_tokens(customer_id=customer_id)
+    # return render_template("status.html", status=json.dumps(tokens))
+    return render_template("status.html", status=tokens.text)

@@ -26,9 +26,13 @@ def log_and_request(method, endpoint, **kwargs):
     if method not in methods_dict:
         raise Exception(f"HTTP request method '{method}' not recognized!")
 
-    current_app.logger.debug(
-        f"\nSending {method} request to {endpoint}:\n{json.dumps(kwargs, indent=2)}"
-    )
+    
+    try:
+        kwargs_str = json.dumps(kwargs, indent=2)
+    except TypeError:
+        kwargs_str = str(kwargs)
+    
+    current_app.logger.debug(f"\nSending {method} request to {endpoint}:\n{kwargs_str}")
 
     response = methods_dict[method](endpoint, **kwargs)
     response_dict = response.json()
@@ -47,8 +51,7 @@ def request_access_token(client_id, secret):
     """
     endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
-
-    data = {"grant_type": "client_credentials"}
+    data = {"grant_type": "client_credentials", "ignoreCache":True}
 
     response = requests.post(endpoint, headers=headers, data=data, auth=(client_id, secret))
     response_dict = response.json()
@@ -60,14 +63,15 @@ def build_headers(client_id=None, secret=None, include_bn_code=False):
     if client_id is None:
         client_id = current_app.config["PARTNER_CLIENT_ID"]
     if secret is None:
-        secret = current_app.config["PARTNER_SECRET"]
+        secret = current_app.config["PARTNER_SECRET"] 
     
     access_token = request_access_token(client_id, secret)
     headers = {
-        "Content-Type": "application/json",
+        "Accept": "application/json", 
+        "Accept-Language": "en_US",
         "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
     }
-
     if include_bn_code:
         headers["PayPal-Partner-Attribution-Id"] = current_app.config["PARTNER_BN_CODE"]
     
@@ -199,6 +203,7 @@ def create_partner_referral_v2(tracking_id, return_url):
                                 "REFUND",
                                 "PARTNER_FEE",
                                 "DELAY_FUNDS_DISBURSEMENT",
+                                "VAULT"
                             ]
                         },
                     }
@@ -206,12 +211,18 @@ def create_partner_referral_v2(tracking_id, return_url):
             }
         ],
         "products": ["PPCP"],
-        "legal_consents": [{"type": "SHARE_DATA_CONSENT", "granted": True}],
+        "legal_consents": [
+            {
+                "type": "SHARE_DATA_CONSENT", 
+                "granted": True
+            }
+        ],
         "partner_config_override": {"return_url": return_url},
     }
     data_str = json.dumps(data)
 
     response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    # response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
     return response_dict
 
@@ -438,6 +449,8 @@ def capture_authorization(auth_id, partner_fees = True):
     else:
         data = {}
 
+    data_str = json.dumps(data)
+
     response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return jsonify(response_dict)
@@ -526,15 +539,48 @@ def verify_webhook_signature(verification_dict):
 
 
 @bp.route("/gen-client-token")
-def generate_client_token():
+def generate_client_token(customer_id = None):
+    if customer_id is None:
+        customer_id = "customer_1234"
     headers = build_headers()
-    headers |= {"Accept": "application/json", "Accept-Language": "en_US"}
 
     endpoint = build_endpoint("/v1/identity/generate-token")
 
-    data = {"customer_id": "customer_1234"}
+    data = {"customer_id": customer_id}
     data_str = json.dumps(data)
 
     response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return response_dict["client_token"]
+
+
+def build_auth_assertion(client_id=None, merchant_id=None):
+    """Build and return the PayPal Auth Assertion.
+    Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
+    """
+    if client_id is None:
+        client_id = current_app.config["PARTNER_CLIENT_ID"]
+    if merchant_id is None:
+        merchant_id = current_app.config["MERCHANT_ID"]
+
+    header = {"alg": "none"}
+    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
+
+    payload = {"iss": client_id, "payer_id": merchant_id}
+    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
+
+    signature = b""
+    return b".".join([header_b64, payload_b64, signature])
+
+
+def list_payment_tokens(customer_id = None):
+    if customer_id is None:
+        customer_id = "customer_1234"
+
+    headers = build_headers()
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+
+    endpoint = build_endpoint(f"/v2/vault/payment-tokens?customer_id={customer_id}")
+
+    response = log_and_request("GET", endpoint, headers=headers)
+    return response
