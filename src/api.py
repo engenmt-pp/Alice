@@ -181,6 +181,15 @@ def create_order():
     headers = build_headers()
     headers["PayPal-Partner-Attribution-Id"] = request.json["bn_code"]
 
+    item_price = round(float(request.json["price"]), 2)
+
+    tax_rate = 0.1 # 10 percent
+    tax_price = round(tax_rate * item_price, 2)
+
+    shipping_cost = 10.0
+
+    total_cost = round(item_price + tax_price + shipping_cost, 2)
+
     data = {
         "intent": "CAPTURE",
         "purchase_units": [
@@ -190,10 +199,39 @@ def create_order():
                 "payment_instruction": {"disbursement_mode": "INSTANT"},
                 "amount": {
                     "currency_code": "USD",
-                    "value": request.json["price"],
+                    "value": total_cost,
+                    "breakdown": {
+                        "item_total": {
+                            "currency_code": "USD",
+                            "value": item_price
+                        },
+                        "tax_total": {
+                            "currency_code": "USD",
+                            "value": tax_price
+                        },
+                        "shipping": {
+                            "currency_code": "USD",
+                            "value": shipping_cost
+                        }
+                    }
                 },
+                "items": [
+                    {
+                        "name": "Apple Pie",
+                        "unit_amount": {
+                            "currency_code": "USD",
+                            "value": item_price
+                        },
+                        "tax": {
+                            "currency_code": "USD",
+                            "value": tax_price
+                        },
+                        "quantity": 1,
+                        "category": "PHYSICAL_GOODS"
+                    }
+                ]
             }
-        ],
+        ]
     }
 
     response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
