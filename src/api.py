@@ -74,22 +74,6 @@ def build_headers(client_id=None, secret=None):
     }
 
 
-def build_auth_assertion(client_id, merchant_payer_id):
-    """Build and return the PayPal Auth Assertion.
-
-    See https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion for details.
-    """
-    header = {"alg": "none"}
-    payload = {"iss": client_id, "payer_id": merchant_payer_id}
-
-    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
-    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
-
-    signature = b""
-
-    return b".".join([header_b64, payload_b64, signature])
-
-
 def generate_sign_up_link(tracking_id, return_url="paypal.com"):
     """Call the /v2/customer/partner-referrals API to generate a sign-up link.
 
