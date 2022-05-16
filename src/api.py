@@ -1,3 +1,4 @@
+import base64
 import json
 import requests
 
@@ -59,6 +60,25 @@ def build_headers(client_id=None, secret=None):
         "Content-Type": "application/json",
         "Authorization": f"Bearer {access_token}",
     }
+
+
+def build_auth_assertion(client_id=None, merchant_id=None):
+    """Build and return the PayPal Auth Assertion.
+    Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
+    """
+    if client_id is None:
+        client_id = current_app.config["PARTNER_CLIENT_ID"]
+    if merchant_id is None:
+        merchant_id = current_app.config["MERCHANT_ID"]
+
+    header = {"alg": "none"}
+    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
+
+    payload = {"iss": client_id, "payer_id": merchant_id}
+    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
+
+    signature = b""
+    return b".".join([header_b64, payload_b64, signature])
 
 
 def generate_onboarding_urls(tracking_id, return_url="paypal.com"):
