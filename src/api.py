@@ -1,5 +1,6 @@
 import base64
 import json
+from re import M
 import requests
 
 from flask import Blueprint, current_app, request, jsonify
@@ -81,7 +82,88 @@ def build_auth_assertion(client_id=None, merchant_id=None):
     return b".".join([header_b64, payload_b64, signature])
 
 
-def generate_onboarding_urls(tracking_id, return_url="paypal.com"):
+def generate_onboarding_urls(tracking_id, version="v2", return_url="paypal.com"):
+    if version == "v1":
+        return generate_onboarding_urls_v1(tracking_id, return_url=return_url)
+
+    return generate_onboarding_urls_v2(tracking_id, return_url=return_url)
+
+
+def generate_onboarding_urls_v1(tracking_id, return_url):
+    """Call the /v1/customer/partner-referrals API to generate a sign-up link.
+
+    Docs: https://developer.paypal.com/docs/api/partner-referrals/v1/#partner-referrals_create
+    """
+    endpoint = build_endpoint("/v1/customer/partner-referrals")
+    headers = build_headers()
+    data = {
+        "customer_data": {
+            "customer_type": "MERCHANT",
+            "preferred_language_code": "en_US",
+            "primary_currency_code": "USD",
+            "partner_specific_identifiers": [
+                {
+                    "type": "TRACKING_ID",
+                    "value": tracking_id
+                }
+            ]
+        },
+        "requested_capabilities": [
+            {
+                "capability": "API_INTEGRATION",
+                "api_integration_preference": {
+                    "partner_id": current_app.config["PARTNER_ID"],
+                    "rest_api_integration": {
+                        "integration_method": "PAYPAL",
+                        "integration_type": "THIRD_PARTY"
+                    },
+                    "rest_third_party_details": {
+                        "partner_client_id": current_app.config["PARTNER_CLIENT_ID"],
+                        "feature_list": [
+                            "PAYMENT",
+                            "REFUND",
+                            "READ_SELLER_DISPUTE"
+                        ]
+                    }
+                }
+            }
+        ],
+        "web_experience_preference": {
+            "partner_logo_url": "https://www.paypalobjects.com/digitalassets/c/website/marketing/na/us/logo-center/Badge_1.png",
+            "return_url": return_url,
+            "action_renewal_url": "www.url.com"
+        },
+        "collected_consents": [
+            {
+                "type": "SHARE_DATA_CONSENT",
+                "granted": True
+            }
+        ],
+        "products": [
+            "EXPRESS_CHECKOUT"
+        ]
+    }
+
+    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
+    response_dict = response.json()
+
+    onboarding_url = None
+    referral_url = None
+    for link in response_dict["links"]:
+        match link["rel"]:
+            case "action_url":
+                onboarding_url = link["href"]
+            case "self":
+                referral_url = link["href"]
+            case other:
+                raise Exception(f"Unknown onboarding URL relation: {other}")
+
+    if onboarding_url is None or referral_url is None:
+        raise Exception("Not all onboarding URLs found!")
+    
+    return onboarding_url, referral_url
+
+def generate_onboarding_urls_v2(tracking_id, return_url):
     """Call the /v2/customer/partner-referrals API to generate a sign-up link.
 
     Docs: https://developer.paypal.com/docs/api/partner-referrals/v2/#partner-referrals_create

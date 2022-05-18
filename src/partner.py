@@ -22,9 +22,11 @@ def generate_tracking_id():
 
 
 @bp.route("/onboarding")
-def onboarding():
+def onboarding(version="v2"):
     tracking_id = generate_tracking_id()
-    onboarding_url, referral_url = generate_onboarding_urls(tracking_id)
+    onboarding_url, referral_url = generate_onboarding_urls(
+        tracking_id, version=version
+    )
 
     # Get the URL for the referral status page
     partner_referral_id = get_partner_referral_id(referral_url)
