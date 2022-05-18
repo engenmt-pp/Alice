@@ -274,7 +274,17 @@ def create_order():
             {
                 "custom_id": "Up to 127 characters can go here!",
                 "payee": {"merchant_id": request.json["payee_id"]},
-                "payment_instruction": {"disbursement_mode": "INSTANT"},
+                "payment_instruction": {
+                    "disbursement_mode": "INSTANT",
+                    "platform_fees": [
+                        {
+                            "amount": {
+                                "currency_code": "USD", 
+                                "value": "1.00"
+                            }
+                        }
+                    ]
+                },
                 "amount": {
                     "currency_code": "USD",
                     "value": request.json["price"],
