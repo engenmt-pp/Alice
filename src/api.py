@@ -3,6 +3,7 @@ import base64
 import json
 import requests
 import paramiko
+import secrets
 
 from flask import Blueprint, current_app, request, jsonify
 
@@ -26,7 +27,7 @@ def log_and_request(method, endpoint, **kwargs):
     if method not in methods_dict:
         raise Exception(f"HTTP request method '{method}' not recognized!")
 
-    
+
     try:
         kwargs_str = json.dumps(kwargs, indent=2)
     except TypeError:
@@ -51,7 +52,7 @@ def request_access_token(client_id, secret):
     """
     endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
-    data = {"grant_type": "client_credentials", "ignoreCache":True}
+    data = {"grant_type": "client_credentials", "ignoreCache": True}
 
     response = requests.post(endpoint, headers=headers, data=data, auth=(client_id, secret))
     response_dict = response.json()
@@ -334,18 +335,30 @@ def create_order(include_platform_fees = True):
 def create_order_vault():
     """Call the /v2/checkout/orders API to create an order.
 
-    Requires `bn_code`, `price`, and `payee_merchant_id` fields in the request body.
+    Requires `price` and `payee_merchant_id` fields in the request body.
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
     """
     endpoint = build_endpoint("/v2/checkout/orders")
 
     headers = build_headers()
-    headers["PayPal-Partner-Attribution-Id"] = request.json["bn_code"]
+    headers["PayPal-Partner-Attribution-Id"] = current_app.config["PARTNER_BN_CODE"]
+    headers["PayPal-Request-Id"] = secrets.token_hex(10)
 
     data = {
-        "processing_instruction": "NO_INSTRUCTION",
         "intent": "CAPTURE",
+        "payment_source": {
+            "paypal": {
+                "attributes": {
+                    "customer": {"id": "customer_1234"},
+                    "vault": { 
+                        "confirm_payment_token": "ON_ORDER_COMPLETION",
+                        "usage_type": "PLATFORM",
+                        "customer_type": "CONSUMER"
+                    }
+                }
+            }
+        },
         "purchase_units": [
             {
                 "custom_id": "Up to 127 characters can go here!",
@@ -358,7 +371,8 @@ def create_order_vault():
             }
         ],
         "application_context": {
-            "return_url": "https://paypal.com",
+            "return_url": "http://localhost:5000/",
+            "cancel_url": "http://localhost:5000/",
         },
     }
     data_str = json.dumps(data)
@@ -366,9 +380,6 @@ def create_order_vault():
     response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
 
-    current_app.logger.debug(
-        f"Created an order for vaulting:\n{json.dumps(response_dict,indent=2)}"
-    )
     return jsonify(response_dict)
 
 
@@ -466,9 +477,6 @@ def capture_order(order_id):
     response = log_and_request("POST", endpoint, headers=headers)
     response_dict = response.json()
 
-    current_app.logger.debug(
-        f"Captured an order:\n{json.dumps(response_dict,indent=2)}"
-    )
     return jsonify(response_dict)
 
 
@@ -485,7 +493,9 @@ def capture_order_vault():
         "payment_source": {
             "paypal": {
                 "attributes": {
-                    "customer": {"id": "customer_1234"},
+                    "customer": {
+                        "id": "customer_1234"
+                    },
                     "vault": {
                         "confirm_payment_token": "ON_ORDER_COMPLETION",
                         "usage_type": "MERCHANT",
@@ -504,9 +514,6 @@ def capture_order_vault():
     response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
 
-    current_app.logger.debug(
-        f"Captured an order for vaulting:\n{json.dumps(response_dict,indent=2)}"
-    )
     return jsonify(response_dict)
 
 

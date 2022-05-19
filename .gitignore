@@ -1,6 +1,8 @@
+**/.DS_Store
 **/__pycache__/
 **/.DS_Store
 .env
 .vscode/
-test.py
 src/my_secrets.py
+test.py
+partner_specific_config.py
