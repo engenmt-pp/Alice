@@ -28,7 +28,6 @@ def log_and_request(method, endpoint, **kwargs):
     if method not in methods_dict:
         raise Exception(f"HTTP request method '{method}' not recognized!")
 
-
     try:
         kwargs_str = json.dumps(kwargs, indent=2)
     except TypeError:
@@ -53,6 +52,7 @@ def request_access_token(client_id, secret):
     """
     endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
+
     data = {"grant_type": "client_credentials", "ignoreCache": True}
 
     response = requests.post(endpoint, headers=headers, data=data, auth=(client_id, secret))
@@ -224,7 +224,6 @@ def create_partner_referral_v2(tracking_id, return_url):
     data_str = json.dumps(data)
 
     response = log_and_request("POST", endpoint, headers=headers, data=data_str)
-    # response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
     return response_dict
 
@@ -381,7 +380,6 @@ def create_order_vault():
 
     response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
-
     return jsonify(response_dict)
 
 
@@ -493,8 +491,6 @@ def capture_order_vault():
 
     response = log_and_request("POST", endpoint, headers=headers)
     response_dict = response.json()
-    print(f'response dict {json.dumps(response_dict,indent=2)}')
-
     return jsonify(response_dict)
 
 
@@ -530,14 +526,12 @@ def verify_webhook_signature(verification_dict):
 def generate_client_token(customer_id = None):
     if customer_id is None:
         customer_id = CUSTOMER_ID
-    headers = build_headers()
-
     endpoint = build_endpoint("/v1/identity/generate-token")
+    headers = build_headers()    
 
     data = {"customer_id": customer_id}
     data_str = json.dumps(data)
 
-    # response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response = requests.post(endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return response_dict["client_token"]
@@ -562,13 +556,12 @@ def build_auth_assertion(client_id=None, merchant_id=None):
     return b".".join([header_b64, payload_b64, signature])
 
 
-def list_payment_tokens(customer_id = None):
+def list_payment_tokens(customer_id=None):
     if customer_id is None:
         customer_id = CUSTOMER_ID
 
-    headers = build_headers()
-
     endpoint = build_endpoint(f"/v2/vault/payment-tokens?customer_id={customer_id}")
+    headers = build_headers()
 
     response = log_and_request("GET", endpoint, headers=headers)
     return response
