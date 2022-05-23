@@ -7,6 +7,8 @@ from flask import Blueprint, current_app, request, jsonify
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
+CUSTOMER_ID = "customer_1236"
+
 
 def build_endpoint(route):
     """Build the appropriate API endpoint given the suffix/route."""
@@ -32,10 +34,11 @@ def log_and_request(method, endpoint, **kwargs):
     current_app.logger.debug(f"\nSending {method} request to {endpoint}:\n{kwargs_str}")
 
     response = methods_dict[method](endpoint, **kwargs)
+    response_str = json.dumps(response.json(), indent=2)
     if not response.ok:
-        current_app.logger.error(f"Error: {response.text}")
+        current_app.logger.error(f"Error: {response_str}\n\n")
     else:
-        current_app.logger.debug(f'Response:\n{json.dumps(response.json(), indent=2)}')
+        current_app.logger.debug(f'Response: {response_str}\n\n')
 
     return response
 
@@ -243,10 +246,11 @@ def create_order_vault():
         "payment_source": {
             "paypal": {
                 "attributes": {
-                    "customer": {"id": "customer_1234"},
-                    "vault": { 
+                    "customer": {"id": CUSTOMER_ID},
+                    "vault": {
                         "confirm_payment_token": "ON_ORDER_COMPLETION",
-                        "usage_type": "PLATFORM",
+                        "usage_type": "PLATFORM", # For Channel-Initiated Billing (CIB) Billing Agreement
+                        # "usage_type": "MERCHANT", # For Merchant-Initiated Billing (MIB) Billing Agreement
                         "customer_type": "CONSUMER"
                     }
                 }
@@ -299,30 +303,9 @@ def capture_order_vault():
     endpoint = build_endpoint(f"/v2/checkout/orders/{request.json['orderId']}/capture")
     headers = build_headers()
 
-    data = {
-        "payment_source": {
-            "paypal": {
-                "attributes": {
-                    "customer": {
-                        "id": "customer_1234"
-                    },
-                    "vault": {
-                        "confirm_payment_token": "ON_ORDER_COMPLETION",
-                        "usage_type": "MERCHANT",
-                        "customer_type": "CONSUMER",
-                    },
-                }
-            }
-        },
-        "application_context": {
-            "cancel_url": "https://paypal.com",
-            "return_url": "https://paypal.com",
-        },
-    }
-    data_str = json.dumps(data)
-
-    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    response = log_and_request("POST", endpoint, headers=headers)
     response_dict = response.json()
+    print(f'response dict {json.dumps(response_dict,indent=2)}')
 
     return jsonify(response_dict)
 
@@ -358,7 +341,7 @@ def verify_webhook_signature(verification_dict):
 @bp.route("/gen-client-token")
 def generate_client_token(customer_id = None):
     if customer_id is None:
-        customer_id = "customer_1234"
+        customer_id = CUSTOMER_ID
     headers = build_headers()
 
     endpoint = build_endpoint("/v1/identity/generate-token")
@@ -366,7 +349,8 @@ def generate_client_token(customer_id = None):
     data = {"customer_id": customer_id}
     data_str = json.dumps(data)
 
-    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    # response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    response = requests.post(endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return response_dict["client_token"]
 
@@ -392,10 +376,9 @@ def build_auth_assertion(client_id=None, merchant_id=None):
 
 def list_payment_tokens(customer_id = None):
     if customer_id is None:
-        customer_id = "customer_1234"
+        customer_id = CUSTOMER_ID
 
     headers = build_headers()
-    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
 
     endpoint = build_endpoint(f"/v2/vault/payment-tokens?customer_id={customer_id}")
 
