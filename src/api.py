@@ -38,7 +38,7 @@ def log_and_request(method, endpoint, **kwargs):
     if not response.ok:
         current_app.logger.error(f"Error: {response_str}\n\n")
     else:
-        current_app.logger.debug(f'Response: {response_str}\n\n')
+        current_app.logger.debug(f"Response: {response_str}\n\n")
 
     return response
 
