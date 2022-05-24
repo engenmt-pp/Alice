@@ -228,6 +228,7 @@ def create_partner_referral_v2(tracking_id, return_url):
     return response_dict
 
 
+
 def get_merchant_id(tracking_id, partner_id=None):
     """Call the /v1/customer/partners API to get a merchant's merchant_id.
 
@@ -474,6 +475,7 @@ def capture_order(order_id):
     """
     endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}/capture")
     headers = build_headers()
+
     response = log_and_request("POST", endpoint, headers=headers)
     response_dict = response.json()
 
@@ -539,6 +541,7 @@ def generate_client_token(customer_id = None):
 
 def build_auth_assertion(client_id=None, merchant_id=None):
     """Build and return the PayPal Auth Assertion.
+
     Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
     """
     if client_id is None:
