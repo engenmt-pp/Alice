@@ -7,7 +7,7 @@ from flask import Blueprint, current_app, request, jsonify
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
-CUSTOMER_ID = "customer_1236"
+CUSTOMER_ID = "customer_1235"
 
 
 def build_endpoint(route):
@@ -134,6 +134,7 @@ def generate_onboarding_urls(tracking_id, return_url="paypal.com"):
         raise Exception("Not all onboarding URLs found!")
     
     return onboarding_url, referral_url
+
 
 def get_merchant_id(tracking_id, partner_id=None):
     """Call the /v1/customer/partners API to get a merchant's merchant_id.
@@ -286,6 +287,7 @@ def capture_order():
     """
     endpoint = build_endpoint(f"/v2/checkout/orders/{request.json['orderId']}/capture")
     headers = build_headers()
+
     response = log_and_request("POST", endpoint, headers=headers)
     response_dict = response.json()
 
@@ -351,6 +353,7 @@ def generate_client_token(customer_id = None):
 
 def build_auth_assertion(client_id=None, merchant_id=None):
     """Build and return the PayPal Auth Assertion.
+
     Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
     """
     if client_id is None:

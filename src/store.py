@@ -69,5 +69,4 @@ def order_details(order_id):
 @bp.route("/payment-tokens")
 def payment_tokens(customer_id=None):
     tokens = list_payment_tokens(customer_id=customer_id)
-    # return render_template("status.html", status=json.dumps(tokens))
     return render_template("status.html", status=tokens.text)
