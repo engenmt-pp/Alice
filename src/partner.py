@@ -87,6 +87,9 @@ def parse_vetting_status(status):
         # If we're here, PPCP_CUSTOM wasn't found!
         return "PPCP_CUSTOM is not a registered product!"
 
+    if not status["primary_email_confirmed"]:
+        return "Ask merchant to confirm their primary email address!"
+
     if vetting_status == "DENIED":
         return "Enable PayPal Payment Buttons!"
     elif vetting_status == "SUBSCRIBED":
@@ -100,13 +103,8 @@ def parse_vetting_status(status):
             )
 
         return "Enable Advanced Card Processing!"
-    else:
-        if status["primary_email_confirmed"]:
-            return (
-                "Enable PayPal Payment Buttons and wait for "
-                "CUSTOMER.MERCHANT-INTEGRATION.PRODUCT-SUBSCRIPTION-UPDATED webhook!"
-            )
-        return "Something is wrong with PPCP_CUSTOM!"
+
+    return "PPCP_CUSTOM is neither 'DENIED' nor 'SUBSCRIBED'!"
 
 
 @bp.route("/onboarding/<tracking_id>")
