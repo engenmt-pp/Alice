@@ -79,6 +79,7 @@ def is_ready_to_transact(status):
 
 
 def parse_vetting_status(status):
+    """Return instructions for the partner given the vetting status of an onboarded merchant."""
     for product in status["products"]:
         if product["name"] == "PPCP_CUSTOM":
             vetting_status = product["vetting_status"]
