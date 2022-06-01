@@ -340,10 +340,7 @@ def create_order_auth():
 
 @bp.route("/auth-capture/<order_id>", methods=("POST",))
 def authorize_and_capture_order(order_id):
-    """Authorize and and then capture the order.
-    
-    Requires `orderId` in the request body.
-    """
+    """Authorize and then capture the order."""
     response_dict = authorize_order(order_id)
     auth_id = response_dict['purchase_units'][0]['payments']['authorizations'][0]['id']
     return capture_authorization(auth_id)
@@ -392,13 +389,12 @@ def capture_authorization(auth_id, partner_fees = True):
     response_dict = response.json()
     return jsonify(response_dict)
 
-@bp.route("/capture-order", methods=("POST",))
-def capture_order():
+@bp.route("/capture-order/<order_id>", methods=("POST",))
+def capture_order(order_id):
     """Call the /v2/checkout/orders API to capture an order.
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
     """
-    order_id = request.json['orderId']
     endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}/capture")
     headers = build_headers()
 
