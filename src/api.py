@@ -286,20 +286,6 @@ def verify_webhook_signature(verification_dict):
     return response_dict
 
 
-def refund_order(capture_id):
-
-    endpoint = build_endpoint(f"/v2/payments/captures/{capture_id}/refund")
-
-    headers = build_headers()
-    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
-
-    data = {"note_to_payer": "Apologies for the inconvenience!"}
-
-    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
-    response_dict = response.json()
-    return response_dict
-
-
 def get_transactions():
     """Get the transactions from the preceding four weeks.
 
