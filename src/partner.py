@@ -2,7 +2,13 @@ import json
 import secrets
 
 from flask import Blueprint, render_template, url_for
-from .api import generate_sign_up_link, get_merchant_id, get_status
+from .api import (
+    generate_onboarding_urls,
+    get_merchant_id,
+    get_onboarding_status,
+    get_referral_status,
+    get_partner_referral_id,
+)
 
 bp = Blueprint("partner", __name__, url_prefix="/partner")
 
@@ -15,16 +21,29 @@ def generate_tracking_id():
     return secrets.token_hex(length)
 
 
-@bp.route("/sign-up")
-def sign_up():
+@bp.route("/onboarding")
+def onboarding(version="v2"):
     tracking_id = generate_tracking_id()
-    sign_up_link = generate_sign_up_link(tracking_id)
+    onboarding_url, referral_url = generate_onboarding_urls(
+        tracking_id, version=version
+    )
 
-    # Get the URL for the corresponding status page
-    tracking_url = url_for("partner.status", tracking_id=tracking_id)
+    # Get the URL for the referral status page
+    partner_referral_id = get_partner_referral_id(referral_url)
+    referral_status_url = url_for(
+        "partner.referral_status", partner_referral_id=partner_referral_id
+    )
+
+    # Get the URL for the onboarding status page
+    onboarding_status_url = url_for(
+        "partner.onboarding_status", tracking_id=tracking_id
+    )
 
     return render_template(
-        "sign_up.html", sign_up_link=sign_up_link, tracking_url=tracking_url
+        "onboarding.html",
+        onboarding_url=onboarding_url,
+        referral_status_url=referral_status_url,
+        onboarding_status_url=onboarding_status_url,
     )
 
 
@@ -60,6 +79,7 @@ def is_ready_to_transact(status):
 
 
 def parse_vetting_status(status):
+    """Return instructions for the partner given the vetting status of an onboarded merchant."""
     for product in status["products"]:
         if product["name"] == "PPCP_CUSTOM":
             vetting_status = product["vetting_status"]
@@ -67,6 +87,9 @@ def parse_vetting_status(status):
     else:
         # If we're here, PPCP_CUSTOM wasn't found!
         return "PPCP_CUSTOM is not a registered product!"
+
+    if not status["primary_email_confirmed"]:
+        return "Ask merchant to confirm their primary email address!"
 
     if vetting_status == "DENIED":
         return "Enable PayPal Payment Buttons!"
@@ -81,19 +104,14 @@ def parse_vetting_status(status):
             )
 
         return "Enable Advanced Card Processing!"
-    else:
-        if status["primary_email_confirmed"]:
-            return (
-                "Enable PayPal Payment Buttons and wait for "
-                "CUSTOMER.MERCHANT-INTEGRATION.PRODUCT-SUBSCRIPTION-UPDATED webhook!"
-            )
-        return "Something is wrong with PPCP_CUSTOM!"
+
+    return "PPCP_CUSTOM is neither 'DENIED' nor 'SUBSCRIBED'!"
 
 
-@bp.route("/status/<tracking_id>")
-def status(tracking_id):
+@bp.route("/onboarding/<tracking_id>")
+def onboarding_status(tracking_id):
     merchant_id = get_merchant_id(tracking_id)
-    status = get_status(merchant_id)
+    status = get_onboarding_status(merchant_id)
 
     is_ready = is_ready_to_transact(status)
     contexts = [
@@ -103,3 +121,12 @@ def status(tracking_id):
 
     status_text = json.dumps(status, indent=2)
     return render_template("status.html", status=status_text, contexts=contexts)
+
+
+@bp.route("/referral/<partner_referral_id>")
+def referral_status(partner_referral_id):
+
+    referral_status_dict = get_referral_status(partner_referral_id)
+    status_text = json.dumps(referral_status_dict, indent=2)
+
+    return render_template("status.html", status=status_text, contexts=[])

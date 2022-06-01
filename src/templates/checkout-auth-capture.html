@@ -15,13 +15,13 @@
     </div>
     
     <!-- Import PayPal Javascript SDK with Partner's credentials -->
-    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture" data-partner-attribution-id="{{ bn_code }}"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=authorize" data-partner-attribution-id="{{ bn_code }}"></script>
 
     <script>
       function initPayPalButton() {
         paypal.Buttons({
           createOrder: function(data, actions) {
-            return fetch('/api/create-order', {
+            return fetch('/api/create-order-auth', {
               headers: {'Content-Type': 'application/json'},
               method: 'POST',
               body: JSON.stringify({
@@ -35,9 +35,9 @@
             })
           },
           onApprove: function(data, actions) {
-            return fetch('/api/capture-order/' + data.orderID, {
+            return fetch('/api/auth-capture/' + data.orderID, {
               headers: {'Content-Type': 'application/json'},
-              method: 'POST',
+              method: 'POST'
             }).then(function(res) {
               return res.json();
             }).then(function(captureData) {

@@ -23,7 +23,7 @@ def create_app():
 
     app.register_blueprint(partner.bp)
     app.register_blueprint(store.bp)
-    app.add_url_rule("/", endpoint="store.checkout")
+    app.add_url_rule("/", endpoint="store.checkout_capture")
 
     return app
 
