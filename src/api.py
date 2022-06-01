@@ -664,18 +664,16 @@ def get_transactions():
     return response_dict
 
 
-def refund_order(capture_id):
-
-    endpoint = f"{ENDPOINT_PREFIX}/v2/payments/captures/{capture_id}/refund"
-
+def verify_webhook_signature(verification_dict):
+    """Verify the signature of the webhook to ensure it is genuine.
+    Docs: https://developer.paypal.com/api/webhooks/v1/#verify-webhook-signature_post
+    """
+    endpoint = build_endpoint("/v1/notifications/verify-webhook-signature")
     headers = build_headers()
-    headers["PayPal-Auth-Assertion"] = build_auth_assertion(
-        client_id=PARTNER_CLIENT_ID, merchant_payer_id=MERCHANT_ID
+
+    response = log_and_request(
+        "POST", endpoint, headers=headers, data=json.dumps(verification_dict)
     )
-
-    data = {"note_to_payer": "Apologies for the inconvenience!"}
-
-    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
     response_dict = response.json()
     return response_dict
 
