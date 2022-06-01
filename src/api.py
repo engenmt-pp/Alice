@@ -50,17 +50,23 @@ def request_access_token(client_id, secret):
     return response_dict["access_token"]
 
 
-def build_headers(client_id=None, secret=None):
+def build_headers(client_id=None, secret=None, include_bn_code=False):
     """Build commonly used headers using a new PayPal access token."""
     if client_id is None:
         client_id = current_app.config["PARTNER_CLIENT_ID"]
     if secret is None:
         secret = current_app.config["PARTNER_SECRET"]
+    
     access_token = request_access_token(client_id, secret)
-    return {
+    headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {access_token}",
     }
+
+    if include_bn_code:
+        headers["PayPal-Partner-Attribution-Id"] = current_app.config["PARTNER_BN_CODE"]
+    
+    return headers
 
 
 def build_auth_assertion(client_id=None, merchant_id=None):
@@ -260,14 +266,13 @@ def get_referral_status(partner_referral_id):
 def create_order(include_platform_fees = True):
     """Call the /v2/checkout/orders API to create an order.
 
-    Requires `bn_code`, `price`, and `payee_merchant_id` fields in the request body.
+    Requires `price` and `payee_id` fields in the request body.
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
     """
     endpoint = build_endpoint("/v2/checkout/orders")
 
-    headers = build_headers()
-    headers["PayPal-Partner-Attribution-Id"] = request.json["bn_code"]
+    headers = build_headers(include_bn_code=True)
 
     data = {
         "intent": "CAPTURE",
@@ -305,14 +310,13 @@ def create_order(include_platform_fees = True):
 def create_order_auth():
     """Call the /v2/checkout/orders API to create an order with intent=AUTHORIZE.
 
-    Requires `bn_code`, `price`, and `payee_merchant_id` fields in the request body.
+    Requires `price` and `payee_id` fields in the request body.
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
     """
     endpoint = build_endpoint("/v2/checkout/orders")
 
-    headers = build_headers()
-    headers["PayPal-Partner-Attribution-Id"] = request.json["bn_code"]
+    headers = build_headers(include_bn_code = True)
 
     data = {
         "intent": "AUTHORIZE",

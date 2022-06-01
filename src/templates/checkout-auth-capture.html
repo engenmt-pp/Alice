@@ -27,7 +27,6 @@
               body: JSON.stringify({
                 price: "{{ product['price'] }}", 
                 payee_id: "{{ payee_id }}", 
-                bn_code: "{{ bn_code }}"
               })
             }).then(function(res) {
               return res.json();
