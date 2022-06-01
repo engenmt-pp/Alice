@@ -43,6 +43,7 @@ def request_access_token(client_id, secret):
     """
     endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
+
     data = {"grant_type": "client_credentials"}
 
     response = requests.post(endpoint, headers=headers, data=data, auth=(client_id, secret))
@@ -118,6 +119,7 @@ def create_partner_referral_v1(tracking_id, return_url):
     """
     endpoint = build_endpoint("/v1/customer/partner-referrals")
     headers = build_headers()
+
     data = {
         "customer_data": {
             "customer_type": "MERCHANT",
@@ -177,6 +179,7 @@ def create_partner_referral_v2(tracking_id, return_url):
     """
     endpoint = build_endpoint("/v2/customer/partner-referrals")
     headers = build_headers()
+
     data = {
         "tracking_id": tracking_id,
         "operations": [
@@ -271,7 +274,6 @@ def create_order(include_platform_fees = True):
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
     """
     endpoint = build_endpoint("/v2/checkout/orders")
-
     headers = build_headers(include_bn_code=True)
 
     data = {
@@ -315,7 +317,6 @@ def create_order_auth():
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
     """
     endpoint = build_endpoint("/v2/checkout/orders")
-
     headers = build_headers(include_bn_code = True)
 
     data = {
