@@ -7,7 +7,18 @@ bp = Blueprint("store", __name__, url_prefix="/store")
 
 
 @bp.route("/checkout")
-def checkout(partner_client_id=None, payee_id=None, bn_code=None):
+def checkout_capture():
+    template = "checkout.html"
+    return checkout(template)
+
+
+@bp.route("/checkout-auth")
+def checkout_authorize():
+    template = "checkout-auth-capture.html"
+    return checkout(template)
+
+
+def checkout(template, partner_client_id=None, payee_id=None, bn_code=None):
     if partner_client_id is None:
         partner_client_id = current_app.config["PARTNER_CLIENT_ID"]
     if payee_id is None:
@@ -22,7 +33,7 @@ def checkout(partner_client_id=None, payee_id=None, bn_code=None):
     }
 
     return render_template(
-        "checkout.html",
+        template,
         product=product,
         partner_client_id=partner_client_id,
         payee_id=payee_id,
