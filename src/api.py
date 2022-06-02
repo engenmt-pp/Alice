@@ -539,20 +539,6 @@ def capture_order_vault():
     return jsonify(response_dict)
 
 
-@bp.route("/capture-order-vault", methods=("POST",))
-def capture_order_vault():
-    """Call the /v2/checkout/orders API to capture an order.
-
-    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
-    """
-    endpoint = build_endpoint(f"/v2/checkout/orders/{request.json['orderId']}/capture")
-    headers = build_headers()
-
-    response = log_and_request("POST", endpoint, headers=headers)
-    response_dict = response.json()
-    return jsonify(response_dict)
-
-
 def get_order_details(order_id):
     """Call the /v2/checkout/orders API to get order details.
 
