@@ -27,6 +27,7 @@
               body: JSON.stringify({
                 price: "{{ product['price'] }}", 
                 payee_id: "{{ payee_id }}", 
+                customer_id: "{{ customer_id }}", 
               })
             }).then(function(res) {
               return res.json();
