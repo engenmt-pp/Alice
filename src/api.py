@@ -74,40 +74,6 @@ def request_access_token(client_id, secret):
         raise exc
 
 
-def build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET):
-    """Build commonly used headers using a new PayPal access token."""
-    access_token = request_access_token(client_id, secret)
-    return {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {access_token}",
-    }
-
-
-def build_auth_assertion(client_id, merchant_payer_id):
-    """Build and return the PayPal Auth Assertion.
-
-    See https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion for details.
-    """
-    header = {"alg": "none"}
-    payload = {"iss": client_id, "payer_id": merchant_payer_id}
-
-    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
-    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
-
-    signature = b""
-
-    return b".".join([header_b64, payload_b64, signature])
-
-    try:
-        return response_dict["access_token"]
-    except KeyError as exc:
-        current_app.logger.error(f"Encountered a KeyError: {exc}")
-        current_app.logger.error(
-            f"response_dict = {json.dumps(response_dict, indent=2)}"
-        )
-        raise exc
-
-
 def build_headers(client_id=None, secret=None, include_bn_code=False):
     """Build commonly used headers using a new PayPal access token."""
     if client_id is None:
@@ -668,30 +634,6 @@ def refund_order(capture_id):
     data = {"note_to_payer": "Apologies for the inconvenience!"}
 
     response = requests.post(endpoint, headers=headers, data=json.dumps(data))
-    response_dict = response.json()
-    return response_dict
-
-
-def get_transactions():
-    """Get the transactions from the preceding four weeks.
-
-    This requires the "ADVANCED_TRANSACTIONS_SEARCH" option enabled at onboarding.
-
-    Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
-    """
-    headers = build_headers()
-    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
-
-    end_date = datetime.now(tz=timezone.utc)
-    start_date = end_date - timedelta(days=28)
-
-    query = {
-        "start_date": start_date.isoformat(timespec="seconds"),
-        "end_date": end_date.isoformat(timespec="seconds"),
-    }
-    endpoint = build_endpoint("/v1/reporting/transactions", query)
-
-    response = requests.get(endpoint, headers=headers)
     response_dict = response.json()
     return response_dict
 

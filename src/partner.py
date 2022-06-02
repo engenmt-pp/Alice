@@ -59,12 +59,6 @@ def is_ready_to_transact(status):
     ],
     we can just check for the corresponding URLs in the third party scopes.
     """
-    debug = True
-    if debug:
-        print(f"========")
-        print(f"Status")
-        print(f"========")
-        print(json.dumps(status, indent=2))
     scopes_required = [
         "https://uri.paypal.com/services/payments/realtimepayment",
         "https://uri.paypal.com/services/payments/payment/authcapture",
