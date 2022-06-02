@@ -5,18 +5,24 @@ import requests
 import paramiko
 import secrets
 
+from datetime import datetime, timedelta, timezone
 from flask import Blueprint, current_app, request, jsonify
+from urllib.parse import urlencode
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
 REPORTS_DIR = "/ppreports/outgoing"
 CUSTOMER_ID = "customer_1236"
 
-
-def build_endpoint(route):
+def build_endpoint(route, query=None):
     """Build the appropriate API endpoint given the suffix/route."""
     endpoint_prefix = current_app.config["ENDPOINT_PREFIX"]
-    return f"{endpoint_prefix}{route}"
+    endpoint = f"{endpoint_prefix}{route}"
+    if query is None:
+        return endpoint
+
+    query_string = urlencode(query)
+    return f"{endpoint}?{query_string}"
 
 
 def log_and_request(method, endpoint, **kwargs):
@@ -57,7 +63,15 @@ def request_access_token(client_id, secret):
 
     response = requests.post(endpoint, headers=headers, data=data, auth=(client_id, secret))
     response_dict = response.json()
-    return response_dict["access_token"]
+
+    try:
+        return response_dict["access_token"]
+    except KeyError as exc:
+        current_app.logger.error(f"Encountered a KeyError: {exc}")
+        current_app.logger.error(
+            f"response_dict = {json.dumps(response_dict, indent=2)}"
+        )
+        raise exc
 
 
 def build_headers(client_id=None, secret=None, include_bn_code=False):
@@ -65,8 +79,8 @@ def build_headers(client_id=None, secret=None, include_bn_code=False):
     if client_id is None:
         client_id = current_app.config["PARTNER_CLIENT_ID"]
     if secret is None:
-        secret = current_app.config["PARTNER_SECRET"] 
-    
+        secret = current_app.config["PARTNER_SECRET"]
+
     access_token = request_access_token(client_id, secret)
     headers = {
         "Accept": "application/json", 
@@ -82,6 +96,7 @@ def build_headers(client_id=None, secret=None, include_bn_code=False):
 
 def build_auth_assertion(client_id=None, merchant_id=None):
     """Build and return the PayPal Auth Assertion.
+
     Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
     """
     if client_id is None:
@@ -206,6 +221,7 @@ def create_partner_referral_v2(tracking_id, return_url):
                                 "PARTNER_FEE",
                                 "DELAY_FUNDS_DISBURSEMENT",
                                 "VAULT"
+                                "ADVANCED_TRANSACTIONS_SEARCH",
                             ]
                         },
                     }
@@ -499,20 +515,6 @@ def capture_order_vault():
     return jsonify(response_dict)
 
 
-@bp.route("/capture-order-vault", methods=("POST",))
-def capture_order_vault():
-    """Call the /v2/checkout/orders API to capture an order.
-
-    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
-    """
-    endpoint = build_endpoint(f"/v2/checkout/orders/{request.json['orderId']}/capture")
-    headers = build_headers()
-
-    response = log_and_request("POST", endpoint, headers=headers)
-    response_dict = response.json()
-    return jsonify(response_dict)
-
-
 def get_order_details(order_id):
     """Call the /v2/checkout/orders API to get order details.
 
@@ -526,9 +528,45 @@ def get_order_details(order_id):
     return response_dict
 
 
+def refund_order(capture_id):
+    endpoint = build_endpoint(f"/v2/payments/captures/{capture_id}/refund")
+
+    headers = build_headers()
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+
+    data = {"note_to_payer": "Apologies for the inconvenience!"}
+
+    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+    response_dict = response.json()
+    return response_dict
+
+
+def get_transactions():
+    """Get the transactions from the preceding four weeks.
+
+    This requires the "ADVANCED_TRANSACTIONS_SEARCH" option enabled at onboarding.
+
+    Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
+    """
+    end_date = datetime.now(tz=timezone.utc)
+    start_date = end_date - timedelta(days=28)
+
+    query = {
+        "start_date": start_date.isoformat(timespec="seconds"),
+        "end_date": end_date.isoformat(timespec="seconds"),
+    }
+    endpoint = build_endpoint("/v1/reporting/transactions", query)
+
+    headers = build_headers()
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+
+    response = requests.get(endpoint, headers=headers)
+    response_dict = response.json()
+    return response_dict
+
+
 def verify_webhook_signature(verification_dict):
     """Verify the signature of the webhook to ensure it is genuine.
-
     Docs: https://developer.paypal.com/api/webhooks/v1/#verify-webhook-signature_post
     """
     endpoint = build_endpoint("/v1/notifications/verify-webhook-signature")
@@ -585,3 +623,40 @@ def list_payment_tokens(customer_id=None):
 
     response = log_and_request("GET", endpoint, headers=headers)
     return response
+    
+
+def refund_order(capture_id):
+    endpoint = build_endpoint(f"/v2/payments/captures/{capture_id}/refund")
+
+    headers = build_headers()
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+
+    data = {"note_to_payer": "Apologies for the inconvenience!"}
+
+    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+    response_dict = response.json()
+    return response_dict
+
+
+def get_transactions():
+    """Get the transactions from the preceding four weeks.
+
+    This requires the "ADVANCED_TRANSACTIONS_SEARCH" option enabled at onboarding.
+
+    Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
+    """
+    headers = build_headers()
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+
+    end_date = datetime.now(tz=timezone.utc)
+    start_date = end_date - timedelta(days=28)
+    query = {
+        "start_date": start_date.isoformat(timespec="seconds"),
+        "end_date": end_date.isoformat(timespec="seconds"),
+    }
+
+    endpoint = build_endpoint(f"/v1/reporting/transactions", query)
+
+    response = requests.get(endpoint, headers=headers)
+    response_dict = response.json()
+    return response_dict

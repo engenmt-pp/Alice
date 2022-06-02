@@ -48,13 +48,14 @@ def onboarding(version="v2"):
 
 
 def is_ready_to_transact(status):
-    """Return whether or not the merchant is ready to process transactions based on its status.
+    """Return whether or not the merchant is ready to process transactions based on the merchant's status.
 
     As the requested features list is hardcoded as [
         "PAYMENT",
         "REFUND",
         "PARTNER_FEE",
         "DELAY_FUNDS_DISBURSEMENT",
+        "ADVANCED_TRANSACTIONS_SEARCH",
     ],
     we can just check for the corresponding URLs in the third party scopes.
     """
@@ -64,6 +65,7 @@ def is_ready_to_transact(status):
         "https://uri.paypal.com/services/payments/refund",
         "https://uri.paypal.com/services/payments/partnerfee",
         "https://uri.paypal.com/services/payments/delay-funds-disbursement",
+        "https://uri.paypal.com/services/reporting/search/read",  # Present if "ADVANCED_TRANSACTIONS_SEARCH" is included
     ]
     try:
         oauth_integrations = status["oauth_integrations"][0]
