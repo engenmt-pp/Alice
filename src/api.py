@@ -94,6 +94,26 @@ def build_headers(client_id=None, secret=None, include_bn_code=False):
     return headers
 
 
+def build_auth_assertion(client_id=None, merchant_id=None):
+    """Build and return the PayPal Auth Assertion.
+
+    Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
+    """
+    if client_id is None:
+        client_id = current_app.config["PARTNER_CLIENT_ID"]
+    if merchant_id is None:
+        merchant_id = current_app.config["MERCHANT_ID"]
+
+    header = {"alg": "none"}
+    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
+
+    payload = {"iss": client_id, "payer_id": merchant_id}
+    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
+
+    signature = b""
+    return b".".join([header_b64, payload_b64, signature])
+
+
 def generate_onboarding_urls(tracking_id, version="v2", return_url="paypal.com"):
     if version == "v1":
         response = create_partner_referral_v1(tracking_id, return_url=return_url)
@@ -508,26 +528,6 @@ def get_order_details(order_id):
     return response_dict
 
 
-def build_auth_assertion(client_id=None, merchant_id=None):
-    """Build and return the PayPal Auth Assertion.
-
-    Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
-    """
-    if client_id is None:
-        client_id = current_app.config["PARTNER_CLIENT_ID"]
-    if merchant_id is None:
-        merchant_id = current_app.config["MERCHANT_ID"]
-
-    header = {"alg": "none"}
-    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
-
-    payload = {"iss": client_id, "payer_id": merchant_id}
-    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
-
-    signature = b""
-    return b".".join([header_b64, payload_b64, signature])
-
-
 def refund_order(capture_id):
     endpoint = build_endpoint(f"/v2/payments/captures/{capture_id}/refund")
 
@@ -634,20 +634,6 @@ def refund_order(capture_id):
     data = {"note_to_payer": "Apologies for the inconvenience!"}
 
     response = requests.post(endpoint, headers=headers, data=json.dumps(data))
-    response_dict = response.json()
-    return response_dict
-
-
-def verify_webhook_signature(verification_dict):
-    """Verify the signature of the webhook to ensure it is genuine.
-    Docs: https://developer.paypal.com/api/webhooks/v1/#verify-webhook-signature_post
-    """
-    endpoint = build_endpoint("/v1/notifications/verify-webhook-signature")
-    headers = build_headers()
-
-    response = log_and_request(
-        "POST", endpoint, headers=headers, data=json.dumps(verification_dict)
-    )
     response_dict = response.json()
     return response_dict
 
