@@ -8,24 +8,11 @@ import secrets
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, current_app, request, jsonify
 from urllib.parse import urlencode
-from .my_secrets import (
-    PARTNER_CLIENT_ID,
-    PARTNER_ID,
-    PARTNER_SECRET,
-    MERCHANT_ID,
-    MERCHANT_SECRET,
-    MERCHANT_CLIENT_ID,
-)
-
-from datetime import datetime, timedelta, timezone
-from flask import Blueprint, request, jsonify
-from urllib.parse import urlencode
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
 REPORTS_DIR = "/ppreports/outgoing"
 CUSTOMER_ID = "customer_1236"
-
 
 def build_endpoint(route, query=None):
     """Build the appropriate API endpoint given the suffix/route."""
@@ -76,11 +63,14 @@ def request_access_token(client_id, secret):
 
     response = requests.post(endpoint, headers=headers, data=data, auth=(client_id, secret))
     response_dict = response.json()
+
     try:
         return response_dict["access_token"]
     except KeyError as exc:
-        print(f"Encountered a KeyError: {exc}")
-        print(f"response_dict = {json.dumps(response_dict, indent=2)}")
+        current_app.logger.error(f"Encountered a KeyError: {exc}")
+        current_app.logger.error(
+            f"response_dict = {json.dumps(response_dict, indent=2)}"
+        )
         raise exc
 
 
@@ -552,9 +542,65 @@ def get_order_details(order_id):
     return response_dict
 
 
+def build_auth_assertion(client_id=None, merchant_id=None):
+    """Build and return the PayPal Auth Assertion.
+
+    Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
+    """
+    if client_id is None:
+        client_id = current_app.config["PARTNER_CLIENT_ID"]
+    if merchant_id is None:
+        merchant_id = current_app.config["MERCHANT_ID"]
+
+    header = {"alg": "none"}
+    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
+
+    payload = {"iss": client_id, "payer_id": merchant_id}
+    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
+
+    signature = b""
+    return b".".join([header_b64, payload_b64, signature])
+
+
+def refund_order(capture_id):
+    endpoint = build_endpoint(f"/v2/payments/captures/{capture_id}/refund")
+
+    headers = build_headers()
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+
+    data = {"note_to_payer": "Apologies for the inconvenience!"}
+
+    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+    response_dict = response.json()
+    return response_dict
+
+
+def get_transactions():
+    """Get the transactions from the preceding four weeks.
+
+    This requires the "ADVANCED_TRANSACTIONS_SEARCH" option enabled at onboarding.
+
+    Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
+    """
+    end_date = datetime.now(tz=timezone.utc)
+    start_date = end_date - timedelta(days=28)
+
+    query = {
+        "start_date": start_date.isoformat(timespec="seconds"),
+        "end_date": end_date.isoformat(timespec="seconds"),
+    }
+    endpoint = build_endpoint("/v1/reporting/transactions", query)
+
+    headers = build_headers()
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+
+    response = requests.get(endpoint, headers=headers)
+    response_dict = response.json()
+    return response_dict
+
+
 def verify_webhook_signature(verification_dict):
     """Verify the signature of the webhook to ensure it is genuine.
-
     Docs: https://developer.paypal.com/api/webhooks/v1/#verify-webhook-signature_post
     """
     endpoint = build_endpoint("/v1/notifications/verify-webhook-signature")
@@ -671,20 +717,17 @@ def get_transactions():
 
     Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
     """
-    headers = build_headers(client_id=PARTNER_CLIENT_ID, secret=PARTNER_SECRET)
-    headers["PayPal-Auth-Assertion"] = build_auth_assertion(
-        client_id=PARTNER_CLIENT_ID, merchant_payer_id=MERCHANT_ID
-    )
+    headers = build_headers()
+    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
 
     end_date = datetime.now(tz=timezone.utc)
     start_date = end_date - timedelta(days=28)
-    data = {
+    query = {
         "start_date": start_date.isoformat(timespec="seconds"),
         "end_date": end_date.isoformat(timespec="seconds"),
     }
-    data_encoded = urlencode(data)
 
-    endpoint = f"{ENDPOINT_PREFIX}/v1/reporting/transactions?{data_encoded}"
+    endpoint = build_endpoint(f"/v1/reporting/transactions", query)
 
     response = requests.get(endpoint, headers=headers)
     response_dict = response.json()
