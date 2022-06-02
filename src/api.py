@@ -3,12 +3,14 @@ import base64
 import json
 import requests
 import paramiko
+import secrets
 
 from flask import Blueprint, current_app, request, jsonify
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
 REPORTS_DIR = "/ppreports/outgoing"
+CUSTOMER_ID = "customer_1236"
 
 
 def build_endpoint(route):
@@ -26,16 +28,19 @@ def log_and_request(method, endpoint, **kwargs):
     if method not in methods_dict:
         raise Exception(f"HTTP request method '{method}' not recognized!")
 
-    current_app.logger.debug(
-        f"\nSending {method} request to {endpoint}:\n{json.dumps(kwargs, indent=2)}"
-    )
+    try:
+        kwargs_str = json.dumps(kwargs, indent=2)
+    except TypeError:
+        kwargs_str = str(kwargs)
+    
+    current_app.logger.debug(f"\nSending {method} request to {endpoint}:\n{kwargs_str}")
 
     response = methods_dict[method](endpoint, **kwargs)
-    if response.ok:
-        print(f'Response: {json.dumps(response.json(),indent=2)}')
+    response_str = json.dumps(response.json(), indent=2)
+    if not response.ok:
+        current_app.logger.error(f"Error: {response_str}\n\n")
     else:
-        response_dict = json.loads(response.text)
-        raise Exception(f"API response is not okay: {json.dumps(response_dict,indent=2)}")
+        current_app.logger.debug(f"Response: {response_str}\n\n")
 
     return response
 
@@ -48,7 +53,7 @@ def request_access_token(client_id, secret):
     endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
 
-    data = {"grant_type": "client_credentials"}
+    data = {"grant_type": "client_credentials", "ignoreCache": True}
 
     response = requests.post(endpoint, headers=headers, data=data, auth=(client_id, secret))
     response_dict = response.json()
@@ -60,14 +65,15 @@ def build_headers(client_id=None, secret=None, include_bn_code=False):
     if client_id is None:
         client_id = current_app.config["PARTNER_CLIENT_ID"]
     if secret is None:
-        secret = current_app.config["PARTNER_SECRET"]
+        secret = current_app.config["PARTNER_SECRET"] 
     
     access_token = request_access_token(client_id, secret)
     headers = {
-        "Content-Type": "application/json",
+        "Accept": "application/json", 
+        "Accept-Language": "en_US",
         "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
     }
-
     if include_bn_code:
         headers["PayPal-Partner-Attribution-Id"] = current_app.config["PARTNER_BN_CODE"]
     
@@ -199,6 +205,7 @@ def create_partner_referral_v2(tracking_id, return_url):
                                 "REFUND",
                                 "PARTNER_FEE",
                                 "DELAY_FUNDS_DISBURSEMENT",
+                                "VAULT"
                             ]
                         },
                     }
@@ -206,12 +213,21 @@ def create_partner_referral_v2(tracking_id, return_url):
             }
         ],
         "products": ["PPCP"],
-        "legal_consents": [{"type": "SHARE_DATA_CONSENT", "granted": True}],
+        "legal_consents": [
+            {
+                "type": "SHARE_DATA_CONSENT", 
+                "granted": True
+            }
+        ],
         "partner_config_override": {"return_url": return_url},
     }
+    data_str = json.dumps(data)
 
-    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
-    return response.json()
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    response_dict = response.json()
+    return response_dict
+
+
 
 
 def get_merchant_id(tracking_id, partner_id=None):
@@ -290,6 +306,7 @@ def create_order(include_platform_fees = True):
                     "currency_code": "USD",
                     "value": request.json["price"],
                 },
+                "soft_descriptor": "1234567890111213141516",
             }
         ],
     }
@@ -307,7 +324,63 @@ def create_order(include_platform_fees = True):
             ]
         }
 
-    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
+    data_str = json.dumps(data)
+
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    response_dict = response.json()
+
+    current_app.logger.debug(f"Created an order:\n{json.dumps(response_dict,indent=2)}")
+    return jsonify(response_dict)
+
+
+@bp.route("/create-order-vault", methods=("POST",))
+def create_order_vault():
+    """Call the /v2/checkout/orders API to create an order.
+
+    Requires `price` and `payee_merchant_id` fields in the request body.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
+    """
+    endpoint = build_endpoint("/v2/checkout/orders")
+
+    headers = build_headers()
+    headers["PayPal-Partner-Attribution-Id"] = current_app.config["PARTNER_BN_CODE"]
+    headers["PayPal-Request-Id"] = secrets.token_hex(10)
+
+    data = {
+        "intent": "CAPTURE",
+        "payment_source": {
+            "paypal": {
+                "attributes": {
+                    "customer": {"id": CUSTOMER_ID},
+                    "vault": {
+                        "confirm_payment_token": "ON_ORDER_COMPLETION",
+                        "usage_type": "PLATFORM", # For Channel-Initiated Billing (CIB) Billing Agreement
+                        # "usage_type": "MERCHANT", # For Merchant-Initiated Billing (MIB) Billing Agreement
+                        "customer_type": "CONSUMER"
+                    }
+                }
+            }
+        },
+        "purchase_units": [
+            {
+                "custom_id": "Up to 127 characters can go here!",
+                "payee": {"merchant_id": request.json["payee_id"]},
+                "payment_instruction": {"disbursement_mode": "INSTANT"},
+                "amount": {
+                    "currency_code": "USD",
+                    "value": request.json["price"],
+                },
+            }
+        ],
+        "application_context": {
+            "return_url": "http://localhost:5000/",
+            "cancel_url": "http://localhost:5000/",
+        },
+    }
+    data_str = json.dumps(data)
+
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return jsonify(response_dict)
 
@@ -336,8 +409,9 @@ def create_order_auth():
             }
         ],
     }
+    data_str = json.dumps(data)
 
-    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return jsonify(response_dict)
 
@@ -389,7 +463,9 @@ def capture_authorization(auth_id, partner_fees = True):
     else:
         data = {}
 
-    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
+    data_str = json.dumps(data)
+
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return jsonify(response_dict)
 
@@ -400,6 +476,36 @@ def capture_order(order_id):
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
     """
     endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}/capture")
+    headers = build_headers()
+
+    response = log_and_request("POST", endpoint, headers=headers)
+    response_dict = response.json()
+
+    return jsonify(response_dict)
+
+
+@bp.route("/capture-order-vault", methods=("POST",))
+def capture_order_vault():
+    """Call the /v2/checkout/orders API to capture an order.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
+    """
+    endpoint = build_endpoint(f"/v2/checkout/orders/{request.json['orderId']}/capture")
+    headers = build_headers()
+
+    response = log_and_request("POST", endpoint, headers=headers)
+    response_dict = response.json()
+
+    return jsonify(response_dict)
+
+
+@bp.route("/capture-order-vault", methods=("POST",))
+def capture_order_vault():
+    """Call the /v2/checkout/orders API to capture an order.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
+    """
+    endpoint = build_endpoint(f"/v2/checkout/orders/{request.json['orderId']}/capture")
     headers = build_headers()
 
     response = log_and_request("POST", endpoint, headers=headers)
@@ -428,8 +534,54 @@ def verify_webhook_signature(verification_dict):
     endpoint = build_endpoint("/v1/notifications/verify-webhook-signature")
     headers = build_headers()
 
-    response = log_and_request(
-        "POST", endpoint, headers=headers, data=json.dumps(verification_dict)
-    )
+    verification_str = json.dumps(verification_dict)
+
+    response = log_and_request("POST", endpoint, headers=headers, data=verification_str)
     response_dict = response.json()
     return response_dict
+
+
+@bp.route("/gen-client-token")
+def generate_client_token(customer_id = None):
+    if customer_id is None:
+        customer_id = CUSTOMER_ID
+    endpoint = build_endpoint("/v1/identity/generate-token")
+    headers = build_headers()    
+
+    data = {"customer_id": customer_id}
+    data_str = json.dumps(data)
+
+    response = requests.post(endpoint, headers=headers, data=data_str)
+    response_dict = response.json()
+    return response_dict["client_token"]
+
+
+def build_auth_assertion(client_id=None, merchant_id=None):
+    """Build and return the PayPal Auth Assertion.
+
+    Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
+    """
+    if client_id is None:
+        client_id = current_app.config["PARTNER_CLIENT_ID"]
+    if merchant_id is None:
+        merchant_id = current_app.config["MERCHANT_ID"]
+
+    header = {"alg": "none"}
+    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
+
+    payload = {"iss": client_id, "payer_id": merchant_id}
+    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
+
+    signature = b""
+    return b".".join([header_b64, payload_b64, signature])
+
+
+def list_payment_tokens(customer_id=None):
+    if customer_id is None:
+        customer_id = CUSTOMER_ID
+
+    endpoint = build_endpoint(f"/v2/vault/payment-tokens?customer_id={customer_id}")
+    headers = build_headers()
+
+    response = log_and_request("GET", endpoint, headers=headers)
+    return response
