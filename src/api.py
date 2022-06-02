@@ -229,6 +229,7 @@ def create_partner_referral_v2(tracking_id, return_url):
 
 
 
+
 def get_merchant_id(tracking_id, partner_id=None):
     """Call the /v1/customer/partners API to get a merchant's merchant_id.
 
@@ -408,8 +409,9 @@ def create_order_auth():
             }
         ],
     }
+    data_str = json.dumps(data)
 
-    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
+    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return jsonify(response_dict)
 
@@ -474,6 +476,21 @@ def capture_order(order_id):
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
     """
     endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}/capture")
+    headers = build_headers()
+
+    response = log_and_request("POST", endpoint, headers=headers)
+    response_dict = response.json()
+
+    return jsonify(response_dict)
+
+
+@bp.route("/capture-order-vault", methods=("POST",))
+def capture_order_vault():
+    """Call the /v2/checkout/orders API to capture an order.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
+    """
+    endpoint = build_endpoint(f"/v2/checkout/orders/{request.json['orderId']}/capture")
     headers = build_headers()
 
     response = log_and_request("POST", endpoint, headers=headers)
