@@ -353,7 +353,6 @@ def create_order(include_platform_fees = True):
             ]
         }
     
-    # print(f'before: {json.dumps(data, indent=2)}')
     if request.json.get('include_shipping', False):
         data['purchase_units'][0]['shipping'] = {
             "options": [
@@ -368,7 +367,6 @@ def create_order(include_platform_fees = True):
                 }
             ]
         }
-        # print(f'after: {json.dumps(data, indent=2)}')
     
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
@@ -563,7 +561,7 @@ def determine_shipping():
 
 @bp.route("/update-shipping/<order_id>", methods=("POST",))
 def update_shipping(order_id):
-    """Add a shipping option with the /v2/checkout/orders API.
+    """Replace the order's shipping option with the /v2/checkout/orders API.
 
     In sandbox, this occaisionally fails to result in updated shipping options despite a 204 response.
     
