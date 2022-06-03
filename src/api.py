@@ -511,13 +511,13 @@ def capture_order(order_id):
     return jsonify(response_dict)
 
 
-@bp.route("/capture-order-vault", methods=("POST",))
-def capture_order_vault():
+@bp.route("/capture-order-vault/<order_id>", methods=("POST",))
+def capture_order_vault(order_id):
     """Call the /v2/checkout/orders API to capture an order.
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
     """
-    endpoint = build_endpoint(f"/v2/checkout/orders/{request.json['orderId']}/capture")
+    endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}/capture")
     headers = build_headers()
 
     response = log_and_request("POST", endpoint, headers=headers)
