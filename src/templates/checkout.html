@@ -15,29 +15,32 @@
     </div>
     
     <!-- Import PayPal Javascript SDK with Partner's credentials -->
-    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture" data-partner-attribution-id="{{ bn_code }}"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&commit=true" data-partner-attribution-id="{{ bn_code }}"></script>
 
     <script>
       function initPayPalButton() {
         paypal.Buttons({
-          createOrder: function(data, actions) {
+          createOrder: function (data, actions) {
+            console.log("Creating the order...")
             return fetch('/api/create-order', {
               headers: {'Content-Type': 'application/json'},
               method: 'POST',
               body: JSON.stringify({
                 price: "{{ product['price'] }}", 
-                payee_id: "{{ payee_id }}", 
+                payee_id: "{{ payee_id }}"
               })
             }).then(function(res) {
               return res.json();
             }).then(function(data) {
+              console.log("Order created!");
               return data.id;
             })
           },
           onApprove: function(data, actions) {
-            return fetch('/api/capture-order/' + data.orderID, {
+            return fetch('/api/capture-order', {
               headers: {'Content-Type': 'application/json'},
               method: 'POST',
+              body: JSON.stringify({orderId: data.orderID})
             }).then(function(res) {
               return res.json();
             }).then(function(captureData) {
@@ -47,8 +50,8 @@
               } else {
                 window.location.replace("/store/order-details/" + data.orderID);
               }
-            })  
-          }
+            })
+          },
         }).render('#paypal-button-container');
       }
       initPayPalButton();

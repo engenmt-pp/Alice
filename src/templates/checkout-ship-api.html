@@ -15,13 +15,14 @@
     </div>
     
     <!-- Import PayPal Javascript SDK with Partner's credentials -->
-    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=authorize&commit=false" data-partner-attribution-id="{{ bn_code }}"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&commit=true" data-partner-attribution-id="{{ bn_code }}"></script>
 
     <script>
       function initPayPalButton() {
         paypal.Buttons({
-          createOrder: function(data, actions) {
-            return fetch('/api/create-order-auth', {
+          createOrder: function (data, actions) {
+            console.log("Creating the order!")
+            return fetch('/api/create-order', {
               headers: {'Content-Type': 'application/json'},
               method: 'POST',
               body: JSON.stringify({
@@ -35,9 +36,10 @@
             })
           },
           onApprove: function(data, actions) {
-            return fetch('/api/auth-capture/' + data.orderID, {
+            return fetch('/api/capture-order', {
               headers: {'Content-Type': 'application/json'},
-              method: 'POST'
+              method: 'POST',
+              body: JSON.stringify({orderId: data.orderID})
             }).then(function(res) {
               return res.json();
             }).then(function(captureData) {
@@ -47,8 +49,22 @@
               } else {
                 window.location.replace("/store/order-details/" + data.orderID);
               }
-            })  
-          }
+            })
+          },
+          onShippingChange: function(data, actions) {
+            console.log("Shipping address: ", data.shipping_address);
+            console.log("Selected shipping option: ", data.selected_shipping_option);
+
+            fetch('/api/update-shipping', {
+              headers: {'Content-Type': 'application/json'},
+              method: 'POST',
+              body: JSON.stringify({
+                order_id: data.orderID,
+                shipping_address: data.shipping_address,
+                shipping_option: data.shipping_option,
+              })
+            });
+          },
         }).render('#paypal-button-container');
       }
       initPayPalButton();

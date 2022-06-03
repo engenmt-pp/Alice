@@ -1,8 +1,6 @@
-import csv
 import base64
 import json
 import requests
-import paramiko
 import secrets
 
 from datetime import datetime, timedelta, timezone
@@ -358,9 +356,7 @@ def create_order_vault():
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
     """
     endpoint = build_endpoint("/v2/checkout/orders")
-
-    headers = build_headers()
-    headers["PayPal-Partner-Attribution-Id"] = current_app.config["PARTNER_BN_CODE"]
+    headers = build_headers(include_bn_code = True)
     headers["PayPal-Request-Id"] = secrets.token_hex(10)
 
     data = {
@@ -368,7 +364,7 @@ def create_order_vault():
         "payment_source": {
             "paypal": {
                 "attributes": {
-                    "customer": {"id": CUSTOMER_ID},
+                    "customer": {"id": request.json['customer_id']},
                     "vault": {
                         "confirm_payment_token": "ON_ORDER_COMPLETION",
                         "usage_type": "PLATFORM", # For Channel-Initiated Billing (CIB) Billing Agreement
@@ -387,11 +383,25 @@ def create_order_vault():
                     "currency_code": "USD",
                     "value": request.json["price"],
                 },
+                "shipping": {
+                    "options": [
+                        {
+                            "id": "shipping-default",
+                            "label": "A default shipping option",
+                            "selected": True,
+                            "amount": {
+                                "value": "9.99",
+                                "currency_code": "USD",
+                            },
+                        }
+                    ]
+                },
             }
         ],
         "application_context": {
             "return_url": "http://localhost:5000/",
             "cancel_url": "http://localhost:5000/",
+            "shipping_preference": "GET_FROM_FILE"
         },
     }
     data_str = json.dumps(data)
@@ -424,6 +434,7 @@ def create_order_auth():
                 },
             }
         ],
+        "application_context": {"shipping_preference": "GET_FROM_FILE"},
     }
     data_str = json.dumps(data)
 
@@ -515,8 +526,67 @@ def capture_order_vault():
     return jsonify(response_dict)
 
 
+@bp.route("/determine-shipping", methods=("POST",))
+def determine_shipping():
+    """Determine new shipping options given a customer's shipping address.
+
+    Notes: This method returns a hard-coded determined shipping option.
+        More could happen here, of course.
+    """
+    data = {
+        "options": [
+            {
+                "id": "shipping-determined",
+                "label": "A determined shipping option",
+                "selected": True,
+                "amount": {
+                    "value": "9.99",
+                    "currency_code": "USD",
+                },
+            }
+        ]
+    }
+    return jsonify(data)
+
+
+@bp.route("/update-shipping", methods=("POST",))
+def update_shipping():
+    """Call the /v2/checkout/orders API to update the shipping on an order.
+
+    Docs: https://developer.paypal.com/api/orders/v2/#orders_patch
+    """
+    order_id = request.json["order_id"]
+    endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}")
+    headers = build_headers()
+
+    data = [
+        {
+            "op": "add",
+            "path": "/purchase_units/@reference_id=='default'/shipping/options",
+            "value": [
+                {
+                    "id": "shipping-update",
+                    "label": "An updated shipping option",
+                    "selected": False,
+                    "amount": {
+                        "value": "4.99",
+                        "currency_code": "USD",
+                    },
+                }
+            ],
+        }
+    ]
+    response = requests.patch(endpoint, headers=headers, data=json.dumps(data))
+
+    if response.status_code != 204:
+        current_app.logger.error(f"Encountered a non-204 response from PATCH: \n{json.dumps(response.json(), indent=2)}")
+        raise Exception("Encountered and error in the update_shipping PATCH!")
+
+    return "", 204
+
+
 def get_order_details(order_id):
-    """Call the /v2/checkout/orders API to get order details.
+    """Get the details of the order with the /v2/checkout/orders API.
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_get
     """
@@ -524,43 +594,6 @@ def get_order_details(order_id):
     headers = build_headers()
 
     response = log_and_request("GET", endpoint, headers=headers)
-    response_dict = response.json()
-    return response_dict
-
-
-def refund_order(capture_id):
-    endpoint = build_endpoint(f"/v2/payments/captures/{capture_id}/refund")
-
-    headers = build_headers()
-    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
-
-    data = {"note_to_payer": "Apologies for the inconvenience!"}
-
-    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
-    response_dict = response.json()
-    return response_dict
-
-
-def get_transactions():
-    """Get the transactions from the preceding four weeks.
-
-    This requires the "ADVANCED_TRANSACTIONS_SEARCH" option enabled at onboarding.
-
-    Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
-    """
-    end_date = datetime.now(tz=timezone.utc)
-    start_date = end_date - timedelta(days=28)
-
-    query = {
-        "start_date": start_date.isoformat(timespec="seconds"),
-        "end_date": end_date.isoformat(timespec="seconds"),
-    }
-    endpoint = build_endpoint("/v1/reporting/transactions", query)
-
-    headers = build_headers()
-    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
-
-    response = requests.get(endpoint, headers=headers)
     response_dict = response.json()
     return response_dict
 
@@ -580,9 +613,7 @@ def verify_webhook_signature(verification_dict):
 
 
 @bp.route("/gen-client-token")
-def generate_client_token(customer_id = None):
-    if customer_id is None:
-        customer_id = CUSTOMER_ID
+def generate_client_token(customer_id):
     endpoint = build_endpoint("/v1/identity/generate-token")
     headers = build_headers()    
 
@@ -592,26 +623,6 @@ def generate_client_token(customer_id = None):
     response = requests.post(endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return response_dict["client_token"]
-
-
-def build_auth_assertion(client_id=None, merchant_id=None):
-    """Build and return the PayPal Auth Assertion.
-
-    Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
-    """
-    if client_id is None:
-        client_id = current_app.config["PARTNER_CLIENT_ID"]
-    if merchant_id is None:
-        merchant_id = current_app.config["MERCHANT_ID"]
-
-    header = {"alg": "none"}
-    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
-
-    payload = {"iss": client_id, "payer_id": merchant_id}
-    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
-
-    signature = b""
-    return b".".join([header_b64, payload_b64, signature])
 
 
 def list_payment_tokens(customer_id=None):
