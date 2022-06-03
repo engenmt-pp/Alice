@@ -15,7 +15,7 @@
     </div>
     
     <!-- Import PayPal Javascript SDK with Partner's credentials -->
-    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&commit=true" data-partner-attribution-id="{{ bn_code }}"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&commit=false" data-partner-attribution-id="{{ bn_code }}"></script>
 
     <script>
       function initPayPalButton() {
@@ -27,6 +27,7 @@
               body: JSON.stringify({
                 price: "{{ product['price'] }}", 
                 payee_id: "{{ payee_id }}", 
+                include_shipping: true, 
               })
             }).then(function(res) {
               return res.json();
@@ -47,20 +48,26 @@
               } else {
                 window.location.replace("/store/order-details/" + data.orderID);
               }
-            })  
+            });
           },
           onShippingChange: function(data, actions) {
             console.log("Shipping address: ", data.shipping_address);
             console.log("Selected shipping option: ", data.selected_shipping_option);
-            return fetch('/api/update-shipping', {
+            return fetch('/api/determine-shipping', {
               headers: {'Content-Type': 'application/json'},
-              method: 'POST',
-              body: JSON.stringify({
-                order_id: data.orderID,
-                shipping_address: data.shipping_address,
-                shipping_option: data.shipping_option,
-              })
-            })
+              method: 'GET',
+            }).then(function(res) {
+              return res.json();
+            }).then(function (options) {
+              // In sandbox, actions.order.patch occaisionally fails to result in updated shipping options.
+              actions.order.patch([
+                {
+                  op: 'add',
+                  path: '/purchase_units/@reference_id==\'default\'/shipping/options',
+                  value: options
+                }
+              ]);
+            });
           }
         }).render('#paypal-button-container');
       }
