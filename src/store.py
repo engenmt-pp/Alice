@@ -65,7 +65,7 @@ def checkout(template, partner_client_id=None, payee_id=None, bn_code=None, **kw
         template,
         product=product,
         partner_client_id=partner_client_id,
-        payee_merchant_id=payee_id,
+        payee_id=payee_id,
         bn_code=bn_code,
         **kwargs,
     )

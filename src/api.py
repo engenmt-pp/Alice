@@ -579,14 +579,14 @@ def update_shipping():
     response = requests.patch(endpoint, headers=headers, data=json.dumps(data))
 
     if response.status_code != 204:
-        print(f"Encountered a non-204 response from PATCH: \n{response.text}")
-        raise Exception("update_shipping PATCH didn't go as expected!")
+        current_app.logger.error(f"Encountered a non-204 response from PATCH: \n{json.dumps(response.json(), indent=2)}")
+        raise Exception("Encountered and error in the update_shipping PATCH!")
 
     return "", 204
 
 
 def get_order_details(order_id):
-    """Call the /v2/checkout/orders API to get order details.
+    """Get the details of the order with the /v2/checkout/orders API.
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_get
     """
