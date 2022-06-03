@@ -26,8 +26,9 @@ def build_endpoint(route, query=None):
 def log_and_request(method, endpoint, **kwargs):
     """Log the HTTP request, make the request, and return the response."""
     methods_dict = {
-        "POST": requests.post,
         "GET": requests.get,
+        "PATCH": requests.patch,
+        "POST": requests.post,
     }
     if method not in methods_dict:
         raise Exception(f"HTTP request method '{method}' not recognized!")
@@ -39,8 +40,17 @@ def log_and_request(method, endpoint, **kwargs):
     
     current_app.logger.debug(f"\nSending {method} request to {endpoint}:\n{kwargs_str}")
 
+    try:
+        kwargs['data'] = json.dumps(kwargs['data'])
+    except KeyError:
+        pass
+
     response = methods_dict[method](endpoint, **kwargs)
-    response_str = json.dumps(response.json(), indent=2)
+    try:
+        response_str = json.dumps(response.json(), indent=2)
+    except json.decoder.JSONDecodeError:
+        response_str = response.text
+    
     if not response.ok:
         current_app.logger.error(f"Error: {response_str}\n\n")
     else:
@@ -323,6 +333,11 @@ def create_order(include_platform_fees = True):
                 "soft_descriptor": "1234567890111213141516",
             }
         ],
+        "application_context": {
+            "return_url": "http://localhost:5000/",
+            "cancel_url": "http://localhost:5000/",
+            "shipping_preference": "GET_FROM_FILE"
+        },
     }
 
     if include_platform_fees:
@@ -337,13 +352,26 @@ def create_order(include_platform_fees = True):
                 }
             ]
         }
-
-    data_str = json.dumps(data)
-
-    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    
+    # print(f'before: {json.dumps(data, indent=2)}')
+    if request.json.get('include_shipping', False):
+        data['purchase_units'][0]['shipping'] = {
+            "options": [
+                {
+                    "id": "shipping-default",
+                    "label": "A default shipping option",
+                    "selected": True,
+                    "amount": {
+                        "currency_code": "USD",
+                        "value": "9.99",
+                    },
+                }
+            ]
+        }
+        # print(f'after: {json.dumps(data, indent=2)}')
+    
+    response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
-
-    current_app.logger.debug(f"Created an order:\n{json.dumps(response_dict,indent=2)}")
     return jsonify(response_dict)
 
 
@@ -382,19 +410,6 @@ def create_order_vault():
                 "amount": {
                     "currency_code": "USD",
                     "value": request.json["price"],
-                },
-                "shipping": {
-                    "options": [
-                        {
-                            "id": "shipping-default",
-                            "label": "A default shipping option",
-                            "selected": True,
-                            "amount": {
-                                "value": "9.99",
-                                "currency_code": "USD",
-                            },
-                        }
-                    ]
                 },
             }
         ],
@@ -526,57 +541,55 @@ def capture_order_vault(order_id):
     return jsonify(response_dict)
 
 
-@bp.route("/determine-shipping", methods=("POST",))
+@bp.route("/determine-shipping", methods=("GET",))
 def determine_shipping():
     """Determine new shipping options given a customer's shipping address.
 
     Notes: This method returns a hard-coded determined shipping option.
         More could happen here, of course.
     """
-    data = {
-        "options": [
-            {
-                "id": "shipping-determined",
-                "label": "A determined shipping option",
-                "selected": True,
-                "amount": {
-                    "value": "9.99",
-                    "currency_code": "USD",
-                },
-            }
-        ]
-    }
-    return jsonify(data)
+    return jsonify([
+        {
+            "id": "shipping-determined",
+            "label": "A determined shipping option",
+            "selected": True,
+            "amount": {
+                "value": "4.99",
+                "currency_code": "USD",
+            },
+        }
+    ])
 
 
-@bp.route("/update-shipping", methods=("POST",))
-def update_shipping():
-    """Call the /v2/checkout/orders API to update the shipping on an order.
+@bp.route("/update-shipping/<order_id>", methods=("POST",))
+def update_shipping(order_id):
+    """Add a shipping option with the /v2/checkout/orders API.
 
+    In sandbox, this occaisionally fails to result in updated shipping options despite a 204 response.
+    
     Docs: https://developer.paypal.com/api/orders/v2/#orders_patch
     """
-    order_id = request.json["order_id"]
     endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}")
     headers = build_headers()
 
     data = [
         {
-            "op": "add",
+            "op": "replace",
             "path": "/purchase_units/@reference_id=='default'/shipping/options",
             "value": [
                 {
                     "id": "shipping-update",
                     "label": "An updated shipping option",
-                    "selected": False,
+                    "selected": True,
                     "amount": {
-                        "value": "4.99",
+                        "value": "9.99",
                         "currency_code": "USD",
                     },
                 }
             ],
         }
     ]
-    response = requests.patch(endpoint, headers=headers, data=json.dumps(data))
+    response = log_and_request('PATCH', endpoint, headers=headers, data=data)
 
     if response.status_code != 204:
         current_app.logger.error(f"Encountered a non-204 response from PATCH: \n{json.dumps(response.json(), indent=2)}")

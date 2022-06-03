@@ -45,8 +45,8 @@ def checkout_ship_api():
     return checkout(template)
 
 
-@bp.route("/checkout-js")
-def checkout_ship_js_sdk():
+@bp.route("/checkout-sdk")
+def checkout_ship_sdk():
     template = "checkout-ship-sdk.html"
     return checkout(template)
 
