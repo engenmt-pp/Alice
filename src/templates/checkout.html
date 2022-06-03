@@ -52,37 +52,6 @@
               }
             })
           },
-          onShippingChange: function(data, actions) {
-            console.group();
-            console.log("Shipping has been updated!");
-            console.log("Current shipping address: ", data.shipping_address);
-            console.log("Current shipping option: ", data.selected_shipping_option);
-            console.groupEnd();
-
-            console.log("Determining shipping options on the backend...");
-            fetch('/api/determine-shipping', {
-              headers: {'Content-Type': 'application/json'},
-              method: 'POST',
-              body: JSON.stringify({
-                shipping_address: data.shipping_address,
-                shipping_option: data.shipping_option,
-              })
-            }).then(function(res) {
-              return res.json();
-            }).then(function(responseData) {
-              return responseData.options;
-            }).then(function(shippingOptions) {
-              console.log("Determined shipping option: ", shippingOptions);
-              console.log("Replacing shipping options with the determined ones...");
-              return actions.order.patch([
-                {
-                  op: "replace",
-                  path: "/purchase_units/@reference_id=='default'/shipping/options",
-                  value: shippingOptions
-                }
-              ]);
-            });
-          },
         }).render('#paypal-button-container');
       }
       initPayPalButton();
