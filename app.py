@@ -8,8 +8,8 @@ if __name__ == "__main__":
 
     app = create_app()
 
-    # testing = True
-    testing = False
+    testing = True
+    # testing = False
     if testing:
         # from partner_specific_config import PartnerSpecificConfig
         # app.config.from_object(PartnerSpecificConfig)  # Enables debug-level logging

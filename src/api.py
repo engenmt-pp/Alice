@@ -12,6 +12,7 @@ bp = Blueprint("api", __name__, url_prefix="/api")
 REPORTS_DIR = "/ppreports/outgoing"
 CUSTOMER_ID = "customer_1236"
 
+
 def build_endpoint(route, query=None):
     """Build the appropriate API endpoint given the suffix/route."""
     endpoint_prefix = current_app.config["ENDPOINT_PREFIX"]
@@ -416,9 +417,8 @@ def create_order_vault():
             "shipping_preference": "GET_FROM_FILE"
         },
     }
-    data_str = json.dumps(data)
 
-    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
     return jsonify(response_dict)
 
@@ -448,9 +448,8 @@ def create_order_auth():
         ],
         "application_context": {"shipping_preference": "GET_FROM_FILE"},
     }
-    data_str = json.dumps(data)
 
-    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
     return jsonify(response_dict)
 
@@ -502,11 +501,10 @@ def capture_authorization(auth_id, partner_fees = True):
     else:
         data = {}
 
-    data_str = json.dumps(data)
-
-    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
     return jsonify(response_dict)
+
 
 @bp.route("/capture-order/<order_id>", methods=("POST",))
 def capture_order(order_id):
@@ -615,9 +613,7 @@ def verify_webhook_signature(verification_dict):
     endpoint = build_endpoint("/v1/notifications/verify-webhook-signature")
     headers = build_headers()
 
-    verification_str = json.dumps(verification_dict)
-
-    response = log_and_request("POST", endpoint, headers=headers, data=verification_str)
+    response = log_and_request("POST", endpoint, headers=headers, data=verification_dict)
     response_dict = response.json()
     return response_dict
 
