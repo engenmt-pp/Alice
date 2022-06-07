@@ -317,15 +317,17 @@ def create_order(include_platform_fees = True):
     endpoint = build_endpoint("/v2/checkout/orders")
     headers = build_headers(include_bn_code=True)
 
+    payee_id = request.json['payee_id']
+    price = request.json["price"]
     data = {
         "intent": "CAPTURE",
         "purchase_units": [
             {
                 "custom_id": "Up to 127 characters can go here!",
-                "payee": {"merchant_id": request.json["payee_id"]},
+                "payee": {"merchant_id": payee_id},
                 "amount": {
                     "currency_code": "USD",
-                    "value": request.json["price"],
+                    "value": price,
                 },
                 "soft_descriptor": "1234567890111213141516",
             }
