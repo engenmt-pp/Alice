@@ -12,6 +12,7 @@ bp = Blueprint("api", __name__, url_prefix="/api")
 REPORTS_DIR = "/ppreports/outgoing"
 
 
+
 def build_endpoint(route, query=None):
     """Build the appropriate API endpoint given the suffix/route."""
     endpoint_prefix = current_app.config["ENDPOINT_PREFIX"]
@@ -507,6 +508,7 @@ def capture_authorization(auth_id, partner_fees = True):
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
     return jsonify(response_dict)
+
 
 @bp.route("/capture-order/<order_id>", methods=("POST",))
 def capture_order(order_id):
