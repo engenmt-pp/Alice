@@ -8,7 +8,7 @@
     <p>Description: {{ product['description'] }}</p> 
 
     <!-- Import PayPal Javascript SDK with Partner's credentials -->
-    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&components=hosted-fields" data-partner-attribution-id="{{ bn_code }}"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&components=hosted-fields" data-partner-attribution-id="{{ bn_code }}" data-client-token="{{ client_token }}"></script>
 
     <!-- Advanced credit and debit card payments form-->
     <div class="card_container">
