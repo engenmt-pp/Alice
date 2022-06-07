@@ -57,8 +57,13 @@
         paypal.HostedFields.render({
           // Call your server to set up the transaction
           createOrder: function () {
-              return fetch('/api/create-order', {
-              method: 'post'
+            return fetch('/api/create-order', {
+              headers: {'Content-Type': 'application/json'},
+              method: 'POST',
+              body: JSON.stringify({
+                price: "{{ product['price'] }}", 
+                payee_id: "{{ payee_id }}"
+              })
             }).then(function(res) {
               return res.json();
             }).then(function(orderData) {
@@ -109,8 +114,9 @@
                 countryCodeAlpha2: document.getElementById('card-billing-address-country').value
               }
             }).then(function () {
-              fetch('/your-server/api/order/' + orderId + '/capture/', {
-                method: 'post'
+              fetch('/api/capture-order/' + orderId, {
+                headers: {'Content-Type': 'application/json'},
+                method: 'POST'
               }).then(function(res) {
                 return res.json();
               }).then(function (orderData) {
