@@ -634,11 +634,9 @@ def generate_client_token(customer_id=None):
     return response_dict["client_token"]
 
 
-def list_payment_tokens(customer_id=None):
-    if customer_id is None:
-        customer_id = CUSTOMER_ID
-
-    endpoint = build_endpoint(f"/v2/vault/payment-tokens?customer_id={customer_id}")
+def list_payment_tokens(customer_id):
+    query = {'customer_id': customer_id}
+    endpoint = build_endpoint(f"/v2/vault/payment-tokens", query=query)
     headers = build_headers()
 
     response = log_and_request("GET", endpoint, headers=headers)

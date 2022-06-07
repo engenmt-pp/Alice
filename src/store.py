@@ -93,9 +93,9 @@ def order_details(order_id, **kwargs):
     )
 
 
-@bp.route("/payment-tokens")
-def payment_tokens(customer_id=None):
-    tokens = list_payment_tokens(customer_id=customer_id)
+@bp.route("/payment-tokens/<customer_id>")
+def payment_tokens(customer_id):
+    tokens = list_payment_tokens(customer_id)
     return render_template("status.html", status=tokens.text)
 
 
