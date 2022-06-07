@@ -621,14 +621,17 @@ def verify_webhook_signature(verification_dict):
 
 
 @bp.route("/gen-client-token")
-def generate_client_token(customer_id):
+def generate_client_token(customer_id=None):
     endpoint = build_endpoint("/v1/identity/generate-token")
     headers = build_headers()    
 
-    data = {"customer_id": customer_id}
-    data_str = json.dumps(data)
+    if customer_id is None:
+        response = requests.post(endpoint, headers=headers)
+    else:
+        data = {"customer_id": customer_id}
+        data_str = json.dumps(data)
+        response = requests.post(endpoint, headers, data=data_str)
 
-    response = requests.post(endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return response_dict["client_token"]
 

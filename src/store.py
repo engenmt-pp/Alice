@@ -28,8 +28,9 @@ def checkout_capture():
 
 @bp.route("/checkout-hosted")
 def checkout_hosted():
+    client_token = generate_client_token()
     template = "checkout-hosted.html"
-    return checkout(template)
+    return checkout(template, client_token=client_token)
 
 
 @bp.route("/checkout-auth")
