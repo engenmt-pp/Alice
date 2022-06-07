@@ -26,6 +26,12 @@ def checkout_capture():
     return checkout(template)
 
 
+@bp.route("/checkout-hosted")
+def checkout_hosted():
+    template = "checkout-hosted.html"
+    return checkout(template)
+
+
 @bp.route("/checkout-auth")
 def checkout_authorize():
     template = "checkout-auth-capture.html"

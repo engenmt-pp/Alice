@@ -228,7 +228,7 @@ def create_partner_referral_v2(tracking_id, return_url):
                                 "REFUND",
                                 "PARTNER_FEE",
                                 "DELAY_FUNDS_DISBURSEMENT",
-                                "VAULT"
+                                "VAULT",
                                 "ADVANCED_TRANSACTIONS_SEARCH",
                             ]
                         },
@@ -245,13 +245,10 @@ def create_partner_referral_v2(tracking_id, return_url):
         ],
         "partner_config_override": {"return_url": return_url},
     }
-    data_str = json.dumps(data)
 
-    response = log_and_request("POST", endpoint, headers=headers, data=data_str)
+    response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
     return response_dict
-
-
 
 
 def get_merchant_id(tracking_id, partner_id=None):
