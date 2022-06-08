@@ -93,10 +93,11 @@ def order_details(order_id, **kwargs):
     )
 
 
-@bp.route("/payment-tokens")
-def payment_tokens(customer_id=None):
+@bp.route("/payment-tokens/<customer_id>")
+def payment_tokens(customer_id):
     tokens = list_payment_tokens(customer_id=customer_id)
-    return render_template("status.html", status=tokens.text)
+    status = json.dumps(tokens.json(), indent=2)
+    return render_template("status.html", status=status)
 
 
 @bp.route("/order-refund/<order_id>")
