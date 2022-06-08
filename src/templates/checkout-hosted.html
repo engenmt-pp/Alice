@@ -140,9 +140,8 @@
                     if (orderData.debug_id) msg += ' (' + orderData.debug_id + ')';
                     return alert(msg); // Show a failure message
                 }
-
-                // Show a success message or redirect
-                alert('Transaction completed!');
+                
+                window.location.replace("/store/order-details/" + orderData.id);
               })
           }).catch(function (err) {
             alert('Payment could not be captured! ' + JSON.stringify(err))
