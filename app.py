@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from config import DevelopmentConfig, TestingConfig
-from partner_specific_config import PartnerSpecificConfig
 from src import create_app
 
 
@@ -12,6 +11,7 @@ if __name__ == "__main__":
     # testing = True
     testing = False
     if testing:
+        # from partner_specific_config import PartnerSpecificConfig
         # app.config.from_object(PartnerSpecificConfig)  # Enables debug-level logging
         app.config.from_object(TestingConfig)  # Enables debug-level logging
     else:
