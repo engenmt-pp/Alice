@@ -375,7 +375,7 @@ def create_order(include_platform_fees = True):
 def create_order_vault():
     """Call the /v2/checkout/orders API to create an order.
 
-    Requires `price` and `payee_merchant_id` fields in the request body.
+    Requires `customer_id, `price`, and `payee_merchant_id` fields in the request body.
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
     """
@@ -622,8 +622,9 @@ def generate_client_token(customer_id):
     headers = build_headers()    
 
     data = {"customer_id": customer_id}
+    data_str = json.dumps(data)
 
-    response = requests.post(endpoint, headers=headers, data=data)
+    response = requests.post(endpoint, headers=headers, data=data_str)
     response_dict = response.json()
     return response_dict["client_token"]
 
