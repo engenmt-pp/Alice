@@ -12,10 +12,10 @@ bp = Blueprint("api", __name__, url_prefix="/api")
 REPORTS_DIR = "/ppreports/outgoing"
 
 
-def random_int(length):
-    """Return a positive integer chosen uniformly at random of the given length.
-    """
-    return random.randrange(10**length, 10**(length+1))
+def random_decimal_string(length):
+    """Return a decimal string of the given length chosen uniformly at random."""
+    random_int = random.randrange(10**length, 10**(length+1))
+    return f'{random_int}'
 
 
 def build_endpoint(route, query=None):
@@ -392,7 +392,7 @@ def create_order_vault():
     """
     endpoint = build_endpoint("/v2/checkout/orders")
     headers = build_headers(include_bn_code = True)
-    headers["PayPal-Request-Id"] = f'{}'
+    headers["PayPal-Request-Id"] = random_decimal_string(length=12)
 
     data = {
         "intent": "CAPTURE",
