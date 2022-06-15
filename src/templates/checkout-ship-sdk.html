@@ -37,7 +37,6 @@
           },
           onApprove: function(data, actions) {
             return fetch('/api/orders/capture/' + data.orderID, {
-              headers: {'Content-Type': 'application/json'},
               method: 'POST',
             }).then(function(res) {
               return res.json();
@@ -54,7 +53,6 @@
             console.log("Shipping address: ", data.shipping_address);
             console.log("Selected shipping option: ", data.selected_shipping_option);
             return fetch('/api/orders/determine-shipping', {
-              headers: {'Content-Type': 'application/json'},
               method: 'GET',
             }).then(function(res) {
               return res.json();

@@ -36,7 +36,6 @@
           },
           onApprove: function(data, actions) {
             return fetch('/api/orders/auth-capture/' + data.orderID, {
-              headers: {'Content-Type': 'application/json'},
               method: 'POST'
             }).then(function(res) {
               return res.json();

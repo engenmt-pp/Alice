@@ -115,7 +115,6 @@
               }
             }).then(function () {
               fetch('/api/orders/capture/' + orderId, {
-                headers: {'Content-Type': 'application/json'},
                 method: 'POST'
               }).then(function(res) {
                 return res.json();
