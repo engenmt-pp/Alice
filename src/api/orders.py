@@ -1,8 +1,6 @@
-import secrets
-
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, jsonify, request
-from .utils import build_endpoint, build_headers, log_and_request
+from .utils import build_endpoint, build_headers, log_and_request, random_decimal_string
 
 
 bp = Blueprint("orders", __name__, url_prefix="/orders")
@@ -83,7 +81,7 @@ def create_order_vault():
     """
     endpoint = build_endpoint("/v2/checkout/orders")
     headers = build_headers(include_bn_code=True)
-    headers["PayPal-Request-Id"] = secrets.token_hex(10)
+    headers["PayPal-Request-Id"] = random_decimal_string(length=10)
 
     customer_id = request.json["customer_id"]
     payee_id = request.json["payee_id"]
