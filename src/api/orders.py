@@ -30,7 +30,7 @@ def default_shipping_option():
     }
 
 
-@bp.route("/create-order", methods=("POST",))
+@bp.route("/create", methods=("POST",))
 def create_order(include_platform_fees=True):
     """Create an order with the /v2/checkout/orders API.
 
@@ -70,7 +70,7 @@ def create_order(include_platform_fees=True):
     return jsonify(response_dict)
 
 
-@bp.route("/create-order-vault", methods=("POST",))
+@bp.route("/create-vault", methods=("POST",))
 def create_order_vault():
     """Create an order for vaulting with the /v2/checkout/orders API.
 
@@ -115,7 +115,7 @@ def create_order_vault():
     return jsonify(response_dict)
 
 
-@bp.route("/create-order-auth", methods=("POST",))
+@bp.route("/create-auth", methods=("POST",))
 def create_order_auth():
     """Create an order for auth-capture with the /v2/checkout/orders API.
 
@@ -186,7 +186,7 @@ def capture_authorization(auth_id, include_partner_fees=True):
     return jsonify(response_dict)
 
 
-@bp.route("/capture-order/<order_id>", methods=("POST",))
+@bp.route("/capture/<order_id>", methods=("POST",))
 def capture_order(order_id):
     """Capture the order with the /v2/checkout/orders API.
 
@@ -252,6 +252,9 @@ def update_shipping(order_id):
         }
     ]
     response = log_and_request("PATCH", endpoint, headers=headers, data=data)
+    if response.status_code == 204:
+        return {}
+
     response_dict = response.json()
     return response_dict
 
