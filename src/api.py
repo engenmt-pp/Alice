@@ -12,8 +12,6 @@ bp = Blueprint("api", __name__, url_prefix="/api")
 REPORTS_DIR = "/ppreports/outgoing"
 
 
-
-
 def build_endpoint(route, query=None):
     """Build the appropriate API endpoint given the suffix/route."""
     endpoint_prefix = current_app.config["ENDPOINT_PREFIX"]
