@@ -1,7 +1,7 @@
 import json
 
 from flask import Blueprint, render_template, url_for
-from .api import (
+from .api.referrals import (
     random_decimal_string,
     generate_onboarding_urls,
     get_merchant_id,
