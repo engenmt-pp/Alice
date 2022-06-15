@@ -1,21 +1,31 @@
 import json
 
 from flask import Blueprint, current_app, request
-
-from .api import verify_webhook_signature
-
+from .utils import build_endpoint, build_headers, log_and_request
 
 bp = Blueprint("webhooks", __name__, url_prefix="/webhooks")
 
 
-def to_verification_dict(webhook_headers, webhook_body, webhook_id=None):
+def verify_webhook_signature(verification_dict):
+    """Verify the signature of the webhook with the /v1/notifications API.
+
+    Docs: https://developer.paypal.com/api/webhooks/v1/#verify-webhook-signature_post
+    """
+    endpoint = build_endpoint("/v1/notifications/verify-webhook-signature")
+    headers = build_headers()
+
+    response = log_and_request(
+        "POST", endpoint, headers=headers, data=verification_dict
+    )
+    response_dict = response.json()
+    return response_dict
+
+
+def to_verification_dict(webhook_headers, webhook_body):
     """Create the verification dict from a webhook's headers and event body.
 
     Docs: https://developer.paypal.com/api/webhooks/v1/#verify-webhook-signature_post
     """
-    if webhook_id is None:
-        webhook_id = current_app.config["WEBHOOK_ID"]
-
     mapping = [
         ("transmission_id", "PayPal-Transmission-Id"),
         ("transmission_time", "PayPal-Transmission-Time"),
@@ -30,7 +40,7 @@ def to_verification_dict(webhook_headers, webhook_body, webhook_id=None):
     }
 
     # Hardcoded webhook ID from developer.paypal.com
-    verification_dict["webhook_id"] = webhook_id
+    verification_dict["webhook_id"] = current_app.config["WEBHOOK_ID"]
     verification_dict["webhook_event"] = webhook_body
 
     return verification_dict
@@ -38,9 +48,8 @@ def to_verification_dict(webhook_headers, webhook_body, webhook_id=None):
 
 @bp.route("/", methods=("POST",))
 def listener():
-
-    webhook_body = request.json
-    print(f"Webhook received:\n{json.dumps(webhook_body, indent=2)}")
+    webhook_body = request.json()
+    current_app.logger.info(f"Webhook received:\n{json.dumps(webhook_body, indent=2)}")
 
     webhook_headers = request.headers
 

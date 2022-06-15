@@ -2,7 +2,7 @@ import json
 import secrets
 
 from flask import Blueprint, render_template, url_for
-from .api import (
+from .api.referrals import (
     generate_onboarding_urls,
     get_merchant_id,
     get_onboarding_status,
