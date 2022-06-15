@@ -1,8 +1,8 @@
 import json
-import secrets
 
 from flask import Blueprint, render_template, url_for
 from .api import (
+    random_decimal_string,
     generate_onboarding_urls,
     get_merchant_id,
     get_onboarding_status,
@@ -13,17 +13,9 @@ from .api import (
 bp = Blueprint("partner", __name__, url_prefix="/partner")
 
 
-def generate_tracking_id():
-    """Generate a `length`-length hexadecimal tracking_id.
-
-    Collisions are unlikely (1 in 281_474_976_710_656 chance)."""
-    length = 12
-    return secrets.token_hex(length)
-
-
 @bp.route("/onboarding")
 def onboarding(version="v2"):
-    tracking_id = generate_tracking_id()
+    tracking_id = random_decimal_string(length=12)
     onboarding_url, referral_url = generate_onboarding_urls(
         tracking_id, version=version
     )
