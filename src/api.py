@@ -10,7 +10,7 @@ from urllib.parse import urlencode
 bp = Blueprint("api", __name__, url_prefix="/api")
 
 REPORTS_DIR = "/ppreports/outgoing"
-CUSTOMER_ID = "customer_1236"
+
 
 
 def build_endpoint(route, query=None):
@@ -53,7 +53,7 @@ def log_and_request(method, endpoint, **kwargs):
         response_str = response.text
     
     if not response.ok:
-        current_app.logger.error(f"Error: {response_str}\n\n")
+        current_app.logger.error(f"{response.status_code} Error: {response_str}\n\n")
     else:
         current_app.logger.debug(f"Response: {response_str}\n\n")
 
@@ -83,7 +83,7 @@ def request_access_token(client_id, secret):
         raise exc
 
 
-def build_headers(client_id=None, secret=None, include_bn_code=False):
+def build_headers(client_id=None, secret=None, include_bn_code=False, include_auth_assertion=False):
     """Build commonly used headers using a new PayPal access token."""
     if client_id is None:
         client_id = current_app.config["PARTNER_CLIENT_ID"]
@@ -97,8 +97,12 @@ def build_headers(client_id=None, secret=None, include_bn_code=False):
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
     }
+
     if include_bn_code:
         headers["PayPal-Partner-Attribution-Id"] = current_app.config["PARTNER_BN_CODE"]
+    
+    if include_auth_assertion:
+        headers["PayPal-Auth-Assertion"] = build_auth_assertion()
     
     return headers
 
@@ -202,7 +206,7 @@ def create_partner_referral_v1(tracking_id, return_url):
         ]
     }
 
-    response = log_and_request("POST", endpoint, headers=headers, data=json.dumps(data))
+    response = log_and_request("POST", endpoint, headers=headers, data=data)
     return response.json()
 
 
@@ -517,7 +521,6 @@ def capture_order(order_id):
 
     response = log_and_request("POST", endpoint, headers=headers)
     response_dict = response.json()
-
     return jsonify(response_dict)
 
 
@@ -532,7 +535,6 @@ def capture_order_vault(order_id):
 
     response = log_and_request("POST", endpoint, headers=headers)
     response_dict = response.json()
-
     return jsonify(response_dict)
 
 
@@ -628,7 +630,7 @@ def generate_client_token(customer_id=None):
     else:
         data = {"customer_id": customer_id}
         data_str = json.dumps(data)
-        response = requests.post(endpoint, headers, data=data_str)
+        response = requests.post(endpoint, headers=headers, data=data_str)
 
     response_dict = response.json()
     return response_dict["client_token"]
@@ -645,9 +647,7 @@ def list_payment_tokens(customer_id):
 
 def refund_order(capture_id):
     endpoint = build_endpoint(f"/v2/payments/captures/{capture_id}/refund")
-
-    headers = build_headers()
-    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+    headers = build_headers(include_auth_assertion=True)
 
     data = {"note_to_payer": "Apologies for the inconvenience!"}
 
@@ -663,8 +663,7 @@ def get_transactions():
 
     Docs: https://developer.paypal.com/docs/api/transaction-search/v1/
     """
-    headers = build_headers()
-    headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+    headers = build_headers(include_auth_assertion=True)
 
     end_date = datetime.now(tz=timezone.utc)
     start_date = end_date - timedelta(days=28)
