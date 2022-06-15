@@ -1,7 +1,7 @@
 import base64
 import json
+import random
 import requests
-import secrets
 
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, current_app, request, jsonify
@@ -10,6 +10,12 @@ from urllib.parse import urlencode
 bp = Blueprint("api", __name__, url_prefix="/api")
 
 REPORTS_DIR = "/ppreports/outgoing"
+
+
+def random_int(length):
+    """Return a positive integer chosen uniformly at random of the given length.
+    """
+    return random.randrange(10**length, 10**(length+1))
 
 
 def build_endpoint(route, query=None):
@@ -386,7 +392,7 @@ def create_order_vault():
     """
     endpoint = build_endpoint("/v2/checkout/orders")
     headers = build_headers(include_bn_code = True)
-    headers["PayPal-Request-Id"] = secrets.token_hex(10)
+    headers["PayPal-Request-Id"] = f'{}'
 
     data = {
         "intent": "CAPTURE",
