@@ -22,7 +22,7 @@
         paypal.Buttons({
           createOrder: function (data, actions) {
             console.log("Creating the order...")
-            return fetch('/api/create-order', {
+            return fetch('/api/orders/create', {
               headers: {'Content-Type': 'application/json'},
               method: 'POST',
               body: JSON.stringify({
@@ -37,8 +37,7 @@
             })
           },
           onApprove: function(data, actions) {
-            return fetch('/api/capture-order/' + data.orderID, {
-              headers: {'Content-Type': 'application/json'},
+            return fetch('/api/orders/capture/' + data.orderID, {
               method: 'POST',
             }).then(function(res) {
               return res.json();
