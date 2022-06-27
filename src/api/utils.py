@@ -69,6 +69,8 @@ def request_access_token(client_id, secret):
     response_dict = response.json()
 
     try:
+        scopes = sorted(response_dict["scope"].split())
+        current_app.logger.info("Scopes:\n\t" + "\n\t".join(scopes))
         return response_dict["access_token"]
     except KeyError as exc:
         current_app.logger.error(f"Encountered a KeyError: {exc}")
@@ -132,8 +134,7 @@ def generate_client_token(customer_id=None):
         response = requests.post(endpoint, headers=headers)
     else:
         data = {"customer_id": customer_id}
-        data_str = json.dumps(data)
-        response = requests.post(endpoint, headers=headers, data=data_str)
+        response = log_and_request("POST", endpoint, headers=headers, data=data)
 
     response_dict = response.json()
     return response_dict["client_token"]

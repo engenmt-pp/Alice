@@ -115,9 +115,9 @@ def create_partner_referral_v2(tracking_id, return_url):
                                 "PAYMENT",
                                 "REFUND",
                                 "PARTNER_FEE",
-                                "DELAY_FUNDS_DISBURSEMENT",
-                                "VAULT",
-                                "ADVANCED_TRANSACTIONS_SEARCH",
+                                # "DELAY_FUNDS_DISBURSEMENT",
+                                # "VAULT",
+                                # "ADVANCED_TRANSACTIONS_SEARCH",
                             ]
                         },
                     }

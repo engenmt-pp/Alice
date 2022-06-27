@@ -48,6 +48,12 @@ def checkout_vaulting(customer_id):
     return checkout(template, customer_id=customer_id, client_token=client_token)
 
 
+@bp.route("/checkout-not-present/<customer_id>")
+def checkout_not_present(customer_id):
+    template = "checkout-not-present.html"
+    return checkout(template, customer_id=customer_id)
+
+
 @bp.route("/checkout-api")
 def checkout_ship_api():
     template = "checkout-ship-api.html"

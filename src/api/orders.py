@@ -1,5 +1,7 @@
+import json
 from datetime import datetime, timedelta, timezone
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
+
 from .utils import build_endpoint, build_headers, log_and_request, random_decimal_string
 
 
@@ -75,7 +77,7 @@ def create_order_vault():
     """Create an order for vaulting with the /v2/checkout/orders API.
 
     Notes:
-      - Requires `customer_id, `payee_id`, and `price` fields in the request body.
+      - Requires `customer_id`, `payee_id`, and `price` fields in the request body.
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
     """
@@ -98,6 +100,7 @@ def create_order_vault():
                         "usage_type": "PLATFORM",  # For Channel-Initiated Billing (CIB) Billing Agreement
                         # "usage_type": "MERCHANT", # For Merchant-Initiated Billing (MIB) Billing Agreement
                         "customer_type": "CONSUMER",
+                        # "permit_multiple_payment_tokens": True,
                     },
                 }
             }
@@ -107,7 +110,53 @@ def create_order_vault():
             "return_url": "http://localhost:5000/",
             "cancel_url": "http://localhost:5000/",
             "shipping_preference": "GET_FROM_FILE",
+            # "permit_multiple_payment_tokens": True,
         },
+    }
+
+    response = log_and_request("POST", endpoint, headers=headers, data=data)
+    response_dict = response.json()
+    return jsonify(response_dict)
+
+
+@bp.route("/not-present", methods=("POST",))
+def order_not_present():
+    """Create and capture an order using a vaulted payment method with the /v2/checkout/orders API.
+
+    Notes:
+      - Requires `customer_id`, `payee_id`, and `price` fields in the request body.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
+    """
+    endpoint = build_endpoint("/v2/checkout/orders")
+    headers = build_headers(include_bn_code=True)
+    headers["PayPal-Request-Id"] = random_decimal_string(length=10)
+
+    customer_id = request.json["customer_id"]
+    payee_id = request.json["payee_id"]
+    price = request.json["price"]
+
+    payment_tokens_resp = get_payment_tokens(customer_id).json()
+    payment_tokens = payment_tokens_resp["payment_tokens"]
+    try:
+        token_id = payment_tokens[0]["id"]
+    except IndexError as exc:
+        current_app.error(
+            "No payment tokens found! Payment token response:"
+            f"\n{json.dumps(payment_tokens_resp, indent=2)}"
+        )
+        raise exc
+
+    data = {
+        "intent": "CAPTURE",
+        "payment_source": {
+            "token": {
+                "type": "PAYMENT_METHOD_TOKEN",
+                "id": token_id,
+            },
+            "vault": {"usage_type": "PLATFORM", "customer_type": "CONSUMER"},
+        },
+        "purchase_units": [default_purchase_unit(payee_id, price)],
     }
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
