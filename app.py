@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from config import SandboxConfig, TestingConfig, MerchantOneConfig
+from config import SandboxConfig, TestingConfig, PartnerOneConfig, MerchantOneConfig
 from partner_specific_config import PartnerSpecificConfig
 from src import create_app
 
@@ -12,16 +12,10 @@ if __name__ == "__main__":
     testing = True  # Enables debug-level logging
     # testing = False  # Disables debug-level logging
     if testing:
-        # from partner_specific_config import PartnerSpecificConfig
+        # from partner_specific_config import PartnerInderConfig
 
-        # app.config.from_object(PartnerSpecificConfig)
-
-        from partner_specific_config import PartnerTwoConfig
-
-        app.config.from_object(PartnerTwoConfig)
+        app.config.from_object(PartnerOneConfig)
         app.config.from_object(MerchantOneConfig)
-
-        # app.config.from_object(TestingConfig)
     else:
         app.config.from_object(SandboxConfig)
 

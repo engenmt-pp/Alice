@@ -14,6 +14,7 @@ def create_app():
     os.makedirs(app.instance_path, exist_ok=True)
 
     from . import api, partner, store, reports
+    from . import store_merchant
 
     app.register_blueprint(api.bp)
     app.register_blueprint(reports.bp)
@@ -21,6 +22,8 @@ def create_app():
     app.register_blueprint(partner.bp)
     app.register_blueprint(store.bp)
     app.add_url_rule("/", endpoint="store.checkout_capture")
+
+    app.register_blueprint(store_merchant.bp)
 
     return app
 

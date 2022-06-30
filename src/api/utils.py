@@ -53,6 +53,10 @@ def log_and_request(method, endpoint, **kwargs):
     return response
 
 
+from functools import cache
+
+
+@cache
 def request_access_token(client_id, secret):
     """Request an access token using the /v1/oauth2/token API.
 
@@ -132,8 +136,7 @@ def generate_client_token(customer_id=None):
         response = requests.post(endpoint, headers=headers)
     else:
         data = {"customer_id": customer_id}
-        data_str = json.dumps(data)
-        response = requests.post(endpoint, headers=headers, data=data_str)
+        response = log_and_request("POST", endpoint, headers=headers, data=data)
 
     response_dict = response.json()
     return response_dict["client_token"]
