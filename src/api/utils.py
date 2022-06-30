@@ -53,6 +53,10 @@ def log_and_request(method, endpoint, **kwargs):
     return response
 
 
+from functools import cache
+
+
+@cache
 def request_access_token(client_id, secret):
     """Request an access token using the /v1/oauth2/token API.
 
@@ -69,8 +73,6 @@ def request_access_token(client_id, secret):
     response_dict = response.json()
 
     try:
-        scopes = sorted(response_dict["scope"].split())
-        current_app.logger.info("Scopes:\n\t" + "\n\t".join(scopes))
         return response_dict["access_token"]
     except KeyError as exc:
         current_app.logger.error(f"Encountered a KeyError: {exc}")

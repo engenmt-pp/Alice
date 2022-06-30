@@ -110,7 +110,7 @@ def create_order_vault():
             "return_url": "http://localhost:5000/",
             "cancel_url": "http://localhost:5000/",
             "shipping_preference": "GET_FROM_FILE",
-            # "permit_multiple_payment_tokens": True,
+            "permit_multiple_payment_tokens": True,
         },
     }
 
