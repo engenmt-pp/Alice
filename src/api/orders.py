@@ -87,7 +87,7 @@ def create_order_vault():
 
     customer_id = request.json["customer_id"]
     payee_id = request.json["payee_id"]
-    price = request.json["price"]
+    # price = request.json["price"]
 
     data = {
         "intent": "CAPTURE",
@@ -96,21 +96,23 @@ def create_order_vault():
                 "attributes": {
                     "customer": {"id": customer_id},
                     "vault": {
+                        "customer_type": "CONSUMER",
                         "confirm_payment_token": "ON_ORDER_COMPLETION",
                         "usage_type": "PLATFORM",  # For Channel-Initiated Billing (CIB) Billing Agreement
-                        # "usage_type": "MERCHANT", # For Merchant-Initiated Billing (MIB) Billing Agreement
-                        "customer_type": "CONSUMER",
-                        # "permit_multiple_payment_tokens": True,
+                        "permit_multiple_payment_tokens": True,
                     },
                 }
             }
         },
-        "purchase_units": [default_purchase_unit(payee_id, price)],
+        "purchase_units": [
+            {
+                "payee": {"merchant_id": payee_id},
+                "amount": {"currency_code": "USD", "value": "100.00"},
+            }
+        ],
         "application_context": {
-            "return_url": "http://localhost:5000/",
-            "cancel_url": "http://localhost:5000/",
-            "shipping_preference": "GET_FROM_FILE",
-            "permit_multiple_payment_tokens": True,
+            "return_url": "http://localhost:5000/returnURL",
+            "cancel_url": "http://localhost:5000/cancelURL",
         },
     }
 

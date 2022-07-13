@@ -45,12 +45,22 @@ def checkout_authorize():
 def checkout_vaulting(customer_id):
     client_token = generate_client_token(customer_id)
     template = "checkout-vaulting.html"
-    return checkout(template, customer_id=customer_id, client_token=client_token)
+    # payee_id = current_app.config["PARTNER_ID"]
+    payee_id = None
+    return checkout(
+        template, payee_id=payee_id, customer_id=customer_id, client_token=client_token
+    )
 
 
 @bp.route("/checkout-not-present/<customer_id>")
 def checkout_not_present(customer_id):
     template = "checkout-not-present.html"
+    return checkout(template, customer_id=customer_id)
+
+
+@bp.route("/checkout-manual/<customer_id>")
+def checkout_manual(customer_id):
+    template = "checkout-manual.html"
     return checkout(template, customer_id=customer_id)
 
 
