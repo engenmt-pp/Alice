@@ -43,9 +43,9 @@ def checkout_authorize():
 
 @bp.route("/checkout-vault/<customer_id>")
 def checkout_vaulting(customer_id):
-    client_token = generate_client_token(customer_id)
+    user_id_token = generate_client_token(customer_id)
     template = "checkout-vaulting.html"
-    return checkout(template, customer_id=customer_id, client_token=client_token)
+    return checkout(template, customer_id=customer_id, user_id_token=user_id_token)
 
 
 @bp.route("/checkout-not-present/<customer_id>")

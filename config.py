@@ -23,6 +23,7 @@ class ProductionConfig(Config):
 
 
 class TestingConfig(SandboxConfig):
+    ENDPOINT_PREFIX = "https://msmaster.qa.paypal.com"
     DEBUG = True
 
 

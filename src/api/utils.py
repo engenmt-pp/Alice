@@ -150,7 +150,7 @@ def generate_client_token(customer_id=None):
         response = log_and_request("POST", endpoint, headers=headers, data=data)
 
     response_dict = response.json()
-    return response_dict["client_token"]
+    return response_dict["id_token"]
 
 
 def random_decimal_string(length):
