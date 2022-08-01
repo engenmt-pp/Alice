@@ -28,7 +28,7 @@ def onboarding(version="v2"):
 
     # Get the URL for the onboarding status page
     onboarding_status_url = url_for(
-        "partner.onboarding_status", tracking_id=tracking_id
+        "partner.onboarding_status_tracking", tracking_id=tracking_id
     )
 
     return render_template(
@@ -102,9 +102,14 @@ def parse_vetting_status(status):
     return "PPCP_CUSTOM is neither 'DENIED' nor 'SUBSCRIBED'!"
 
 
-@bp.route("/onboarding/<tracking_id>")
-def onboarding_status(tracking_id):
+@bp.route("/onboarding/tracking/<tracking_id>")
+def onboarding_status_tracking(tracking_id):
     merchant_id = get_merchant_id(tracking_id)
+    return onboarding_status(merchant_id)
+
+
+@bp.route("/onboarding/<merchant_id>")
+def onboarding_status(merchant_id):
     status = get_onboarding_status(merchant_id)
 
     is_ready = is_ready_to_transact(status)
