@@ -98,7 +98,7 @@ def create_order_vault():
                     "vault": {
                         "customer_type": "CONSUMER",
                         "confirm_payment_token": "ON_ORDER_COMPLETION",
-                        "usage_type": "PLATFORM",  # For Channel-Initiated Billing (CIB) Billing Agreement
+                        "usage_type": "PLATFORM",  # For partner-level vaulting
                         "permit_multiple_payment_tokens": True,
                     },
                 }

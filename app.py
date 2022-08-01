@@ -12,9 +12,9 @@ if __name__ == "__main__":
     testing = True  # Enables debug-level logging
     # testing = False  # Disables debug-level logging
     if testing:
-        from partner_specific_config import PartnerSpecificConfig
+        from partner_specific_config import PartnerInderConfig
 
-        app.config.from_object(PartnerSpecificConfig)
+        app.config.from_object(PartnerInderConfig)
         app.config.from_object(MerchantOneConfig)
     else:
         app.config.from_object(SandboxConfig)
