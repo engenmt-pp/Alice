@@ -87,7 +87,7 @@ def create_order_vault():
 
     customer_id = request.json["customer_id"]
     payee_id = request.json["payee_id"]
-    # price = request.json["price"]
+    price = request.json["price"]
 
     data = {
         "intent": "CAPTURE",
@@ -104,12 +104,7 @@ def create_order_vault():
                 }
             }
         },
-        "purchase_units": [
-            {
-                "payee": {"merchant_id": payee_id},
-                "amount": {"currency_code": "USD", "value": "100.00"},
-            }
-        ],
+        "purchase_units": [default_purchase_unit(payee_id, price)],
         "application_context": {
             "return_url": "http://localhost:5000/returnURL",
             "cancel_url": "http://localhost:5000/cancelURL",
