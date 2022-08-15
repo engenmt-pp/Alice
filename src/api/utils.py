@@ -29,17 +29,19 @@ def log_and_request(method, endpoint, **kwargs):
     if method not in methods_dict:
         raise Exception(f"HTTP request method '{method}' not recognized!")
 
-    try:
-        kwargs_str = json.dumps(kwargs, indent=2)
-    except TypeError:
-        kwargs_str = str(kwargs)
+    bar = f"\n{'='*80}\n"
 
-    current_app.logger.debug(f"\nSending {method} request to {endpoint}:\n{kwargs_str}")
-
+    current_app.logger.debug(f"{bar}Sending {method} request to {endpoint}:")
     if "data" in kwargs:
-        kwargs["data"] = json.dumps(kwargs["data"])
+        data = kwargs["data"]
+        if isinstance(data, dict):
+            current_app.logger.debug(f"data = {json.dumps(data, indent=2)}")
+            kwargs["data"] = json.dumps(data)
 
     response = methods_dict[method](endpoint, **kwargs)
+
+    headers_sent = dict(response.request.headers)
+    current_app.logger.debug(f"Headers sent: {json.dumps(headers_sent, indent=2)}")
     try:
         response_str = json.dumps(response.json(), indent=2)
     except json.decoder.JSONDecodeError:
@@ -48,7 +50,10 @@ def log_and_request(method, endpoint, **kwargs):
     if not response.ok:
         current_app.logger.error(f"{response.status_code} Error: {response_str}\n\n")
     else:
-        current_app.logger.debug(f"{response.status_code} Response: {response_str}\n\n")
+        debug_id = f"debug_id = {response.headers.get('PayPal-Debug-Id', None)}"
+        current_app.logger.debug(
+            f"({debug_id}) {response.status_code} Response: {response_str}{bar}"
+        )
 
     return response
 
@@ -70,6 +75,12 @@ def request_access_token(client_id, secret):
     response = requests.post(
         endpoint, headers=headers, data=data, auth=(client_id, secret)
     )
+    try:
+        current_app.logger.debug(
+            f'*****\n\nAccess token debug_id = {response.headers["PayPal-Debug-Id"]}\n\n*****'
+        )
+    except:
+        pass
     response_dict = response.json()
 
     try:
@@ -139,7 +150,7 @@ def generate_client_token(customer_id=None):
         response = log_and_request("POST", endpoint, headers=headers, data=data)
 
     response_dict = response.json()
-    return response_dict["client_token"]
+    return response_dict["id_token"]
 
 
 def random_decimal_string(length):

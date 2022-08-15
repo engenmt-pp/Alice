@@ -15,9 +15,18 @@
     </div>
     
     <!-- Import PayPal Javascript SDK with Partner's credentials -->
-    <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&commit=true&vault=true" data-partner-attribution-id="{{ bn_code }}" data-client-token="{{ client_token }}"></script>
-
+    <script 
+      src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&commit=true&vault=true" 
+      data-partner-attribution-id="{{ bn_code }}" 
+      data-user-id-token="{{ user_id_token }}">
+    </script>
+    
     <script>
+      var orderID;
+      function openDetails() {
+        window.open("http://localhost:5000/store/order-details/" + orderID, '_blank').focus();
+        // window.location.replace("/store/order-details/" + data.orderID);
+      }
       function initPayPalButton() {
         paypal.Buttons({
           createOrder: function(data, actions) {
@@ -32,6 +41,7 @@
             }).then(function(res) {
               return res.json();
             }).then(function(data) {
+              orderID = data.id;
               return data.id;
             })
           },
@@ -45,7 +55,7 @@
               if (captureData.error === 'INSTRUMENT_DECLINED') {
                 return actions.restart();
               } else {
-                window.location.replace("/store/order-details/" + data.orderID);
+                console.log('Done!');
               }
             })
           },
@@ -53,5 +63,7 @@
       }
       initPayPalButton();
     </script>
+
+    <button onclick="openDetails()">Details</button>
   </body>
 </article>
