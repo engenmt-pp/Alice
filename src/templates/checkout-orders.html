@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block checkout %}
+<script>
+  var orderId;
+  function createOrder() {
+    return fetch('/api/orders/create-vault', {
+      headers: {'Content-Type': 'application/json'},
+      method: 'POST',
+      body: JSON.stringify({
+        customer_id: "{{ customer_id }}",
+        price: "{{ product['price'] }}", 
+        payee_id: "{{ payee_id }}"
+      })
+    }).then(function(res) {
+      return res.json();
+    }).then(function(createData) {
+      orderId = createData.id;
+      document.getElementById("btn-approve").disabled = false;  
+      document.getElementById("btn-capture").disabled = false;  
+      document.getElementById("btn-details").disabled = false;  
+      console.log('createData: ' + JSON.stringify(createData));
+    })
+  }
+  function approveOrder(url) {
+    window.open('https://www.sandbox.paypal.com/checkoutnow?token=' + orderId, '_blank').focus();
+  }
+  function captureOrder() {
+    return fetch('/api/orders/capture/' + orderId, {
+      method: 'POST',
+    }).then(function(res) {
+      return res.json();
+    }).then(function(captureData) {
+      console.log('captureData: ' + JSON.stringify(captureData));
+    })
+  }
+  function openDetails() {
+    window.open("http://localhost:5000/store/order-details/" + orderId, '_blank').focus();
+  }
+</script>
+<button onclick="createOrder()">Create</button>
+<button disable id="btn-approve" onclick="approveOrder()">Approve</button>
+<button disable id="btn-capture" onclick="captureOrder()">Capture</button>
+<button disable id="btn-details" onclick="openDetails()">Details</button>
+{% endblock %}
