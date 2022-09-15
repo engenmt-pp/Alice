@@ -1,28 +1,47 @@
 {% extends "base.html" %}
+
+{% block controls %}
+<a href="/" 
+  id="a-details" 
+  target="_blank"
+  class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline"
+  style="display: none">
+  Order details
+</a>
+{% endblock %}
+
 {% block checkout %}
 <!-- Import PayPal Javascript SDK with Partner's credentials -->
 <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&components=hosted-fields" data-partner-attribution-id="{{ bn_code }}" data-client-token="{{ client_token }}"></script>
 
+<!-- Sample CSS styles for demo purposes. You can override these styles to match your web page's branding. -->
+<link rel="stylesheet" type="text/css" href="https://www.paypalobjects.com/webstatic/en_US/developer/docs/css/cardfields.css"/>
+
 <!-- Advanced credit and debit card payments form-->
 <div class="card_container">
   <form id="card-form">
-
-    <label for="card-number">Card Number</label><div id="card-number" class="card_field"></div>
+    <div>
+      <label for="card-number">Card Number</label>
+      <div id="card-number" class="card_field"></div>
+    </div>
     <div>
       <label for="expiration-date">Expiration Date</label>
       <div id="expiration-date" class="card_field"></div>
     </div>
     <div>
-      <label for="cvv">CVV</label><div id="cvv" class="card_field"></div>
+      <label for="cvv">CVV</label>
+      <div id="cvv" class="card_field"></div>
     </div>
-    <label for="card-holder-name">Name on Card</label>
-    <input type="text" id="card-holder-name" name="card-holder-name" autocomplete="off" placeholder="card holder name"/>
+    <div>
+      <label for="card-holder-name">Name on Card</label>
+      <input type="text" id="card-holder-name" name="card-holder-name" autocomplete="off" placeholder="card holder name"/>
+    </div>
     <div>
       <label for="card-billing-address-street">Billing Address</label>
       <input type="text" id="card-billing-address-street" name="card-billing-address-street" autocomplete="off" placeholder="street address"/>
     </div>
     <div>
-      <label for="card-billing-address-unit">&nbsp;</label>
+      <label for="card-billing-address-unit"></label>
       <input type="text" id="card-billing-address-unit" name="card-billing-address-unit" autocomplete="off" placeholder="unit"/>
     </div>
     <div>
@@ -45,6 +64,7 @@
 <script>
   // Requires merchant to have requested ACDC permissions at https://www.sandbox.paypal.com/bizsignup/entry/product/ppcp?_ga=1.159575741.1009029311.1637585517
   // See here for more info: https://developer.paypal.com/docs/checkout/advanced/integrate
+  var orderId;
   if (paypal.HostedFields.isEligible()) {
     // Renders card fields
     paypal.HostedFields.render({
@@ -61,6 +81,7 @@
           return res.json();
         }).then(function(orderData) {
           orderId = orderData.id;
+          setOrderDetails();
           return orderId;
         });
       },
@@ -132,18 +153,21 @@
                 if (orderData.debug_id) msg += ' (' + orderData.debug_id + ')';
                 return alert(msg); // Show a failure message
             }
-            
-            window.location.replace("/store/order-details/" + orderData.id);
           })
-      }).catch(function (err) {
-        alert('Payment could not be captured! ' + JSON.stringify(err))
-      });
+        }).catch(function (err) {
+          alert('Payment could not be captured! ' + JSON.stringify(err))
+        });
       });
     });
   } else {
     console.log('Not eligible!');
     // Hides card fields if the merchant isn't eligible
     document.querySelector("#card-form").style = 'display: none';
+  }
+  function setOrderDetails() {
+    let aDetails = document.getElementById("a-details");
+    aDetails.href = "http://localhost:5000/store/order-details/" + orderId;
+    aDetails.style.display = "";
   }
 </script>
 {% endblock %}

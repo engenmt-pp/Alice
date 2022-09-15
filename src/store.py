@@ -28,7 +28,7 @@ def checkout_branded():
     return checkout(template)
 
 
-@bp.route("/checkout-branded-auth-capture")
+@bp.route("/branded-auth-capture")
 def checkout_branded_auth_capture():
     template = "checkout-branded-auth-capture.html"
     return checkout(template)
@@ -64,9 +64,15 @@ def checkout_not_present(customer_id):
     return checkout(template, customer_id=customer_id)
 
 
-@bp.route("/checkout-orders/<customer_id>")
-def checkout_orders(customer_id):
+@bp.route("/orders")
+def checkout_orders():
     template = "checkout-orders.html"
+    return checkout(template)
+
+
+@bp.route("/orders-vaulting/<customer_id>")
+def checkout_orders_vaulting(customer_id):
+    template = "checkout-orders-vaulting.html"
     return checkout(template, customer_id=customer_id)
 
 

@@ -189,11 +189,12 @@ def create_order_auth():
 @bp.route("/auth-capture/<order_id>", methods=("POST",))
 def authorize_and_capture_order(order_id):
     """Authorize and capture the order, returning the capture response."""
-    response_dict = authorize_order(order_id)
-    auth_id = response_dict["purchase_units"][0]["payments"]["authorizations"][0]["id"]
+    authorization = authorize_order(order_id)
+    auth_id = authorization["id"]
     return capture_authorization(auth_id)
 
 
+@bp.route("/authorize/<order_id>", methods=("POST",))
 def authorize_order(order_id):
     """Authorize the order using the /v2/checkout/orders API.
 
@@ -204,9 +205,11 @@ def authorize_order(order_id):
 
     response = log_and_request("POST", endpoint, headers=headers)
     response_dict = response.json()
-    return response_dict
+    authorization = response_dict["purchase_units"][0]["payments"]["authorizations"][0]
+    return authorization
 
 
+@bp.route("/capture-auth/<auth_id>", methods=("POST",))
 def capture_authorization(auth_id, include_partner_fees=True):
     """Capture the authorization with the given `auth_id` using the /v2/payments API.
 

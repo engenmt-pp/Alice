@@ -1,5 +1,22 @@
 {% extends "base.html" %}
 
+{% block controls %}
+<a href="/" 
+  id="a-details" 
+  target="_blank"
+  class="px-2 py-2 bg-blue-700 rounded-lg text-white hover:underline"
+  style="display: none">
+  Order details
+</a><br/>
+<button 
+  disabled 
+  id="btn-capture" 
+  onclick="captureOrder()" 
+  class="mt-2 px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline disabled:opacity-50">
+  Capture order
+</button>
+{% endblock %}
+
 {% block checkout %}
 <!-- Empty (for now) button container -->
 <div class="smart-button-container", id="smart-button-container">
@@ -12,6 +29,8 @@
 <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=authorize&commit=false" data-partner-attribution-id="{{ bn_code }}"></script>
 
 <script>
+  var orderId;
+  var authorizationId;
   function initPayPalButton() {
     paypal.Buttons({
       createOrder: function(data, actions) {
@@ -24,26 +43,44 @@
           })
         }).then(function(res) {
           return res.json();
-        }).then(function(data) {
-          return data.id;
+        }).then(function(createData) {
+          orderId = createData.id;
+          setOrderDetails();
+          return orderId;
         })
       },
       onApprove: function(data, actions) {
-        return fetch('/api/orders/auth-capture/' + data.orderID, {
+        document.getElementById("btn-capture").disabled = false;
+        return fetch('/api/orders/authorize/' + orderId, {
           method: 'POST'
         }).then(function(res) {
           return res.json();
-        }).then(function(captureData) {
+        }).then(function(authorizationData) {
           // Your server response structure and key names are what you choose
-          if (captureData.error === 'INSTRUMENT_DECLINED') {
+          if (authorizationData.error === 'INSTRUMENT_DECLINED') {
             return actions.restart();
           } else {
-            window.location.replace("/store/order-details/" + data.orderID);
+            authorizationId = authorizationData.id;
           }
-        })  
+        })
       }
     }).render('#paypal-button-container');
   }
   initPayPalButton();
+  function captureOrder() {
+    return fetch('/api/orders/capture-auth/' + authorizationId, {
+      method: 'POST',
+    }).then(function(res) {
+      let button = document.getElementById("btn-capture")
+      button.style = "text-decoration: line-through";
+      button.disabled = true;
+      return res.json();
+    })
+  }
+  function setOrderDetails() {
+    let aDetails = document.getElementById("a-details");
+    aDetails.href = "http://localhost:5000/store/order-details/" + orderId;
+    aDetails.style.display = "";
+  }
 </script>
 {% endblock %}
