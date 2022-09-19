@@ -21,7 +21,7 @@ def create_app():
 
     app.register_blueprint(partner.bp)
     app.register_blueprint(store.bp)
-    app.add_url_rule("/", endpoint="store.checkout_capture")
+    app.add_url_rule("/", endpoint="store.checkout_branded")
 
     app.register_blueprint(store_merchant.bp)
 

@@ -22,30 +22,40 @@ def apple_pie():
     }
 
 
-@bp.route("/checkout")
-def checkout_capture():
-    template = "checkout.html"
+@bp.route("/branded")
+def checkout_branded():
+    template = "checkout-branded.html"
     return checkout(template)
 
 
-@bp.route("/checkout-hosted")
-def checkout_hosted():
+@bp.route("/branded-auth-capture")
+def checkout_branded_auth_capture():
+    template = "checkout-branded-auth-capture.html"
+    return checkout(template)
+
+
+@bp.route("/branded-vaulting")
+def landing_branded_vaulting():
+    return render_template("landing-branded-vaulting.html")
+
+
+@bp.route("/branded-vaulting/<customer_id>")
+def checkout_branded_vaulting(customer_id):
+    client_token = generate_client_token(customer_id)
+    template = "checkout-branded-vaulting.html"
+    return checkout(template, customer_id=customer_id, client_token=client_token)
+
+
+@bp.route("/hosted")
+def checkout_hosted_fields():
     client_token = generate_client_token()
     template = "checkout-hosted.html"
     return checkout(template, client_token=client_token)
 
 
-@bp.route("/checkout-auth")
-def checkout_authorize():
-    template = "checkout-auth-capture.html"
-    return checkout(template)
-
-
-@bp.route("/checkout-vault/<customer_id>")
-def checkout_vaulting(customer_id):
-    user_id_token = generate_client_token(customer_id)
-    template = "checkout-vaulting.html"
-    return checkout(template, customer_id=customer_id, user_id_token=user_id_token)
+@bp.route("/hosted-vaulting")
+def landing_hosted_vaulting():
+    return render_template("landing-hosted-vaulting.html")
 
 
 @bp.route("/checkout-not-present/<customer_id>")
@@ -54,9 +64,15 @@ def checkout_not_present(customer_id):
     return checkout(template, customer_id=customer_id)
 
 
-@bp.route("/checkout-manual/<customer_id>")
-def checkout_manual(customer_id):
-    template = "checkout-manual.html"
+@bp.route("/orders")
+def checkout_orders():
+    template = "checkout-orders.html"
+    return checkout(template)
+
+
+@bp.route("/orders-vaulting/<customer_id>")
+def checkout_orders_vaulting(customer_id):
+    template = "checkout-orders-vaulting.html"
     return checkout(template, customer_id=customer_id)
 
 

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block controls %}
+<a href="/" 
+  id="a-details" 
+  target="_blank"
+  class="px-2 py-2 bg-blue-700 rounded-lg text-white hover:underline"
+  style="display: none">
+  Order details
+</a><br/>
+<button 
+  id="btn-create" 
+  onclick="createOrder()"
+  class="mt-3 px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline disabled:opacity-50">
+  Create order
+</button><br/>
+<button 
+  disabled 
+  id="btn-approve" 
+  onclick="approveOrder()"
+  class="mt-2 px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline disabled:opacity-50">
+  Approve order
+</button><br/>
+<button 
+  disabled 
+  id="btn-capture" 
+  onclick="captureOrder()"
+  class="mt-2 px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline disabled:opacity-50">
+  Capture order
+</button>
+{% endblock %}
+
+{% block checkout %}
+<script>
+  var orderId;
+  function createOrder() {
+    return fetch('/api/orders/create', {
+      headers: {'Content-Type': 'application/json'},
+      method: 'POST',
+      body: JSON.stringify({
+        price: "{{ product['price'] }}",
+        payee_id: "{{ payee_id }}"
+      })
+    }).then(function(res) {
+      let button = document.getElementById("btn-create")
+      button.style = "text-decoration: line-through";
+      button.disabled = true;
+      return res.json();
+    }).then(function(createData) {
+      orderId = createData.id;
+      setOrderDetails();
+      document.getElementById("btn-approve").disabled = false;
+      document.getElementById("btn-capture").disabled = false;
+    })
+  }
+  function setOrderDetails() {
+    let aDetails = document.getElementById("a-details");
+    aDetails.href = "http://localhost:5000/store/order-details/" + orderId;
+    aDetails.style.display = "";
+  }
+  function approveOrder(url) {
+    window.open('https://www.sandbox.paypal.com/checkoutnow?token=' + orderId, '_blank').focus();
+  }
+  function captureOrder() {
+    return fetch('/api/orders/capture/' + orderId, {
+      method: 'POST',
+    }).then(function(res) {
+      let button = document.getElementById("btn-capture")
+      button.style = "text-decoration: line-through";
+      button.disabled = true;
+      return res.json();
+    })
+  }
+</script>
+{% endblock %}
