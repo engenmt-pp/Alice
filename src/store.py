@@ -41,9 +41,9 @@ def landing_branded_vaulting():
 
 @bp.route("/branded-vaulting/<customer_id>")
 def checkout_branded_vaulting(customer_id):
-    user_id_token = generate_client_token(customer_id)
+    client_token = generate_client_token(customer_id)
     template = "checkout-branded-vaulting.html"
-    return checkout(template, customer_id=customer_id, user_id_token=user_id_token)
+    return checkout(template, customer_id=customer_id, client_token=client_token)
 
 
 @bp.route("/hosted")
