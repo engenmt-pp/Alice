@@ -5,7 +5,7 @@ from .utils import build_endpoint, build_headers, log_and_request
 bp = Blueprint("referrals", __name__, url_prefix="/referrals")
 
 
-def generate_onboarding_urls(tracking_id, version="v2", return_url="paypal.com"):
+def generate_onboarding_urls(tracking_id, version="v2", return_url="http://localhost:5000/"):
     """Return the onboarding and referral URLs generated with the partner referrals API.
     """
     if version == "v1":
@@ -101,6 +101,9 @@ def create_partner_referral_v2(tracking_id, return_url):
     endpoint = build_endpoint("/v2/customer/partner-referrals")
     headers = build_headers()
 
+    ACDC = False
+    product = "PPCP" if ACDC else "EXPRESS_CHECKOUT"
+
     data = {
         "tracking_id": tracking_id,
         "operations": [
@@ -124,14 +127,17 @@ def create_partner_referral_v2(tracking_id, return_url):
                 },
             }
         ],
-        "products": ["PPCP"],
+        "products": [product],
         "legal_consents": [
             {
                 "type": "SHARE_DATA_CONSENT", 
                 "granted": True
             }
         ],
-        "partner_config_override": {"return_url": return_url},
+        "partner_config_override": {
+            "return_url": return_url,
+            "return_url_description": "A description of the return URL."
+            },
     }
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
