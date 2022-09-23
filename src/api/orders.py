@@ -8,9 +8,12 @@ from .utils import build_endpoint, build_headers, log_and_request, random_decima
 bp = Blueprint("orders", __name__, url_prefix="/orders")
 
 
-def default_purchase_unit(payee_id, price, reference_id=None):
+def default_purchase_unit(payee_id, price, reference_id=None, is_PPGF=False):
+    custom_id = (
+        default_PPGF_metadata() if is_PPGF else "Up to 127 characters can go here!"
+    )
     purchase_unit = {
-        "custom_id": "Up to 127 characters can go here!",
+        "custom_id": custom_id,
         "payee": {"merchant_id": payee_id},
         "amount": {
             "currency_code": "USD",
@@ -21,6 +24,27 @@ def default_purchase_unit(payee_id, price, reference_id=None):
     if reference_id is not None:
         purchase_unit["reference_id"] = reference_id
     return purchase_unit
+
+
+def default_PPGF_metadata():
+    nonprofitID = 2949392
+    donorHasAgreedToShareNameAndEmail = True
+    referenceString = "myReferenceString"
+    feesAmountInCents = 1
+    isTipModel = False
+    isUKGiftAid = False
+    programID = 139
+    return "|".join(
+        [
+            nonprofitID,
+            "1" if donorHasAgreedToShareNameAndEmail else "0",
+            referenceString,
+            str(feesAmountInCents),
+            "1" if isTipModel else "0",
+            "1" if isUKGiftAid else "0",
+            programID,
+        ]
+    )
 
 
 def default_shipping_option():
@@ -49,11 +73,13 @@ def create_order(include_platform_fees=True):
     endpoint = build_endpoint("/v2/checkout/orders")
     headers = build_headers(include_bn_code=True)
 
+    is_PPGF = request.json.get("isPPGF", False)
+
     payee_id = request.json["payee_id"]
     price = request.json["price"]
     data = {
         "intent": "CAPTURE",
-        "purchase_units": [default_purchase_unit(payee_id, price)],
+        "purchase_units": [default_purchase_unit(payee_id, price, is_PPGF=is_PPGF)],
         "application_context": {
             "return_url": "http://localhost:5000/",
             "cancel_url": "http://localhost:5000/",
