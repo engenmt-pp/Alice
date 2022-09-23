@@ -8,8 +8,8 @@ from .utils import build_endpoint, build_headers, log_and_request, random_decima
 bp = Blueprint("orders", __name__, url_prefix="/orders")
 
 
-def default_purchase_unit(payee_id, price):
-    return {
+def default_purchase_unit(payee_id, price, reference_id=None):
+    purchase_unit = {
         "custom_id": "Up to 127 characters can go here!",
         "payee": {"merchant_id": payee_id},
         "amount": {
@@ -18,6 +18,9 @@ def default_purchase_unit(payee_id, price):
         },
         "soft_descriptor": "1234567890111213141516",
     }
+    if reference_id is not None:
+        purchase_unit["reference_id"] = reference_id
+    return purchase_unit
 
 
 def default_shipping_option():
