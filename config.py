@@ -43,3 +43,7 @@ class MerchantOneConfig(TestingConfig):
     MERCHANT_CLIENT_ID = os.environ.get("MERCHANT_CLIENT_ID")
     MERCHANT_SECRET = os.environ.get("MERCHANT_SECRET")
     MERCHANT_ID = os.environ.get("MERCHANT_ID")
+
+
+class MerchantPPGFConfig(TestingConfig):
+    MERCHANT_ID = os.environ.get("MERCHANT_PPGF_ID")
