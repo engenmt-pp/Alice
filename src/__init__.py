@@ -13,7 +13,7 @@ def create_app():
 
     os.makedirs(app.instance_path, exist_ok=True)
 
-    from . import api, partner, store, reports
+    from . import api, partner, store, reports, charities
     from . import store_merchant
 
     app.register_blueprint(api.bp)
@@ -24,6 +24,7 @@ def create_app():
     app.add_url_rule("/", endpoint="store.checkout_branded")
 
     app.register_blueprint(store_merchant.bp)
+    app.register_blueprint(charities.bp)
 
     return app
 
