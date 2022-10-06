@@ -8,15 +8,43 @@ from .utils import build_endpoint, build_headers, log_and_request, random_decima
 bp = Blueprint("orders", __name__, url_prefix="/orders")
 
 
-def default_purchase_unit(payee_id, price, reference_id=None):
+def default_purchase_unit(
+    payee_id, price, reference_id=None, item_category=None, platform_fees=None
+):
+    if item_category is None:
+        item_category = "PHYSICAL_GOODS"
+
+    payment_instruction = {
+        "disbursement_mode": "INSTANT",
+    }
+    if platform_fees is not None:
+        payment_instruction["platform_fees"] = [
+            {"amount": {"currency_code": "USD", "value": "1.00"}}
+        ]
+
     purchase_unit = {
         "custom_id": "Up to 127 characters can go here!",
         "payee": {"merchant_id": payee_id},
         "amount": {
             "currency_code": "USD",
             "value": price,
+            "breakdown": {
+                "item_total": {"currency_code": "USD", "value": price},
+                "shipping": {"currency_code": "USD", "value": "0.00"},
+                "tax_total": {"currency_code": "USD", "value": "0.00"},
+            },
         },
         "soft_descriptor": "1234567890111213141516",
+        "items": [
+            {
+                "name": "Item One",
+                "description": "The first item.",
+                "unit_amount": {"currency_code": "USD", "value": price},
+                "quantity": 1,
+                "category": item_category,
+            }
+        ],
+        "payment_instruction": payment_instruction,
     }
     if reference_id is not None:
         purchase_unit["reference_id"] = reference_id
@@ -49,23 +77,29 @@ def create_order(include_platform_fees=True):
     endpoint = build_endpoint("/v2/checkout/orders")
     headers = build_headers(include_bn_code=True)
 
+    is_donation = request.json.get("is_donation", False)
+    item_category = "DONATION" if is_donation else "PHYSICAL_GOODS"
+
+    platform_fees = 1.00 if include_platform_fees else None
+
     payee_id = request.json["payee_id"]
     price = request.json["price"]
     data = {
         "intent": "CAPTURE",
-        "purchase_units": [default_purchase_unit(payee_id, price)],
+        "purchase_units": [
+            default_purchase_unit(
+                payee_id,
+                price,
+                platform_fees=platform_fees,
+                item_category=item_category,
+            )
+        ],
         "application_context": {
             "return_url": "http://localhost:5000/",
             "cancel_url": "http://localhost:5000/",
             "shipping_preference": "GET_FROM_FILE",
         },
     }
-
-    if include_platform_fees:
-        data["purchase_units"][0]["payment_instruction"] = {
-            "disbursement_mode": "INSTANT",
-            "platform_fees": [{"amount": {"currency_code": "USD", "value": "1.00"}}],
-        }
 
     if request.json.get("include_shipping", False):
         data["purchase_units"][0]["shipping"] = {"options": [default_shipping_option()]}

@@ -28,6 +28,12 @@ def checkout_branded():
     return checkout(template)
 
 
+@bp.route("/branded-donations")
+def checkout_branded_donations():
+    template = "checkout-branded-donations.html"
+    return checkout(template)
+
+
 @bp.route("/branded-auth-capture")
 def checkout_branded_auth_capture():
     template = "checkout-branded-auth-capture.html"
