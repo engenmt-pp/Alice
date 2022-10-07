@@ -5,6 +5,7 @@ from .utils import (
     log_and_request,
     request_access_token,
     random_decimal_string,
+    money_amount,
 )
 
 
@@ -14,10 +15,7 @@ bp = Blueprint("orders_merchant", __name__, url_prefix="/orders-merchant")
 def default_purchase_unit(payee_id, price):
     return {
         "payee": {"merchant_id": payee_id},
-        "amount": {
-            "currency_code": "USD",
-            "value": price,
-        },
+        "amount": money_amount(price),
     }
 
 

@@ -158,3 +158,9 @@ def random_decimal_string(length):
     """Return a decimal string of the given length chosen uniformly at random."""
     random_int = random.randrange(10 ** length, 10 ** (length + 1))
     return f"{random_int}"
+
+
+def money_amount(amount=0, currency_code=None):
+    if currency_code is None:
+        currency_code = "USD"
+    return {"currency_code": currency_code, "amount": amount}

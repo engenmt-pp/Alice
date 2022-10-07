@@ -2,7 +2,13 @@ import json
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, current_app, jsonify, request
 
-from .utils import build_endpoint, build_headers, log_and_request, random_decimal_string
+from .utils import (
+    build_endpoint,
+    build_headers,
+    log_and_request,
+    random_decimal_string,
+    money_amount,
+)
 
 
 bp = Blueprint("orders", __name__, url_prefix="/orders")
@@ -18,9 +24,7 @@ def default_purchase_unit(
         "disbursement_mode": "INSTANT",
     }
     if platform_fees is not None:
-        payment_instruction["platform_fees"] = [
-            {"amount": {"currency_code": "USD", "value": "1.00"}}
-        ]
+        payment_instruction["platform_fees"] = [{"amount": money_amount(1.00)}]
 
     purchase_unit = {
         "custom_id": "Up to 127 characters can go here!",
@@ -29,9 +33,9 @@ def default_purchase_unit(
             "currency_code": "USD",
             "value": price,
             "breakdown": {
-                "item_total": {"currency_code": "USD", "value": price},
-                "shipping": {"currency_code": "USD", "value": "0.00"},
-                "tax_total": {"currency_code": "USD", "value": "0.00"},
+                "item_total": money_amount(price),
+                "shipping": money_amount(),
+                "tax_total": money_amount(),
             },
         },
         "soft_descriptor": "1234567890111213141516",
@@ -56,10 +60,7 @@ def default_shipping_option():
         "id": "shipping-default",
         "label": "A default shipping option",
         "selected": True,
-        "amount": {
-            "currency_code": "USD",
-            "value": "9.99",
-        },
+        "amount": money_amount(9.99),
     }
 
 
@@ -299,9 +300,7 @@ def determine_shipping():
                 "id": "shipping-determined",
                 "label": "A determined shipping option",
                 "selected": True,
-                "amount": {
-                    "currency_code": "USD",
-                    "value": "4.99",
+                "amount": money_amount(4.99),
                 },
             }
         ]
@@ -329,10 +328,7 @@ def update_shipping(order_id):
                     "id": "shipping-updated",
                     "label": "An updated shipping option",
                     "selected": True,
-                    "amount": {
-                        "currency_code": "USD",
-                        "value": "9.99",
-                    },
+                    "amount": money_amount(9.99),
                 }
             ],
         }
