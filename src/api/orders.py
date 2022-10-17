@@ -301,7 +301,6 @@ def determine_shipping():
                 "label": "A determined shipping option",
                 "selected": True,
                 "amount": money_amount(4.99),
-                },
             }
         ]
     )
