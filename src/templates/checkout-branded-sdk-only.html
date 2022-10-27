@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block controls %}
+<a href="/" 
+  id="a-details" 
+  target="_blank"
+  class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline"
+  style="display: none">
+  Order details
+</a>
+{% endblock %}
+
+{% block checkout %}
+<!-- Empty (for now) button container -->
+<div class="smart-button-container", id="smart-button-container">
+  <div style="text-align: center;">
+    <div id="paypal-button-container"></div>
+  </div>
+</div>
+
+<!-- Import PayPal Javascript SDK with Partner's credentials -->
+<script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&commit=true&enable-funding=venmo,paylater" data-partner-attribution-id="{{ bn_code }}"></script>
+
+<script>
+  var orderId;
+  function initPayPalButton() {
+    paypal.Buttons({
+      createOrder: function (data, actions) {
+        return actions.order.create({
+          intent: "CAPTURE",
+          purchase_units: [{
+            custom_id: "Up to 127 characters can go here!",
+            payee: {merchant_id: "{{ payee_id }}"},
+            amount: {
+              currency_code: "USD",
+              value: "{{ product['price'] }}",
+            },
+          }],
+          application_context: {
+            return_url: "http://localhost:5000/",
+            cancel_url: "http://localhost:5000/",
+            shipping_preference: "GET_FROM_FILE",
+          },
+        }).then(function (orderID) {
+          orderId = orderID;
+          setOrderDetails();
+          return orderID;
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture()
+      },
+    }).render('#paypal-button-container');
+  }
+  initPayPalButton();
+  function setOrderDetails() {
+    let aDetails = document.getElementById("a-details");
+    aDetails.href = "http://localhost:5000/store/order-details/" + orderId;
+    aDetails.style.display = "";
+  }
+</script>
+{% endblock %}

@@ -34,6 +34,12 @@ def checkout_branded_auth_capture():
     return checkout(template)
 
 
+@bp.route("/branded-sdk-only")
+def checkout_branded_sdk_only():
+    template = "checkout-branded-sdk-only.html"
+    return checkout(template)
+
+
 @bp.route("/branded-vaulting")
 def landing_branded_vaulting():
     return render_template("landing-branded-vaulting.html")
