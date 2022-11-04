@@ -14,6 +14,8 @@ class SandboxConfig(Config):
 
     SFTP_HOSTNAME = "reports.sandbox.paypal.com"
 
+    PPGF_ID = os.environ.get("PPGF_ID")
+
 
 class ProductionConfig(Config):
     ENV = "production"

@@ -26,23 +26,24 @@ def default_purchase_unit(payee_id, price, reference_id=None, is_PPGF=False):
     return purchase_unit
 
 
-def default_PPGF_metadata():
-    nonprofitID = 2949392
+def default_PPGF_metadata(nonprofitID=None):
+    if nonprofitID is None:
+        nonprofitID = 2949392
     donorHasAgreedToShareNameAndEmail = True
     referenceString = "myReferenceString"
     feesAmountInCents = 1
-    isTipModel = False
+    isTipModel = True
     isUKGiftAid = False
     programID = 139
     return "|".join(
         [
-            nonprofitID,
+            str(nonprofitID),
             "1" if donorHasAgreedToShareNameAndEmail else "0",
             referenceString,
             str(feesAmountInCents),
             "1" if isTipModel else "0",
             "1" if isUKGiftAid else "0",
-            programID,
+            str(programID),
         ]
     )
 
@@ -73,13 +74,11 @@ def create_order(include_platform_fees=True):
     endpoint = build_endpoint("/v2/checkout/orders")
     headers = build_headers(include_bn_code=True)
 
-    is_PPGF = request.json.get("isPPGF", False)
-
     payee_id = request.json["payee_id"]
     price = request.json["price"]
     data = {
         "intent": "CAPTURE",
-        "purchase_units": [default_purchase_unit(payee_id, price, is_PPGF=is_PPGF)],
+        "purchase_units": [default_purchase_unit(payee_id, price)],
         "application_context": {
             "return_url": "http://localhost:5000/",
             "cancel_url": "http://localhost:5000/",
@@ -90,11 +89,68 @@ def create_order(include_platform_fees=True):
     if include_platform_fees:
         data["purchase_units"][0]["payment_instruction"] = {
             "disbursement_mode": "INSTANT",
-            "platform_fees": [{"amount": {"currency_code": "USD", "value": "1.00"}}],
+            "platform_fees": [
+                {
+                    "amount": {"currency_code": "USD", "value": "1.00"},
+                    "payee": {"merchant_id": current_app.config["PARTNER_ID"]},
+                }
+            ],
         }
 
     if request.json.get("include_shipping", False):
         data["purchase_units"][0]["shipping"] = {"options": [default_shipping_option()]}
+
+    response = log_and_request("POST", endpoint, headers=headers, data=data)
+    response_dict = response.json()
+    return jsonify(response_dict)
+
+
+@bp.route("/create-ppgf", methods=("POST",))
+def create_order_ppgf(include_platform_fees=True):
+    """Create an order with the /v2/checkout/orders API.
+
+    Notes:
+      - Requires `payee_id` and `price` fields in the request body.
+      - Request body can contain the flag `include_shipping` to include a default
+        shipping option.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
+    """
+    endpoint = build_endpoint("/v2/checkout/orders")
+    headers = build_headers(include_bn_code=True)
+
+    payee_id = current_app.config["PPGF_ID"]
+
+    price = request.json["price"]
+    data = {
+        "intent": "CAPTURE",
+        "purchase_units": [
+            default_purchase_unit(payee_id, price, is_PPGF=True, reference_id="1"),
+            default_purchase_unit(payee_id, price, is_PPGF=True, reference_id="2"),
+        ],
+        "application_context": {
+            "return_url": "http://localhost:5000/",
+            "cancel_url": "http://localhost:5000/",
+            "shipping_preference": "NO_SHIPPING",
+        },
+    }
+
+    num_purchase_units = len(data["purchase_units"])
+    rate = 0.0349
+    partner_fee_in_cents = int(500 * (1 - rate))
+    partner_fee_each = str(partner_fee_in_cents / 100)
+
+    if include_platform_fees:
+        for idx in range(num_purchase_units):
+            data["purchase_units"][idx]["payment_instruction"] = {
+                "disbursement_mode": "INSTANT",
+                "platform_fees": [
+                    {
+                        "amount": {"currency_code": "USD", "value": partner_fee_each},
+                        "payee": {"merchant_id": current_app.config["PARTNER_ID"]},
+                    }
+                ],
+            }
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()

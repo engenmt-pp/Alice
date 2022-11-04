@@ -5,9 +5,10 @@ from .utils import build_endpoint, build_headers, log_and_request
 bp = Blueprint("referrals", __name__, url_prefix="/referrals")
 
 
-def generate_onboarding_urls(tracking_id, version="v2", return_url="http://localhost:5000/"):
-    """Return the onboarding and referral URLs generated with the partner referrals API.
-    """
+def generate_onboarding_urls(
+    tracking_id, version="v2", return_url="http://localhost:5000/"
+):
+    """Return the onboarding and referral URLs generated with the partner referrals API."""
     if version == "v1":
         response = create_partner_referral_v1(tracking_id, return_url=return_url)
     else:
@@ -26,7 +27,7 @@ def generate_onboarding_urls(tracking_id, version="v2", return_url="http://local
 
     if onboarding_url is None or referral_url is None:
         raise Exception("Not all onboarding URLs found!")
-    
+
     return onboarding_url, referral_url
 
 
@@ -47,11 +48,8 @@ def create_partner_referral_v1(tracking_id, return_url):
             "preferred_language_code": "en_US",
             "primary_currency_code": "USD",
             "partner_specific_identifiers": [
-                {
-                    "type": "TRACKING_ID",
-                    "value": tracking_id
-                }
-            ]
+                {"type": "TRACKING_ID", "value": tracking_id}
+            ],
         },
         "requested_capabilities": [
             {
@@ -60,33 +58,22 @@ def create_partner_referral_v1(tracking_id, return_url):
                     "partner_id": partner_id,
                     "rest_api_integration": {
                         "integration_method": "PAYPAL",
-                        "integration_type": "THIRD_PARTY"
+                        "integration_type": "THIRD_PARTY",
                     },
                     "rest_third_party_details": {
                         "partner_client_id": partner_client_id,
-                        "feature_list": [
-                            "PAYMENT",
-                            "REFUND",
-                            "READ_SELLER_DISPUTE"
-                        ]
-                    }
-                }
+                        "feature_list": ["PAYMENT", "REFUND", "READ_SELLER_DISPUTE"],
+                    },
+                },
             }
         ],
         "web_experience_preference": {
             "partner_logo_url": "https://www.paypalobjects.com/digitalassets/c/website/marketing/na/us/logo-center/Badge_1.png",
             "return_url": return_url,
-            "action_renewal_url": "www.url.com"
+            "action_renewal_url": "www.url.com",
         },
-        "collected_consents": [
-            {
-                "type": "SHARE_DATA_CONSENT",
-                "granted": True
-            }
-        ],
-        "products": [
-            "EXPRESS_CHECKOUT"
-        ]
+        "collected_consents": [{"type": "SHARE_DATA_CONSENT", "granted": True}],
+        "products": ["EXPRESS_CHECKOUT"],
     }
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
@@ -128,16 +115,11 @@ def create_partner_referral_v2(tracking_id, return_url):
             }
         ],
         "products": [product],
-        "legal_consents": [
-            {
-                "type": "SHARE_DATA_CONSENT", 
-                "granted": True
-            }
-        ],
+        "legal_consents": [{"type": "SHARE_DATA_CONSENT", "granted": True}],
         "partner_config_override": {
             "return_url": return_url,
-            "return_url_description": "A description of the return URL."
-            },
+            "return_url_description": "A description of the return URL.",
+        },
     }
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
@@ -154,7 +136,7 @@ def get_merchant_id(tracking_id):
 
     endpoint = build_endpoint(
         f"/v1/customer/partners/{partner_id}/merchant-integrations",
-        query = {'tracking_id': tracking_id}
+        query={"tracking_id": tracking_id},
     )
     headers = build_headers()
 

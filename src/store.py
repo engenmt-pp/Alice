@@ -46,6 +46,17 @@ def checkout_branded_vaulting(customer_id):
     return checkout(template, customer_id=customer_id, client_token=client_token)
 
 
+@bp.route("/branded-ppgf")
+def checkout_branded_ppgf():
+    template = "checkout-branded-ppgf.html"
+    product = {
+        "name": "A donation",
+        "description": "It's a donation.",
+        "price": 100.00,
+    }
+    return checkout(template, product=product)
+
+
 @bp.route("/hosted")
 def checkout_hosted_fields():
     client_token = generate_client_token()
@@ -88,15 +99,22 @@ def checkout_ship_sdk():
     return checkout(template)
 
 
-def checkout(template, partner_client_id=None, payee_id=None, bn_code=None, **kwargs):
+def checkout(
+    template,
+    partner_client_id=None,
+    payee_id=None,
+    bn_code=None,
+    product=None,
+    **kwargs,
+):
     if partner_client_id is None:
         partner_client_id = current_app.config["PARTNER_CLIENT_ID"]
     if payee_id is None:
         payee_id = current_app.config["MERCHANT_ID"]
     if bn_code is None:
         bn_code = current_app.config["PARTNER_BN_CODE"]
-
-    product = apple_pie()
+    if product is None:
+        product = apple_pie()
 
     return render_template(
         template,

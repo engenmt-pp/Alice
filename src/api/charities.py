@@ -16,6 +16,9 @@ def get_charities():
         "page_size": 1,
         "page": 1,
     }
+    query = {
+        "ein": "813208709RR0001",
+    }
     endpoint = build_endpoint("/v1/customer/charities", query=query)
     headers = build_headers()
 
