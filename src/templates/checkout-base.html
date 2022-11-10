@@ -1,0 +1,56 @@
+{% extends "two-column-base.html" %}
+
+{% block left_col %}
+<form>
+	<div class="flex items-center mb-2">
+		<label for="partner-id" class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300">Partner ID</label>
+		<input type="partner-id" id="partner-id" class="w-1/2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white font-mono" value="{{ partner_id }}" disabled>
+		<button type="button" onclick="copyToClipboard('partner-id')" class="p-1 w-1/6 mx-1 bg-blue-700 text-white border-gray-300 rounded-lg block">cp</button>
+	</div>
+	<div class="flex items-center mb-2">
+		<label for="partner-client-id" class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300">Client ID</label>
+		<input type="partner-client-id" id="partner-client-id" class="w-2/3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono" value="{{ partner_client_id }}" disabled>
+		<button type="button" onclick="copyToClipboard('partner-client-id')" class="p-1 w-1/6 mx-1 bg-blue-700 text-white border-gray-300 rounded-lg block">cp</button>
+	</div>
+	<div class="flex items-center mb-2">
+		<label for="merchant-id" class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300">Merchant ID</label>
+		<input type="merchant-id" id="merchant-id" class="w-2/3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white font-mono" value="{{ payee_id }}" disabled>
+		<button type="button" onclick="copyToClipboard('merchant-id')" class="p-1 w-1/6 mx-1 bg-blue-700 text-white border-gray-300 rounded-lg block">cp</button>
+	</div>
+
+	<fieldset>
+		<legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Intent</legend>
+
+		<div class="flex items-center mb-2">
+			<input id="intent-capture" type="radio" name="intent" value="capture" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" checked>
+			<label for="intent-capture" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+				Capture
+			</label>
+		</div>
+
+		<div class="flex items-center mb-2">
+			<input id="intent-authorize" type="radio" name="intent" value="authorize" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600">
+			<label for="intent-authorize" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+				Authorize
+			</label>
+		</div>
+	</fieldset>
+	<fieldset>
+		<legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Shipping</legend>
+
+		<div class="flex items-center mb-2">
+			<input id="shipping-get" type="radio" name="shipping" value="get-from-file" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" checked>
+			<label for="shipping-get" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 font-mono">
+				GET_FROM_FILE
+			</label>
+		</div>
+
+		<div class="flex items-center mb-2">
+			<input id="shipping-no" type="radio" name="shipping" value="no-shipping" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600">
+			<label for="shipping-no" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 font-mono">
+				NO_SHIPPING
+			</label>
+		</div>
+	</fieldset>
+</form>
+{% endblock %}

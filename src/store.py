@@ -22,6 +22,12 @@ def apple_pie():
     }
 
 
+@bp.route("/base")
+def checkout_base():
+    template = "checkout-base.html"
+    return checkout(template)
+
+
 @bp.route("/branded")
 def checkout_branded():
     template = "checkout-branded.html"
@@ -88,7 +94,16 @@ def checkout_ship_sdk():
     return checkout(template)
 
 
-def checkout(template, partner_client_id=None, payee_id=None, bn_code=None, **kwargs):
+def checkout(
+    template,
+    partner_id=None,
+    partner_client_id=None,
+    payee_id=None,
+    bn_code=None,
+    **kwargs,
+):
+    if partner_id is None:
+        partner_id = current_app.config["PARTNER_ID"]
     if partner_client_id is None:
         partner_client_id = current_app.config["PARTNER_CLIENT_ID"]
     if payee_id is None:
@@ -101,6 +116,7 @@ def checkout(template, partner_client_id=None, payee_id=None, bn_code=None, **kw
     return render_template(
         template,
         product=product,
+        partner_id=partner_id,
         partner_client_id=partner_client_id,
         payee_id=payee_id,
         bn_code=bn_code,

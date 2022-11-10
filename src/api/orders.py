@@ -48,6 +48,7 @@ def create_order(include_platform_fees=True):
     """
     endpoint = build_endpoint("/v2/checkout/orders")
     headers = build_headers(include_bn_code=True)
+    headers["paypal-request-id"] = "2"
 
     payee_id = request.json["payee_id"]
     price = request.json["price"]
