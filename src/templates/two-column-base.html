@@ -4,11 +4,8 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<script src="https://cdn.tailwindcss.com"></script>
-		<script>
-		function copyToClipboard(id) {
-			navigator.clipboard.writeText(document.getElementById(id).value);
-		}
-		</script>
+		{% block head %}
+		{% endblock %}
 	</head>
 	<body class="bg-slate-50 dark:bg-slate-900">
 		<div class="max-w-7xl mx-auto">

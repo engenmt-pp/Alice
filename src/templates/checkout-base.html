@@ -1,56 +1,104 @@
 {% extends "two-column-base.html" %}
 
+{% block head %}
+<script>
+  function copyToClipboard(id) {
+    navigator.clipboard.writeText(document.getElementById(id).value);
+  }
+</script>
+{% endblock %}
+
 {% block left_col %}
-<form>
-	<div class="flex items-center mb-2">
-		<label for="partner-id" class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300">Partner ID</label>
-		<input type="partner-id" id="partner-id" class="w-1/2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white font-mono" value="{{ partner_id }}" disabled>
-		<button type="button" onclick="copyToClipboard('partner-id')" class="p-1 w-1/6 mx-1 bg-blue-700 text-white border-gray-300 rounded-lg block">cp</button>
-	</div>
-	<div class="flex items-center mb-2">
-		<label for="partner-client-id" class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300">Client ID</label>
-		<input type="partner-client-id" id="partner-client-id" class="w-2/3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono" value="{{ partner_client_id }}" disabled>
-		<button type="button" onclick="copyToClipboard('partner-client-id')" class="p-1 w-1/6 mx-1 bg-blue-700 text-white border-gray-300 rounded-lg block">cp</button>
-	</div>
-	<div class="flex items-center mb-2">
-		<label for="merchant-id" class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300">Merchant ID</label>
-		<input type="merchant-id" id="merchant-id" class="w-2/3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white font-mono" value="{{ payee_id }}" disabled>
-		<button type="button" onclick="copyToClipboard('merchant-id')" class="p-1 w-1/6 mx-1 bg-blue-700 text-white border-gray-300 rounded-lg block">cp</button>
-	</div>
+<form id="options-form" class="space-y-4">
+  <div class="flex items-center mb-2">
+    <label class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300" for="partner-id">Partner ID</label>
+    <input class="w-1/2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white font-mono" id="partner-id" value="{{ partner_id }}" disabled>
+    <button type="button" class="h-8 w-1/6 p-1 mx-1 bg-blue-600 text-white rounded-lg block uppercase text-xs hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring focus:ring-blue-400" onclick="copyToClipboard('partner-id')">copy</button>
+  </div>
+  <div class="flex items-center mb-2">
+    <label class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300" for="partner-client-id">Client ID</label>
+    <input class="w-1/2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono" id="partner-client-id" value="{{ partner_client_id }}" disabled>
+    <button type="button" class="h-8 w-1/6 p-1 mx-1 bg-blue-600 text-white rounded-lg block uppercase text-xs hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring focus:ring-blue-400" onclick="copyToClipboard('partner-client-id')">copy</button>
+  </div>
+  <div class="flex items-center mb-2">
+    <label class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300" for="merchant-id" >Merchant ID</label>
+    <input class="w-1/2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white font-mono" id="merchant-id" value="{{ payee_id }}" disabled>
+    <button type="button" class="h-8 w-1/6 p-1 mx-1 bg-blue-600 text-white rounded-lg block uppercase text-xs hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring focus:ring-blue-400" onclick="copyToClipboard('merchant-id')">copy</button>
+  </div>
 
-	<fieldset>
-		<legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Intent</legend>
+  <fieldset>
+    <legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Intent</legend>
 
-		<div class="flex items-center mb-2">
-			<input id="intent-capture" type="radio" name="intent" value="capture" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" checked>
-			<label for="intent-capture" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-				Capture
-			</label>
-		</div>
+    <div class="flex items-center mb-2">
+      <input id="intent-capture" type="radio" name="intent" value="CAPTURE" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" checked>
+      <label for="intent-capture" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+        Capture
+      </label>
+    </div>
 
-		<div class="flex items-center mb-2">
-			<input id="intent-authorize" type="radio" name="intent" value="authorize" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600">
-			<label for="intent-authorize" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-				Authorize
-			</label>
-		</div>
-	</fieldset>
-	<fieldset>
-		<legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Shipping</legend>
+    <div class="flex items-center mb-2">
+      <input id="intent-authorize" type="radio" name="intent" value="AUTHORIZE" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600">
+      <label for="intent-authorize" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+        Authorize
+      </label>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Shipping</legend>
 
-		<div class="flex items-center mb-2">
-			<input id="shipping-get" type="radio" name="shipping" value="get-from-file" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" checked>
-			<label for="shipping-get" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 font-mono">
-				GET_FROM_FILE
-			</label>
-		</div>
+    <div class="flex items-center mb-2">
+      <input id="shipping-get" type="radio" name="shipping-preference" value="GET_FROM_FILE" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" checked>
+      <label for="shipping-get" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 font-mono">
+        GET_FROM_FILE
+      </label>
+    </div>
 
-		<div class="flex items-center mb-2">
-			<input id="shipping-no" type="radio" name="shipping" value="no-shipping" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600">
-			<label for="shipping-no" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 font-mono">
-				NO_SHIPPING
-			</label>
-		</div>
-	</fieldset>
+    <div class="flex items-center mb-2">
+      <input id="shipping-no" type="radio" name="shipping-preference" value="NO_SHIPPING" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600">
+      <label for="shipping-no" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 font-mono">
+        NO_SHIPPING
+      </label>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Purchase unit info</legend>
+
+    <div class="flex items-center mb-2">
+      <label for="price" class="w-1/2 block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+        Price
+      </label>
+      <input id="price" type="number" name="price" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-1 px-2 text-gray-700 leading-none focus:outline-none focus:bg-white focus:border-blue-500" value="3.14">
+    </div>
+
+    <div class="flex items-center mb-2">
+      <label for="reference-id" class="w-1/2 block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+        Reference ID
+      </label>
+      <input id="reference-id" type="text" name="reference-id" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-1 px-2 text-gray-700 leading-none focus:outline-none focus:bg-white focus:border-blue-500" value="default">
+    </div>
+
+    <div class="flex items-center mb-2">
+      <label for="partner-fee" class="w-1/2 block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+        Partner fee
+      </label>
+      <input id="partner-fee" type="number" name="partner-fee" value="0" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-1 px-2 text-gray-700 leading-none focus:outline-none focus:bg-white focus:border-blue-500">
+    </div>
+  </fieldset>
 </form>
+{% endblock %}
+
+
+
+{% block right_col %}
+
+<script>
+  function getOptions() {
+    var formData = new FormData(document.getElementById('options-form'));
+    var formOptions = Object.fromEntries(formData);
+    formOptions['payee-id'] = document.getElementById('merchant-id').value;
+    formOptions['partner-id'] = document.getElementById('partner-id').value;
+    return formOptions
+  }
+</script>
+
 {% endblock %}

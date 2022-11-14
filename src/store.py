@@ -22,9 +22,9 @@ def apple_pie():
     }
 
 
-@bp.route("/base")
-def checkout_base():
-    template = "checkout-base.html"
+@bp.route("/branded-form")
+def checkout_branded_form():
+    template = "checkout-form-branded.html"
     return checkout(template)
 
 

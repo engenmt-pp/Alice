@@ -8,7 +8,7 @@ from .utils import build_endpoint, build_headers, log_and_request, random_decima
 bp = Blueprint("orders", __name__, url_prefix="/orders")
 
 
-def default_purchase_unit(payee_id, price, reference_id=None):
+def default_purchase_unit(payee_id, price=3.14, reference_id=None):
     purchase_unit = {
         "custom_id": "Up to 127 characters can go here!",
         "payee": {"merchant_id": payee_id},
@@ -35,6 +35,80 @@ def default_shipping_option():
     }
 
 
+def build_application_context(shipping_preference):
+    return {
+        "return_url": "http://localhost:5000/",
+        "cancel_url": "http://localhost:5000/",
+        "shipping_preference": shipping_preference,
+    }
+
+
+def build_purchase_unit(form_options):
+
+    partner_id = form_options["partner-id"]
+    merchant_id = form_options["partner-id"]
+    price = form_options["price"]
+
+    purchase_unit = {
+        "custom_id": "Up to 127 characters can go here!",
+        "payee": {"merchant_id": merchant_id},
+        "amount": {
+            "currency_code": "USD",
+            "value": price,
+        },
+        "soft_descriptor": "1234567890111213141516",
+        "payment_instruction": {
+            "disbursement_mode": "INSTANT",
+        },
+    }
+
+    reference_id = form_options.get("reference-id", "default")
+    if reference_id != "default":
+        purchase_unit["reference_id"] = reference_id
+
+    partner_fee = form_options.get("partner-fee")
+    if partner_fee and float(partner_fee) > 0:
+        purchase_unit["payment_instruction"]["platform_fees"] = [
+            {
+                "amount": {"currency_code": "USD", "value": partner_fee},
+                "payee": {"merchant_id": partner_id},
+            }
+        ]
+
+    if form_options["shipping-preference"] != "NO_SHIPPING":
+        purchase_unit["shipping"] = {"options": [default_shipping_option()]}
+
+    return purchase_unit
+
+
+@bp.route("/create-form", methods=("POST",))
+def create_order_form():
+    """Create an order with the /v2/checkout/orders API.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
+    """
+    endpoint = build_endpoint("/v2/checkout/orders")
+    headers = build_headers(include_bn_code=True)
+
+    form_options = request.get_json()
+
+    shipping_preference = form_options["shipping-preference"]
+    application_context = build_application_context(shipping_preference)
+
+    purchase_unit = build_purchase_unit(form_options)
+
+    intent = form_options["intent"]
+    data = {
+        "intent": intent,
+        "purchase_units": [purchase_unit],
+        "application_context": application_context,
+    }
+
+    response = log_and_request("POST", endpoint, headers=headers, data=data)
+    response_dict = response.json()
+    return jsonify(response_dict)
+
+
 @bp.route("/create", methods=("POST",))
 def create_order(include_platform_fees=True):
     """Create an order with the /v2/checkout/orders API.
@@ -48,7 +122,6 @@ def create_order(include_platform_fees=True):
     """
     endpoint = build_endpoint("/v2/checkout/orders")
     headers = build_headers(include_bn_code=True)
-    headers["paypal-request-id"] = "2"
 
     payee_id = request.json["payee_id"]
     price = request.json["price"]
