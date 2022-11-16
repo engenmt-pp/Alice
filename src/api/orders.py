@@ -2,7 +2,13 @@ import json
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, current_app, jsonify, request
 
-from .utils import build_endpoint, build_headers, log_and_request, random_decimal_string
+from .utils import (
+    build_endpoint,
+    build_headers,
+    log_and_request,
+    random_decimal_string,
+    format_request_and_response,
+)
 
 
 bp = Blueprint("orders", __name__, url_prefix="/orders")
@@ -46,7 +52,7 @@ def build_application_context(shipping_preference):
 def build_purchase_unit(form_options):
 
     partner_id = form_options["partner-id"]
-    merchant_id = form_options["partner-id"]
+    merchant_id = form_options["merchant-id"]
     price = form_options["price"]
 
     purchase_unit = {
@@ -76,7 +82,8 @@ def build_purchase_unit(form_options):
         ]
 
     if form_options["shipping-preference"] != "NO_SHIPPING":
-        purchase_unit["shipping"] = {"options": [default_shipping_option()]}
+        shipping_options = [default_shipping_option()]
+        purchase_unit["shipping"] = {"options": shipping_options}
 
     return purchase_unit
 
@@ -92,12 +99,13 @@ def create_order_form():
 
     form_options = request.get_json()
 
-    shipping_preference = form_options["shipping-preference"]
-    application_context = build_application_context(shipping_preference)
+    intent = form_options["intent"]
 
     purchase_unit = build_purchase_unit(form_options)
 
-    intent = form_options["intent"]
+    shipping_preference = form_options["shipping-preference"]
+    application_context = build_application_context(shipping_preference)
+
     data = {
         "intent": intent,
         "purchase_units": [purchase_unit],
@@ -106,6 +114,7 @@ def create_order_form():
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
+    response_dict["formatted"] = format_request_and_response(response)
     return jsonify(response_dict)
 
 

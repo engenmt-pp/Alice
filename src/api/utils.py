@@ -94,7 +94,11 @@ def request_access_token(client_id, secret):
 
 
 def build_headers(
-    client_id=None, secret=None, include_bn_code=False, include_auth_assertion=False
+    client_id=None,
+    secret=None,
+    bn_code=None,
+    include_bn_code=False,
+    include_auth_assertion=False,
 ):
     """Build commonly used headers using a new PayPal access token."""
     if client_id is None:
@@ -111,7 +115,9 @@ def build_headers(
     }
 
     if include_bn_code:
-        headers["PayPal-Partner-Attribution-Id"] = current_app.config["PARTNER_BN_CODE"]
+        if bn_code is None:
+            bn_code = current_app.config["PARTNER_BN_CODE"]
+        headers["PayPal-Partner-Attribution-Id"] = bn_code
 
     if include_auth_assertion:
         headers["PayPal-Auth-Assertion"] = build_auth_assertion()
@@ -139,6 +145,43 @@ def build_auth_assertion(client_id=None, merchant_id=None):
     return b".".join([header_b64, payload_b64, signature])
 
 
+def format_request_and_response(response):
+    """Format an HTTP request and response for output."""
+
+    method = response.request.method
+    url = response.request.url
+
+    headers_sent = dict(response.request.headers)
+    body_sent = json.loads(response.request.body)
+    formatted_request = "\n".join(
+        [
+            f"Sending {method} request to {url}:",
+            f"Headers sent: {json.dumps(headers_sent, indent=2)}",
+            f"Body sent: {json.dumps(body_sent, indent=2)}",
+        ]
+    )
+
+    response_code = response.status_code
+    headers_received = dict(response.headers)
+    debug_id = headers_received.get("Paypal-Debug-Id")
+    try:
+        body_received = response.json()
+    except json.decoder.JSONDecodeError:
+        body_received = response.text
+
+    formatted_response = "\n".join(
+        [
+            f"Response:",
+            f"Status: {response_code}",
+            f"PayPal Debug ID: {debug_id}",
+            f"Headers received: {json.dumps(headers_received,indent=2)}",
+            f"Body received: {json.dumps(body_received,indent=2)}",
+        ]
+    )
+
+    return "\n\n".join([formatted_request, formatted_response])
+
+
 def generate_client_token(customer_id=None):
     endpoint = build_endpoint("/v1/identity/generate-token")
     headers = build_headers()
@@ -156,5 +199,5 @@ def generate_client_token(customer_id=None):
 
 def random_decimal_string(length):
     """Return a decimal string of the given length chosen uniformly at random."""
-    random_int = random.randrange(10 ** length, 10 ** (length + 1))
+    random_int = random.randrange(10**length, 10 ** (length + 1))
     return f"{random_int}"

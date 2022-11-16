@@ -9,6 +9,10 @@
     <div id="paypal-button-container"></div>
   </div>
 </div>
+<div id="api-calls" class="font-mono whitespace-pre-wrap">
+  foo
+
+</div>
 
 <!-- Import PayPal Javascript SDK with Partner's credentials -->
 <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&commit=true&enable-funding=venmo,paylater&debug=true" data-partner-attribution-id="{{ bn_code }}"></script>
@@ -28,6 +32,7 @@
         }).then(function(res) {
           return res.json();
         }).then(function(data) {
+          updateAPICalls("api-calls", data.formatted);
           orderId = data.id;
           return orderId;
         })

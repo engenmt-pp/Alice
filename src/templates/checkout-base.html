@@ -5,6 +5,10 @@
   function copyToClipboard(id) {
     navigator.clipboard.writeText(document.getElementById(id).value);
   }
+  function updateAPICalls(id, contents) {
+    var apiCalls = document.getElementById('api-calls');
+    apiCalls.innerHTML += contents;
+  }
 </script>
 {% endblock %}
 
@@ -95,7 +99,7 @@
   function getOptions() {
     var formData = new FormData(document.getElementById('options-form'));
     var formOptions = Object.fromEntries(formData);
-    formOptions['payee-id'] = document.getElementById('merchant-id').value;
+    formOptions['merchant-id'] = document.getElementById('merchant-id').value;
     formOptions['partner-id'] = document.getElementById('partner-id').value;
     return formOptions
   }
