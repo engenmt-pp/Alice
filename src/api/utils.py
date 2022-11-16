@@ -34,7 +34,7 @@ def log_and_request(method, endpoint, **kwargs):
     current_app.logger.debug(f"{bar}Sending {method} request to {endpoint}:")
     if "data" in kwargs:
         data = kwargs["data"]
-        if isinstance(data, dict):
+        if isinstance(data, (dict, list)):
             current_app.logger.debug(f"data = {json.dumps(data, indent=2)}")
             kwargs["data"] = json.dumps(data)
 
@@ -156,5 +156,5 @@ def generate_client_token(customer_id=None):
 
 def random_decimal_string(length):
     """Return a decimal string of the given length chosen uniformly at random."""
-    random_int = random.randrange(10 ** length, 10 ** (length + 1))
+    random_int = random.randrange(10**length, 10 ** (length + 1))
     return f"{random_int}"
