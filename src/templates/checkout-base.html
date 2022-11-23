@@ -102,9 +102,91 @@
     formOptions['partner-id'] = document.getElementById('partner-id').value;
     return formOptions
   }
+  const root = document.querySelector(".tabs");
+  const btns = root.querySelectorAll(".btn");
+  const tabs = root.querySelectorAll(".tab");
+  root.onclick = function(e) {
+    var t = e.target;
+    var val = t.getAttribute("tab");
+    if(val != null){
+      btns.forEach(each=>{each.classList.add("hidden");});
+      tabs.forEach(each=>{each.classList.add("hidden");});
+
+      btns[val - 1].classList.remove("hidden");
+      tabs[val - 1].classList.remove("hidden");
+    }
+  }
 </script>
 
-<ul class="nav nav-tabs flex flex-col md:flex-row flex-wrap list-none border-b-0 pl-0 mb-4" id="tabs-tab3"
+<div class="tabs mx-auto text-indigo-800 m-10" style="max-width:450px;">
+  <div class="top flex text-gray-100 rounded-t-md overflow-hidden">
+    <div class="header p-2 px-3 bg-indigo-800 w-full font-semibold uppercase">Tabs</div>
+    <div class="buttons ml-auto my-auto flex">
+      <span tab="1" class="btn bg-indigo-800 cursor-pointer p-2 px-3">One</span>
+      <span tab="2" class="btn bg-indigo-800 cursor-pointer p-2 px-3">Two</span>
+      <span tab="3" class="btn bg-indigo-800 cursor-pointer p-2 px-3">Three</span>
+      <span tab="4" class="btn bg-indigo-800 cursor-pointer p-2 px-3">Four</span>
+      <span tab="5" class="btn bg-indigo-800 cursor-pointer p-2 px-3">Five</span>
+    </div>
+  </div>
+  <div class="center text-gray-800 relative">
+<!-- tab start -->
+   <div class="tab bg-white rounded-b-md w-full border border-t-0 absolute top-0">
+      <p class="text-xl p-3 px-5 font-semibold">Wellcome To Tab 1</p>
+      <div class="p-3 px-5">
+        <div class="long-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus expedita rem dolore ut numquam fugiat, accusantium consequatur ratione nesciunt magnam quibusdam necessitatibus dolorum velit. Quia illo autem adipisci cupiditate. Repellendus!</div>
+        <br>
+        <div tab="2" class="oint text-sm my-4 p-2 px-4 cursor-pointer font-semibold inline-block bg-indigo-800 rounded-sm text-indigo-100">Go Next Tab</div>
+      </div>     
+   
+   </div>
+<!--     tab end -->
+   <div class="tab bg-white rounded-b-md w-full border border-t-0 absolute top-0">
+      <p class="text-xl p-3 px-5 font-semibold">Wellcome To Tab 2</p>
+      <div class="p-3 px-5">
+        <div class="long-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus expedita rem dolore ut numquam fugiat, accusantium consequatur ratione nesciunt magnam quibusdam necessitatibus dolorum velit. Quia illo autem adipisci cupiditate. Repellendus!</div>
+        <br>
+        <div tab="3" class="oint text-sm my-4 p-2 px-4 cursor-pointer font-semibold inline-block bg-indigo-800 rounded-sm text-indigo-100">Go Next Tab</div>
+      </div>     
+   
+   </div>
+<!--     tab end -->
+   <div class="tab bg-white rounded-b-md w-full border border-t-0 absolute top-0">
+      <p class="text-xl p-3 px-5 font-semibold">Wellcome To Tab 3</p>
+      <div class="p-3 px-5">
+        <div class="long-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus expedita rem dolore ut numquam fugiat, accusantium consequatur ratione nesciunt magnam quibusdam necessitatibus dolorum velit. Quia illo autem adipisci cupiditate. Repellendus!</div>
+        <br>
+        <div tab="4" class="oint text-sm my-4 p-2 px-4 cursor-pointer font-semibold inline-block bg-indigo-800 rounded-sm text-indigo-100">Go Next Tab</div>
+      </div>     
+   
+   </div>
+<!--     tab end -->
+   <div class="tab bg-white rounded-b-md w-full border border-t-0 absolute top-0">
+      <p class="text-xl p-3 px-5 font-semibold">Wellcome To Tab 4</p>
+      <div class="p-3 px-5">
+        <div class="long-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus expedita rem dolore ut numquam fugiat, accusantium consequatur ratione nesciunt magnam quibusdam necessitatibus dolorum velit. Quia illo autem adipisci cupiditate. Repellendus!</div>
+        <br>
+        <div tab="5" class="oint text-sm my-4 p-2 px-4 cursor-pointer font-semibold inline-block bg-indigo-800 rounded-sm text-indigo-100">Go Next Tab</div>
+      </div>     
+   
+   </div>
+<!--     tab end -->
+   <div class="tab bg-white rounded-b-md w-full border border-t-0 absolute top-0">
+      <p class="text-xl p-3 px-5 font-semibold">Wellcome To Tab 5</p>
+      <div class="p-3 px-5">
+        <div class="long-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus expedita rem dolore ut numquam fugiat, accusantium consequatur ratione nesciunt magnam quibusdam necessitatibus dolorum velit. Quia illo autem adipisci cupiditate. Repellendus!</div>
+      </div>     
+   
+   </div>
+<!--     tab end -->
+
+
+
+
+  </div>
+</div>
+
+<!-- <ul class="nav nav-tabs flex flex-col md:flex-row flex-wrap list-none border-b-0 pl-0 mb-4" id="tabs-tab3"
   role="tablist">
   <li class="nav-item" role="presentation">
     <a href="#tabs-home3" class="
@@ -172,7 +254,7 @@
   <div class="tab-pane fade" id="tabs-messages3" role="tabpanel" aria-labelledby="tabs-profile-tab3">
     Tab 3 content button version
   </div>
-</div>
+</div> -->
 
 <!-- <ul class="nav nav-tabs flex flex-col md:flex-row flex-wrap list-none border-b-0 pl-0 mb-4" id="tabs-tab"
   role="tablist">
