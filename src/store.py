@@ -22,6 +22,12 @@ def apple_pie():
     }
 
 
+@bp.route("/tab-test")
+def tab_test():
+    template = "tab-test.html"
+    return render_template(template)
+
+
 @bp.route("/form-branded")
 def checkout_form_branded():
     template = "checkout-form-branded.html"

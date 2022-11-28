@@ -1,8 +1,6 @@
 {% extends "checkout-base.html" %}
 
-{% block right_col %}
-{{ super() }}
-
+{% block checkout %}
 <!-- Empty (for now) button container -->
 <div class="smart-button-container", id="smart-button-container">
   <div style="text-align: center;">
@@ -49,9 +47,9 @@
   }
   initPayPalButton();
 </script>
+{% endblock %}
 
-
+{% block api_calls %}
 <div id="api-calls" class="font-mono whitespace-pre-wrap">
 </div>
-
 {% endblock %}

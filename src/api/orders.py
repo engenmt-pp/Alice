@@ -140,7 +140,7 @@ def create_order(include_platform_fees=True):
         "application_context": {
             "return_url": "http://localhost:5000/",
             "cancel_url": "http://localhost:5000/",
-            "shipping_preference": "GET_FROM_FILE",
+            "shipping_preference": "NO_SHIPPING",
         },
     }
 
@@ -150,8 +150,8 @@ def create_order(include_platform_fees=True):
             "platform_fees": [{"amount": {"currency_code": "USD", "value": "1.00"}}],
         }
 
-    if request.json.get("include_shipping", False):
-        data["purchase_units"][0]["shipping"] = {"options": [default_shipping_option()]}
+    # if request.json.get("include_shipping", False):
+    #     data["purchase_units"][0]["shipping"] = {"options": [default_shipping_option()]}
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
