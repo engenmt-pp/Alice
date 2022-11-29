@@ -25,7 +25,7 @@
     <button type="button" class="h-8 w-1/6 p-1 mx-1 bg-blue-600 text-white rounded-lg block uppercase text-xs hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring focus:ring-blue-400" onclick="copyToClipboard('partner-client-id')">copy</button>
   </div>
   <div class="flex items-center mb-2">
-    <label class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300" for="merchant-id" >Merchant ID</label>
+    <label class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300" for="merchant-id">Merchant ID</label>
     <input class="w-1/2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white font-mono" id="merchant-id" value="{{ payee_id }}" disabled>
     <button type="button" class="h-8 w-1/6 p-1 mx-1 bg-blue-600 text-white rounded-lg block uppercase text-xs hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring focus:ring-blue-400" onclick="copyToClipboard('merchant-id')">copy</button>
   </div>
@@ -110,22 +110,19 @@
   <!-- Tabs -->
   <div id="tabs">
     <div id="tab-checkout" class="tab center text-gray-800 relative">
-      <div class="bg-white rounded-b-md w-full border border-t-0 absolute top-0">
+      <div class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2">
         {% block checkout %}
         <p class="text-xl p-3 px-5 font-semibold">Welcome to Checkout!</p>
         <div class="p-3 px-5">
-          EGG + SPAM 
+          Default checkout contents.
         </div> 
         {% endblock %}
       </div>
     </div>
     <div id="tab-api-calls" class="tab center text-gray-800 relative hidden">
-      <div class="bg-white rounded-b-md w-full border border-t-0 absolute top-0">
+      <div class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2">
         {% block api_calls %}
-        <p class="text-xl p-3 px-5 font-semibold">Welcome To API Calls!</p>
-        <div class="p-3 px-5">
-          EGG BACON + SPAM 
-        </div>
+        <div id="api-calls" class="font-mono whitespace-pre-wrap"></div>
         {% endblock %}
       </div> 
     </div>
@@ -162,7 +159,7 @@
   const tabContainer = root.querySelector("#tabs");
   const buttonList = buttonContainer.querySelectorAll(".button");
   const tabList = tabContainer.querySelectorAll(".tab");
-  root.onclick = function(e) {
+  buttonContainer.onclick = function(e) {
     var tab = e.target;
     var tabId = tab.getAttribute("id");
     if (tabId != null){
