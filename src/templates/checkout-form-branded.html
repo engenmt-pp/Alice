@@ -9,7 +9,7 @@
 </div>
 
 <!-- Import PayPal Javascript SDK with Partner's credentials -->
-<script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&commit=true&enable-funding=venmo,paylater&debug=true" data-partner-attribution-id="{{ bn_code }}"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&commit=true&enable-funding=venmo,paylater" data-partner-attribution-id="{{ bn_code }}"></script>
 
 <script>
   var orderId;
@@ -25,18 +25,20 @@
           body: JSON.stringify(options)
         }).then(function(res) {
           return res.json();
-        }).then(function(data) {
-          updateAPICalls("api-calls", data.formatted);
-          orderId = data.id;
+        }).then(function(createData) {
+          updateAPICalls(createData.formatted);
+          orderId = createData.id;
           return orderId;
         })
       },
       onApprove: function(data, actions) {
-        return fetch('/api/orders/capture/' + data.orderID, {
+        return fetch('/api/orders/capture-form/' + data.orderID, {
           method: 'POST',
         }).then(function(res) {
           return res.json();
         }).then(function(captureData) {
+          console.log("captureData: " + JSON.stringify(captureData));
+          updateAPICalls(captureData.formatted);
           // Your server response structure and key names are what you choose
           if (captureData.error === 'INSTRUMENT_DECLINED') {
             return actions.restart();

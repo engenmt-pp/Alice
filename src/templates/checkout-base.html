@@ -5,9 +5,20 @@
   function copyToClipboard(id) {
     navigator.clipboard.writeText(document.getElementById(id).value);
   }
-  function updateAPICalls(id, contents) {
-    var apiCalls = document.getElementById('api-calls');
-    apiCalls.innerHTML += contents;
+  function updateAPICalls(formattedCalls) {
+    document.querySelector('#api-calls').click();
+    console.log(JSON.stringify(formattedCalls));
+    for (var id in formattedCalls) {
+      if (formattedCalls.hasOwnProperty(id)) {
+        var contents = formattedCalls[id]
+        console.log("id", id, "contents", contents);
+        var apiCallTab = document.querySelector('#api-calls-' + id);
+        apiCallTab.innerHTML += contents;
+        var apiCallsButton = document.querySelector('#' + id);
+        enableButton(apiCallsButton);
+        apiCallsButton.click();
+      }
+    }
   }
 </script>
 {% endblock %}
@@ -91,18 +102,16 @@
 </form>
 {% endblock %}
 
-
-
 {% block right_col %}
 <div id="buttons-tabs">
   <!-- Buttons for tabs -->
   <div id="buttons">
     <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
       <li class="mr-2">
-        <a href="#" id="tab-checkout" class="button inline-block p-4 rounded-t-lg text-blue-600 bg-gray-100 active dark:bg-gray-800 dark:text-blue-500">Checkout</a>
+        <a href="#" id="checkout" class="button inline-block p-4 rounded-t-lg text-blue-600 bg-gray-100 active dark:bg-gray-800 dark:text-blue-500">Checkout</a>
       </li>
       <li class="mr-2">
-        <a href="#" id="tab-api-calls" class="button inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300">API Calls</a>
+        <a href="#" id="api-calls" class="button inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300">API Calls</a>
       </li>
     </ul>
   </div> 
@@ -120,11 +129,36 @@
       </div>
     </div>
     <div id="tab-api-calls" class="tab center text-gray-800 relative hidden">
-      <div class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2">
-        {% block api_calls %}
-        <div id="api-calls" class="font-mono whitespace-pre-wrap"></div>
-        {% endblock %}
-      </div> 
+      <div id="api-calls-buttons-tabs">
+        <!-- Buttons for tabs -->
+        <div id="api-calls-buttons">
+          <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
+            <li class="mr-2">
+              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="access-token">Access Token</a>
+            </li>
+            <li class="mr-2">
+              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="create-order">Create Order</a>
+            </li>
+            <li class="mr-2">
+              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="capture-order">Capture Order</a>
+            </li>
+          </ul>
+        </div> 
+      
+        <!-- Tabs -->
+        <div id="api-calls-tabs">
+          <div id="tab-access-token" class="tab center text-gray-800 relative">
+            <div id="api-calls-access-token" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
+          </div>
+          <div id="tab-create-order" class="tab center text-gray-800 relative">
+            <div id="api-calls-create-order" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
+          </div>
+          <div id="tab-capture-order" class="tab center text-gray-800 relative">
+            <div id="api-calls-capture-order" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -138,36 +172,59 @@
   }
 </script>
 <script>
+  function enableButton(button) {
+    const disabledClassList = ["text-gray-400", "cursor-not-allowed", "hover:text-gray-600", "dark:text:gray-500"];
+    const enabledClassList = ["hover:text-gray-600", "hover:bg-gray-50", "dark:hover:bg-gray-800", "dark:hover:text-gray-300"];
+
+    button.classList.remove(...disabledClassList);
+    button.classList.add(...enabledClassList);
+  }
+  function makeActiveButton(buttonList, button) {
+    const activeClassList = ["text-blue-600", "bg-gray-100", "active", "dark:bg-gray-800", "dark:text-blue-500"];
+    const inactiveClassList = ["hover:text-gray-600", "hover:bg-gray-50", "dark:hover:bg-gray-800", "dark:hover:text-gray-300"];
+
+    buttonList.forEach(each => {
+      each.classList.remove(...activeClassList);
+      each.classList.add(...inactiveClassList);
+    });
+
+    button.classList.remove(...inactiveClassList);
+    button.classList.add(...activeClassList);
+  }
   function makeActiveTab(tabList, tab) {
     tabList.forEach(each => {each.classList.add("hidden");});
     tab.classList.remove("hidden");
-  }
-  function makeActiveButton(buttonList, button) {
-    const classListActive = ["text-blue-600", "bg-gray-100", "active", "dark:bg-gray-800", "dark:text-blue-500"];
-    const classListInactive = ["hover:text-gray-600", "hover:bg-gray-50", "dark:hover:bg-gray-800", "dark:hover:text-gray-300"];
-
-    buttonList.forEach(each => {
-      each.classList.remove(...classListActive);
-      each.classList.add(...classListInactive);
-    });
-
-    button.classList.remove(...classListInactive);
-    button.classList.add(...classListActive);
   }
   const root = document.querySelector("#buttons-tabs");
   const buttonContainer = root.querySelector("#buttons");
   const tabContainer = root.querySelector("#tabs");
   const buttonList = buttonContainer.querySelectorAll(".button");
-  const tabList = tabContainer.querySelectorAll(".tab");
+  const tabList = root.querySelectorAll("#tabs > .tab");
   buttonContainer.onclick = function(e) {
-    var tab = e.target;
-    var tabId = tab.getAttribute("id");
-    if (tabId != null){
-      var button = buttonContainer.querySelector("#" + tabId);
-      tab = tabContainer.querySelector("#" + tabId);
+    var button = e.target;
+    var buttonId = button.getAttribute("id");
+    if (buttonId != null){
       makeActiveButton(buttonList, button);
+
+      var tab = tabContainer.querySelector("#tab-" + buttonId);
       makeActiveTab(tabList, tab);
     }
   }
+  const apiCallsRoot = document.querySelector("#api-calls-buttons-tabs");
+  const apiCallsButtonContainer = apiCallsRoot.querySelector("#api-calls-buttons");
+  const apiCallsTabContainer = apiCallsRoot.querySelector("#api-calls-tabs");
+  const apiCallsButtonList = apiCallsButtonContainer.querySelectorAll(".button");
+  const apiCallsTabList = apiCallsRoot.querySelectorAll("#api-calls-tabs > .tab");
+  apiCallsButtonContainer.onclick = function(e) {
+    var button = e.target;
+    var buttonId = button.getAttribute("id");
+    if (buttonId != null && !button.classList.contains("cursor-not-allowed")) {
+      makeActiveButton(apiCallsButtonList, button);
+
+      var tab = apiCallsTabContainer.querySelector("#tab-" + buttonId);
+      makeActiveTab(apiCallsTabList, tab);
+    }
+  }
+  
 </script>
 {% endblock %}

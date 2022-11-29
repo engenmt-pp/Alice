@@ -95,7 +95,9 @@ def create_order_form():
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
     """
     endpoint = build_endpoint("/v2/checkout/orders")
-    headers = build_headers(include_bn_code=True)
+    headers = build_headers(include_bn_code=True, return_formatted=True)
+    formatted = {"access-token": headers["formatted"]}
+    del headers["formatted"]
 
     form_options = request.get_json()
 
@@ -114,7 +116,8 @@ def create_order_form():
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
-    response_dict["formatted"] = format_request_and_response(response)
+    formatted["create-order"] = format_request_and_response(response)
+    response_dict["formatted"] = formatted
     return jsonify(response_dict)
 
 
@@ -332,6 +335,23 @@ def capture_order(order_id):
 
     response = log_and_request("POST", endpoint, headers=headers)
     response_dict = response.json()
+    return jsonify(response_dict)
+
+
+@bp.route("/capture-form/<order_id>", methods=("POST",))
+def capture_order_form(order_id):
+    """Capture the order with the /v2/checkout/orders API.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
+    """
+    endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}/capture")
+    headers = build_headers()
+
+    response = log_and_request("POST", endpoint, headers=headers)
+    response_dict = response.json()
+    response_dict["formatted"] = {
+        "capture-order": format_request_and_response(response)
+    }
     return jsonify(response_dict)
 
 

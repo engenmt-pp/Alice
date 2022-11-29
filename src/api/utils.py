@@ -62,7 +62,7 @@ from functools import cache
 
 
 @cache
-def request_access_token(client_id, secret):
+def request_access_token(client_id, secret, return_formatted=False):
     """Request an access token using the /v1/oauth2/token API.
 
     Docs: https://developer.paypal.com/docs/api/reference/get-an-access-token/
@@ -84,7 +84,12 @@ def request_access_token(client_id, secret):
     response_dict = response.json()
 
     try:
-        return response_dict["access_token"]
+        access_token = response_dict["access_token"]
+        return_val = {"access_token": access_token}
+        if return_formatted:
+            formatted = format_request_and_response(response)
+            return_val["formatted"] = formatted
+        return return_val
     except KeyError as exc:
         current_app.logger.error(f"Encountered a KeyError: {exc}")
         current_app.logger.error(
@@ -99,6 +104,7 @@ def build_headers(
     bn_code=None,
     include_bn_code=False,
     include_auth_assertion=False,
+    return_formatted=False,
 ):
     """Build commonly used headers using a new PayPal access token."""
     if client_id is None:
@@ -106,7 +112,10 @@ def build_headers(
     if secret is None:
         secret = current_app.config["PARTNER_SECRET"]
 
-    access_token = request_access_token(client_id, secret)
+    access_token_response = request_access_token(
+        client_id, secret, return_formatted=return_formatted
+    )
+    access_token = access_token_response["access_token"]
     headers = {
         "Accept": "application/json",
         "Accept-Language": "en_US",
@@ -121,6 +130,9 @@ def build_headers(
 
     if include_auth_assertion:
         headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+
+    if return_formatted:
+        headers["formatted"] = access_token_response["formatted"]
 
     return headers
 
@@ -152,7 +164,12 @@ def format_request_and_response(response):
     url = response.request.url
 
     headers_sent = dict(response.request.headers)
-    body_sent = json.loads(response.request.body)
+    body_sent = response.request.body
+    try:
+        body_sent = json.loads(body_sent)
+    except:
+        print(body_sent)
+
     formatted_request = "\n".join(
         [
             f"Sending {method} request to {url}:",
