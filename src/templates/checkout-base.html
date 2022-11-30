@@ -10,50 +10,189 @@
     console.log(JSON.stringify(formattedCalls));
     for (var id in formattedCalls) {
       if (formattedCalls.hasOwnProperty(id)) {
-        var contents = formattedCalls[id]
-        console.log("id", id, "contents", contents);
-        var apiCallTab = document.querySelector('#api-calls-' + id);
-        apiCallTab.innerHTML += contents;
-        var apiCallsButton = document.querySelector('#' + id);
+        var contents = formattedCalls[id];
+        var apiCallTab = document.getElementById('api-calls-' + id);
+        apiCallTab.innerHTML = contents;
+        var apiCallsButton = document.getElementById(id);
         enableButton(apiCallsButton);
         apiCallsButton.click();
       }
     }
+  }
+  function hideAuth() {
+    var tabAuthorizeOrder = document.getElementById("authorize-order");
+    tabAuthorizeOrder.classList.add("hidden");
+  }
+  function showAuth() {
+    var tabAuthorizeOrder = document.getElementById("authorize-order");
+    tabAuthorizeOrder.classList.remove("hidden");
   }
 </script>
 {% endblock %}
 
 {% block left_col %}
 <form id="options-form" class="space-y-4">
-  <div class="flex items-center mb-2">
-    <label class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300" for="partner-id">Partner ID</label>
-    <input class="w-1/2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white font-mono" id="partner-id" value="{{ partner_id }}" disabled>
-    <button type="button" class="h-8 w-1/6 p-1 mx-1 bg-blue-600 text-white rounded-lg block uppercase text-xs hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring focus:ring-blue-400" onclick="copyToClipboard('partner-id')">copy</button>
-  </div>
-  <div class="flex items-center mb-2">
-    <label class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300" for="partner-client-id">Client ID</label>
-    <input class="w-1/2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono" id="partner-client-id" value="{{ partner_client_id }}" disabled>
-    <button type="button" class="h-8 w-1/6 p-1 mx-1 bg-blue-600 text-white rounded-lg block uppercase text-xs hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring focus:ring-blue-400" onclick="copyToClipboard('partner-client-id')">copy</button>
-  </div>
-  <div class="flex items-center mb-2">
-    <label class="w-1/3 block text-sm font-medium text-gray-900 dark:text-gray-300" for="merchant-id">Merchant ID</label>
-    <input class="w-1/2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white font-mono" id="merchant-id" value="{{ payee_id }}" disabled>
-    <button type="button" class="h-8 w-1/6 p-1 mx-1 bg-blue-600 text-white rounded-lg block uppercase text-xs hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring focus:ring-blue-400" onclick="copyToClipboard('merchant-id')">copy</button>
-  </div>
+  <fieldset>
+    <legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Partner/merchant info</legend>
+    <div class="flex flex-row flex-wrap items-center mb-2">
+      <label for="partner-id" class="
+        ml-2
+        flex-none 
+        basis-1/3
+        text-sm 
+        font-medium 
+        text-gray-900 
+        dark:text-gray-300
+      ">
+        Partner ID
+      </label>
+      <input id="partner-id" name="partner-id" class="
+        appearance-none
+        p-2
+        min-w-0
+        flex-auto
+        basis-2/5
+        bg-gray-50 
+        border
+        border-gray-300 
+        text-gray-900
+        text-sm
+        rounded-lg 
+        leading-none 
+        font-mono 
+        focus:outline-none 
+        focus:bg-white 
+        focus:border-blue-500
+      " value="{{ partner_id }}" disabled>
+      <button type="button" class="
+        h-8
+        basis-1/6
+        flex-none
+        p-1
+        mx-1
+        bg-blue-600
+        text-white
+        rounded-lg
+        uppercase
+        text-xs
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+      " onclick="copyToClipboard('partner-id');">copy</button>
+    </div>
+    <div class="flex flex-row flex-wrap items-center mb-2">
+      <label for="partner-client-id" class="
+        ml-2
+        flex-none 
+        basis-1/3
+        text-sm 
+        font-medium 
+        text-gray-900 
+        dark:text-gray-300
+      ">
+        Client ID
+      </label>
+      <input id="partner-client-id" name="partner-client-id" class="
+        appearance-none
+        p-2
+        min-w-0
+        flex-auto
+        basis-2/5
+        bg-gray-50 
+        border
+        border-gray-300 
+        text-gray-900
+        text-sm
+        rounded-lg 
+        leading-none 
+        font-mono 
+        focus:outline-none 
+        focus:bg-white 
+        focus:border-blue-500
+      " value="{{ partner_client_id }}" disabled>
+      <button type="button" class="
+        h-8
+        basis-1/6
+        flex-none
+        p-1
+        mx-1
+        bg-blue-600
+        text-white
+        rounded-lg
+        uppercase
+        text-xs
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+      " onclick="copyToClipboard('partner-client-id');">copy</button>
+    </div>
+    <div class="flex flex-row flex-wrap items-center mb-2">
+      <label for="merchant-id" class="
+        ml-2
+        flex-none 
+        basis-1/3
+        text-sm 
+        font-medium 
+        text-gray-900 
+        dark:text-gray-300
+      ">
+        Merchant ID
+      </label>
+      <input id="merchant-id" name="merchant-id" class="
+        appearance-none
+        p-2
+        min-w-0
+        flex-auto
+        basis-2/5
+        bg-gray-50 
+        border
+        border-gray-300 
+        text-gray-900
+        text-sm
+        rounded-lg 
+        leading-none 
+        font-mono 
+        focus:outline-none 
+        focus:bg-white 
+        focus:border-blue-500
+      " value="{{ payee_id }}" disabled>
+      <button type="button" class="
+        h-8
+        basis-1/6
+        flex-none
+        p-1
+        mx-1
+        bg-blue-600
+        text-white
+        rounded-lg
+        uppercase
+        text-xs
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+      " onclick="copyToClipboard('merchant-id');">copy</button>
+    </div>
+  </fieldset>
 
   <fieldset>
     <legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Intent</legend>
 
     <div class="flex items-center mb-2">
-      <input id="intent-capture" type="radio" name="intent" value="CAPTURE" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" checked>
-      <label for="intent-capture" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+      <input id="intent-capture" type="radio" name="intent" value="CAPTURE" class="w-4 h-4 ml-2 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" checked onclick="hideAuth();">
+      <label for="intent-capture" class="block ml-2 text-sm text-gray-900 dark:text-gray-300">
         Capture
       </label>
     </div>
 
     <div class="flex items-center mb-2">
-      <input id="intent-authorize" type="radio" name="intent" value="AUTHORIZE" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600">
-      <label for="intent-authorize" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+      <input id="intent-authorize" type="radio" name="intent" value="AUTHORIZE" class="w-4 h-4 ml-2 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" onclick="showAuth();">
+      <label for="intent-authorize" class="block ml-2 text-sm text-gray-900 dark:text-gray-300">
         Authorize
       </label>
     </div>
@@ -62,15 +201,15 @@
     <legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Shipping</legend>
 
     <div class="flex items-center mb-2">
-      <input id="shipping-get" type="radio" name="shipping-preference" value="GET_FROM_FILE" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" checked>
-      <label for="shipping-get" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 font-mono">
+      <input id="shipping-get" type="radio" name="shipping-preference" value="GET_FROM_FILE" class="w-4 h-4 ml-2 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" checked>
+      <label for="shipping-get" class="block ml-2 text-sm text-gray-900 dark:text-gray-300 font-mono">
         GET_FROM_FILE
       </label>
     </div>
 
     <div class="flex items-center mb-2">
-      <input id="shipping-no" type="radio" name="shipping-preference" value="NO_SHIPPING" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600">
-      <label for="shipping-no" class="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 font-mono">
+      <input id="shipping-no" type="radio" name="shipping-preference" value="NO_SHIPPING" class="w-4 h-4 ml-2 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600">
+      <label for="shipping-no" class="block ml-2 text-sm text-gray-900 dark:text-gray-300 font-mono">
         NO_SHIPPING
       </label>
     </div>
@@ -78,25 +217,97 @@
   <fieldset>
     <legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Purchase unit info</legend>
 
-    <div class="flex items-center mb-2">
-      <label for="price" class="w-1/2 block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+    <div class="flex flex-row flex-wrap items-center mb-2">
+      <label for="price" class="
+        ml-2
+        flex-none 
+        basis-1/3
+        text-sm 
+        font-medium 
+        text-gray-900 
+        dark:text-gray-300">
         Price
       </label>
-      <input id="price" type="number" name="price" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-1 px-2 text-gray-700 leading-none focus:outline-none focus:bg-white focus:border-blue-500" value="3.14">
+      <input id="price" type="number" name="price" class="
+        appearance-none
+        ml-2
+        px-2
+        py-1 
+        min-w-0
+        flex-auto
+        basis-1/3
+        bg-gray-200 
+        border-2 
+        border-gray-200 
+        text-gray-700 
+        rounded 
+        leading-none 
+        font-mono 
+        focus:outline-none 
+        focus:bg-white 
+        focus:border-blue-500" value="3.14">
     </div>
 
-    <div class="flex items-center mb-2">
-      <label for="reference-id" class="w-1/2 block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+    <div class="flex flex-row flex-wrap items-center mb-2">
+      <label for="reference-id" class="
+        ml-2
+        flex-none 
+        basis-1/3
+        text-sm 
+        font-medium 
+        text-gray-900 
+        dark:text-gray-300">
         Reference ID
       </label>
-      <input id="reference-id" type="text" name="reference-id" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-1 px-2 text-gray-700 leading-none focus:outline-none focus:bg-white focus:border-blue-500" value="default">
+      <input id="reference-id" type="text" name="reference-id" class="
+        appearance-none
+        ml-2
+        px-2
+        py-1 
+        min-w-0
+        flex-auto
+        basis-1/3
+        bg-gray-200 
+        border-2 
+        border-gray-200 
+        text-gray-700 
+        rounded 
+        leading-none 
+        font-mono 
+        focus:outline-none 
+        focus:bg-white 
+        focus:border-blue-500" value="default">
     </div>
 
-    <div class="flex items-center mb-2">
-      <label for="partner-fee" class="w-1/2 block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+    <div class="flex flex-row flex-wrap items-center mb-2">
+      <label for="partner-fee" class="
+        ml-2
+        flex-none 
+        basis-1/3
+        text-sm 
+        font-medium 
+        text-gray-900 
+        dark:text-gray-300">
         Partner fee
       </label>
-      <input id="partner-fee" type="number" name="partner-fee" value="0" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-1 px-2 text-gray-700 leading-none focus:outline-none focus:bg-white focus:border-blue-500">
+      <input id="partner-fee" type="number" name="partner-fee" value="0" class="
+        appearance-none
+        ml-2
+        px-2
+        py-1 
+        min-w-0
+        flex-auto
+        basis-1/3
+        bg-gray-200 
+        border-2 
+        border-gray-200 
+        text-gray-700 
+        rounded 
+        leading-none 
+        font-mono 
+        focus:outline-none 
+        focus:bg-white 
+        focus:border-blue-500">
     </div>
   </fieldset>
 </form>
@@ -138,6 +349,9 @@
             </li>
             <li class="mr-2">
               <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="create-order">Create Order</a>
+            </li>
+            <li class="mr-2">
+              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500 hidden" id="authorize-order">Authorize Order</a>
             </li>
             <li class="mr-2">
               <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="capture-order">Capture Order</a>
@@ -225,6 +439,14 @@
       makeActiveTab(apiCallsTabList, tab);
     }
   }
-  
+  // var intentAuthorize = document.getElementById("intent-authorize");
+  // var tabAuthorizeOrder = document.getElementById("authorize-order");
+  // intentAuthorize.addEventListener("input", function() {
+  //   if (intentAuthorize.checked) {
+  //     tabAuthorizeOrder.classList.remove("hidden");
+  //   } else {
+  //     tabAuthorizeOrder.classList.add("hidden");
+  //   }
+  // });
 </script>
 {% endblock %}

@@ -63,9 +63,6 @@ def build_purchase_unit(form_options):
             "value": price,
         },
         "soft_descriptor": "1234567890111213141516",
-        "payment_instruction": {
-            "disbursement_mode": "INSTANT",
-        },
     }
 
     reference_id = form_options.get("reference-id", "default")
