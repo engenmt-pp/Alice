@@ -7,7 +7,6 @@ from .utils import (
     build_headers,
     log_and_request,
     random_decimal_string,
-    format_request_and_response,
 )
 
 
@@ -27,95 +26,6 @@ def default_purchase_unit(payee_id, price=3.14, reference_id=None):
     if reference_id is not None:
         purchase_unit["reference_id"] = reference_id
     return purchase_unit
-
-
-def default_shipping_option():
-    return {
-        "id": "shipping-default",
-        "label": "A default shipping option",
-        "selected": True,
-        "amount": {
-            "currency_code": "USD",
-            "value": "9.99",
-        },
-    }
-
-
-def build_application_context(shipping_preference):
-    return {
-        "return_url": "http://localhost:5000/",
-        "cancel_url": "http://localhost:5000/",
-        "shipping_preference": shipping_preference,
-    }
-
-
-def build_purchase_unit(form_options):
-
-    partner_id = form_options["partner-id"]
-    merchant_id = form_options["merchant-id"]
-    price = form_options["price"]
-
-    purchase_unit = {
-        "custom_id": "Up to 127 characters can go here!",
-        "payee": {"merchant_id": merchant_id},
-        "amount": {
-            "currency_code": "USD",
-            "value": price,
-        },
-        "soft_descriptor": "1234567890111213141516",
-    }
-
-    reference_id = form_options.get("reference-id", "default")
-    if reference_id != "default":
-        purchase_unit["reference_id"] = reference_id
-
-    partner_fee = form_options.get("partner-fee")
-    if partner_fee and float(partner_fee) > 0:
-        purchase_unit["payment_instruction"]["platform_fees"] = [
-            {
-                "amount": {"currency_code": "USD", "value": partner_fee},
-                "payee": {"merchant_id": partner_id},
-            }
-        ]
-
-    if form_options["shipping-preference"] != "NO_SHIPPING":
-        shipping_options = [default_shipping_option()]
-        purchase_unit["shipping"] = {"options": shipping_options}
-
-    return purchase_unit
-
-
-@bp.route("/create-form", methods=("POST",))
-def create_order_form():
-    """Create an order with the /v2/checkout/orders API.
-
-    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
-    """
-    endpoint = build_endpoint("/v2/checkout/orders")
-    headers = build_headers(include_bn_code=True, return_formatted=True)
-    formatted = {"access-token": headers["formatted"]}
-    del headers["formatted"]
-
-    form_options = request.get_json()
-
-    intent = form_options["intent"]
-
-    purchase_unit = build_purchase_unit(form_options)
-
-    shipping_preference = form_options["shipping-preference"]
-    application_context = build_application_context(shipping_preference)
-
-    data = {
-        "intent": intent,
-        "purchase_units": [purchase_unit],
-        "application_context": application_context,
-    }
-
-    response = log_and_request("POST", endpoint, headers=headers, data=data)
-    response_dict = response.json()
-    formatted["create-order"] = format_request_and_response(response)
-    response_dict["formatted"] = formatted
-    return jsonify(response_dict)
 
 
 @bp.route("/create", methods=("POST",))
@@ -149,9 +59,6 @@ def create_order(include_platform_fees=True):
             "disbursement_mode": "INSTANT",
             "platform_fees": [{"amount": {"currency_code": "USD", "value": "1.00"}}],
         }
-
-    # if request.json.get("include_shipping", False):
-    #     data["purchase_units"][0]["shipping"] = {"options": [default_shipping_option()]}
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
@@ -332,23 +239,6 @@ def capture_order(order_id):
 
     response = log_and_request("POST", endpoint, headers=headers)
     response_dict = response.json()
-    return jsonify(response_dict)
-
-
-@bp.route("/capture-form/<order_id>", methods=("POST",))
-def capture_order_form(order_id):
-    """Capture the order with the /v2/checkout/orders API.
-
-    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
-    """
-    endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}/capture")
-    headers = build_headers()
-
-    response = log_and_request("POST", endpoint, headers=headers)
-    response_dict = response.json()
-    response_dict["formatted"] = {
-        "capture-order": format_request_and_response(response)
-    }
     return jsonify(response_dict)
 
 

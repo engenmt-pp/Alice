@@ -12,14 +12,15 @@
 <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&commit=true&enable-funding=venmo,paylater" data-partner-attribution-id="{{ bn_code }}"></script>
 
 <script>
-  var orderId;
+  let orderId;
+  let options;
   function initPayPalButton() {
     paypal.Buttons({
       createOrder: function (data, actions) {
         console.log("Getting form info...");
-        var options = getOptions();
+        options = getOptions();
         console.log("Creating the order...")
-        return fetch('/api/orders/create-form', {
+        return fetch('/api/orders-form/create', {
           headers: {'Content-Type': 'application/json'},
           method: 'POST',
           body: JSON.stringify(options)
@@ -27,13 +28,15 @@
           return res.json();
         }).then(function(createData) {
           updateAPICalls(createData.formatted);
-          orderId = createData.id;
+          orderId = createData.orderId;
           return orderId;
         })
       },
       onApprove: function(data, actions) {
-        return fetch('/api/orders/capture-form/' + data.orderID, {
+        return fetch('/api/orders-form/capture/' + data.orderID, {
+          headers: {'Content-Type': 'application/json'},
           method: 'POST',
+          body: JSON.stringify(options)
         }).then(function(res) {
           return res.json();
         }).then(function(captureData) {

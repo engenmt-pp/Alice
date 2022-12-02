@@ -102,7 +102,7 @@ def build_headers(
     client_id=None,
     secret=None,
     bn_code=None,
-    include_bn_code=False,
+    include_bn_code=True,
     include_auth_assertion=False,
     return_formatted=False,
 ):
