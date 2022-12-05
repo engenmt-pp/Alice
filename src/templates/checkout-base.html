@@ -7,7 +7,6 @@
   }
   function updateAPICalls(formattedCalls) {
     document.querySelector('#api-calls').click();
-    console.log(JSON.stringify(formattedCalls));
     for (var id in formattedCalls) {
       if (formattedCalls.hasOwnProperty(id)) {
         var contents = formattedCalls[id];
@@ -348,6 +347,9 @@
               <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="access-token">Access Token</a>
             </li>
             <li class="mr-2">
+              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="create-billing-agreement">Create Billing Agreement</a>
+            </li>
+            <li class="mr-2">
               <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="create-order">Create Order</a>
             </li>
             <li class="mr-2">
@@ -364,8 +366,14 @@
           <div id="tab-access-token" class="tab center text-gray-800 relative">
             <div id="api-calls-access-token" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
           </div>
+          <div id="tab-create-billing-agreement" class="tab center text-gray-800 relative">
+            <div id="api-calls-create-billing-agreement" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
+          </div>
           <div id="tab-create-order" class="tab center text-gray-800 relative">
             <div id="api-calls-create-order" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
+          </div>
+          <div id="tab-authorize-order" class="tab center text-gray-800 relative">
+            <div id="api-calls-authorize-order" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
           </div>
           <div id="tab-capture-order" class="tab center text-gray-800 relative">
             <div id="api-calls-capture-order" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>

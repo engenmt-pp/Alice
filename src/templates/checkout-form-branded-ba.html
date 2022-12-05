@@ -1,0 +1,38 @@
+{% extends "checkout-base.html" %}
+
+{% block checkout %}
+<!-- Empty (for now) button container -->
+<div class="smart-button-container", id="smart-button-container">
+  <div style="text-align: center;">
+    <div id="paypal-button-container"></div>
+  </div>
+</div>
+
+<!-- Import PayPal Javascript SDK with Partner's credentials -->
+<script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ partner_id }}&currency=USD&intent=tokenize&commit=true&vault=true&disable-funding=card,credit" data-partner-attribution-id="{{ bn_code }}"></script>
+
+<script>
+  let billingAgreementToken;
+  function initPayPalButton() {
+    paypal.Buttons({
+      // style: {
+      //   label: 'donate',
+      // },
+      createBillingAgreement: function (data, actions) {
+        console.log("Creating billing agreement...")
+        return fetch('/api/billing-form/create-billing-agreement-token', {
+          headers: {'Content-Type': 'application/json'},
+          method: 'POST',
+        }).then(function(res) {
+          return res.json();
+        }).then(function(createData) {
+          updateAPICalls(createData.formatted);
+          billingAgreementToken = createData.tokenId;
+          return billingAgreementToken;
+        })
+      },
+    }).render('#paypal-button-container');
+  }
+  initPayPalButton();
+</script>
+{% endblock %}
