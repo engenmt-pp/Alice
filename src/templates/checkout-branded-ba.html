@@ -26,9 +26,6 @@
   function initPayPalButton() {
     paypal.Buttons({
       style: {
-        // shape: 'rect',
-        // color: 'gold',
-        // layout: 'vertical',
         label: 'donate',
       },
       createBillingAgreement: function (data, actions) {
@@ -43,25 +40,8 @@
           return billingAgreementToken;
         })
       },
-      onApprove: function(data, actions) {
-        return fetch('/api/orders/capture/' + data.orderID, {
-          method: 'POST',
-        }).then(function(res) {
-          return res.json();
-        }).then(function(captureData) {
-          // Your server response structure and key names are what you choose
-          if (captureData.error === 'INSTRUMENT_DECLINED') {
-            return actions.restart();
-          }
-        })
-      },
     }).render('#paypal-button-container');
   }
   initPayPalButton();
-  function setOrderDetails() {
-    let aDetails = document.getElementById("a-details");
-    aDetails.href = "http://localhost:5000/store/order-details/" + orderId;
-    aDetails.style.display = "";
-  }
 </script>
 {% endblock %}
