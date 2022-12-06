@@ -15,9 +15,9 @@
   let billingAgreementToken;
   function initPayPalButton() {
     paypal.Buttons({
-      // style: {
-      //   label: 'donate',
-      // },
+      style: {
+        label: 'donate',
+      },
       createBillingAgreement: function (data, actions) {
         console.log("Creating billing agreement...")
         return fetch('/api/billing-form/create-billing-agreement-token', {
@@ -30,6 +30,9 @@
           billingAgreementToken = createData.tokenId;
           return billingAgreementToken;
         })
+      },
+      onError: function (data, actions) {
+        alert("An error with the JS SDK occurred! Check the console for more information.");
       },
     }).render('#paypal-button-container');
   }
