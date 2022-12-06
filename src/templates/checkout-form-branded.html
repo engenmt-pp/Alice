@@ -14,8 +14,13 @@
 <script>
   let orderId;
   let options;
+  let fundingSource;
   function initPayPalButton() {
     paypal.Buttons({
+      onClick: function (data) {
+        fundingSource = data.fundingSource;
+        console.log("fundingSource = " + fundingSource);
+      },
       createOrder: function (data, actions) {
         console.log("Getting form info...");
         options = getOptions();

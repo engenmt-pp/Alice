@@ -347,7 +347,7 @@
               <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="access-token">Access Token</a>
             </li>
             <li class="mr-2">
-              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="create-billing-agreement">Create Billing Agreement</a>
+              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500 hidden" id="create-billing-agreement">Create Billing Agreement</a>
             </li>
             <li class="mr-2">
               <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="create-order">Create Order</a>
@@ -395,7 +395,7 @@
 </script>
 <script>
   function enableButton(button) {
-    const disabledClassList = ["text-gray-400", "cursor-not-allowed", "hover:text-gray-600", "dark:text:gray-500"];
+    const disabledClassList = ["text-gray-400", "cursor-not-allowed", "hover:text-gray-600", "dark:text:gray-500", "hidden"];
     const enabledClassList = ["hover:text-gray-600", "hover:bg-gray-50", "dark:hover:bg-gray-800", "dark:hover:text-gray-300"];
 
     button.classList.remove(...disabledClassList);
