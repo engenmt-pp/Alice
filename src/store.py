@@ -34,9 +34,21 @@ def checkout_form_branded():
     return checkout(template)
 
 
+@bp.route("/form-branded-ba")
+def checkout_form_branded_ba():
+    template = "checkout-form-branded-ba.html"
+    return checkout(template)
+
+
 @bp.route("/branded")
 def checkout_branded():
     template = "checkout-branded.html"
+    return checkout(template)
+
+
+@bp.route("/branded-ba")
+def checkout_branded_ba():
+    template = "checkout-branded-ba.html"
     return checkout(template)
 
 
