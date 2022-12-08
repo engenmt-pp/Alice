@@ -358,6 +358,9 @@
             <li class="mr-2">
               <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="capture-order">Capture Order</a>
             </li>
+            <li class="mr-2">
+              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500 hidden" id="sdk-error">SDK Error</a>
+            </li>
           </ul>
         </div> 
       
@@ -377,7 +380,9 @@
           </div>
           <div id="tab-capture-order" class="tab center text-gray-800 relative">
             <div id="api-calls-capture-order" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
-            </div>
+          </div>
+          <div id="tab-sdk-error" class="tab center text-gray-800 relative">
+            <div id="api-calls-sdk-error" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
           </div>
         </div>
       </div>
@@ -428,8 +433,12 @@
     if (buttonId != null){
       makeActiveButton(buttonList, button);
 
-      var tab = tabContainer.querySelector("#tab-" + buttonId);
-      makeActiveTab(tabList, tab);
+      var tab = document.getElementById("tab-" + buttonId);
+      if (tab === null) {
+        console.log("document.getElementById('tab-" + buttonId + "') found null!");
+      } else {
+        makeActiveTab(tabList, tab);
+      }
     }
   }
   const apiCallsRoot = document.querySelector("#api-calls-buttons-tabs");
@@ -443,8 +452,12 @@
     if (buttonId != null && !button.classList.contains("cursor-not-allowed")) {
       makeActiveButton(apiCallsButtonList, button);
 
-      var tab = apiCallsTabContainer.querySelector("#tab-" + buttonId);
-      makeActiveTab(apiCallsTabList, tab);
+      var tab = document.getElementById("tab-" + buttonId);
+      if (tab === null) {
+        console.log("document.getElementById('tab-" + buttonId + "') found null!");
+      } else {
+        makeActiveTab(apiCallsTabList, tab);
+      }
     }
   }
 </script>
