@@ -52,11 +52,9 @@
         leading-none 
         font-mono 
         focus:outline-none 
-        bg-zinc-100 
-        border-zinc-300 
-        focus:border-blue-500
-        dark:bg-zinc-700
-        dark:border-zinc-600
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-500
+        focus:border-blue-500 dark:focus:border-blue-500
       " value="{{ partner_id }}" disabled>
       <button type="button" class="
         h-8
@@ -95,11 +93,9 @@
         leading-none 
         font-mono 
         focus:outline-none 
-        bg-zinc-100 
-        border-zinc-300 
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
         focus:border-blue-500
-        dark:bg-zinc-700
-        dark:border-zinc-600
       " value="{{ partner_client_id }}" disabled>
       <button type="button" class="
         h-8
@@ -138,11 +134,9 @@
         leading-none 
         font-mono 
         focus:outline-none 
-        bg-zinc-100 
-        border-zinc-300 
-        focus:border-blue-500
-        dark:bg-zinc-700
-        dark:border-zinc-600
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:border-blue-500 dark:focus:border-blue-500
       " value="{{ payee_id }}" disabled>
       <button type="button" class="
         h-8
@@ -174,13 +168,11 @@
         w-4
         h-4
         ml-2
-        border-gray-300
+        border-zinc-300 dark:border-zinc-600
         focus:ring-2
-        focus:ring-blue-300
-        dark:focus:ring-blue-600
+        focus:ring-blue-300 dark:focus:ring-blue-600
         dark:focus:bg-blue-600
-        dark:bg-gray-700
-        dark:border-gray-600
+        dark:bg-zinc-700
       " checked onclick="hideAuth();">
       <label for="intent-capture" class="block ml-2">
         Capture
@@ -189,15 +181,14 @@
 
     <div class="flex items-center mb-2">
       <input id="intent-authorize" type="radio" name="intent" value="AUTHORIZE" class="w-4
+        w-4
         h-4
         ml-2
-        border-gray-300
+        border-zinc-300 dark:border-zinc-600
         focus:ring-2
-        focus:ring-blue-300
-        dark:focus:ring-blue-600
+        focus:ring-blue-300 dark:focus:ring-blue-600
         dark:focus:bg-blue-600
-        dark:bg-gray-700
-        dark:border-gray-600
+        dark:bg-zinc-700
       " onclick="showAuth();">
       <label for="intent-authorize" class="block ml-2">
         Authorize
@@ -210,14 +201,32 @@
     </legend>
 
     <div class="flex items-center mb-2">
-      <input id="shipping-get" type="radio" name="shipping-preference" value="GET_FROM_FILE" class="w-4 h-4 ml-2 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" checked>
+      <input id="shipping-get" type="radio" name="shipping-preference" value="GET_FROM_FILE" class="
+        w-4
+        h-4
+        ml-2
+        border-zinc-300 dark:border-zinc-600
+        focus:ring-2
+        focus:ring-blue-300 dark:focus:ring-blue-600
+        dark:bg-zinc-700
+        dark:focus:bg-blue-600
+      " checked>
       <label for="shipping-get" class="block ml-2 font-mono">
         GET_FROM_FILE
       </label>
     </div>
 
     <div class="flex items-center mb-2">
-      <input id="shipping-no" type="radio" name="shipping-preference" value="NO_SHIPPING" class="w-4 h-4 ml-2 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600">
+      <input id="shipping-no" type="radio" name="shipping-preference" value="NO_SHIPPING" class="
+        w-4
+        h-4
+        ml-2
+        border-zinc-300 dark:border-zinc-600
+        focus:ring-2
+        focus:ring-blue-300 dark:focus:ring-blue-600
+        dark:bg-zinc-700
+        dark:focus:bg-blue-600
+      ">
       <label for="shipping-no" class="block ml-2 font-mono">
         NO_SHIPPING
       </label>
@@ -247,15 +256,12 @@
         basis-1/3
         font-mono 
         rounded 
-        border-2 
+        border
         focus:outline-none 
-        bg-zinc-200 
-        border-zinc-200 
-        focus:bg-white 
-        focus:border-blue-500
-        dark:bg-zinc-700
-        dark:border-zinc-600
-        dark:focus:bg-zinc-900
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
       " value="3.14">
     </div>
 
@@ -269,24 +275,21 @@
       </label>
       <input id="reference-id" type="text" name="reference-id" class="
         appearance-none
+        leading-none 
         ml-2
         px-2
         py-1 
         min-w-0
         flex-auto
         basis-1/3
-        bg-gray-200 
-        border-2 
-        border-gray-200 
-        rounded 
-        leading-none 
         font-mono 
+        rounded 
+        border
         focus:outline-none 
-        focus:bg-white 
-        focus:border-blue-500
-        dark:bg-zinc-700
-        dark:border-zinc-600
-        dark:focus:bg-zinc-900
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
       " value="default">
     </div>
 
@@ -300,24 +303,21 @@
       </label>
       <input id="partner-fee" type="number" name="partner-fee" value="0" class="
         appearance-none
+        leading-none 
         ml-2
         px-2
         py-1 
         min-w-0
         flex-auto
         basis-1/3
-        bg-gray-200 
-        border-2 
-        border-gray-200 
-        rounded 
-        leading-none 
         font-mono 
+        rounded 
+        border
         focus:outline-none 
-        focus:bg-white 
-        focus:border-blue-500
-        dark:bg-zinc-700
-        dark:border-zinc-600
-        dark:focus:bg-zinc-900
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
       ">
     </div>
   </fieldset>
@@ -333,10 +333,8 @@
       flex-wrap
       text-center
       border-b
-      text-zinc-600
-      border-zinc-300
-      dark:text-zinc-400
-      dark:border-zinc-700
+      text-zinc-600 dark:text-zinc-400
+      border-zinc-300 dark:border-zinc-600
     ">
       <li class="mr-2">
         <a href="#" id="checkout" class="
@@ -344,10 +342,8 @@
           inline-block
           p-4
           rounded-t-lg
-          hover:text-zinc-700
-          hover:bg-zinc-100
-          dark:hover:text-zinc-300
-          dark:hover:bg-zinc-700
+          hover:text-zinc-700 dark:hover:text-zinc-300
+          hover:bg-zinc-100 dark:hover:bg-zinc-700
         ">Checkout</a>
       </li>
       <li class="mr-2">
@@ -356,10 +352,8 @@
           inline-block
           p-4
           rounded-t-lg
-          hover:text-zinc-700
-          hover:bg-zinc-100
-          dark:hover:text-zinc-300
-          dark:hover:bg-zinc-700
+          hover:text-zinc-700 dark:hover:text-zinc-300
+          hover:bg-zinc-100 dark:hover:bg-zinc-700
         ">API Calls</a>
       </li>
     </ul>
@@ -382,7 +376,14 @@
       <div id="api-calls-buttons-tabs">
         <!-- Buttons for tabs -->
         <div id="api-calls-buttons">
-          <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-zinc-400">
+          <ul class="
+            flex 
+            flex-wrap 
+            text-center 
+            border-b 
+            text-zinc-500 dark:text-zinc-500
+            border-zinc-300 dark:border-zinc-600
+          ">
             <li class="mr-2">
               <a href="#" class="
                 button
@@ -451,8 +452,8 @@
               p-2
               break-words
               whitespace-pre-wrap
-              bg-zinc-100
-              dark:bg-zinc-700
+              bg-zinc-100 dark:bg-zinc-700
+              hidden
             "></div>
           </div>
           <div id="tab-create-billing-agreement" class="tab center">
@@ -462,8 +463,8 @@
               p-2
               break-words
               whitespace-pre-wrap
-              bg-zinc-100
-              dark:bg-zinc-700
+              bg-zinc-100 dark:bg-zinc-700
+              hidden
             "></div>
           </div>
           <div id="tab-create-order" class="tab center">
@@ -473,8 +474,8 @@
               p-2
               break-words
               whitespace-pre-wrap
-              bg-zinc-100
-              dark:bg-zinc-700
+              bg-zinc-100 dark:bg-zinc-700
+              hidden
             "></div>
           </div>
           <div id="tab-authorize-order" class="tab center">
@@ -484,8 +485,8 @@
               p-2
               break-words
               whitespace-pre-wrap
-              bg-zinc-100
-              dark:bg-zinc-700
+              bg-zinc-100 dark:bg-zinc-700
+              hidden
             "></div>
           </div>
           <div id="tab-capture-order" class="tab center">
@@ -495,8 +496,8 @@
               p-2
               break-words
               whitespace-pre-wrap
-              bg-zinc-100
-              dark:bg-zinc-700
+              bg-zinc-100 dark:bg-zinc-700
+              hidden
             "></div>
           </div>
           <div id="tab-sdk-error" class="tab center">
@@ -506,8 +507,8 @@
               p-2
               break-words
               whitespace-pre-wrap
-              bg-zinc-100
-              dark:bg-zinc-700
+              bg-zinc-100 dark:bg-zinc-700
+              hidden
             "></div>
           </div>
         </div>
@@ -533,7 +534,7 @@
     button.classList.add(...enabledClassList);
   }
   function makeActiveButton(buttonList, button) {
-    const activeClassList = ["text-blue-600", "bg-zinc-200/50", "dark:text-blue-500", "dark:bg-zinc-700", "active"];
+    const activeClassList = ["text-blue-600", "bg-zinc-200/50", "dark:text-blue-500", "dark:bg-zinc-600/50", "active"];
     const inactiveClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"];
 
     buttonList.forEach(each => {
