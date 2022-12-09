@@ -32,16 +32,12 @@
 {% block left_col %}
 <form id="options-form" class="space-y-4">
   <fieldset>
-    <legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Partner/merchant info</legend>
+    <legend class="block mb-2 font-semibold">Partner/merchant info</legend>
     <div class="flex flex-row flex-wrap items-center mb-2">
       <label for="partner-id" class="
         ml-2
         flex-none 
         basis-1/3
-        text-sm 
-        font-medium 
-        text-gray-900 
-        dark:text-gray-300
       ">
         Partner ID
       </label>
@@ -51,17 +47,16 @@
         min-w-0
         flex-auto
         basis-2/5
-        bg-gray-50 
         border
-        border-gray-300 
-        text-gray-900
-        text-sm
         rounded-lg 
         leading-none 
         font-mono 
         focus:outline-none 
-        focus:bg-white 
+        bg-zinc-100 
+        border-zinc-300 
         focus:border-blue-500
+        dark:bg-zinc-700
+        dark:border-zinc-600
       " value="{{ partner_id }}" disabled>
       <button type="button" class="
         h-8
@@ -69,11 +64,11 @@
         flex-none
         p-1
         mx-1
-        bg-blue-600
-        text-white
         rounded-lg
         uppercase
         text-xs
+        text-white
+        bg-blue-600
         hover:bg-blue-700
         active:bg-blue-800
         focus:outline-none
@@ -86,10 +81,6 @@
         ml-2
         flex-none 
         basis-1/3
-        text-sm 
-        font-medium 
-        text-gray-900 
-        dark:text-gray-300
       ">
         Client ID
       </label>
@@ -99,17 +90,16 @@
         min-w-0
         flex-auto
         basis-2/5
-        bg-gray-50 
         border
-        border-gray-300 
-        text-gray-900
-        text-sm
         rounded-lg 
         leading-none 
         font-mono 
         focus:outline-none 
-        focus:bg-white 
+        bg-zinc-100 
+        border-zinc-300 
         focus:border-blue-500
+        dark:bg-zinc-700
+        dark:border-zinc-600
       " value="{{ partner_client_id }}" disabled>
       <button type="button" class="
         h-8
@@ -117,11 +107,11 @@
         flex-none
         p-1
         mx-1
-        bg-blue-600
-        text-white
         rounded-lg
         uppercase
         text-xs
+        text-white
+        bg-blue-600
         hover:bg-blue-700
         active:bg-blue-800
         focus:outline-none
@@ -134,10 +124,6 @@
         ml-2
         flex-none 
         basis-1/3
-        text-sm 
-        font-medium 
-        text-gray-900 
-        dark:text-gray-300
       ">
         Merchant ID
       </label>
@@ -147,17 +133,16 @@
         min-w-0
         flex-auto
         basis-2/5
-        bg-gray-50 
         border
-        border-gray-300 
-        text-gray-900
-        text-sm
         rounded-lg 
         leading-none 
         font-mono 
         focus:outline-none 
-        focus:bg-white 
+        bg-zinc-100 
+        border-zinc-300 
         focus:border-blue-500
+        dark:bg-zinc-700
+        dark:border-zinc-600
       " value="{{ payee_id }}" disabled>
       <button type="button" class="
         h-8
@@ -165,11 +150,11 @@
         flex-none
         p-1
         mx-1
-        bg-blue-600
-        text-white
         rounded-lg
         uppercase
         text-xs
+        text-white
+        bg-blue-600
         hover:bg-blue-700
         active:bg-blue-800
         focus:outline-none
@@ -180,71 +165,98 @@
   </fieldset>
 
   <fieldset>
-    <legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Intent</legend>
+    <legend class="block mb-2">
+      Intent
+    </legend>
 
     <div class="flex items-center mb-2">
-      <input id="intent-capture" type="radio" name="intent" value="CAPTURE" class="w-4 h-4 ml-2 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" checked onclick="hideAuth();">
-      <label for="intent-capture" class="block ml-2 text-sm text-gray-900 dark:text-gray-300">
+      <input id="intent-capture" type="radio" name="intent" value="CAPTURE" class="
+        w-4
+        h-4
+        ml-2
+        border-gray-300
+        focus:ring-2
+        focus:ring-blue-300
+        dark:focus:ring-blue-600
+        dark:focus:bg-blue-600
+        dark:bg-gray-700
+        dark:border-gray-600
+      " checked onclick="hideAuth();">
+      <label for="intent-capture" class="block ml-2">
         Capture
       </label>
     </div>
 
     <div class="flex items-center mb-2">
-      <input id="intent-authorize" type="radio" name="intent" value="AUTHORIZE" class="w-4 h-4 ml-2 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" onclick="showAuth();">
-      <label for="intent-authorize" class="block ml-2 text-sm text-gray-900 dark:text-gray-300">
+      <input id="intent-authorize" type="radio" name="intent" value="AUTHORIZE" class="w-4
+        h-4
+        ml-2
+        border-gray-300
+        focus:ring-2
+        focus:ring-blue-300
+        dark:focus:ring-blue-600
+        dark:focus:bg-blue-600
+        dark:bg-gray-700
+        dark:border-gray-600
+      " onclick="showAuth();">
+      <label for="intent-authorize" class="block ml-2">
         Authorize
       </label>
     </div>
   </fieldset>
   <fieldset>
-    <legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Shipping</legend>
+    <legend class="block mb-2">
+      Shipping
+    </legend>
 
     <div class="flex items-center mb-2">
       <input id="shipping-get" type="radio" name="shipping-preference" value="GET_FROM_FILE" class="w-4 h-4 ml-2 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600" checked>
-      <label for="shipping-get" class="block ml-2 text-sm text-gray-900 dark:text-gray-300 font-mono">
+      <label for="shipping-get" class="block ml-2 font-mono">
         GET_FROM_FILE
       </label>
     </div>
 
     <div class="flex items-center mb-2">
       <input id="shipping-no" type="radio" name="shipping-preference" value="NO_SHIPPING" class="w-4 h-4 ml-2 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:focus:bg-blue-600 dark:bg-gray-700 dark:border-gray-600">
-      <label for="shipping-no" class="block ml-2 text-sm text-gray-900 dark:text-gray-300 font-mono">
+      <label for="shipping-no" class="block ml-2 font-mono">
         NO_SHIPPING
       </label>
     </div>
   </fieldset>
   <fieldset>
-    <legend class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Purchase unit info</legend>
+    <legend class="block mb-2">
+      Purchase unit info
+    </legend>
 
     <div class="flex flex-row flex-wrap items-center mb-2">
       <label for="price" class="
         ml-2
         flex-none 
         basis-1/3
-        text-sm 
-        font-medium 
-        text-gray-900 
-        dark:text-gray-300">
+      ">
         Price
       </label>
       <input id="price" type="number" name="price" class="
         appearance-none
+        leading-none 
         ml-2
         px-2
         py-1 
         min-w-0
         flex-auto
         basis-1/3
-        bg-gray-200 
-        border-2 
-        border-gray-200 
-        text-gray-700 
-        rounded 
-        leading-none 
         font-mono 
+        rounded 
+        border-2 
         focus:outline-none 
+        bg-zinc-200 
+        border-zinc-200 
         focus:bg-white 
-        focus:border-blue-500" value="3.14">
+        focus:border-blue-500
+        dark:bg-zinc-700
+        dark:border-zinc-600
+        dark:focus:bg-zinc-900
+      " value="3.14">
     </div>
 
     <div class="flex flex-row flex-wrap items-center mb-2">
@@ -252,10 +264,7 @@
         ml-2
         flex-none 
         basis-1/3
-        text-sm 
-        font-medium 
-        text-gray-900 
-        dark:text-gray-300">
+      ">
         Reference ID
       </label>
       <input id="reference-id" type="text" name="reference-id" class="
@@ -269,13 +278,16 @@
         bg-gray-200 
         border-2 
         border-gray-200 
-        text-gray-700 
         rounded 
         leading-none 
         font-mono 
         focus:outline-none 
         focus:bg-white 
-        focus:border-blue-500" value="default">
+        focus:border-blue-500
+        dark:bg-zinc-700
+        dark:border-zinc-600
+        dark:focus:bg-zinc-900
+      " value="default">
     </div>
 
     <div class="flex flex-row flex-wrap items-center mb-2">
@@ -283,10 +295,7 @@
         ml-2
         flex-none 
         basis-1/3
-        text-sm 
-        font-medium 
-        text-gray-900 
-        dark:text-gray-300">
+      ">
         Partner fee
       </label>
       <input id="partner-fee" type="number" name="partner-fee" value="0" class="
@@ -300,13 +309,16 @@
         bg-gray-200 
         border-2 
         border-gray-200 
-        text-gray-700 
         rounded 
         leading-none 
         font-mono 
         focus:outline-none 
         focus:bg-white 
-        focus:border-blue-500">
+        focus:border-blue-500
+        dark:bg-zinc-700
+        dark:border-zinc-600
+        dark:focus:bg-zinc-900
+      ">
     </div>
   </fieldset>
 </form>
@@ -316,73 +328,187 @@
 <div id="buttons-tabs">
   <!-- Buttons for tabs -->
   <div id="buttons">
-    <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
+    <ul class="
+      flex
+      flex-wrap
+      text-center
+      border-b
+      text-zinc-600
+      border-zinc-300
+      dark:text-zinc-400
+      dark:border-zinc-700
+    ">
       <li class="mr-2">
-        <a href="#" id="checkout" class="button inline-block p-4 rounded-t-lg text-blue-600 bg-gray-100 active dark:bg-gray-800 dark:text-blue-500">Checkout</a>
+        <a href="#" id="checkout" class="
+          button
+          inline-block
+          p-4
+          rounded-t-lg
+          hover:text-zinc-700
+          hover:bg-zinc-100
+          dark:hover:text-zinc-300
+          dark:hover:bg-zinc-700
+        ">Checkout</a>
       </li>
       <li class="mr-2">
-        <a href="#" id="api-calls" class="button inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300">API Calls</a>
+        <a href="#" id="api-calls" class="
+          button
+          inline-block
+          p-4
+          rounded-t-lg
+          hover:text-zinc-700
+          hover:bg-zinc-100
+          dark:hover:text-zinc-300
+          dark:hover:bg-zinc-700
+        ">API Calls</a>
       </li>
     </ul>
   </div> 
 
   <!-- Tabs -->
-  <div id="tabs">
-    <div id="tab-checkout" class="tab center text-gray-800 relative">
-      <div class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2">
+  <div id="tabs" class="w-100">
+    <div id="tab-checkout" class="tab center hidden">
+      <div class="
+        rounded-b-md
+        w-full
+        top-0
+        p-2
+      ">
         {% block checkout %}
-        <p class="text-xl p-3 px-5 font-semibold">Welcome to Checkout!</p>
-        <div class="p-3 px-5">
-          Default checkout contents.
-        </div> 
         {% endblock %}
       </div>
     </div>
-    <div id="tab-api-calls" class="tab center text-gray-800 relative hidden">
+    <div id="tab-api-calls" class="tab center hidden">
       <div id="api-calls-buttons-tabs">
         <!-- Buttons for tabs -->
         <div id="api-calls-buttons">
-          <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
+          <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-zinc-400">
             <li class="mr-2">
-              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="access-token">Access Token</a>
+              <a href="#" class="
+                button
+                inline-block
+                p-4
+                rounded-t-lg      
+                cursor-not-allowed
+              " id="access-token">Access Token</a>
             </li>
             <li class="mr-2">
-              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500 hidden" id="create-billing-agreement">Create Billing Agreement</a>
+              <a href="#" class="
+                button
+                inline-block
+                p-4
+                rounded-t-lg 
+                cursor-not-allowed
+                hidden
+              " id="create-billing-agreement">Create Billing Agreement</a>
             </li>
             <li class="mr-2">
-              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="create-order">Create Order</a>
+              <a href="#" class="
+                button
+                inline-block
+                p-4
+                rounded-t-lg 
+                cursor-not-allowed
+              " id="create-order">Create Order</a>
             </li>
             <li class="mr-2">
-              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500 hidden" id="authorize-order">Authorize Order</a>
+              <a href="#" class="
+                button
+                inline-block
+                p-4
+                rounded-t-lg 
+                cursor-not-allowed
+                hidden
+              " id="authorize-order">Authorize Order</a>
             </li>
             <li class="mr-2">
-              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500" id="capture-order">Capture Order</a>
+              <a href="#" class="
+                button
+                inline-block
+                p-4
+                rounded-t-lg 
+                cursor-not-allowed
+              " id="capture-order">Capture Order</a>
             </li>
             <li class="mr-2">
-              <a href="#" class="button inline-block p-4 rounded-t-lg text-gray-400 cursor-not-allowed hover:text-gray-600 dark:text:gray-500 hidden" id="sdk-error">SDK Error</a>
+              <a href="#" class="
+                button
+                inline-block
+                p-4
+                rounded-t-lg 
+                cursor-not-allowed
+              " id="sdk-error">SDK Error</a>
             </li>
           </ul>
         </div> 
       
         <!-- Tabs -->
-        <div id="api-calls-tabs">
-          <div id="tab-access-token" class="tab center text-gray-800 relative">
-            <div id="api-calls-access-token" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
+        <div id="api-calls-tabs" class="font-mono dark:text-zinc-100">
+          <div id="tab-access-token" class="tab center">
+            <div id="api-calls-access-token" class="
+              w-full
+              top-0
+              p-2
+              break-words
+              whitespace-pre-wrap
+              bg-zinc-100
+              dark:bg-zinc-700
+            "></div>
           </div>
-          <div id="tab-create-billing-agreement" class="tab center text-gray-800 relative">
-            <div id="api-calls-create-billing-agreement" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
+          <div id="tab-create-billing-agreement" class="tab center">
+            <div id="api-calls-create-billing-agreement" class="
+              w-full
+              top-0
+              p-2
+              break-words
+              whitespace-pre-wrap
+              bg-zinc-100
+              dark:bg-zinc-700
+            "></div>
           </div>
-          <div id="tab-create-order" class="tab center text-gray-800 relative">
-            <div id="api-calls-create-order" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
+          <div id="tab-create-order" class="tab center">
+            <div id="api-calls-create-order" class="
+              w-full
+              top-0
+              p-2
+              break-words
+              whitespace-pre-wrap
+              bg-zinc-100
+              dark:bg-zinc-700
+            "></div>
           </div>
-          <div id="tab-authorize-order" class="tab center text-gray-800 relative">
-            <div id="api-calls-authorize-order" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
+          <div id="tab-authorize-order" class="tab center">
+            <div id="api-calls-authorize-order" class="
+              w-full
+              top-0
+              p-2
+              break-words
+              whitespace-pre-wrap
+              bg-zinc-100
+              dark:bg-zinc-700
+            "></div>
           </div>
-          <div id="tab-capture-order" class="tab center text-gray-800 relative">
-            <div id="api-calls-capture-order" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
+          <div id="tab-capture-order" class="tab center">
+            <div id="api-calls-capture-order" class="
+              w-full
+              top-0
+              p-2
+              break-words
+              whitespace-pre-wrap
+              bg-zinc-100
+              dark:bg-zinc-700
+            "></div>
           </div>
-          <div id="tab-sdk-error" class="tab center text-gray-800 relative">
-            <div id="api-calls-sdk-error" class="bg-white rounded-b-md w-full border border-t-0 absolute top-0 p-2 font-mono whitespace-pre-wrap break-words"></div>
+          <div id="tab-sdk-error" class="tab center">
+            <div id="api-calls-sdk-error" class="
+              w-full
+              top-0
+              p-2
+              break-words
+              whitespace-pre-wrap
+              bg-zinc-100
+              dark:bg-zinc-700
+            "></div>
           </div>
         </div>
       </div>
@@ -400,15 +526,15 @@
 </script>
 <script>
   function enableButton(button) {
-    const disabledClassList = ["text-gray-400", "cursor-not-allowed", "hover:text-gray-600", "dark:text:gray-500", "hidden"];
-    const enabledClassList = ["hover:text-gray-600", "hover:bg-gray-50", "dark:hover:bg-gray-800", "dark:hover:text-gray-300"];
+    const disabledClassList = ["text-zinc-500", "dark:text-zinc-500", "cursor-not-allowed", "hidden"];
+    const enabledClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"];
 
     button.classList.remove(...disabledClassList);
     button.classList.add(...enabledClassList);
   }
   function makeActiveButton(buttonList, button) {
-    const activeClassList = ["text-blue-600", "bg-gray-100", "active", "dark:bg-gray-800", "dark:text-blue-500"];
-    const inactiveClassList = ["hover:text-gray-600", "hover:bg-gray-50", "dark:hover:bg-gray-800", "dark:hover:text-gray-300"];
+    const activeClassList = ["text-blue-600", "bg-zinc-200/50", "dark:text-blue-500", "dark:bg-zinc-700", "active"];
+    const inactiveClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"];
 
     buttonList.forEach(each => {
       each.classList.remove(...activeClassList);
@@ -460,5 +586,6 @@
       }
     }
   }
+  document.querySelector("#checkout").click()
 </script>
 {% endblock %}

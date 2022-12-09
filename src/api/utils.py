@@ -167,8 +167,8 @@ def format_request_and_response(response):
     body_sent = response.request.body
     try:
         body_sent = json.loads(body_sent)
-    except:
-        print(body_sent)
+    except json.decoder.JSONDecodeError:
+        pass
 
     formatted_request = "\n".join(
         [
