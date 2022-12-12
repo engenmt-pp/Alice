@@ -272,24 +272,24 @@
         basis-1/3
       ">
         Reference ID
-      </label>
-      <input id="reference-id" type="text" name="reference-id" class="
-        appearance-none
-        leading-none 
-        ml-2
-        px-2
-        py-1 
-        min-w-0
-        flex-auto
-        basis-1/3
-        font-mono 
-        rounded 
-        border
-        focus:outline-none 
-        bg-zinc-100 dark:bg-zinc-700
-        border-zinc-300 dark:border-zinc-600
-        focus:bg-white dark:focus:bg-zinc-900
-        focus:border-blue-500 dark:focus:border-blue-500
+      </label> <!-- Reference ID isn't 'type="email"', but if it's labeled as 'type="text"', the CSS from hosted fields styles it in a way I don't like. -->
+      <input id="reference-id" type="email" name="reference-id" class="
+      appearance-none
+      leading-none 
+      ml-2
+      px-2
+      py-1 
+      min-w-0
+      flex-auto
+      basis-1/3
+      font-mono 
+      rounded 
+      border
+      focus:outline-none 
+      bg-zinc-100 dark:bg-zinc-700
+      border-zinc-300 dark:border-zinc-600
+      focus:bg-white dark:focus:bg-zinc-900
+      focus:border-blue-500 dark:focus:border-blue-500
       " value="default">
     </div>
 
@@ -321,6 +321,8 @@
       ">
     </div>
   </fieldset>
+  {% block addtional_options %}
+  {% endblock %}
 </form>
 {% endblock %}
 
@@ -445,7 +447,7 @@
       
         <!-- Tabs -->
         <div id="api-calls-tabs" class="font-mono dark:text-zinc-100">
-          <div id="tab-access-token" class="tab center">
+          <div id="tab-access-token" class="tab center hidden">
             <div id="api-calls-access-token" class="
               w-full
               top-0
@@ -453,10 +455,9 @@
               break-words
               whitespace-pre-wrap
               bg-zinc-100 dark:bg-zinc-700
-              hidden
             "></div>
           </div>
-          <div id="tab-create-billing-agreement" class="tab center">
+          <div id="tab-create-billing-agreement" class="tab center hidden">
             <div id="api-calls-create-billing-agreement" class="
               w-full
               top-0
@@ -464,10 +465,9 @@
               break-words
               whitespace-pre-wrap
               bg-zinc-100 dark:bg-zinc-700
-              hidden
             "></div>
           </div>
-          <div id="tab-create-order" class="tab center">
+          <div id="tab-create-order" class="tab center hidden">
             <div id="api-calls-create-order" class="
               w-full
               top-0
@@ -475,10 +475,9 @@
               break-words
               whitespace-pre-wrap
               bg-zinc-100 dark:bg-zinc-700
-              hidden
             "></div>
           </div>
-          <div id="tab-authorize-order" class="tab center">
+          <div id="tab-authorize-order" class="tab center hidden">
             <div id="api-calls-authorize-order" class="
               w-full
               top-0
@@ -486,10 +485,9 @@
               break-words
               whitespace-pre-wrap
               bg-zinc-100 dark:bg-zinc-700
-              hidden
             "></div>
           </div>
-          <div id="tab-capture-order" class="tab center">
+          <div id="tab-capture-order" class="tab center hidden">
             <div id="api-calls-capture-order" class="
               w-full
               top-0
@@ -497,10 +495,9 @@
               break-words
               whitespace-pre-wrap
               bg-zinc-100 dark:bg-zinc-700
-              hidden
             "></div>
           </div>
-          <div id="tab-sdk-error" class="tab center">
+          <div id="tab-sdk-error" class="tab center hidden">
             <div id="api-calls-sdk-error" class="
               w-full
               top-0
@@ -508,7 +505,6 @@
               break-words
               whitespace-pre-wrap
               bg-zinc-100 dark:bg-zinc-700
-              hidden
             "></div>
           </div>
         </div>

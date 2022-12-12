@@ -165,10 +165,14 @@ def format_request_and_response(response):
 
     headers_sent = dict(response.request.headers)
     body_sent = response.request.body
-    try:
-        body_sent = json.loads(body_sent)
-    except json.decoder.JSONDecodeError:
-        pass
+    if body_sent is not None:
+        try:
+            body_sent = json.loads(body_sent)
+        except (json.decoder.JSONDecodeError, TypeError) as exc:
+            current_app.logger.error(
+                f"Exception occurred during json.loads('{body_sent}'): ({type(exc)}) {exc}"
+            )
+            pass
 
     formatted_request = "\n".join(
         [

@@ -1,5 +1,59 @@
 {% extends "checkout-base.html" %}
 
+{% block head %}
+
+{{ super() }}
+
+<script>
+  function getContingencies() {
+    if (document.getElementById('3DS-always').checked) {
+      return ["SCA_ALWAYS"];
+    } else {
+      return ["SCA_WHEN_REQUIRED"];
+    }
+  }
+</script>
+{% endblock %}
+
+{% block addtional_options %}
+<fieldset>
+  <legend class="block mb-2">
+    3D Secure (<a href="https://developer.paypal.com/docs/checkout/advanced/customize/3d-secure/" target="_blank">docs</a>)
+  </legend>
+  <div class="flex items-center mb-2">
+    <input id="3DS-when-required" type="radio" name="3DS-when-required" value="SCA_WHEN_REQURIED" class="
+      w-4
+      h-4
+      ml-2
+      border-zinc-300 dark:border-zinc-600
+      focus:ring-2
+      focus:ring-blue-300 dark:focus:ring-blue-600
+      dark:bg-zinc-700
+      dark:focus:bg-blue-600
+    " checked>
+    <label for="3DS-when-required" class="block ml-2">
+      Disabled
+    </label>
+  </div>
+
+  <div class="flex items-center mb-2">
+    <input id="3DS-always" type="radio" name="3DS-always" value="SCA_ALWAYS" class="
+      w-4
+      h-4
+      ml-2
+      border-zinc-300 dark:border-zinc-600
+      focus:ring-2
+      focus:ring-blue-300 dark:focus:ring-blue-600
+      dark:bg-zinc-700
+      dark:focus:bg-blue-600
+    ">
+    <label for="3DS-always" class="block ml-2">
+      Enabled
+    </label>
+  </div>
+</fieldset>
+{% endblock %}
+
 {% block checkout %}
 <!-- Import PayPal Javascript SDK with Partner's credentials -->
 <script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&components=hosted-fields" data-partner-attribution-id="{{ bn_code }}" data-client-token="{{ client_token }}"></script>
@@ -52,7 +106,7 @@
 </div>
 
 <script>
-  var orderId;
+  let orderId;
   let options;
   if (paypal.HostedFields.isEligible()) {
     // Renders card fields
@@ -74,7 +128,6 @@
           return orderId;
         });
       },
-
       styles: {
         '.valid': {'color': 'green'},
         '.invalid': {'color': 'red'}
@@ -109,7 +162,9 @@
             locality: document.getElementById('card-billing-address-city').value,
             postalCode: document.getElementById('card-billing-address-zip').value,
             countryCodeAlpha2: document.getElementById('card-billing-address-country').value
-          }
+          },
+          // Trigger 3D Secure authentication
+          contingencies: getContingencies()
         }).then(function () {
           fetch('/api/orders-form/capture/' + orderId, {
             headers: {'Content-Type': 'application/json'},
