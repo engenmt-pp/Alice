@@ -203,9 +203,12 @@ def format_request_and_response(response):
     return "\n\n".join([formatted_request, formatted_response])
 
 
-def generate_client_token(customer_id=None):
+def generate_client_token(customer_id=None, return_formatted=False):
     endpoint = build_endpoint("/v1/identity/generate-token")
-    headers = build_headers()
+    headers = build_headers(return_formatted=return_formatted)
+    if return_formatted:
+        formatted = {"access-token": headers["formatted"]}
+        del headers["formatted"]
 
     if customer_id is None:
         response = requests.post(endpoint, headers=headers)
@@ -213,9 +216,13 @@ def generate_client_token(customer_id=None):
         data = {"customer_id": customer_id}
         response = log_and_request("POST", endpoint, headers=headers, data=data)
 
-    response_dict = response.json()
-    return response_dict["client_token"]
-    # return response_dict["id_token"] if customer_id else response_dict["client_token"]
+    client_token = response.json()["client_token"]
+
+    if return_formatted:
+        formatted["client-token"] = format_request_and_response(response)
+        return {"client_token": client_token, "formatted": formatted}
+
+    return client_token
 
 
 def random_decimal_string(length):

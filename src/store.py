@@ -36,9 +36,15 @@ def checkout_form_branded_ba():
 
 @bp.route("/form-hosted")
 def checkout_form_hosted_fields():
-    client_token = generate_client_token()
+    client_token_response = generate_client_token(return_formatted=True)
+    client_token = client_token_response["client_token"]
+    formatted_calls = client_token_response["formatted"]
     template = "checkout-form-hosted.html"
-    return checkout(template, client_token=client_token)
+    return checkout(
+        template,
+        client_token=client_token,
+        formatted_calls=formatted_calls,
+    )
 
 
 @bp.route("/branded")

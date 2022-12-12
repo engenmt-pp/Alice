@@ -1,7 +1,14 @@
 {% extends "columnar-base.html" %}
 
-{% block head %}
+{% block foot %}
 <script>
+  function getOptions() {
+    var formData = new FormData(document.getElementById('options-form'));
+    var formOptions = Object.fromEntries(formData);
+    formOptions['merchant-id'] = document.getElementById('merchant-id').value;
+    formOptions['partner-id'] = document.getElementById('partner-id').value;
+    return formOptions
+  }
   function copyToClipboard(id) {
     navigator.clipboard.writeText(document.getElementById(id).value);
   }
@@ -26,6 +33,74 @@
     var tabAuthorizeOrder = document.getElementById("authorize-order");
     tabAuthorizeOrder.classList.remove("hidden");
   }
+  function enableButton(button) {
+    const disabledClassList = ["text-zinc-500", "dark:text-zinc-500", "cursor-not-allowed", "hidden"];
+    const enabledClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"];
+
+    button.classList.remove(...disabledClassList);
+    button.classList.add(...enabledClassList);
+  }
+  function makeActiveButton(buttonList, button) {
+    const activeClassList = ["text-blue-600", "bg-zinc-200/50", "dark:text-blue-500", "dark:bg-zinc-600/50", "active"];
+    const inactiveClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"];
+
+    buttonList.forEach(each => {
+      each.classList.remove(...activeClassList);
+      each.classList.add(...inactiveClassList);
+    });
+
+    button.classList.remove(...inactiveClassList);
+    button.classList.add(...activeClassList);
+  }
+  function makeActiveTab(tabList, tab) {
+    tabList.forEach(each => {each.classList.add("hidden");});
+    tab.classList.remove("hidden");
+  }
+</script>
+<script>
+  const root = document.querySelector("#buttons-tabs");
+  const buttonContainer = root.querySelector("#buttons");
+  const tabContainer = root.querySelector("#tabs");
+  const buttonList = buttonContainer.querySelectorAll(".button");
+  const tabList = root.querySelectorAll("#tabs > .tab");
+  buttonContainer.onclick = function(e) {
+    var button = e.target;
+    var buttonId = button.getAttribute("id");
+    if (buttonId != null){
+      makeActiveButton(buttonList, button);
+
+      var tab = document.getElementById("tab-" + buttonId);
+      if (tab === null) {
+        console.log("document.getElementById('tab-" + buttonId + "') found null!");
+      } else {
+        makeActiveTab(tabList, tab);
+      }
+    }
+  }
+  const apiCallsRoot = document.querySelector("#api-calls-buttons-tabs");
+  const apiCallsButtonContainer = apiCallsRoot.querySelector("#api-calls-buttons");
+  const apiCallsTabContainer = apiCallsRoot.querySelector("#api-calls-tabs");
+  const apiCallsButtonList = apiCallsButtonContainer.querySelectorAll(".button");
+  const apiCallsTabList = apiCallsRoot.querySelectorAll("#api-calls-tabs > .tab");
+  apiCallsButtonContainer.onclick = function(e) {
+    var button = e.target;
+    var buttonId = button.getAttribute("id");
+    if (buttonId != null && !button.classList.contains("cursor-not-allowed")) {
+      makeActiveButton(apiCallsButtonList, button);
+
+      var tab = document.getElementById("tab-" + buttonId);
+      if (tab === null) {
+        console.log("document.getElementById('tab-" + buttonId + "') found null!");
+      } else {
+        makeActiveTab(apiCallsTabList, tab);
+      }
+    }
+  }
+</script>
+<script>
+  const formattedCalls = {{ formatted_calls|safe }};
+  updateAPICalls(formattedCalls);
+  document.querySelector("#checkout").click()
 </script>
 {% endblock %}
 
@@ -321,7 +396,7 @@
       ">
     </div>
   </fieldset>
-  {% block addtional_options %}
+  {% block additional_options %}
   {% endblock %}
 </form>
 {% endblock %}
@@ -400,6 +475,16 @@
                 button
                 inline-block
                 p-4
+                rounded-t-lg      
+                cursor-not-allowed
+                hidden
+              " id="client-token">Client Token</a>
+            </li>
+            <li class="mr-2">
+              <a href="#" class="
+                button
+                inline-block
+                p-4
                 rounded-t-lg 
                 cursor-not-allowed
                 hidden
@@ -449,6 +534,16 @@
         <div id="api-calls-tabs" class="font-mono dark:text-zinc-100">
           <div id="tab-access-token" class="tab center hidden">
             <div id="api-calls-access-token" class="
+              w-full
+              top-0
+              p-2
+              break-words
+              whitespace-pre-wrap
+              bg-zinc-100 dark:bg-zinc-700
+            "></div>
+          </div>
+          <div id="tab-client-token" class="tab center hidden">
+            <div id="api-calls-client-token" class="
               w-full
               top-0
               p-2
@@ -512,77 +607,4 @@
     </div>
   </div>
 </div>
-<script>
-  function getOptions() {
-    var formData = new FormData(document.getElementById('options-form'));
-    var formOptions = Object.fromEntries(formData);
-    formOptions['merchant-id'] = document.getElementById('merchant-id').value;
-    formOptions['partner-id'] = document.getElementById('partner-id').value;
-    return formOptions
-  }
-</script>
-<script>
-  function enableButton(button) {
-    const disabledClassList = ["text-zinc-500", "dark:text-zinc-500", "cursor-not-allowed", "hidden"];
-    const enabledClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"];
-
-    button.classList.remove(...disabledClassList);
-    button.classList.add(...enabledClassList);
-  }
-  function makeActiveButton(buttonList, button) {
-    const activeClassList = ["text-blue-600", "bg-zinc-200/50", "dark:text-blue-500", "dark:bg-zinc-600/50", "active"];
-    const inactiveClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"];
-
-    buttonList.forEach(each => {
-      each.classList.remove(...activeClassList);
-      each.classList.add(...inactiveClassList);
-    });
-
-    button.classList.remove(...inactiveClassList);
-    button.classList.add(...activeClassList);
-  }
-  function makeActiveTab(tabList, tab) {
-    tabList.forEach(each => {each.classList.add("hidden");});
-    tab.classList.remove("hidden");
-  }
-  const root = document.querySelector("#buttons-tabs");
-  const buttonContainer = root.querySelector("#buttons");
-  const tabContainer = root.querySelector("#tabs");
-  const buttonList = buttonContainer.querySelectorAll(".button");
-  const tabList = root.querySelectorAll("#tabs > .tab");
-  buttonContainer.onclick = function(e) {
-    var button = e.target;
-    var buttonId = button.getAttribute("id");
-    if (buttonId != null){
-      makeActiveButton(buttonList, button);
-
-      var tab = document.getElementById("tab-" + buttonId);
-      if (tab === null) {
-        console.log("document.getElementById('tab-" + buttonId + "') found null!");
-      } else {
-        makeActiveTab(tabList, tab);
-      }
-    }
-  }
-  const apiCallsRoot = document.querySelector("#api-calls-buttons-tabs");
-  const apiCallsButtonContainer = apiCallsRoot.querySelector("#api-calls-buttons");
-  const apiCallsTabContainer = apiCallsRoot.querySelector("#api-calls-tabs");
-  const apiCallsButtonList = apiCallsButtonContainer.querySelectorAll(".button");
-  const apiCallsTabList = apiCallsRoot.querySelectorAll("#api-calls-tabs > .tab");
-  apiCallsButtonContainer.onclick = function(e) {
-    var button = e.target;
-    var buttonId = button.getAttribute("id");
-    if (buttonId != null && !button.classList.contains("cursor-not-allowed")) {
-      makeActiveButton(apiCallsButtonList, button);
-
-      var tab = document.getElementById("tab-" + buttonId);
-      if (tab === null) {
-        console.log("document.getElementById('tab-" + buttonId + "') found null!");
-      } else {
-        makeActiveTab(apiCallsTabList, tab);
-      }
-    }
-  }
-  document.querySelector("#checkout").click()
-</script>
 {% endblock %}
