@@ -62,7 +62,7 @@ from functools import cache
 
 
 @cache
-def request_access_token(client_id, secret):
+def request_access_token(client_id, secret, return_formatted=False):
     """Request an access token using the /v1/oauth2/token API.
 
     Docs: https://developer.paypal.com/docs/api/reference/get-an-access-token/
@@ -84,7 +84,12 @@ def request_access_token(client_id, secret):
     response_dict = response.json()
 
     try:
-        return response_dict["access_token"]
+        access_token = response_dict["access_token"]
+        return_val = {"access_token": access_token}
+        if return_formatted:
+            formatted = format_request_and_response(response)
+            return_val["formatted"] = formatted
+        return return_val
     except KeyError as exc:
         current_app.logger.error(f"Encountered a KeyError: {exc}")
         current_app.logger.error(
@@ -94,7 +99,12 @@ def request_access_token(client_id, secret):
 
 
 def build_headers(
-    client_id=None, secret=None, include_bn_code=False, include_auth_assertion=False
+    client_id=None,
+    secret=None,
+    bn_code=None,
+    include_bn_code=True,
+    include_auth_assertion=False,
+    return_formatted=False,
 ):
     """Build commonly used headers using a new PayPal access token."""
     if client_id is None:
@@ -102,7 +112,10 @@ def build_headers(
     if secret is None:
         secret = current_app.config["PARTNER_SECRET"]
 
-    access_token = request_access_token(client_id, secret)
+    access_token_response = request_access_token(
+        client_id, secret, return_formatted=return_formatted
+    )
+    access_token = access_token_response["access_token"]
     headers = {
         "Accept": "application/json",
         "Accept-Language": "en_US",
@@ -111,10 +124,15 @@ def build_headers(
     }
 
     if include_bn_code:
-        headers["PayPal-Partner-Attribution-Id"] = current_app.config["PARTNER_BN_CODE"]
+        if bn_code is None:
+            bn_code = current_app.config["PARTNER_BN_CODE"]
+        headers["PayPal-Partner-Attribution-Id"] = bn_code
 
     if include_auth_assertion:
         headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+
+    if return_formatted:
+        headers["formatted"] = access_token_response["formatted"]
 
     return headers
 
@@ -137,6 +155,52 @@ def build_auth_assertion(client_id=None, merchant_id=None):
 
     signature = b""
     return b".".join([header_b64, payload_b64, signature])
+
+
+def format_request_and_response(response):
+    """Format an HTTP request and response for output."""
+
+    method = response.request.method
+    url = response.request.url
+
+    headers_sent = dict(response.request.headers)
+    body_sent = response.request.body
+    if body_sent is not None:
+        try:
+            body_sent = json.loads(body_sent)
+        except (json.decoder.JSONDecodeError, TypeError) as exc:
+            current_app.logger.error(
+                f"Exception occurred during json.loads('{body_sent}'): ({type(exc)}) {exc}"
+            )
+            pass
+
+    formatted_request = "\n".join(
+        [
+            f"Sending {method} request to {url}:",
+            f"Headers sent: {json.dumps(headers_sent, indent=2)}",
+            f"Body sent: {json.dumps(body_sent, indent=2)}",
+        ]
+    )
+
+    response_code = response.status_code
+    headers_received = dict(response.headers)
+    debug_id = headers_received.get("Paypal-Debug-Id")
+    try:
+        body_received = response.json()
+    except json.decoder.JSONDecodeError:
+        body_received = response.text
+
+    formatted_response = "\n".join(
+        [
+            f"Response:",
+            f"Status: {response_code}",
+            f"PayPal Debug ID: {debug_id}",
+            f"Headers received: {json.dumps(headers_received,indent=2)}",
+            f"Body received: {json.dumps(body_received,indent=2)}",
+        ]
+    )
+
+    return "\n\n".join([formatted_request, formatted_response])
 
 
 def generate_client_token(customer_id=None):

@@ -2,13 +2,18 @@ import json
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, current_app, jsonify, request
 
-from .utils import build_endpoint, build_headers, log_and_request, random_decimal_string
+from .utils import (
+    build_endpoint,
+    build_headers,
+    log_and_request,
+    random_decimal_string,
+)
 
 
 bp = Blueprint("orders", __name__, url_prefix="/orders")
 
 
-def default_purchase_unit(payee_id, price, reference_id=None):
+def default_purchase_unit(payee_id, price=3.14, reference_id=None):
     purchase_unit = {
         "custom_id": "Up to 127 characters can go here!",
         "payee": {"merchant_id": payee_id},
@@ -21,18 +26,6 @@ def default_purchase_unit(payee_id, price, reference_id=None):
     if reference_id is not None:
         purchase_unit["reference_id"] = reference_id
     return purchase_unit
-
-
-def default_shipping_option():
-    return {
-        "id": "shipping-default",
-        "label": "A default shipping option",
-        "selected": True,
-        "amount": {
-            "currency_code": "USD",
-            "value": "9.99",
-        },
-    }
 
 
 @bp.route("/create", methods=("POST",))
@@ -57,7 +50,7 @@ def create_order(include_platform_fees=True):
         "application_context": {
             "return_url": "http://localhost:5000/",
             "cancel_url": "http://localhost:5000/",
-            "shipping_preference": "GET_FROM_FILE",
+            "shipping_preference": "NO_SHIPPING",
         },
     }
 
@@ -66,9 +59,6 @@ def create_order(include_platform_fees=True):
             "disbursement_mode": "INSTANT",
             "platform_fees": [{"amount": {"currency_code": "USD", "value": "1.00"}}],
         }
-
-    if request.json.get("include_shipping", False):
-        data["purchase_units"][0]["shipping"] = {"options": [default_shipping_option()]}
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     response_dict = response.json()
@@ -195,6 +185,38 @@ def authorize_and_capture_order(order_id):
     authorization = authorize_order(order_id)
     auth_id = authorization["id"]
     return capture_authorization(auth_id)
+
+
+@bp.route("/create-billing-agreement-token", methods=("POST",))
+def create_billing_agreement_token():
+    endpoint = build_endpoint("/v1/billing-agreements/agreement-tokens")
+    headers = build_headers()
+    data = {
+        "description": "Billing Agreement",
+        "shipping_address": {
+            "line1": "1350 North First Street",
+            "city": "San Jose",
+            "state": "CA",
+            "postal_code": "95112",
+            "country_code": "US",
+            "recipient_name": "John Doe",
+        },
+        "payer": {"payment_method": "PAYPAL"},
+        "plan": {
+            "type": "CHANNEL_INITIATED_BILLING",
+            "merchant_preferences": {
+                "return_url": "https://example.com/return",
+                "cancel_url": "https://example.com/cancel",
+                "notify_url": "https://example.com/notify",
+                "accepted_pymt_type": "INSTANT",
+                "skip_shipping_address": False,
+                "immutable_shipping_address": True,
+            },
+        },
+    }
+    response = log_and_request("POST", endpoint, headers=headers, data=data)
+    response_dict = response.json()
+    return jsonify(response_dict)
 
 
 @bp.route("/authorize/<order_id>", methods=("POST",))

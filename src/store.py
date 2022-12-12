@@ -22,9 +22,40 @@ def apple_pie():
     }
 
 
+@bp.route("/tab-test")
+def tab_test():
+    template = "tab-test.html"
+    return render_template(template)
+
+
+@bp.route("/form-branded")
+def checkout_form_branded():
+    template = "checkout-form-branded.html"
+    return checkout(template)
+
+
+@bp.route("/form-branded-ba")
+def checkout_form_branded_ba():
+    template = "checkout-form-branded-ba.html"
+    return checkout(template)
+
+
+@bp.route("/form-hosted")
+def checkout_form_hosted_fields():
+    client_token = generate_client_token()
+    template = "checkout-form-hosted.html"
+    return checkout(template, client_token=client_token)
+
+
 @bp.route("/branded")
 def checkout_branded():
     template = "checkout-branded.html"
+    return checkout(template)
+
+
+@bp.route("/branded-ba")
+def checkout_branded_ba():
+    template = "checkout-branded-ba.html"
     return checkout(template)
 
 
@@ -88,7 +119,16 @@ def checkout_ship_sdk():
     return checkout(template)
 
 
-def checkout(template, partner_client_id=None, payee_id=None, bn_code=None, **kwargs):
+def checkout(
+    template,
+    partner_id=None,
+    partner_client_id=None,
+    payee_id=None,
+    bn_code=None,
+    **kwargs,
+):
+    if partner_id is None:
+        partner_id = current_app.config["PARTNER_ID"]
     if partner_client_id is None:
         partner_client_id = current_app.config["PARTNER_CLIENT_ID"]
     if payee_id is None:
@@ -101,6 +141,7 @@ def checkout(template, partner_client_id=None, payee_id=None, bn_code=None, **kw
     return render_template(
         template,
         product=product,
+        partner_id=partner_id,
         partner_client_id=partner_client_id,
         payee_id=payee_id,
         bn_code=bn_code,

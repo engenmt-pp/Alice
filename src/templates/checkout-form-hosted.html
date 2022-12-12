@@ -1,13 +1,57 @@
-{% extends "base.html" %}
+{% extends "checkout-base.html" %}
 
-{% block controls %}
-<a href="/" 
-  id="a-details" 
-  target="_blank"
-  class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline"
-  style="display: none">
-  Order details
-</a>
+{% block head %}
+
+{{ super() }}
+
+<script>
+  function getContingencies() {
+    if (document.getElementById('3DS-always').checked) {
+      return ["SCA_ALWAYS"];
+    } else {
+      return ["SCA_WHEN_REQUIRED"];
+    }
+  }
+</script>
+{% endblock %}
+
+{% block addtional_options %}
+<fieldset>
+  <legend class="block mb-2">
+    3D Secure (<a href="https://developer.paypal.com/docs/checkout/advanced/customize/3d-secure/" target="_blank">docs</a>)
+  </legend>
+  <div class="flex items-center mb-2">
+    <input id="3DS-when-required" type="radio" name="3DS-when-required" value="SCA_WHEN_REQURIED" class="
+      w-4
+      h-4
+      ml-2
+      border-zinc-300 dark:border-zinc-600
+      focus:ring-2
+      focus:ring-blue-300 dark:focus:ring-blue-600
+      dark:bg-zinc-700
+      dark:focus:bg-blue-600
+    " checked>
+    <label for="3DS-when-required" class="block ml-2">
+      Disabled
+    </label>
+  </div>
+
+  <div class="flex items-center mb-2">
+    <input id="3DS-always" type="radio" name="3DS-always" value="SCA_ALWAYS" class="
+      w-4
+      h-4
+      ml-2
+      border-zinc-300 dark:border-zinc-600
+      focus:ring-2
+      focus:ring-blue-300 dark:focus:ring-blue-600
+      dark:bg-zinc-700
+      dark:focus:bg-blue-600
+    ">
+    <label for="3DS-always" class="block ml-2">
+      Enabled
+    </label>
+  </div>
+</fieldset>
 {% endblock %}
 
 {% block checkout %}
@@ -62,26 +106,25 @@
 </div>
 
 <script>
-  // Requires merchant to have requested ACDC permissions at https://www.sandbox.paypal.com/bizsignup/entry/product/ppcp?_ga=1.159575741.1009029311.1637585517
-  // See here for more info: https://developer.paypal.com/docs/checkout/advanced/integrate
-  var orderId;
+  let orderId;
+  let options;
   if (paypal.HostedFields.isEligible()) {
     // Renders card fields
     paypal.HostedFields.render({
       // Call your server to set up the transaction
       createOrder: function () {
-        return fetch('/api/orders/create', {
+        console.log("Getting form info...");
+        options = getOptions();
+        console.log("Creating the order...");
+        return fetch('/api/orders-form/create', {
           headers: {'Content-Type': 'application/json'},
           method: 'POST',
-          body: JSON.stringify({
-            price: "{{ product['price'] }}", 
-            payee_id: "{{ payee_id }}"
-          })
+          body: JSON.stringify(options)
         }).then(function(res) {
           return res.json();
-        }).then(function(orderData) {
-          orderId = orderData.id;
-          setOrderDetails();
+        }).then(function(createData) {
+          updateAPICalls(createData.formatted);
+          orderId = createData.orderId;
           return orderId;
         });
       },
@@ -89,6 +132,7 @@
         '.valid': {'color': 'green'},
         '.invalid': {'color': 'red'}
       },
+
       fields: {
         number: {
           selector: "#card-number",
@@ -112,34 +156,27 @@
           cardholderName: document.getElementById('card-holder-name').value,
           // Billing Address
           billingAddress: {
-            // Street address, line 1
             streetAddress: document.getElementById('card-billing-address-street').value,
-            // Street address, line 2 (Ex: Unit, Apartment, etc.)
             extendedAddress: document.getElementById('card-billing-address-unit').value,
-            // State
             region: document.getElementById('card-billing-address-state').value,
-            // City
             locality: document.getElementById('card-billing-address-city').value,
-            // Postal Code
             postalCode: document.getElementById('card-billing-address-zip').value,
-            // Country Code
             countryCodeAlpha2: document.getElementById('card-billing-address-country').value
-          }
+          },
+          // Trigger 3D Secure authentication
+          contingencies: getContingencies()
         }).then(function () {
-          fetch('/api/orders/capture/' + orderId, {
-            method: 'POST'
+          fetch('/api/orders-form/capture/' + orderId, {
+            headers: {'Content-Type': 'application/json'},
+            method: 'POST',
+            body: JSON.stringify(options)
           }).then(function(res) {
             return res.json();
-          }).then(function (orderData) {
-            // Three cases to handle:
-            //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-            //   (2) Other non-recoverable errors -> Show a failure message
-            //   (3) Successful transaction -> Show confirmation or thank you
+          }).then(function (captureData) {
+            console.log("captureData: " + JSON.stringify(captureData));
+            updateAPICalls(captureData.formatted);
 
-            // This example reads a v2/checkout/orders capture response, propagated from the server
-            // You could use a different API or structure for your 'orderData'
-            var errorDetail = Array.isArray(orderData.details) && orderData.details[0];
-
+            var errorDetail = Array.isArray(captureData.details) && captureData.details[0];
             if (errorDetail && errorDetail.issue === 'INSTRUMENT_DECLINED') {
               return actions.restart(); // Recoverable state, per:
               // https://developer.paypal.com/docs/checkout/integration-features/funding-failure/
@@ -148,12 +185,15 @@
             if (errorDetail) {
                 var msg = 'Sorry, your transaction could not be processed.';
                 if (errorDetail.description) msg += '\n\n' + errorDetail.description;
-                if (orderData.debug_id) msg += ' (' + orderData.debug_id + ')';
+                if (captureData.debug_id) msg += ' (' + captureData.debug_id + ')';
                 return alert(msg); // Show a failure message
             }
           })
         }).catch(function (err) {
-          alert('Payment could not be captured! ' + JSON.stringify(err))
+          let errText = JSON.stringify(err, null, 4);
+          let formattedCalls = {"sdk-error": errText};
+          updateAPICalls(formattedCalls);
+          alert('Payment could not be captured! ' + errText);
         });
       });
     });
@@ -161,11 +201,6 @@
     alert('Not eligible!');
     // Hides card fields if the merchant isn't eligible
     document.querySelector("#card-form").style = 'display: none';
-  }
-  function setOrderDetails() {
-    let aDetails = document.getElementById("a-details");
-    aDetails.href = "http://localhost:5000/store/order-details/" + orderId;
-    aDetails.style.display = "";
   }
 </script>
 {% endblock %}

@@ -9,8 +9,8 @@ if __name__ == "__main__":
 
     app = create_app()
 
-    testing = True  # Enables debug-level logging
-    # testing = False  # Disables debug-level logging
+    testing = True
+    # testing = False
     if testing:
         from partner_specific_config import PartnerInderConfig
 

@@ -1,0 +1,588 @@
+{% extends "columnar-base.html" %}
+
+{% block head %}
+<script>
+  function copyToClipboard(id) {
+    navigator.clipboard.writeText(document.getElementById(id).value);
+  }
+  function updateAPICalls(formattedCalls) {
+    document.querySelector('#api-calls').click();
+    for (var id in formattedCalls) {
+      if (formattedCalls.hasOwnProperty(id)) {
+        var contents = formattedCalls[id];
+        var apiCallTab = document.getElementById('api-calls-' + id);
+        apiCallTab.innerHTML = contents;
+        var apiCallsButton = document.getElementById(id);
+        enableButton(apiCallsButton);
+        apiCallsButton.click();
+      }
+    }
+  }
+  function hideAuth() {
+    var tabAuthorizeOrder = document.getElementById("authorize-order");
+    tabAuthorizeOrder.classList.add("hidden");
+  }
+  function showAuth() {
+    var tabAuthorizeOrder = document.getElementById("authorize-order");
+    tabAuthorizeOrder.classList.remove("hidden");
+  }
+</script>
+{% endblock %}
+
+{% block left_col %}
+<form id="options-form" class="space-y-4">
+  <fieldset>
+    <legend class="block mb-2 font-semibold">Partner/merchant info</legend>
+    <div class="flex flex-row flex-wrap items-center mb-2">
+      <label for="partner-id" class="
+        ml-2
+        flex-none 
+        basis-1/3
+      ">
+        Partner ID
+      </label>
+      <input id="partner-id" name="partner-id" class="
+      appearance-none
+      p-2
+      min-w-0
+      flex-auto
+      basis-2/5
+      border
+      rounded-lg 
+      leading-none 
+      font-mono 
+      focus:outline-none 
+      bg-zinc-100 dark:bg-zinc-700
+      border-zinc-300 dark:border-zinc-600
+      focus:border-blue-500
+      " value="{{ partner_id }}" disabled>
+      <button type="button" class="
+        h-8
+        basis-1/6
+        flex-none
+        p-1
+        mx-1
+        rounded-lg
+        uppercase
+        text-xs
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+      " onclick="copyToClipboard('partner-id');">copy</button>
+    </div>
+    <div class="flex flex-row flex-wrap items-center mb-2">
+      <label for="partner-client-id" class="
+        ml-2
+        flex-none 
+        basis-1/3
+      ">
+        Client ID
+      </label>
+      <input id="partner-client-id" name="partner-client-id" class="
+        appearance-none
+        p-2
+        min-w-0
+        flex-auto
+        basis-2/5
+        border
+        rounded-lg 
+        leading-none 
+        font-mono 
+        focus:outline-none 
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:border-blue-500
+      " value="{{ partner_client_id }}" disabled>
+      <button type="button" class="
+        h-8
+        basis-1/6
+        flex-none
+        p-1
+        mx-1
+        rounded-lg
+        uppercase
+        text-xs
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+      " onclick="copyToClipboard('partner-client-id');">copy</button>
+    </div>
+    <div class="flex flex-row flex-wrap items-center mb-2">
+      <label for="merchant-id" class="
+        ml-2
+        flex-none 
+        basis-1/3
+      ">
+        Merchant ID
+      </label>
+      <input id="merchant-id" name="merchant-id" class="
+        appearance-none
+        p-2
+        min-w-0
+        flex-auto
+        basis-2/5
+        border
+        rounded-lg 
+        leading-none 
+        font-mono 
+        focus:outline-none 
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:border-blue-500 dark:focus:border-blue-500
+      " value="{{ payee_id }}" disabled>
+      <button type="button" class="
+        h-8
+        basis-1/6
+        flex-none
+        p-1
+        mx-1
+        rounded-lg
+        uppercase
+        text-xs
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+      " onclick="copyToClipboard('merchant-id');">copy</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend class="block mb-2">
+      Intent
+    </legend>
+
+    <div class="flex items-center mb-2">
+      <input id="intent-capture" type="radio" name="intent" value="CAPTURE" class="
+        w-4
+        h-4
+        ml-2
+        border-zinc-300 dark:border-zinc-600
+        focus:ring-2
+        focus:ring-blue-300 dark:focus:ring-blue-600
+        dark:focus:bg-blue-600
+        dark:bg-zinc-700
+      " checked onclick="hideAuth();">
+      <label for="intent-capture" class="block ml-2">
+        Capture
+      </label>
+    </div>
+
+    <div class="flex items-center mb-2">
+      <input id="intent-authorize" type="radio" name="intent" value="AUTHORIZE" class="w-4
+        w-4
+        h-4
+        ml-2
+        border-zinc-300 dark:border-zinc-600
+        focus:ring-2
+        focus:ring-blue-300 dark:focus:ring-blue-600
+        dark:focus:bg-blue-600
+        dark:bg-zinc-700
+      " onclick="showAuth();">
+      <label for="intent-authorize" class="block ml-2">
+        Authorize
+      </label>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend class="block mb-2">
+      Shipping
+    </legend>
+
+    <div class="flex items-center mb-2">
+      <input id="shipping-get" type="radio" name="shipping-preference" value="GET_FROM_FILE" class="
+        w-4
+        h-4
+        ml-2
+        border-zinc-300 dark:border-zinc-600
+        focus:ring-2
+        focus:ring-blue-300 dark:focus:ring-blue-600
+        dark:bg-zinc-700
+        dark:focus:bg-blue-600
+      " checked>
+      <label for="shipping-get" class="block ml-2 font-mono">
+        GET_FROM_FILE
+      </label>
+    </div>
+
+    <div class="flex items-center mb-2">
+      <input id="shipping-no" type="radio" name="shipping-preference" value="NO_SHIPPING" class="
+        w-4
+        h-4
+        ml-2
+        border-zinc-300 dark:border-zinc-600
+        focus:ring-2
+        focus:ring-blue-300 dark:focus:ring-blue-600
+        dark:bg-zinc-700
+        dark:focus:bg-blue-600
+      ">
+      <label for="shipping-no" class="block ml-2 font-mono">
+        NO_SHIPPING
+      </label>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend class="block mb-2">
+      Purchase unit info
+    </legend>
+
+    <div class="flex flex-row flex-wrap items-center mb-2">
+      <label for="price" class="
+        ml-2
+        flex-none 
+        basis-1/3
+      ">
+        Price
+      </label>
+      <input id="price" type="number" name="price" class="
+        appearance-none
+        leading-none 
+        ml-2
+        px-2
+        py-1 
+        min-w-0
+        flex-auto
+        basis-1/3
+        font-mono 
+        rounded 
+        border
+        focus:outline-none 
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+      " value="3.14">
+    </div>
+
+    <div class="flex flex-row flex-wrap items-center mb-2">
+      <label for="reference-id" class="
+        ml-2
+        flex-none 
+        basis-1/3
+      ">
+        Reference ID
+      </label> <!-- Reference ID isn't 'type="email"', but if it's labeled as 'type="text"', the CSS from hosted fields styles it in a way I don't like. -->
+      <input id="reference-id" type="email" name="reference-id" class="
+      appearance-none
+      leading-none 
+      ml-2
+      px-2
+      py-1 
+      min-w-0
+      flex-auto
+      basis-1/3
+      font-mono 
+      rounded 
+      border
+      focus:outline-none 
+      bg-zinc-100 dark:bg-zinc-700
+      border-zinc-300 dark:border-zinc-600
+      focus:bg-white dark:focus:bg-zinc-900
+      focus:border-blue-500 dark:focus:border-blue-500
+      " value="default">
+    </div>
+
+    <div class="flex flex-row flex-wrap items-center mb-2">
+      <label for="partner-fee" class="
+        ml-2
+        flex-none 
+        basis-1/3
+      ">
+        Partner fee
+      </label>
+      <input id="partner-fee" type="number" name="partner-fee" value="0" class="
+        appearance-none
+        leading-none 
+        ml-2
+        px-2
+        py-1 
+        min-w-0
+        flex-auto
+        basis-1/3
+        font-mono 
+        rounded 
+        border
+        focus:outline-none 
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+      ">
+    </div>
+  </fieldset>
+  {% block addtional_options %}
+  {% endblock %}
+</form>
+{% endblock %}
+
+{% block right_col %}
+<div id="buttons-tabs">
+  <!-- Buttons for tabs -->
+  <div id="buttons">
+    <ul class="
+      flex
+      flex-wrap
+      text-center
+      border-b
+      text-zinc-600 dark:text-zinc-400
+      border-zinc-300 dark:border-zinc-600
+    ">
+      <li class="mr-2">
+        <a href="#" id="checkout" class="
+          button
+          inline-block
+          p-4
+          rounded-t-lg
+          hover:text-zinc-700 dark:hover:text-zinc-300
+          hover:bg-zinc-100 dark:hover:bg-zinc-700
+        ">Checkout</a>
+      </li>
+      <li class="mr-2">
+        <a href="#" id="api-calls" class="
+          button
+          inline-block
+          p-4
+          rounded-t-lg
+          hover:text-zinc-700 dark:hover:text-zinc-300
+          hover:bg-zinc-100 dark:hover:bg-zinc-700
+        ">API Calls</a>
+      </li>
+    </ul>
+  </div> 
+
+  <!-- Tabs -->
+  <div id="tabs" class="w-100">
+    <div id="tab-checkout" class="tab center hidden">
+      <div class="
+        rounded-b-md
+        w-full
+        top-0
+        p-2
+      ">
+        {% block checkout %}
+        {% endblock %}
+      </div>
+    </div>
+    <div id="tab-api-calls" class="tab center hidden">
+      <div id="api-calls-buttons-tabs">
+        <!-- Buttons for tabs -->
+        <div id="api-calls-buttons">
+          <ul class="
+            flex 
+            flex-wrap 
+            text-center 
+            border-b 
+            text-zinc-500 dark:text-zinc-500
+            border-zinc-300 dark:border-zinc-600
+          ">
+            <li class="mr-2">
+              <a href="#" class="
+                button
+                inline-block
+                p-4
+                rounded-t-lg      
+                cursor-not-allowed
+              " id="access-token">Access Token</a>
+            </li>
+            <li class="mr-2">
+              <a href="#" class="
+                button
+                inline-block
+                p-4
+                rounded-t-lg 
+                cursor-not-allowed
+                hidden
+              " id="create-billing-agreement">Create Billing Agreement</a>
+            </li>
+            <li class="mr-2">
+              <a href="#" class="
+                button
+                inline-block
+                p-4
+                rounded-t-lg 
+                cursor-not-allowed
+              " id="create-order">Create Order</a>
+            </li>
+            <li class="mr-2">
+              <a href="#" class="
+                button
+                inline-block
+                p-4
+                rounded-t-lg 
+                cursor-not-allowed
+                hidden
+              " id="authorize-order">Authorize Order</a>
+            </li>
+            <li class="mr-2">
+              <a href="#" class="
+                button
+                inline-block
+                p-4
+                rounded-t-lg 
+                cursor-not-allowed
+              " id="capture-order">Capture Order</a>
+            </li>
+            <li class="mr-2">
+              <a href="#" class="
+                button
+                inline-block
+                p-4
+                rounded-t-lg 
+                cursor-not-allowed
+              " id="sdk-error">SDK Error</a>
+            </li>
+          </ul>
+        </div> 
+      
+        <!-- Tabs -->
+        <div id="api-calls-tabs" class="font-mono dark:text-zinc-100">
+          <div id="tab-access-token" class="tab center hidden">
+            <div id="api-calls-access-token" class="
+              w-full
+              top-0
+              p-2
+              break-words
+              whitespace-pre-wrap
+              bg-zinc-100 dark:bg-zinc-700
+            "></div>
+          </div>
+          <div id="tab-create-billing-agreement" class="tab center hidden">
+            <div id="api-calls-create-billing-agreement" class="
+              w-full
+              top-0
+              p-2
+              break-words
+              whitespace-pre-wrap
+              bg-zinc-100 dark:bg-zinc-700
+            "></div>
+          </div>
+          <div id="tab-create-order" class="tab center hidden">
+            <div id="api-calls-create-order" class="
+              w-full
+              top-0
+              p-2
+              break-words
+              whitespace-pre-wrap
+              bg-zinc-100 dark:bg-zinc-700
+            "></div>
+          </div>
+          <div id="tab-authorize-order" class="tab center hidden">
+            <div id="api-calls-authorize-order" class="
+              w-full
+              top-0
+              p-2
+              break-words
+              whitespace-pre-wrap
+              bg-zinc-100 dark:bg-zinc-700
+            "></div>
+          </div>
+          <div id="tab-capture-order" class="tab center hidden">
+            <div id="api-calls-capture-order" class="
+              w-full
+              top-0
+              p-2
+              break-words
+              whitespace-pre-wrap
+              bg-zinc-100 dark:bg-zinc-700
+            "></div>
+          </div>
+          <div id="tab-sdk-error" class="tab center hidden">
+            <div id="api-calls-sdk-error" class="
+              w-full
+              top-0
+              p-2
+              break-words
+              whitespace-pre-wrap
+              bg-zinc-100 dark:bg-zinc-700
+            "></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  function getOptions() {
+    var formData = new FormData(document.getElementById('options-form'));
+    var formOptions = Object.fromEntries(formData);
+    formOptions['merchant-id'] = document.getElementById('merchant-id').value;
+    formOptions['partner-id'] = document.getElementById('partner-id').value;
+    return formOptions
+  }
+</script>
+<script>
+  function enableButton(button) {
+    const disabledClassList = ["text-zinc-500", "dark:text-zinc-500", "cursor-not-allowed", "hidden"];
+    const enabledClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"];
+
+    button.classList.remove(...disabledClassList);
+    button.classList.add(...enabledClassList);
+  }
+  function makeActiveButton(buttonList, button) {
+    const activeClassList = ["text-blue-600", "bg-zinc-200/50", "dark:text-blue-500", "dark:bg-zinc-600/50", "active"];
+    const inactiveClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"];
+
+    buttonList.forEach(each => {
+      each.classList.remove(...activeClassList);
+      each.classList.add(...inactiveClassList);
+    });
+
+    button.classList.remove(...inactiveClassList);
+    button.classList.add(...activeClassList);
+  }
+  function makeActiveTab(tabList, tab) {
+    tabList.forEach(each => {each.classList.add("hidden");});
+    tab.classList.remove("hidden");
+  }
+  const root = document.querySelector("#buttons-tabs");
+  const buttonContainer = root.querySelector("#buttons");
+  const tabContainer = root.querySelector("#tabs");
+  const buttonList = buttonContainer.querySelectorAll(".button");
+  const tabList = root.querySelectorAll("#tabs > .tab");
+  buttonContainer.onclick = function(e) {
+    var button = e.target;
+    var buttonId = button.getAttribute("id");
+    if (buttonId != null){
+      makeActiveButton(buttonList, button);
+
+      var tab = document.getElementById("tab-" + buttonId);
+      if (tab === null) {
+        console.log("document.getElementById('tab-" + buttonId + "') found null!");
+      } else {
+        makeActiveTab(tabList, tab);
+      }
+    }
+  }
+  const apiCallsRoot = document.querySelector("#api-calls-buttons-tabs");
+  const apiCallsButtonContainer = apiCallsRoot.querySelector("#api-calls-buttons");
+  const apiCallsTabContainer = apiCallsRoot.querySelector("#api-calls-tabs");
+  const apiCallsButtonList = apiCallsButtonContainer.querySelectorAll(".button");
+  const apiCallsTabList = apiCallsRoot.querySelectorAll("#api-calls-tabs > .tab");
+  apiCallsButtonContainer.onclick = function(e) {
+    var button = e.target;
+    var buttonId = button.getAttribute("id");
+    if (buttonId != null && !button.classList.contains("cursor-not-allowed")) {
+      makeActiveButton(apiCallsButtonList, button);
+
+      var tab = document.getElementById("tab-" + buttonId);
+      if (tab === null) {
+        console.log("document.getElementById('tab-" + buttonId + "') found null!");
+      } else {
+        makeActiveTab(apiCallsTabList, tab);
+      }
+    }
+  }
+  document.querySelector("#checkout").click()
+</script>
+{% endblock %}
