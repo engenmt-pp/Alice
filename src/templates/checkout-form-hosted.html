@@ -55,8 +55,6 @@
 {% endblock %}
 
 {% block checkout %}
-<!-- Import PayPal Javascript SDK with Partner's credentials -->
-<script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&components=hosted-fields" data-partner-attribution-id="{{ bn_code }}" data-client-token="{{ client_token }}"></script>
 
 <!-- Sample CSS styles for demo purposes. You can override these styles to match your web page's branding. -->
 <link rel="stylesheet" type="text/css" href="https://www.paypalobjects.com/webstatic/en_US/developer/docs/css/cardfields.css"/>

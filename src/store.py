@@ -22,31 +22,6 @@ def apple_pie():
     }
 
 
-@bp.route("/form-branded")
-def checkout_form_branded():
-    template = "checkout-form-branded.html"
-    return checkout(template)
-
-
-@bp.route("/form-branded-ba")
-def checkout_form_branded_ba():
-    template = "checkout-form-branded-ba.html"
-    return checkout(template)
-
-
-@bp.route("/form-hosted")
-def checkout_form_hosted_fields():
-    client_token_response = generate_client_token(return_formatted=True)
-    client_token = client_token_response["client_token"]
-    formatted_calls = client_token_response["formatted"]
-    template = "checkout-form-hosted.html"
-    return checkout(
-        template,
-        client_token=client_token,
-        formatted_calls=formatted_calls,
-    )
-
-
 @bp.route("/branded")
 def checkout_branded():
     template = "checkout-branded.html"
@@ -125,7 +100,6 @@ def checkout(
     partner_client_id=None,
     payee_id=None,
     bn_code=None,
-    formatted_calls=None,
     **kwargs,
 ):
     if partner_id is None:
@@ -136,8 +110,6 @@ def checkout(
         payee_id = current_app.config["MERCHANT_ID"]
     if bn_code is None:
         bn_code = current_app.config["PARTNER_BN_CODE"]
-    if formatted_calls is None:
-        formatted_calls = "null"
 
     product = apple_pie()
 
@@ -148,7 +120,6 @@ def checkout(
         partner_client_id=partner_client_id,
         payee_id=payee_id,
         bn_code=bn_code,
-        formatted_calls=formatted_calls,
         **kwargs,
     )
 
