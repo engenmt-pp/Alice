@@ -125,6 +125,7 @@ def checkout(
     partner_client_id=None,
     payee_id=None,
     bn_code=None,
+    formatted_calls=None,
     **kwargs,
 ):
     if partner_id is None:
@@ -135,6 +136,8 @@ def checkout(
         payee_id = current_app.config["MERCHANT_ID"]
     if bn_code is None:
         bn_code = current_app.config["PARTNER_BN_CODE"]
+    if formatted_calls is None:
+        formatted_calls = "null"
 
     product = apple_pie()
 
@@ -145,6 +148,7 @@ def checkout(
         partner_client_id=partner_client_id,
         payee_id=payee_id,
         bn_code=bn_code,
+        formatted_calls=formatted_calls,
         **kwargs,
     )
 
