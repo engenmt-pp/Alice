@@ -111,6 +111,41 @@
 
   document.getElementById("checkout").click()
 </script>
+<script>
+  const params = new Proxy(new URLSearchParams(window.location.search), {
+    get: (searchParams, prop) => searchParams.get(prop),
+  });
+  // Get the value of "some_key" in eg "https://example.com/?some_key=some_value"
+  const intent = params.intent;
+  switch (intent) {
+    case "AUTHORIZE":
+      document.getElementById('intent-authorize').checked = true;
+      showAuth();
+      break;
+    default:
+      document.getElementById('intent-capture').checked = true;
+  }
+  
+  const shippingPreference = params['shipping-preference'];
+  switch (shippingPreference) {
+    case "NO_SHIPPING":
+      document.getElementById('shipping-no').checked = true;
+      break;
+    default:
+      document.getElementById('shipping-get').checked = true;
+  }
+
+  const price = params.price;
+  document.getElementById('price').value = price || 3.14;
+
+  const referenceID = params['reference-id'];
+  document.getElementById('reference-id').value = referenceID || '';
+
+  const partnerFee = params['partner-fee'];
+  document.getElementById('partner-fee').value = partnerFee || 0;
+
+
+</script>
 {% endblock %}
 
 {% block left_col %}
@@ -149,7 +184,7 @@
         focus:ring-blue-300 dark:focus:ring-blue-600
         dark:focus:bg-blue-600
         dark:bg-zinc-700
-      " checked onclick="showReload();hideAuth();">
+      " onclick="showReload();hideAuth();">
       <label for="intent-capture" class="block ml-2">
         Capture
       </label>
@@ -314,7 +349,7 @@
         focus:ring-blue-300 dark:focus:ring-blue-600
         dark:bg-zinc-700
         dark:focus:bg-blue-600
-      " checked>
+      ">
       <label for="shipping-get" class="block ml-2 font-mono">
         GET_FROM_FILE
       </label>

@@ -232,11 +232,11 @@ def random_decimal_string(length):
 
 
 def build_src_val(client_id, merchant_id, intent, additional_query):
-    base = "https://paypal.com/sdk/js"
+    base = "https://www.paypal.com/sdk/js"
     query = {
         "client-id": client_id,
         "merchant-id": merchant_id,
-        "intent": intent,
+        "intent": intent.lower(),
         "currency": "USD",
     }
     if additional_query:

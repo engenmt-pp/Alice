@@ -42,6 +42,7 @@ def checkout_hosted_fields():
 def checkout(
     template,
     additional_query=None,
+    client_token=None,
     **kwargs,
 ):
     partner_id = request.args.get("partner-id", current_app.config["PARTNER_ID"])
@@ -53,7 +54,12 @@ def checkout(
 
     intent = request.args.get("intent", "capture")
     script_tag = build_script_tag(
-        partner_client_id, merchant_id, intent, bn_code, additional_query
+        partner_client_id,
+        merchant_id,
+        intent,
+        bn_code,
+        additional_query,
+        client_token=client_token,
     )
 
     return render_template(

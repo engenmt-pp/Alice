@@ -1,5 +1,7 @@
 from flask import Blueprint, current_app, jsonify, request
 
+import json
+
 from .utils import (
     build_endpoint,
     build_headers,
@@ -147,7 +149,14 @@ def auth_and_capture_order(order_id, form_options):
     """
     auth_response = authorize_order(order_id)
     formatted_dict = {"authorize-order": format_request_and_response(auth_response)}
-    auth_id = auth_response.json["purchase_units"][0]["payments"]["authorizations"][0]
+    try:
+        auth_id = auth_response.json()["purchase_units"][0]["payments"][
+            "authorizations"
+        ][0]["id"]
+    except TypeError as exc:
+        current_app.logger.error(
+            f"Error accessing auth id from response json: {json.dumps(dict(auth_response.json),indent=2)}"
+        )
 
     capture_response = capture_authorization(auth_id, form_options)
     formatted_dict["capture-order"] = format_request_and_response(capture_response)
