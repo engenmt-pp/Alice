@@ -98,7 +98,7 @@
   }
 </script>
 <script>
-  const formattedCalls = {{ formatted_calls|safe }};
+  const formattedCalls = {{ formatted_calls or 'null'|safe }};
   if (formattedCalls !== null) {
     updateAPICalls(formattedCalls);
   }
@@ -109,6 +109,43 @@
 
 {% block left_col %}
 <form id="options-form" class="space-y-4">
+  <fieldset>
+    <legend class="block mb-2">
+      SDK Options (requires reload)
+    </legend>
+
+    <div class="flex items-center mb-2">
+      <input id="intent-capture" type="radio" name="intent" value="CAPTURE" class="
+        w-4
+        h-4
+        ml-2
+        border-zinc-300 dark:border-zinc-600
+        focus:ring-2
+        focus:ring-blue-300 dark:focus:ring-blue-600
+        dark:focus:bg-blue-600
+        dark:bg-zinc-700
+      " checked onclick="hideAuth();">
+      <label for="intent-capture" class="block ml-2">
+        Capture
+      </label>
+    </div>
+
+    <div class="flex items-center mb-2">
+      <input id="intent-authorize" type="radio" name="intent" value="AUTHORIZE" class="w-4
+        w-4
+        h-4
+        ml-2
+        border-zinc-300 dark:border-zinc-600
+        focus:ring-2
+        focus:ring-blue-300 dark:focus:ring-blue-600
+        dark:focus:bg-blue-600
+        dark:bg-zinc-700
+      " onclick="showAuth();">
+      <label for="intent-authorize" class="block ml-2">
+        Authorize
+      </label>
+    </div>
+  </fieldset>
   <fieldset>
     <legend class="block mb-2 font-semibold">Partner/merchant info</legend>
     <div class="flex flex-row flex-wrap items-center mb-2">
