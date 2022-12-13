@@ -229,3 +229,34 @@ def random_decimal_string(length):
     """Return a decimal string of the given length chosen uniformly at random."""
     random_int = random.randrange(10**length, 10 ** (length + 1))
     return f"{random_int}"
+
+
+def build_src_val(client_id, merchant_id, intent, additional_query):
+    base = "https://paypal.com/sdk/js"
+    query = {
+        "client-id": client_id,
+        "merchant-id": merchant_id,
+        "intent": intent,
+        "currency": "USD",
+    }
+    if additional_query:
+        query |= additional_query
+    return f"{base}?{urlencode(query, safe='/,')}"
+
+
+def build_script_tag(
+    client_id,
+    merchant_id,
+    intent,
+    bn_code,
+    additional_query,
+    client_token=None,
+):
+    src_val = build_src_val(client_id, merchant_id, intent, additional_query)
+    attributes = [
+        f"src={src_val}",
+        f"data-partner-attribution-id={bn_code}",
+    ]
+    if client_token is not None:
+        attributes.append(f"data-client-token={client_token}")
+    return " ".join(["<script", *attributes, "></script>"])
