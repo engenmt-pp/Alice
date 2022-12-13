@@ -99,8 +99,11 @@
 </script>
 <script>
   const formattedCalls = {{ formatted_calls|safe }};
-  updateAPICalls(formattedCalls);
-  document.querySelector("#checkout").click()
+  if (formattedCalls !== null) {
+    updateAPICalls(formattedCalls);
+  }
+
+  document.getElementById("checkout").click()
 </script>
 {% endblock %}
 
