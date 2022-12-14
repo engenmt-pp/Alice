@@ -20,7 +20,10 @@ def checkout_branded():
 @bp.route("/branded-ba")
 def checkout_branded_ba():
     template = "checkout-form-branded-ba.html"
-    return checkout(template)
+    additional_query = {
+        "commit": "true",
+    }
+    return checkout(template, additional_query=additional_query)
 
 
 @bp.route("/hosted")
