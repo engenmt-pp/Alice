@@ -33,6 +33,7 @@ def build_purchase_unit(
     reference_id=None,
     include_line_items=True,
     category=None,
+    billingAgreementID=None,
 ):
     price = float(price)
     purchase_unit = {
@@ -45,12 +46,19 @@ def build_purchase_unit(
         purchase_unit["reference_id"] = reference_id
 
     if partner_fee > 0:
-        purchase_unit["payment_instruction"]["platform_fees"] = [
-            {
-                "amount": {"currency_code": "USD", "value": partner_fee},
-                "payee": {"merchant_id": partner_id},
-            }
-        ]
+        purchase_unit["payment_instruction"] = {
+            "platform_fees": [
+                {
+                    "amount": {"currency_code": "USD", "value": partner_fee},
+                    "payee": {"merchant_id": partner_id},
+                }
+            ]
+        }
+
+    if billingAgreementID is not None:
+        purchase_unit["payment_source"] = {
+            "token": {"id": billingAgreementID, "type": "BILLING_AGREEMENT"}
+        }
 
     breakdown = {}
 
@@ -105,9 +113,10 @@ def create_order_router():
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
     """
     form_options = request.get_json()
+    current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
 
     headers = build_headers(return_formatted=True)
-    formatted = {"access-token": headers["formatted"]}
+    formatted = headers["formatted"]
     del headers["formatted"]
 
     create_response = create_order(headers, form_options)
@@ -117,7 +126,7 @@ def create_order_router():
     except KeyError:
         order_id = None
 
-    response_dict = {"formatted": formatted, "orderId": order_id}
+    response_dict = {"formatted": formatted, "orderID": order_id}
     return jsonify(response_dict)
 
 
@@ -134,13 +143,17 @@ def create_order(headers, form_options):
     merchant_id = form_options["merchant-id"]
     price = form_options["price"]
     include_shipping_options = shipping_preference != "NO_SHIPPING"
+    partner_fee = float(form_options["partner-fee"])
     category = form_options["category"]
+    billingAgreementID = form_options.get("ba-id")
     purchase_unit = build_purchase_unit(
         partner_id=partner_id,
         merchant_id=merchant_id,
         price=price,
         include_shipping_options=include_shipping_options,
+        partner_fee=partner_fee,
         category=category,
+        billingAgreementID=billingAgreementID,
     )
 
     intent = form_options["intent"]

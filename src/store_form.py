@@ -20,10 +20,10 @@ def checkout_branded():
 @bp.route("/branded-ba")
 def checkout_branded_ba():
     template = "checkout-form-branded-ba.html"
-    additional_query = {
-        "commit": "true",
-    }
-    return checkout(template, additional_query=additional_query)
+    intent = "tokenize"
+    # intent = "capture"
+    additional_query = {"commit": "true", "vault": "true"}
+    return checkout(template, intent=intent, additional_query=additional_query)
 
 
 @bp.route("/hosted")
@@ -55,7 +55,7 @@ def checkout(
     merchant_id = request.args.get("merchant-id", current_app.config["MERCHANT_ID"])
     bn_code = request.args.get("bn-code", current_app.config["PARTNER_BN_CODE"])
 
-    intent = request.args.get("intent", "capture")
+    intent = request.args.get("intent", kwargs.get("intent", "capture"))
     script_tag = build_script_tag(
         partner_client_id,
         merchant_id,
