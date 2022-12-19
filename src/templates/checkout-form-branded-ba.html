@@ -8,18 +8,15 @@
   </div>
 </div>
 
-<!-- Import PayPal Javascript SDK with Partner's credentials -->
-<script src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ partner_id }}&currency=USD&intent=tokenize&commit=true&vault=true&disable-funding=card,credit" data-partner-attribution-id="{{ bn_code }}"></script>
-
 <script>
   let billingAgreementToken;
+  let billingAgreementID;
+  let options;
+  let orderID;
   function initPayPalButton() {
     paypal.Buttons({
-      style: {
-        label: 'donate',
-      },
       createBillingAgreement: function (data, actions) {
-        console.log("Creating billing agreement...")
+        console.log("Creating billing agreement token...")
         return fetch('/api/billing-form/create-billing-agreement-token', {
           headers: {'Content-Type': 'application/json'},
           method: 'POST',
@@ -27,8 +24,29 @@
           return res.json();
         }).then(function(createData) {
           updateAPICalls(createData.formatted);
-          billingAgreementToken = createData.tokenId;
-          return billingAgreementToken;
+          if (createData.tokenId === null) {
+            alert("No BA token ID returned! Is CIB enabled on both the API caller and merchant accounts?")
+          } else {
+            billingAgreementToken = createData.tokenId;
+            document.getElementById('ba-token').value = billingAgreementToken;
+            return billingAgreementToken;
+          }
+        })
+      },
+      onApprove: function (data, actions) {
+        console.log("Creating billing agreement...")
+        options = getOptions();
+        return fetch('/api/billing-form/create-billing-agreement', {
+          headers: {'Content-Type': 'application/json'},
+          method: 'POST',
+          body: JSON.stringify(options),
+        }).then(function(res) {
+          return res.json();
+        }).then(function(createData) {
+          updateAPICalls(createData.formatted);
+          billingAgreementID = createData.billingAgreementID;
+          document.getElementById('ba-id').value = billingAgreementID;
+          return billingAgreementID;
         })
       },
       onError: function (data, actions) {

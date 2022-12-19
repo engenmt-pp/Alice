@@ -104,7 +104,7 @@
 </div>
 
 <script>
-  let orderId;
+  let orderID;
   let options;
   if (paypal.HostedFields.isEligible()) {
     // Renders card fields
@@ -122,8 +122,8 @@
           return res.json();
         }).then(function(createData) {
           updateAPICalls(createData.formatted);
-          orderId = createData.orderId;
-          return orderId;
+          orderID = createData.orderID;
+          return orderID;
         });
       },
       styles: {

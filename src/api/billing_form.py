@@ -39,16 +39,37 @@ def default_billing_agreement():
 @bp.route("/create-billing-agreement-token", methods=("POST",))
 def create_billing_agreement_token():
     endpoint = build_endpoint("/v1/billing-agreements/agreement-tokens")
-
-    headers = build_headers(return_formatted=True)
-    formatted = {"access-token": headers["formatted"]}
+    headers = build_headers(include_auth_assertion=True, return_formatted=True)
+    formatted = headers["formatted"]
     del headers["formatted"]
 
     data = default_billing_agreement()
 
     create_response = log_and_request("POST", endpoint, headers=headers, data=data)
+    formatted["create-billing-agreement-token"] = format_request_and_response(
+        create_response
+    )
+
+    token_id = create_response.json().get("token_id")
+
+    response_dict = {"formatted": formatted, "tokenId": token_id}
+    return jsonify(response_dict)
+
+
+@bp.route("/create-billing-agreement", methods=("POST",))
+def create_billing_agreement():
+    endpoint = build_endpoint("/v1/billing-agreements/agreements")
+    headers = build_headers(include_auth_assertion=True, return_formatted=True)
+    formatted = headers["formatted"]
+    del headers["formatted"]
+
+    ba_token = request.get_json()["ba-token"]
+    data = {"token_id": ba_token}
+
+    create_response = log_and_request("POST", endpoint, headers=headers, data=data)
     formatted["create-billing-agreement"] = format_request_and_response(create_response)
 
-    token_id = create_response.json()["token_id"]
-    response_dict = {"formatted": formatted, "tokenId": token_id}
+    ba_id = create_response.json().get("id")
+
+    response_dict = {"formatted": formatted, "billingAgreementID": ba_id}
     return jsonify(response_dict)

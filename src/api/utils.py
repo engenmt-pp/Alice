@@ -41,7 +41,16 @@ def log_and_request(method, endpoint, **kwargs):
     response = methods_dict[method](endpoint, **kwargs)
 
     headers_sent = dict(response.request.headers)
-    current_app.logger.debug(f"Headers sent: {json.dumps(headers_sent, indent=2)}")
+    try:
+        current_app.logger.debug(f"Headers sent: {json.dumps(headers_sent, indent=2)}")
+    except TypeError:
+        headers_sent_copy = dict(headers_sent)
+        auth_assertion_str = str(headers_sent["PayPal-Auth-Assertion"], "utf-8")
+        headers_sent_copy["PayPal-Auth-Assertion"] = f"b'{auth_assertion_str}'"
+        current_app.logger.debug(
+            f"Headers* sent: {json.dumps(headers_sent_copy, indent=2)}"
+        )
+
     try:
         response_str = json.dumps(response.json(), indent=2)
     except json.decoder.JSONDecodeError:
@@ -128,11 +137,14 @@ def build_headers(
             bn_code = current_app.config["PARTNER_BN_CODE"]
         headers["PayPal-Partner-Attribution-Id"] = bn_code
 
+    formatted = dict()
     if include_auth_assertion:
-        headers["PayPal-Auth-Assertion"] = build_auth_assertion()
+        auth_assertion = build_auth_assertion()
+        headers["PayPal-Auth-Assertion"] = auth_assertion
 
     if return_formatted:
-        headers["formatted"] = access_token_response["formatted"]
+        formatted = {"access-token": access_token_response["formatted"]}
+        headers["formatted"] = formatted
 
     return headers
 
@@ -157,14 +169,29 @@ def build_auth_assertion(client_id=None, merchant_id=None):
     return b".".join([header_b64, payload_b64, signature])
 
 
-def format_request_and_response(response):
-    """Format an HTTP request and response for output."""
+def format_request(request):
+    headers_sent_whitelist = [
+        "Authorization",
+        "Content-Type",
+        "PayPal-Auth-Assertion",
+        "PayPal-Partner-Attribution-Id",
+        "PayPal-Request-Id",
+        "Prefer",
+    ]
+    headers_sent = {
+        key: value
+        for key, value in request.headers.items()
+        if key in headers_sent_whitelist
+    }
+    try:
+        headers_sent_str = json.dumps(headers_sent, indent=2)
+    except TypeError:
+        headers_sent_copy = dict(headers_sent)
+        auth_assertion_str = str(headers_sent["PayPal-Auth-Assertion"], "utf-8")
+        headers_sent_copy["PayPal-Auth-Assertion"] = f"b'{auth_assertion_str}'"
+        headers_sent_str = json.dumps(headers_sent_copy, indent=2)
 
-    method = response.request.method
-    url = response.request.url
-
-    headers_sent = dict(response.request.headers)
-    body_sent = response.request.body
+    body_sent = request.body
     if body_sent is not None:
         try:
             body_sent = json.loads(body_sent)
@@ -172,25 +199,37 @@ def format_request_and_response(response):
             current_app.logger.error(
                 f"Exception occurred during json.loads('{body_sent}'): ({type(exc)}) {exc}"
             )
-            pass
 
-    formatted_request = "\n".join(
+    method = request.method
+    url = request.url
+    return "\n".join(
         [
             f"Sending {method} request to {url}:",
-            f"Headers sent: {json.dumps(headers_sent, indent=2)}",
+            f"Headers sent: {headers_sent_str}",
             f"Body sent: {json.dumps(body_sent, indent=2)}",
         ]
     )
 
-    response_code = response.status_code
-    headers_received = dict(response.headers)
-    debug_id = headers_received.get("Paypal-Debug-Id")
+
+def format_response(response):
+    headers_received_whitelist = [
+        "Content-Type",
+        "Date",
+        "Paypal-Debug-Id",
+    ]
+    headers_received = {
+        key: value
+        for key, value in response.headers.items()
+        if key in headers_received_whitelist
+    }
     try:
         body_received = response.json()
     except json.decoder.JSONDecodeError:
         body_received = response.text
 
-    formatted_response = "\n".join(
+    response_code = response.status_code
+    debug_id = headers_received.get("Paypal-Debug-Id")
+    return "\n".join(
         [
             f"Response:",
             f"Status: {response_code}",
@@ -200,6 +239,11 @@ def format_request_and_response(response):
         ]
     )
 
+
+def format_request_and_response(response):
+    """Format an HTTP request and response for output."""
+    formatted_request = format_request(response.request)
+    formatted_response = format_response(response)
     return "\n\n".join([formatted_request, formatted_response])
 
 
@@ -254,8 +298,8 @@ def build_script_tag(
 ):
     src_val = build_src_val(client_id, merchant_id, intent, additional_query)
     attributes = [
-        f"src={src_val}",
-        f"data-partner-attribution-id={bn_code}",
+        f"src='{src_val}'",
+        f"data-partner-attribution-id='{bn_code}'",
     ]
     if client_token is not None:
         attributes.append(f"data-client-token={client_token}")

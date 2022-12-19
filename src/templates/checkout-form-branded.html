@@ -2,14 +2,14 @@
 
 {% block checkout %}
 <!-- Empty (for now) button container -->
-<div class="smart-button-container", id="smart-button-container">
+<div class="smart-button-container" id="smart-button-container">
   <div style="text-align: center;">
     <div id="paypal-button-container"></div>
   </div>
 </div>
 
 <script>
-  let orderId;
+  let orderID;
   let options;
   let fundingSource;
   function initPayPalButton() {
@@ -30,8 +30,8 @@
           return res.json();
         }).then(function(createData) {
           updateAPICalls(createData.formatted);
-          orderId = createData.orderId;
-          return orderId;
+          orderID = createData.orderID;
+          return orderID;
         })
       },
       onApprove: function(data, actions) {
