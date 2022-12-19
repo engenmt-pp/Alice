@@ -21,7 +21,6 @@ def checkout_branded():
 def checkout_branded_ba():
     template = "checkout-form-branded-ba.html"
     intent = "tokenize"
-    # intent = "capture"
     additional_query = {"commit": "true", "vault": "true"}
     return checkout(template, intent=intent, additional_query=additional_query)
 

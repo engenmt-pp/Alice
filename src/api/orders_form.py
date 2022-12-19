@@ -33,7 +33,7 @@ def build_purchase_unit(
     reference_id=None,
     include_line_items=True,
     category=None,
-    billingAgreementID=None,
+    billing_agreement_id=None,
 ):
     price = float(price)
     purchase_unit = {
@@ -55,9 +55,9 @@ def build_purchase_unit(
             ]
         }
 
-    if billingAgreementID is not None:
+    if billing_agreement_id is not None:
         purchase_unit["payment_source"] = {
-            "token": {"id": billingAgreementID, "type": "BILLING_AGREEMENT"}
+            "token": {"id": billing_agreement_id, "type": "BILLING_AGREEMENT"}
         }
 
     breakdown = {}
@@ -145,7 +145,7 @@ def create_order(headers, form_options):
     include_shipping_options = shipping_preference != "NO_SHIPPING"
     partner_fee = float(form_options["partner-fee"])
     category = form_options["category"]
-    billingAgreementID = form_options.get("ba-id")
+    billing_agreement_id = form_options.get("ba-id")
     purchase_unit = build_purchase_unit(
         partner_id=partner_id,
         merchant_id=merchant_id,
@@ -153,7 +153,7 @@ def create_order(headers, form_options):
         include_shipping_options=include_shipping_options,
         partner_fee=partner_fee,
         category=category,
-        billingAgreementID=billingAgreementID,
+        billing_agreement_id=billing_agreement_id,
     )
 
     intent = form_options["intent"]
