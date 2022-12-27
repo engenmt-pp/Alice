@@ -5,8 +5,9 @@
   function getOptions() {
     var formData = new FormData(document.getElementById('options-form'));
     var formOptions = Object.fromEntries(formData);
-    formOptions['merchant-id'] = document.getElementById('merchant-id').value;
     formOptions['partner-id'] = document.getElementById('partner-id').value;
+    formOptions['client-id'] = document.getElementById('partner-client-id').value;
+    formOptions['merchant-id'] = document.getElementById('merchant-id').value;
     return formOptions
   }
   function copyToClipboard(id) {
@@ -55,12 +56,6 @@
   function makeActiveTab(tabList, tab) {
     tabList.forEach(each => {each.classList.add("hidden");});
     tab.classList.remove("hidden");
-  }
-  function showReload() {
-    let reloadButton = document.getElementById('reload');
-    reloadButton.classList.remove("hidden");
-    let checkout = document.getElementById('tab-checkout');
-    checkout.classList.add("opacity-25");
   }
 </script>
 <script>
@@ -112,55 +107,98 @@
   document.getElementById("checkout").click()
 </script>
 <script>
-  // Extract querystring parameters and populate form accordingly.
-  const params = new Proxy(new URLSearchParams(window.location.search), {
-    get: (searchParams, prop) => searchParams.get(prop),
-  });
-  const intent = params.intent;
-  switch (intent) {
-    case "AUTHORIZE":
-      document.getElementById('intent-authorize').checked = true;
-      showAuth();
-      break;
-    default:
-      document.getElementById('intent-capture').checked = true;
+  function populateForm() {
+    // Extract querystring parameters and populate form accordingly.
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+      get: (searchParams, prop) => searchParams.get(prop),
+    });
+    const intent = params.intent;
+    switch (intent) {
+      case "AUTHORIZE":
+        document.getElementById('intent-authorize').checked = true;
+        showAuth();
+        break;
+      default:
+        document.getElementById('intent-capture').checked = true;
+    }
+    
+    const shippingPreference = params['shipping-preference'];
+    switch (shippingPreference) {
+      case "NO_SHIPPING":
+        document.getElementById('shipping-no').checked = true;
+        break;
+      default:
+        document.getElementById('shipping-get').checked = true;
+    }
+
+    const price = params.price;
+    document.getElementById('price').value = price || 3.14;
+
+    const referenceID = params['reference-id'];
+    document.getElementById('reference-id').value = referenceID || '';
+
+    const partnerFee = params['partner-fee'];
+    document.getElementById('partner-fee').value = partnerFee || 0;
+
+    const category = params['category'];
+    switch (category) {
+      case "PHYSICAL_GOODS":
+        document.getElementById('category-physical').checked = true;
+        break;
+      case "DIGITAL_GOODS":
+        document.getElementById('category-digital').checked = true;
+        break;
+      case "DONATION":
+        document.getElementById('category-donation').checked = true;
+        break;
+      default:
+        document.getElementById('category-unspecified').checked = true;
+    }
+
+    const BAToken = params['ba-token'];
+    document.getElementById('ba-token').value = BAToken || '';
   }
-  
-  const shippingPreference = params['shipping-preference'];
-  switch (shippingPreference) {
-    case "NO_SHIPPING":
-      document.getElementById('shipping-no').checked = true;
-      break;
-    default:
-      document.getElementById('shipping-get').checked = true;
+  populateForm()
+</script>
+<script>
+  function buildScriptTag() {
+    const options = getOptions()
+    const url = new URL('https://www.paypal.com/sdk/js')
+    url.searchParams.append("client-id", options['client-id'])
+    url.searchParams.append("merchant-id", options['merchant-id'])
+    url.searchParams.append("intent", options['intent'].toLowerCase())
+    url.searchParams.append("currency", "USD")
+    url.searchParams.append("commit", true)
+    url.searchParams.append("enable-funding", "venmo")
+
+    const oldScriptElement = document.getElementById('paypal-js-sdk')
+
+    const newScriptElement = document.createElement('script')
+    newScriptElement.id = 'paypal-js-sdk'
+    newScriptElement.src = url.href
+    if (oldScriptElement.hasAttribute('data-client-token')) {
+      const dataClientToken = oldScriptElement.getAttribute('data-client-token')
+      newScriptElement.setAttribute('data-client-token', dataClientToken)
+    }
+    const BNCode = oldScriptElement.getAttribute('data-partner-attribution-id')
+    newScriptElement.setAttribute('data-partner-attribution-id', BNCode);
+
+    oldScriptElement.replaceWith(newScriptElement)
   }
-
-  const price = params.price;
-  document.getElementById('price').value = price || 3.14;
-
-  const referenceID = params['reference-id'];
-  document.getElementById('reference-id').value = referenceID || '';
-
-  const partnerFee = params['partner-fee'];
-  document.getElementById('partner-fee').value = partnerFee || 0;
-
-  const category = params['category'];
-  switch (category) {
-    case "PHYSICAL_GOODS":
-      document.getElementById('category-physical').checked = true;
-      break;
-    case "DIGITAL_GOODS":
-      document.getElementById('category-digital').checked = true;
-      break;
-    case "DONATION":
-      document.getElementById('category-donation').checked = true;
-      break;
-    default:
-      document.getElementById('category-unspecified').checked = true;
+  function addOnChange() {
+    const elementIDs = [
+      'intent-capture',
+      'intent-authorize',
+    ]
+    for (const elementID of elementIDs) {
+      const element = document.getElementById(elementID)
+      element.addEventListener('change', (event) => {
+        buildScriptTag()
+        reloadButtons()
+      })
+    }
   }
-
-  const BAToken = params['ba-token'];
-  document.getElementById('ba-token').value = BAToken || '';
+  // addOnChange()
 </script>
 {% endblock %}
 
@@ -169,7 +207,7 @@
   <fieldset>
     <legend class="inline-block mb-2">
       SDK Options (requires reload)
-      <input id="reload" value="Reload" type="submit" class="
+      <input id="save" value="save" type="submit" class="
       py-1
       px-2
       mx-1
@@ -200,7 +238,7 @@
           focus:ring-blue-300 dark:focus:ring-blue-600
           dark:focus:bg-blue-600
           dark:bg-zinc-700
-        " onclick="showReload();hideAuth();">
+        " onclick="hideAuth();reloadButtons()">
         <label for="intent-capture" class="block">
           Capture
         </label>
@@ -215,7 +253,7 @@
         focus:ring-blue-300 dark:focus:ring-blue-600
         dark:focus:bg-blue-600
         dark:bg-zinc-700
-        " onclick="showReload();showAuth();">
+        " onclick="showAuth();reloadButtons()">
         <label for="intent-authorize" class="block">
           Authorize
         </label>

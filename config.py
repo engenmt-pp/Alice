@@ -23,7 +23,7 @@ class ProductionConfig(Config):
 
 
 class TestingConfig(SandboxConfig):
-    DEBUG = False
+    DEBUG = True
 
 
 class PartnerOneConfig(TestingConfig):
