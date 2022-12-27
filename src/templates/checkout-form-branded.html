@@ -10,24 +10,10 @@
   let orderID;
   let options;
   let fundingSource;
-  function resetWrapper() {
-    const containerID = 'paypal-button-container'
-    let wrapper = document.getElementById('paypal-button-wrapper')
-    wrapper.innerHTML = ""
-    
-    const div = document.createElement('div')
-    div.setAttribute('id', containerID)
-    wrapper.appendChild(div)
-    // let oldContainer = document.getElementById(containerID)
-    
-    // const newContainer = document.createElement('div')
-    // newContainer.setAttribute('id', containerID)
-    // oldContainer.replaceWith(newContainer)
-  }
-  function buttonClosure() {
+  function checkoutClosure() {
     let buttons;
-    function loadButtons() { 
-      buttons = paypal.Buttons({
+    async function loadCheckout() { 
+      buttons = await paypal.Buttons({
         onClick: function (data) {
           fundingSource = data.fundingSource;
           console.log("fundingSource = " + fundingSource)
@@ -65,25 +51,22 @@
           })
         },
       })
-      buttons
+      return buttons
       .render('#paypal-button-container')
-      .then(() => {
-        console.log("Just rendered!")
-      })
-      .catch((e) => {
-        console.log("Caught error: " + e)
+      .catch((err) => {
+        console.log("Caught an error while rendering checkout: " + err)
       })
     }
     
-    function reloadButtonsFunc() {
-      buttons.close()
-      buildScriptTag()
-      setTimeout(resetWrapper, 2000)
-      setTimeout(loadButtons, 4000)
+    async function reloadMyCheckout() {
+      await buttons.close()
+      await buildScriptTag()
+      await resetCheckoutContainer()
+      await new Promise((resolve, reject) => setTimeout(loadCheckout, 1000))
     }
-    loadButtons()
-    return reloadButtonsFunc
+    loadCheckout()
+    return reloadMyCheckout
   }
-  const reloadButtons = buttonClosure()
+  const reloadCheckout = checkoutClosure()
 </script>
 {% endblock %}
