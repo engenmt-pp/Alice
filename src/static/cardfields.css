@@ -93,14 +93,14 @@ input[type=text][name|=card], select, textarea {
     color:#3a3a3a;
     font-family:helvetica, tahoma, calibri, sans-serif;
 }
-/* input[type=submit] {
+#submit {
     background-color: #4CAF50;
     color: white;
     padding: 12px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-} */
+}
 .message_container {
     border-radius: 5px;
     background:#FFFFFF;
