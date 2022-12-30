@@ -12,7 +12,7 @@ def checkout_branded():
     template = "checkout-form-branded.html"
     additional_query = {
         "commit": "true",
-        "enable-funding": "venmo,paylater",
+        "enable-funding": "venmo",
     }
     return checkout(template, additional_query=additional_query)
 

@@ -7,9 +7,9 @@
 <script>
   function getContingencies() {
     if (document.getElementById('3DS-always').checked) {
-      return ["SCA_ALWAYS"];
+      return ["SCA_ALWAYS"]
     } else {
-      return ["SCA_WHEN_REQUIRED"];
+      return ["SCA_WHEN_REQUIRED"]
     }
   }
 </script>
@@ -57,7 +57,7 @@
 {% block checkout %}
 
 <!-- Sample CSS styles for demo purposes. You can override these styles to match your web page's branding. -->
-<link rel="stylesheet" type="text/css" href="https://www.paypalobjects.com/webstatic/en_US/developer/docs/css/cardfields.css"/>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cardfields.css') }}"/>
 
 <!-- Advanced credit and debit card payments form-->
 <div class="card_container">
@@ -104,101 +104,102 @@
 </div>
 
 <script>
-  let orderID;
-  let options;
-  if (paypal.HostedFields.isEligible()) {
-    // Renders card fields
-    paypal.HostedFields.render({
-      // Call your server to set up the transaction
-      createOrder: function () {
-        console.log("Getting form info...");
-        options = getOptions();
-        console.log("Creating the order...");
-        return fetch('/api/orders-form/create', {
-          headers: {'Content-Type': 'application/json'},
-          method: 'POST',
-          body: JSON.stringify(options)
-        }).then(function(res) {
-          return res.json();
-        }).then(function(createData) {
-          updateAPICalls(createData.formatted);
-          orderID = createData.orderID;
-          return orderID;
-        });
-      },
-      styles: {
-        '.valid': {'color': 'green'},
-        '.invalid': {'color': 'red'}
-      },
-
-      fields: {
-        number: {
-          selector: "#card-number",
-          placeholder: "4111 1111 1111 1111"
-        },
-        cvv: {
-          selector: "#cvv",
-          placeholder: "123"
-        },
-        expirationDate: {
-          selector: "#expiration-date",
-          placeholder: "MM/YY"
-        }
-      }
-    }).then(function (cardFields) {
-      document.querySelector("#card-form").addEventListener('submit', (event) => {
-        event.preventDefault();
-
-        cardFields.submit({
-          // Cardholder's first and last name
-          cardholderName: document.getElementById('card-holder-name').value,
-          // Billing Address
-          billingAddress: {
-            streetAddress: document.getElementById('card-billing-address-street').value,
-            extendedAddress: document.getElementById('card-billing-address-unit').value,
-            region: document.getElementById('card-billing-address-state').value,
-            locality: document.getElementById('card-billing-address-city').value,
-            postalCode: document.getElementById('card-billing-address-zip').value,
-            countryCodeAlpha2: document.getElementById('card-billing-address-country').value
-          },
-          // Trigger 3D Secure authentication
-          contingencies: getContingencies()
-        }).then(function () {
-          fetch('/api/orders-form/capture/' + orderId, {
+  let orderID
+  let options
+  function loadCheckout() { 
+    if (paypal.HostedFields.isEligible()) {
+      paypal.HostedFields.render({
+        createOrder: function() {
+          console.log("Getting form info...")
+          options = getOptions()
+          console.log("Creating the order...")
+          return fetch('/api/orders-form/create', {
             headers: {'Content-Type': 'application/json'},
             method: 'POST',
             body: JSON.stringify(options)
           }).then(function(res) {
-            return res.json();
-          }).then(function (captureData) {
-            console.log("captureData: " + JSON.stringify(captureData));
-            updateAPICalls(captureData.formatted);
+            return res.json()
+          }).then(function(createData) {
+            updateAPICalls(createData.formatted)
+            orderID = createData.orderID
+            return orderID
+          })
+        },
+        styles: {
+          '.valid': {'color': 'green'},
+          '.invalid': {'color': 'red'}
+        },
+        fields: {
+          number: {
+            selector: "#card-number",
+            placeholder: "4111 1111 1111 1111"
+          },
+          cvv: {
+            selector: "#cvv",
+            placeholder: "123"
+          },
+          expirationDate: {
+            selector: "#expiration-date",
+            placeholder: "MM/YY"
+          }
+        }
+      }).then(function (cardFields) {
+        document.querySelector("#card-form").addEventListener('submit', (event) => {
+          event.preventDefault()
 
-            var errorDetail = Array.isArray(captureData.details) && captureData.details[0];
+          cardFields.submit({
+            // Cardholder's first and last name
+            cardholderName: document.getElementById('card-holder-name').value,
+            // Billing Address
+            billingAddress: {
+              streetAddress: document.getElementById('card-billing-address-street').value,
+              extendedAddress: document.getElementById('card-billing-address-unit').value,
+              region: document.getElementById('card-billing-address-state').value,
+              locality: document.getElementById('card-billing-address-city').value,
+              postalCode: document.getElementById('card-billing-address-zip').value,
+              countryCodeAlpha2: document.getElementById('card-billing-address-country').value.toUpperCase()
+            },
+            // Trigger 3D Secure authentication
+            contingencies: getContingencies()
+          }).then(function() {
+            return fetch('/api/orders-form/capture/' + orderID, {
+              headers: {'Content-Type': 'application/json'},
+              method: 'POST',
+              body: JSON.stringify(options)
+            })
+          }).then(function(res) {
+            return res.json()
+          }).then(function (captureData) {
+            console.log("captureData: " + JSON.stringify(captureData))
+            updateAPICalls(captureData.formatted)
+
+            var errorDetail = Array.isArray(captureData.details) && captureData.details[0]
             if (errorDetail && errorDetail.issue === 'INSTRUMENT_DECLINED') {
               return actions.restart(); // Recoverable state, per:
               // https://developer.paypal.com/docs/checkout/integration-features/funding-failure/
             }
-
             if (errorDetail) {
-                var msg = 'Sorry, your transaction could not be processed.';
-                if (errorDetail.description) msg += '\n\n' + errorDetail.description;
-                if (captureData.debug_id) msg += ' (' + captureData.debug_id + ')';
+                var msg = 'Sorry, your transaction could not be processed.'
+                if (errorDetail.description) msg += '\n\n' + errorDetail.description
+                if (captureData.debug_id) msg += ' (' + captureData.debug_id + ')'
                 return alert(msg); // Show a failure message
             }
+          }).catch(function (err) {
+            const errText = JSON.stringify(err, null, 4)
+            const formattedCalls = {"sdk-error": errText}
+            updateAPICalls(formattedCalls)
+            alert('Payment could not be captured! ' + errText)
           })
-        }).catch(function (err) {
-          let errText = JSON.stringify(err, null, 4);
-          let formattedCalls = {"sdk-error": errText};
-          updateAPICalls(formattedCalls);
-          alert('Payment could not be captured! ' + errText);
-        });
-      });
-    });
-  } else {
-    alert('Partner or merchant is not eligible for ACDC!');
-    // Hides card fields if the merchant isn't eligible
-    document.querySelector("#card-form").style = 'display: none';
+        })
+      }).catch((err) => {
+        console.log("Caught an error while rendering checkout:" + err)
+      })
+    } else {
+      alert('Partner or merchant is not eligible for ACDC!')
+      // Hides card fields if the merchant isn't eligible
+      document.querySelector("#card-form").style = 'display: none'
+    }
   }
+  loadCheckout()
 </script>
 {% endblock %}

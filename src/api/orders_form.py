@@ -145,7 +145,7 @@ def create_order(headers, form_options):
     include_shipping_options = shipping_preference != "NO_SHIPPING"
     partner_fee = float(form_options["partner-fee"])
     category = form_options["category"]
-    billing_agreement_id = form_options.get("ba-id")
+    billing_agreement_id = form_options.get("ba-id") or None  # Coerce to None if empty!
     purchase_unit = build_purchase_unit(
         partner_id=partner_id,
         merchant_id=merchant_id,
