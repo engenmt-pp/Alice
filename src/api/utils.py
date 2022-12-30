@@ -298,6 +298,7 @@ def build_script_tag(
 ):
     src_val = build_src_val(client_id, merchant_id, intent, additional_query)
     attributes = [
+        f"id='paypal-js-sdk'",
         f"src='{src_val}'",
         f"data-partner-attribution-id='{bn_code}'",
     ]

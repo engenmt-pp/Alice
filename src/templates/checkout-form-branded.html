@@ -2,56 +2,71 @@
 
 {% block checkout %}
 <!-- Empty (for now) button container -->
-<div class="smart-button-container" id="smart-button-container">
-  <div style="text-align: center;">
-    <div id="paypal-button-container"></div>
-  </div>
+<div id="paypal-button-wrapper" class="text-center">
+  <div id="paypal-button-container"></div>
 </div>
 
 <script>
   let orderID;
   let options;
   let fundingSource;
-  function initPayPalButton() {
-    paypal.Buttons({
-      onClick: function (data) {
-        fundingSource = data.fundingSource;
-        console.log("fundingSource = " + fundingSource);
-      },
-      createOrder: function (data, actions) {
-        console.log("Getting form info...");
-        options = getOptions();
-        console.log("Creating the order...")
-        return fetch('/api/orders-form/create', {
-          headers: {'Content-Type': 'application/json'},
-          method: 'POST',
-          body: JSON.stringify(options)
-        }).then(function(res) {
-          return res.json();
-        }).then(function(createData) {
-          updateAPICalls(createData.formatted);
-          orderID = createData.orderID;
-          return orderID;
-        })
-      },
-      onApprove: function(data, actions) {
-        return fetch('/api/orders-form/capture/' + data.orderID, {
-          headers: {'Content-Type': 'application/json'},
-          method: 'POST',
-          body: JSON.stringify(options)
-        }).then(function(res) {
-          return res.json();
-        }).then(function(captureData) {
-          console.log("captureData: " + JSON.stringify(captureData));
-          updateAPICalls(captureData.formatted);
-          // Your server response structure and key names are what you choose
-          if (captureData.error === 'INSTRUMENT_DECLINED') {
-            return actions.restart();
-          }
-        })
-      },
-    }).render('#paypal-button-container');
+  function checkoutClosure() {
+    let buttons;
+    async function loadCheckout() { 
+      buttons = await paypal.Buttons({
+        onClick: function (data) {
+          fundingSource = data.fundingSource;
+          console.log("fundingSource = " + fundingSource)
+        },
+        createOrder: function (data, actions) {
+          console.log("Getting form info...")
+          options = getOptions()
+          console.log("Creating the order...")
+          return fetch('/api/orders-form/create', {
+            headers: {'Content-Type': 'application/json'},
+            method: 'POST',
+            body: JSON.stringify(options)
+          }).then(function(res) {
+            return res.json()
+          }).then(function(createData) {
+            updateAPICalls(createData.formatted)
+            orderID = createData.orderID
+            return orderID;
+          })
+        },
+        onApprove: function(data, actions) {
+          return fetch('/api/orders-form/capture/' + data.orderID, {
+            headers: {'Content-Type': 'application/json'},
+            method: 'POST',
+            body: JSON.stringify(options)
+          }).then(function(res) {
+            return res.json();
+          }).then(function(captureData) {
+            console.log("captureData: " + JSON.stringify(captureData))
+            updateAPICalls(captureData.formatted)
+            // Your server response structure and key names are what you choose
+            if (captureData.error === 'INSTRUMENT_DECLINED') {
+              return actions.restart()
+            }
+          })
+        },
+      })
+      return buttons
+      .render('#paypal-button-container')
+      .catch((err) => {
+        console.log("Caught an error while rendering checkout: " + err)
+      })
+    }
+    
+    async function reloadMyCheckout() {
+      await buttons.close()
+      await buildScriptTag()
+      await resetCheckoutContainer()
+      await new Promise((resolve, reject) => setTimeout(loadCheckout, 2000))
+    }
+    loadCheckout()
+    return reloadMyCheckout
   }
-  initPayPalButton();
+  const reloadCheckout = checkoutClosure()
 </script>
 {% endblock %}
