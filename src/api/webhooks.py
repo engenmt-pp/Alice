@@ -57,7 +57,7 @@ def listener():
     resp = verify_webhook_signature(verification_dict)
 
     if resp.get("verification_status") == "SUCCESS":
-        print("Verification successful!")
+        current_app.logger.info("Verification successful!")
     else:
-        print("Verification unsuccessful. Response dict:")
-        print(json.dumps(resp, indent=2))
+        current_app.logger.error("Verification unsuccessful. Response dict:")
+        current_app.logger.error(json.dumps(resp, indent=2))
