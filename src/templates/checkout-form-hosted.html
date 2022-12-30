@@ -164,7 +164,7 @@
           // Trigger 3D Secure authentication
           contingencies: getContingencies()
         }).then(function () {
-          fetch('/api/orders-form/capture/' + orderId, {
+          fetch('/api/orders-form/capture/' + orderID, {
             headers: {'Content-Type': 'application/json'},
             method: 'POST',
             body: JSON.stringify(options)

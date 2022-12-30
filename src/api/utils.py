@@ -302,5 +302,5 @@ def build_script_tag(
         f"data-partner-attribution-id='{bn_code}'",
     ]
     if client_token is not None:
-        attributes.append(f"data-client-token={client_token}")
+        attributes.append(f"data-client-token='{client_token}'")
     return " ".join(["<script", *attributes, "></script>"])

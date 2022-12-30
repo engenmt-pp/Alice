@@ -32,7 +32,7 @@ def checkout_hosted_fields():
     client_token = client_token_response["client_token"]
     formatted_calls = client_token_response["formatted"]
 
-    additional_query = {"components": "hosted-fields"}
+    additional_query = {"components": "hosted-fields", "commit": "true"}
     return checkout(
         template,
         client_token=client_token,
