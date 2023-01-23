@@ -218,24 +218,27 @@
 
 {% block left_col %}
 <form id="options-form" class="space-y-4">
-  <input id="save" value="save & reload" type="submit" class="
-    py-1
-    px-2
-    mx-1
-    rounded-lg
-    uppercase
-    text-xs
-    text-white
-    bg-blue-600
-    hover:bg-blue-700
-    active:bg-blue-800
-    focus:outline-none
-    focus:ring
-    focus:ring-blue-400
-    ">
+  <!-- <input id="save" value="save & reload" type="submit" class="
+  py-1
+  px-2
+  mx-1
+  rounded-lg
+  uppercase
+  text-xs
+  text-white
+  bg-blue-600
+  hover:bg-blue-700
+  active:bg-blue-800
+  focus:outline-none
+  focus:ring
+  focus:ring-blue-400
+  "> -->
+  <div class="text-lg underline">
+    PPCP Connected Path Testing Tool
+  </div>
   <fieldset>
     <legend class="inline-block mb-2">
-      SDK Options (requires reload for ACDC)
+      SDK Options
     </legend>
     <div class="ml-2">
       <legend class="block mb-2">
@@ -272,6 +275,38 @@
           Authorize
         </label>
       </div>
+    </div>
+    <div class="ml-2">
+      <label for="currency">Currency</label>
+      <select name="currency" id="currency" class="
+      px-2
+      py-1
+      mx-2
+      font-mono 
+      rounded-md 
+      border
+      focus:outline-none 
+      bg-zinc-100 dark:bg-zinc-700
+      border-zinc-300 dark:border-zinc-600
+      focus:bg-white dark:focus:bg-zinc-900
+      focus:border-blue-500 dark:focus:border-blue-500">
+        <option value="USD">USD</option>
+      </select>
+      <!-- <div class="flex items-center mb-2">
+        <input id="intent-capture" type="radio" name="intent" value="CAPTURE" class="
+          w-4
+          h-4
+          mx-2
+          border-zinc-300 dark:border-zinc-600
+          focus:ring-2
+          focus:ring-blue-300 dark:focus:ring-blue-600
+          dark:focus:bg-blue-600
+          dark:bg-zinc-700
+        " onclick="hideAuth()">
+        <label for="intent-capture" class="block">
+          Capture
+        </label>
+      </div> -->
     </div>
   </fieldset>
 
