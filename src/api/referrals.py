@@ -88,7 +88,7 @@ def create_partner_referral_v2(tracking_id, return_url):
     endpoint = build_endpoint("/v2/customer/partner-referrals")
     headers = build_headers()
 
-    ACDC = True
+    ACDC = False
     product = "PPCP" if ACDC else "EXPRESS_CHECKOUT"
 
     data = {
@@ -105,6 +105,7 @@ def create_partner_referral_v2(tracking_id, return_url):
                                 "PAYMENT",
                                 "REFUND",
                                 "PARTNER_FEE",
+                                "FUTURE_PAYMENT",
                                 # "DELAY_FUNDS_DISBURSEMENT",
                                 # "VAULT",
                                 # "ADVANCED_TRANSACTIONS_SEARCH",

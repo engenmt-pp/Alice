@@ -14,7 +14,7 @@ if __name__ == "__main__":
     if testing:
         from partner_specific_config import PartnerInderConfig
 
-        app.config.from_object(PartnerInderConfig)
+        app.config.from_object(PartnerOneConfig)
         app.config.from_object(MerchantOneConfig)
     else:
         app.config.from_object(SandboxConfig)
