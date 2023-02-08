@@ -230,62 +230,31 @@
     PPCP Connected Path Testing Tool
   </div>
   <fieldset>
-    <legend class="inline-block mb-2">
+    <legend class="block mb-2">
       SDK Options
     </legend>
-    <!-- <div class="ml-2">
-      <legend class="block mb-2">
-        Intent
-      </legend>
-
-      <div class="flex items-center mb-2">
-        <input id="intent-capture" type="radio" name="intent" value="CAPTURE" class="
-          w-4
-          h-4
-          mx-2
-          border-zinc-300 dark:border-zinc-600
-          focus:ring-2
-          focus:ring-blue-300 dark:focus:ring-blue-600
-          dark:focus:bg-blue-600
-          dark:bg-zinc-700
-        " onclick="hideAuth()">
-        <label for="intent-capture" class="block">
-          Capture
-        </label>
-      </div>
-      <div class="flex items-center mb-2">
-        <input id="intent-authorize" type="radio" name="intent" value="AUTHORIZE" class="w-4
-        w-4
-        h-4
-        mx-2
-        border-zinc-300 dark:border-zinc-600
-        focus:ring-2
-        focus:ring-blue-300 dark:focus:ring-blue-600
-        dark:focus:bg-blue-600
-        dark:bg-zinc-700
-        " onclick="showAuth()">
-        <label for="intent-authorize" class="block">
-          Authorize
-        </label>
-      </div>
-    </div> -->
     <div class="ml-2">
-      <label for="intent">Intent</label>
-      <select name="intent" id="intent" class="
-      px-2
-      py-1
-      mx-2
-      font-mono 
-      rounded-md 
-      border
-      focus:outline-none 
-      bg-zinc-100 dark:bg-zinc-700
-      border-zinc-300 dark:border-zinc-600
-      focus:bg-white dark:focus:bg-zinc-900
-      focus:border-blue-500 dark:focus:border-blue-500">
-        <option value="CAPTURE">Capture</option>
-        <option value="AUTHORIZE">Authorize</option>
-      </select>
+      <div class="flex flex-row flex-wrap items-center justify-between mb-2">
+        <label for="intent" class="grow">
+          Intent
+        </label>
+        <select name="intent" id="intent" class="
+        leading-none
+        px-2
+        py-1
+        flex-none
+        font-mono 
+        rounded-md 
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500">
+          <option value="CAPTURE">Capture</option>
+          <option value="AUTHORIZE">Authorize</option>
+        </select>
+      </div>
     </div>
     <div class="ml-2">
       <label for="currency">Currency</label>
