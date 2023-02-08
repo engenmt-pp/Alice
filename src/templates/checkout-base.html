@@ -26,14 +26,14 @@
       }
     }
   }
-  function hideAuth() {
-    var tabAuthorizeOrder = document.getElementById("authorize-order");
-    tabAuthorizeOrder.classList.add("hidden");
-  }
-  function showAuth() {
-    var tabAuthorizeOrder = document.getElementById("authorize-order");
-    tabAuthorizeOrder.classList.remove("hidden");
-  }
+  // function hideAuth() {
+  //   var tabAuthorizeOrder = document.getElementById("authorize-order");
+  //   tabAuthorizeOrder.classList.add("hidden");
+  // }
+  // function showAuth() {
+  //   var tabAuthorizeOrder = document.getElementById("authorize-order");
+  //   tabAuthorizeOrder.classList.remove("hidden");
+  // }
   function enableButton(button) {
     const disabledClassList = ["text-zinc-500", "dark:text-zinc-500", "cursor-not-allowed", "hidden"];
     const enabledClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"];
@@ -113,14 +113,8 @@
       get: (searchParams, prop) => searchParams.get(prop),
     });
     const intent = params.intent;
-    switch (intent) {
-      case "AUTHORIZE":
-        document.getElementById('intent-authorize').checked = true;
-        showAuth();
-        break;
-      default:
-        document.getElementById('intent-capture').checked = true;
-    }
+    document.getElementById('intent').value = intent;
+  }
     
     const shippingPreference = params['shipping-preference'];
     switch (shippingPreference) {
@@ -202,8 +196,7 @@
   }
   function addOnChange() {
     const elementIDs = [
-      'intent-capture',
-      'intent-authorize',
+      'intent',
     ]
     for (const elementID of elementIDs) {
       const element = document.getElementById(elementID)
@@ -240,7 +233,7 @@
     <legend class="inline-block mb-2">
       SDK Options
     </legend>
-    <div class="ml-2">
+    <!-- <div class="ml-2">
       <legend class="block mb-2">
         Intent
       </legend>
@@ -275,6 +268,24 @@
           Authorize
         </label>
       </div>
+    </div> -->
+    <div class="ml-2">
+      <label for="intent">Intent</label>
+      <select name="intent" id="intent" class="
+      px-2
+      py-1
+      mx-2
+      font-mono 
+      rounded-md 
+      border
+      focus:outline-none 
+      bg-zinc-100 dark:bg-zinc-700
+      border-zinc-300 dark:border-zinc-600
+      focus:bg-white dark:focus:bg-zinc-900
+      focus:border-blue-500 dark:focus:border-blue-500">
+        <option value="CAPTURE">Capture</option>
+        <option value="AUTHORIZE">Authorize</option>
+      </select>
     </div>
     <div class="ml-2">
       <label for="currency">Currency</label>
@@ -292,21 +303,6 @@
       focus:border-blue-500 dark:focus:border-blue-500">
         <option value="USD">USD</option>
       </select>
-      <!-- <div class="flex items-center mb-2">
-        <input id="intent-capture" type="radio" name="intent" value="CAPTURE" class="
-          w-4
-          h-4
-          mx-2
-          border-zinc-300 dark:border-zinc-600
-          focus:ring-2
-          focus:ring-blue-300 dark:focus:ring-blue-600
-          dark:focus:bg-blue-600
-          dark:bg-zinc-700
-        " onclick="hideAuth()">
-        <label for="intent-capture" class="block">
-          Capture
-        </label>
-      </div> -->
     </div>
   </fieldset>
 
