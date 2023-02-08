@@ -3,105 +3,97 @@
 {% block foot %}
 <script>
   function getOptions() {
-    var formData = new FormData(document.getElementById('options-form'));
-    var formOptions = Object.fromEntries(formData);
-    formOptions['partner-id'] = document.getElementById('partner-id').value;
-    formOptions['client-id'] = document.getElementById('partner-client-id').value;
-    formOptions['merchant-id'] = document.getElementById('merchant-id').value;
+    var formData = new FormData(document.getElementById('options-form'))
+    var formOptions = Object.fromEntries(formData)
+    formOptions['partner-id'] = document.getElementById('partner-id').value
+    formOptions['client-id'] = document.getElementById('partner-client-id').value
+    formOptions['merchant-id'] = document.getElementById('merchant-id').value
     return formOptions
   }
   function copyToClipboard(id) {
-    navigator.clipboard.writeText(document.getElementById(id).value);
+    navigator.clipboard.writeText(document.getElementById(id).value)
   }
   function updateAPICalls(formattedCalls) {
-    document.querySelector('#api-calls').click();
+    document.querySelector('#api-calls').click()
     for (var id in formattedCalls) {
       if (formattedCalls.hasOwnProperty(id)) {
-        var contents = formattedCalls[id];
-        var apiCallTab = document.getElementById('api-calls-' + id);
-        apiCallTab.innerHTML = contents;
-        var apiCallsButton = document.getElementById(id);
-        enableButton(apiCallsButton);
-        apiCallsButton.click();
+        var contents = formattedCalls[id]
+        var apiCallTab = document.getElementById('api-calls-' + id)
+        apiCallTab.innerHTML = contents
+        var apiCallsButton = document.getElementById(id)
+        enableButton(apiCallsButton)
+        apiCallsButton.click()
       }
     }
-  }
-  function hideAuth() {
-    var tabAuthorizeOrder = document.getElementById("authorize-order");
-    tabAuthorizeOrder.classList.add("hidden");
-  }
-  function showAuth() {
-    var tabAuthorizeOrder = document.getElementById("authorize-order");
-    tabAuthorizeOrder.classList.remove("hidden");
   }
   function enableButton(button) {
-    const disabledClassList = ["text-zinc-500", "dark:text-zinc-500", "cursor-not-allowed", "hidden"];
-    const enabledClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"];
+    const disabledClassList = ["text-zinc-500", "dark:text-zinc-500", "cursor-not-allowed", "hidden"]
+    const enabledClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"]
 
-    button.classList.remove(...disabledClassList);
-    button.classList.add(...enabledClassList);
+    button.classList.remove(...disabledClassList)
+    button.classList.add(...enabledClassList)
   }
   function makeActiveButton(buttonList, button) {
-    const activeClassList = ["text-blue-600", "bg-zinc-200/50", "dark:text-blue-500", "dark:bg-zinc-600/50", "active"];
-    const inactiveClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"];
+    const activeClassList = ["text-blue-600", "bg-zinc-200/50", "dark:text-blue-500", "dark:bg-zinc-600/50", "active"]
+    const inactiveClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"]
 
     buttonList.forEach(each => {
-      each.classList.remove(...activeClassList);
-      each.classList.add(...inactiveClassList);
-    });
+      each.classList.remove(...activeClassList)
+      each.classList.add(...inactiveClassList)
+    })
 
-    button.classList.remove(...inactiveClassList);
-    button.classList.add(...activeClassList);
+    button.classList.remove(...inactiveClassList)
+    button.classList.add(...activeClassList)
   }
   function makeActiveTab(tabList, tab) {
-    tabList.forEach(each => {each.classList.add("hidden");});
-    tab.classList.remove("hidden");
+    tabList.forEach(each => {each.classList.add("hidden");})
+    tab.classList.remove("hidden")
   }
 </script>
 <script>
-  const root = document.querySelector("#buttons-tabs");
-  const buttonContainer = root.querySelector("#buttons");
-  const tabContainer = root.querySelector("#tabs");
-  const buttonList = buttonContainer.querySelectorAll(".button");
-  const tabList = root.querySelectorAll("#tabs > .tab");
+  const root = document.querySelector("#buttons-tabs")
+  const buttonContainer = root.querySelector("#buttons")
+  const tabContainer = root.querySelector("#tabs")
+  const buttonList = buttonContainer.querySelectorAll(".button")
+  const tabList = root.querySelectorAll("#tabs > .tab")
   buttonContainer.onclick = function(e) {
-    var button = e.target;
-    var buttonId = button.getAttribute("id");
+    var button = e.target
+    var buttonId = button.getAttribute("id")
     if (buttonId != null){
-      makeActiveButton(buttonList, button);
+      makeActiveButton(buttonList, button)
 
-      var tab = document.getElementById("tab-" + buttonId);
+      var tab = document.getElementById("tab-" + buttonId)
       if (tab === null) {
-        console.log("document.getElementById('tab-" + buttonId + "') found null!");
+        console.log("document.getElementById('tab-" + buttonId + "') found null!")
       } else {
-        makeActiveTab(tabList, tab);
+        makeActiveTab(tabList, tab)
       }
     }
   }
-  const apiCallsRoot = document.querySelector("#api-calls-buttons-tabs");
-  const apiCallsButtonContainer = apiCallsRoot.querySelector("#api-calls-buttons");
-  const apiCallsTabContainer = apiCallsRoot.querySelector("#api-calls-tabs");
-  const apiCallsButtonList = apiCallsButtonContainer.querySelectorAll(".button");
-  const apiCallsTabList = apiCallsRoot.querySelectorAll("#api-calls-tabs > .tab");
+  const apiCallsRoot = document.querySelector("#api-calls-buttons-tabs")
+  const apiCallsButtonContainer = apiCallsRoot.querySelector("#api-calls-buttons")
+  const apiCallsTabContainer = apiCallsRoot.querySelector("#api-calls-tabs")
+  const apiCallsButtonList = apiCallsButtonContainer.querySelectorAll(".button")
+  const apiCallsTabList = apiCallsRoot.querySelectorAll("#api-calls-tabs > .tab")
   apiCallsButtonContainer.onclick = function(e) {
-    var button = e.target;
-    var buttonId = button.getAttribute("id");
+    var button = e.target
+    var buttonId = button.getAttribute("id")
     if (buttonId != null && !button.classList.contains("cursor-not-allowed")) {
-      makeActiveButton(apiCallsButtonList, button);
+      makeActiveButton(apiCallsButtonList, button)
 
-      var tab = document.getElementById("tab-" + buttonId);
+      var tab = document.getElementById("tab-" + buttonId)
       if (tab === null) {
-        console.log("document.getElementById('tab-" + buttonId + "') found null!");
+        console.log("document.getElementById('tab-" + buttonId + "') found null!")
       } else {
-        makeActiveTab(apiCallsTabList, tab);
+        makeActiveTab(apiCallsTabList, tab)
       }
     }
   }
 </script>
 <script>
-  const formattedCalls = {{ formatted_calls|default('null')| safe }};
+  const formattedCalls = {{ formatted_calls|default('null')| safe }}
   if (formattedCalls !== null) {
-    updateAPICalls(formattedCalls);
+    updateAPICalls(formattedCalls)
   }
 
   document.getElementById("checkout").click()
@@ -111,52 +103,28 @@
     // Extract querystring parameters and populate form accordingly.
     const params = new Proxy(new URLSearchParams(window.location.search), {
       get: (searchParams, prop) => searchParams.get(prop),
-    });
-    const intent = params.intent;
-    switch (intent) {
-      case "AUTHORIZE":
-        document.getElementById('intent-authorize').checked = true;
-        showAuth();
-        break;
-      default:
-        document.getElementById('intent-capture').checked = true;
-    }
-    
-    const shippingPreference = params['shipping-preference'];
-    switch (shippingPreference) {
-      case "NO_SHIPPING":
-        document.getElementById('shipping-no').checked = true;
-        break;
-      default:
-        document.getElementById('shipping-get').checked = true;
-    }
+    })
+    const intent = params.intent
+    document.getElementById('intent').value = intent
+  }
 
-    const price = params.price;
-    document.getElementById('price').value = price || 3.14;
+    const shippingPreference = params['shipping-preference']
+    document.getElementById('shipping-preference').value = shippingPreference
 
-    const referenceID = params['reference-id'];
-    document.getElementById('reference-id').value = referenceID || '';
+    const price = params.price
+    document.getElementById('price').value = price || 3.14
 
-    const partnerFee = params['partner-fee'];
-    document.getElementById('partner-fee').value = partnerFee || 0;
+    const referenceID = params['reference-id']
+    document.getElementById('reference-id').value = referenceID || ''
 
-    const category = params['category'];
-    switch (category) {
-      case "PHYSICAL_GOODS":
-        document.getElementById('category-physical').checked = true;
-        break;
-      case "DIGITAL_GOODS":
-        document.getElementById('category-digital').checked = true;
-        break;
-      case "DONATION":
-        document.getElementById('category-donation').checked = true;
-        break;
-      default:
-        document.getElementById('category-unspecified').checked = true;
-    }
+    const partnerFee = params['partner-fee']
+    document.getElementById('partner-fee').value = partnerFee || 0
 
-    const BAToken = params['ba-token'];
-    document.getElementById('ba-token').value = BAToken || '';
+    const itemCategory = params['item-category']
+    document.getElementById('item-category').value = itemCategory
+
+    const BAToken = params['ba-token']
+    document.getElementById('ba-token').value = BAToken || ''
   }
   populateForm()
 </script>
@@ -185,9 +153,9 @@
       const dataClientToken = oldScriptElement.getAttribute('data-client-token')
       newScriptElement.setAttribute('data-client-token', dataClientToken)
     }
-    
+
     const BNCode = oldScriptElement.getAttribute('data-partner-attribution-id')
-    newScriptElement.setAttribute('data-partner-attribution-id', BNCode);
+    newScriptElement.setAttribute('data-partner-attribution-id', BNCode)
 
     oldScriptElement.replaceWith(newScriptElement)
   }
@@ -196,14 +164,13 @@
 
     const newContainer = document.createElement('div')
     newContainer.setAttribute('id', containerID)
-    
+
     const oldContainer = document.getElementById(containerID)
     oldContainer.replaceWith(newContainer)
   }
   function addOnChange() {
     const elementIDs = [
-      'intent-capture',
-      'intent-authorize',
+      'intent',
     ]
     for (const elementID of elementIDs) {
       const element = document.getElementById(elementID)
@@ -218,59 +185,68 @@
 
 {% block left_col %}
 <form id="options-form" class="space-y-4">
-  <input id="save" value="save & reload" type="submit" class="
-    py-1
-    px-2
-    mx-1
-    rounded-lg
-    uppercase
-    text-xs
-    text-white
-    bg-blue-600
-    hover:bg-blue-700
-    active:bg-blue-800
-    focus:outline-none
-    focus:ring
-    focus:ring-blue-400
-    ">
+  <div class="text-lg underline">
+    PPCP Connected Path Testing Tool
+  </div>
   <fieldset>
-    <legend class="inline-block mb-2">
-      SDK Options (requires reload for ACDC)
+    <legend class="block mb-2">
+      SDK Options
     </legend>
     <div class="ml-2">
-      <legend class="block mb-2">
-        Intent
-      </legend>
-
-      <div class="flex items-center mb-2">
-        <input id="intent-capture" type="radio" name="intent" value="CAPTURE" class="
-          w-4
-          h-4
-          mx-2
-          border-zinc-300 dark:border-zinc-600
-          focus:ring-2
-          focus:ring-blue-300 dark:focus:ring-blue-600
-          dark:focus:bg-blue-600
-          dark:bg-zinc-700
-        " onclick="hideAuth()">
-        <label for="intent-capture" class="block">
-          Capture
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="intent" class="grow">
+          Intent
         </label>
-      </div>
-      <div class="flex items-center mb-2">
-        <input id="intent-authorize" type="radio" name="intent" value="AUTHORIZE" class="w-4
-        w-4
-        h-4
-        mx-2
+        <select name="intent" id="intent" class="
+        leading-none
+        px-2
+        py-1
+        flex-none
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
         border-zinc-300 dark:border-zinc-600
-        focus:ring-2
-        focus:ring-blue-300 dark:focus:ring-blue-600
-        dark:focus:bg-blue-600
-        dark:bg-zinc-700
-        " onclick="showAuth()">
-        <label for="intent-authorize" class="block">
-          Authorize
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+          <option value="CAPTURE">Capture</option>
+          <option value="AUTHORIZE">Authorize</option>
+        </select>
+      </div>
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="currency" class="grow">
+          Currency
         </label>
+        <select name="currency" id="currency" class="
+        leading-none
+        px-2
+        py-1
+        flex-none
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+          <option value="USD">USD</option>
+        </select>
       </div>
     </div>
   </fieldset>
@@ -278,125 +254,152 @@
   <fieldset>
     <legend class="block mb-2 font-semibold">Partner/merchant info</legend>
     <div class="ml-2">
-      <div class="flex flex-row flex-wrap items-center mb-2">
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      ">
         <label for="partner-id" class="
-        flex-none 
+        flex-none
         basis-1/3
         ">
           Partner ID
         </label>
-        <input id="partner-id" name="partner-id" class="
+        <input id="partner-id" name="partner-id" value="{{ partner_id }}" disabled class="
         appearance-none
-        p-2
+        px-2
+        py-1
         min-w-0
         flex-auto
         basis-2/5
         border
-        rounded-lg 
-        leading-none 
-        font-mono 
-        focus:outline-none 
+        rounded
+        leading-none
+        font-mono
+        focus:outline-none
         bg-zinc-100 dark:bg-zinc-700
         border-zinc-300 dark:border-zinc-600
         focus:border-blue-500
-        " value="{{ partner_id }}" disabled>
-        <button type="button" class="
-          h-8
-          basis-1/6
-          flex-none
-          p-1
-          mx-1
-          rounded-lg
-          uppercase
-          text-xs
-          text-white
-          bg-blue-600
-          hover:bg-blue-700
-          active:bg-blue-800
-          focus:outline-none
-          focus:ring
-          focus:ring-blue-400
-        " onclick="copyToClipboard('partner-id');">copy</button>
+        ">
+        <button type="button" onclick="copyToClipboard('partner-id')" class="
+        h-8
+        basis-1/6
+        flex-none
+        p-1
+        mx-1
+        rounded
+        uppercase
+        text-xs
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+        ">
+          copy
+        </button>
       </div>
-      <div class="flex flex-row flex-wrap items-center mb-2">
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      ">
         <label for="partner-client-id" class="
-        flex-none 
+        flex-none
         basis-1/3
         ">
           Client ID
         </label>
-        <input id="partner-client-id" name="partner-client-id" class="
-          appearance-none
-          p-2
-          min-w-0
-          flex-auto
-          basis-2/5
-          border
-          rounded-lg 
-          leading-none 
-          font-mono 
-          focus:outline-none 
-          bg-zinc-100 dark:bg-zinc-700
-          border-zinc-300 dark:border-zinc-600
-          focus:border-blue-500
-        " value="{{ partner_client_id }}" disabled>
-        <button type="button" class="
-          h-8
-          basis-1/6
-          flex-none
-          p-1
-          mx-1
-          rounded-lg
-          uppercase
-          text-xs
-          text-white
-          bg-blue-600
-          hover:bg-blue-700
-          active:bg-blue-800
-          focus:outline-none
-          focus:ring
-          focus:ring-blue-400
-        " onclick="copyToClipboard('partner-client-id');">copy</button>
+        <input id="partner-client-id" name="partner-client-id" value="{{ partner_client_id }}" disabled class="
+        appearance-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/5
+        border
+        rounded
+        leading-none
+        font-mono
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:border-blue-500
+        ">
+        <button type="button" onclick="copyToClipboard('partner-client-id')" class="
+        h-8
+        basis-1/6
+        flex-none
+        p-1
+        mx-1
+        rounded
+        uppercase
+        text-xs
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+        ">
+          copy
+        </button>
       </div>
-      <div class="flex flex-row flex-wrap items-center mb-2">
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      ">
         <label for="merchant-id" class="
-        flex-none 
+        flex-none
         basis-1/3
         ">
           Merchant ID
         </label>
-        <input id="merchant-id" name="merchant-id" class="
-          appearance-none
-          p-2
-          min-w-0
-          flex-auto
-          basis-2/5
-          border
-          rounded-lg 
-          leading-none 
-          font-mono 
-          focus:outline-none 
-          bg-zinc-100 dark:bg-zinc-700
-          border-zinc-300 dark:border-zinc-600
-          focus:border-blue-500 dark:focus:border-blue-500
-        " value="{{ merchant_id }}" disabled>
-        <button type="button" class="
-          h-8
-          basis-1/6
-          flex-none
-          p-1
-          mx-1
-          rounded-lg
-          uppercase
-          text-xs
-          text-white
-          bg-blue-600
-          hover:bg-blue-700
-          active:bg-blue-800
-          focus:outline-none
-          focus:ring
-          focus:ring-blue-400
-        " onclick="copyToClipboard('merchant-id');">copy</button>
+        <input id="merchant-id" name="merchant-id" value="{{ merchant_id }}" disabled class="
+        appearance-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/5
+        border
+        rounded
+        leading-none
+        font-mono
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+        <button type="button" onclick="copyToClipboard('merchant-id')" class="
+        h-8
+        basis-1/6
+        flex-none
+        p-1
+        mx-1
+        rounded
+        uppercase
+        text-xs
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+        ">
+          copy
+        </button>
       </div>
     </div>
   </fieldset>
@@ -406,23 +409,23 @@
     <div class="ml-2">
       <div class="flex flex-row flex-wrap items-center mb-2">
         <label for="ba-token" class="
-        flex-none 
+        flex-none
         basis-1/3
         ">
           BA Token
         </label>
         <input id="ba-token" name="ba-token" class="
         appearance-none
-        leading-none 
+        leading-none
         px-2
         py-1
         min-w-0
         flex-auto
         basis-2/3
-        font-mono 
+        font-mono
         rounded
         border
-        focus:outline-none 
+        focus:outline-none
         bg-zinc-100 dark:bg-zinc-700
         border-zinc-300 dark:border-zinc-600
         focus:bg-white dark:focus:bg-zinc-900
@@ -431,23 +434,23 @@
       </div>
       <div class="flex flex-row flex-wrap items-center mb-2">
         <label for="ba-id" class="
-        flex-none 
+        flex-none
         basis-1/3
         ">
           BA ID
         </label>
         <input id="ba-id" name="ba-id" class="
         appearance-none
-        leading-none 
+        leading-none
         px-2
         py-1
         min-w-0
         flex-auto
         basis-2/3
-        font-mono 
+        font-mono
         rounded
         border
-        focus:outline-none 
+        focus:outline-none
         bg-zinc-100 dark:bg-zinc-700
         border-zinc-300 dark:border-zinc-600
         focus:bg-white dark:focus:bg-zinc-900
@@ -458,182 +461,178 @@
   </fieldset>
 
   <fieldset>
-    <legend class="block mb-2">
-      Shipping
+    <legend class="block mb-2 font-semibold">
+      Order options
     </legend>
     <div class="ml-2">
-      <div class="flex items-center mb-2">
-        <input id="shipping-get" type="radio" name="shipping-preference" value="GET_FROM_FILE" class="
-          w-4
-          h-4
-          border-zinc-300 dark:border-zinc-600
-          focus:ring-2
-          focus:ring-blue-300 dark:focus:ring-blue-600
-          dark:bg-zinc-700
-          dark:focus:bg-blue-600
-        ">
-        <label for="shipping-get" class="block ml-2 font-mono">
-          GET_FROM_FILE
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="shipping-preference" class="grow">
+          Shipping
         </label>
-      </div>
-      <div class="flex items-center mb-2">
-        <input id="shipping-no" type="radio" name="shipping-preference" value="NO_SHIPPING" class="
-          w-4
-          h-4
-          border-zinc-300 dark:border-zinc-600
-          focus:ring-2
-          focus:ring-blue-300 dark:focus:ring-blue-600
-          dark:bg-zinc-700
-          dark:focus:bg-blue-600
+        <select name="shipping-preference" id="shipping-preference" class="
+        leading-none
+        px-2
+        py-1
+        flex-none
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
         ">
-        <label for="shipping-no" class="block ml-2 font-mono">
-          NO_SHIPPING
-        </label>
+          <option value="NO_SHIPPING">No shipping</option>
+          <option value="GET_FROM_FILE">Get from file</option>
+        </select>
       </div>
     </div>
   </fieldset>
   <fieldset>
-    <legend class="block mb-2">
-      Purchase unit info
+    <legend class="block mb-2 font-semibold">
+      Purchase unit options
     </legend>
     <div class="ml-2">
-      <div class="flex flex-row flex-wrap items-center justify-between mb-2">
-        <label for="price" class="
-          flex-none 
-          basis-1/3
-        ">
-          Price
-        </label>
-        <input id="price" type="number" name="price" class="
-          appearance-none
-          leading-none 
-          px-2
-          py-1 
-          min-w-0
-          flex-auto
-          basis-2/3
-          font-mono 
-          rounded 
-          border
-          focus:outline-none 
-          bg-zinc-100 dark:bg-zinc-700
-          border-zinc-300 dark:border-zinc-600
-          focus:bg-white dark:focus:bg-zinc-900
-          focus:border-blue-500 dark:focus:border-blue-500
-        " value="3.14">
-      </div>
-
-      <div class="flex flex-row flex-wrap items-center justify-between mb-2">
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
         <label for="reference-id" class="
-          flex-none 
-          basis-1/3
+        flex-none
+        basis-1/3
         ">
           Reference ID
         </label>
-        <input id="reference-id" type="text" name="reference-id" class="
+        <input id="reference-id" name="reference-id" placeholder="default" type="text" class="
         appearance-none
-        leading-none 
+        leading-none
         px-2
-        py-1 
+        py-1
         min-w-0
         flex-auto
         basis-2/3
-        font-mono 
-        rounded 
+        font-mono
+        rounded
         border
-        focus:outline-none 
+        focus:outline-none
         bg-zinc-100 dark:bg-zinc-700
         border-zinc-300 dark:border-zinc-600
         focus:bg-white dark:focus:bg-zinc-900
         focus:border-blue-500 dark:focus:border-blue-500
-        " placeholder="default">
+        ">
       </div>
-
-      <div class="flex flex-row flex-wrap items-center justify-between mb-2">
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
         <label for="partner-fee" class="
-          flex-none 
-          basis-1/3
+        flex-none
+        basis-1/3
         ">
           Partner fee
         </label>
         <input id="partner-fee" type="number" name="partner-fee" value="0" class="
         appearance-none
-        leading-none 
+        leading-none
         px-2
-        py-1 
+        py-1
         min-w-0
         flex-auto
         basis-2/3
-        font-mono 
-        rounded 
+        font-mono
+        rounded
         border
-        focus:outline-none 
+        focus:outline-none
         bg-zinc-100 dark:bg-zinc-700
         border-zinc-300 dark:border-zinc-600
         focus:bg-white dark:focus:bg-zinc-900
         focus:border-blue-500 dark:focus:border-blue-500
         ">
       </div>
+    </div>
+  </fieldset>
 
-      <legend class="block mb-2">
-        Category
-      </legend>
-      <div class="ml-2">
-      <div class="flex items-center mb-2">
-        <input id="category-unspecified" type="radio" name="category" value="None" class="
-          w-4
-          h-4
-          border-zinc-300 dark:border-zinc-600
-          focus:ring-2
-          focus:ring-blue-300 dark:focus:ring-blue-600
-          dark:bg-zinc-700
-          dark:focus:bg-blue-600
+  <fieldset>
+    <legend class="block mb-2 font-semibold">
+      Item options
+    </legend>
+    <div class="ml-2">
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="price" class="
+        flex-none
+        basis-1/3
         ">
-        <label for="category-unspecified" class="block ml-2">
-          Unspecified
+          Price
         </label>
+        <input id="price" type="number" name="price" value="3.14" class="
+        appearance-none
+        leading-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/3
+        font-mono
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
       </div>
-      <div class="flex items-center mb-2">
-        <input id="category-physical" type="radio" name="category" value="PHYSICAL_GOODS" class="
-          w-4
-          h-4
-          border-zinc-300 dark:border-zinc-600
-          focus:ring-2
-          focus:ring-blue-300 dark:focus:ring-blue-600
-          dark:bg-zinc-700
-          dark:focus:bg-blue-600
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <legend for="item-category" class="grow">
+          Category
+        </legend>
+        <select name="item-category" id="item-category" class="
+        leading-none
+        px-2
+        py-1
+        flex-none
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
         ">
-        <label for="category-physical" class="block ml-2 font-mono">
-          PHYSICAL_GOODS
-        </label>
-      </div>
-      <div class="flex items-center mb-2">
-        <input id="category-digital" type="radio" name="category" value="DIGITAL_GOODS" class="
-          w-4
-          h-4
-          border-zinc-300 dark:border-zinc-600
-          focus:ring-2
-          focus:ring-blue-300 dark:focus:ring-blue-600
-          dark:bg-zinc-700
-          dark:focus:bg-blue-600
-        ">
-        <label for="category-digital" class="block ml-2 font-mono">
-          DIGITAL_GOODS
-        </label>
-      </div>
-      <div class="flex items-center mb-2">
-        <input id="category-donation" type="radio" name="category" value="DONATION" class="
-          w-4
-          h-4
-          border-zinc-300 dark:border-zinc-600
-          focus:ring-2
-          focus:ring-blue-300 dark:focus:ring-blue-600
-          dark:bg-zinc-700
-          dark:focus:bg-blue-600
-        ">
-        <label for="category-donation" class="block ml-2 font-mono">
-          DONATION
-        </label>
+          <option value="None">Unspecified</option>
+          <option value="PHYSICAL_GOODS">Physical goods</option>
+          <option value="DIGITAL_GOODS">Digital goods</option>
+          <option value="DONATION">Donation</option>
+        </select>
       </div>
     </div>
   </fieldset>
@@ -647,45 +646,45 @@
   <!-- Buttons for tabs -->
   <div id="buttons">
     <ul class="
-      flex
-      flex-wrap
-      text-center
-      border-b
-      mb-2
-      text-zinc-600 dark:text-zinc-400
-      border-zinc-300 dark:border-zinc-600
+    flex
+    flex-wrap
+    text-center
+    border-b
+    mb-2
+    text-zinc-600 dark:text-zinc-400
+    border-zinc-300 dark:border-zinc-600
     ">
       <li class="mr-2">
         <a href="#" id="checkout" class="
-          button
-          inline-block
-          p-4
-          rounded-t-lg
-          hover:text-zinc-700 dark:hover:text-zinc-300
-          hover:bg-zinc-100 dark:hover:bg-zinc-700
+        button
+        inline-block
+        p-4
+        rounded-t-lg
+        hover:text-zinc-700 dark:hover:text-zinc-300
+        hover:bg-zinc-100 dark:hover:bg-zinc-700
         ">Checkout</a>
       </li>
       <li class="mr-2">
         <a href="#" id="api-calls" class="
-          button
-          inline-block
-          p-4
-          rounded-t-lg
-          hover:text-zinc-700 dark:hover:text-zinc-300
-          hover:bg-zinc-100 dark:hover:bg-zinc-700
+        button
+        inline-block
+        p-4
+        rounded-t-lg
+        hover:text-zinc-700 dark:hover:text-zinc-300
+        hover:bg-zinc-100 dark:hover:bg-zinc-700
         ">API Calls</a>
       </li>
     </ul>
-  </div> 
+  </div>
 
   <!-- Tabs -->
   <div id="tabs" class="w-100">
     <div id="tab-checkout" class="tab center hidden">
       <div class="
-        rounded-b-md
-        w-full
-        top-0
-        p-2
+      rounded-b-md
+      w-full
+      top-0
+      p-2
       ">
         {{ script_tag | safe }}
         {% block checkout %}
@@ -697,173 +696,173 @@
         <!-- Buttons for tabs -->
         <div id="api-calls-buttons">
           <ul class="
-            flex 
-            flex-wrap 
-            text-center 
-            border-b 
-            mb-2
-            text-zinc-500 dark:text-zinc-500
-            border-zinc-300 dark:border-zinc-600
+          flex
+          flex-wrap
+          text-center
+          border-b
+          mb-2
+          text-zinc-500 dark:text-zinc-500
+          border-zinc-300 dark:border-zinc-600
           ">
             <li>
-              <a href="#" class="
-                button
-                inline-block
-                p-4
-                rounded-t-lg      
-                cursor-not-allowed
-              " id="access-token">Access Token</a>
+              <a id="access-token" href="#" class="
+              button
+              inline-block
+              p-4
+              rounded-t-lg
+              cursor-not-allowed
+              ">Access Token</a>
             </li>
             <li>
-              <a href="#" class="
-                button
-                inline-block
-                p-4
-                rounded-t-lg      
-                cursor-not-allowed
-                hidden
-              " id="client-token">Client Token</a>
+              <a id="client-token" href="#" class="
+              button
+              inline-block
+              p-4
+              rounded-t-lg
+              cursor-not-allowed
+              hidden
+              ">Client Token</a>
             </li>
             <li>
-              <a href="#" class="
-                button
-                inline-block
-                p-4
-                rounded-t-lg 
-                cursor-not-allowed
-                hidden
-              " id="create-billing-agreement-token">Create BA Token</a>
+              <a id="create-billing-agreement-token" href="#" class="
+              button
+              inline-block
+              p-4
+              rounded-t-lg
+              cursor-not-allowed
+              hidden
+              ">Create BA Token</a>
             </li>
             <li>
-              <a href="#" class="
-                button
-                inline-block
-                p-4
-                rounded-t-lg 
-                cursor-not-allowed
-                hidden
-              " id="create-billing-agreement">Create BA</a>
+              <a id="create-billing-agreement" href="#" class="
+              button
+              inline-block
+              p-4
+              rounded-t-lg
+              cursor-not-allowed
+              hidden
+              ">Create BA</a>
             </li>
             <li>
-              <a href="#" class="
-                button
-                inline-block
-                p-4
-                rounded-t-lg 
-                cursor-not-allowed
-              " id="create-order">Create Order</a>
+              <a id="create-order" href="#" class="
+              button
+              inline-block
+              p-4
+              rounded-t-lg
+              cursor-not-allowed
+              ">Create Order</a>
             </li>
             <li>
-              <a href="#" class="
-                button
-                inline-block
-                p-4
-                rounded-t-lg 
-                cursor-not-allowed
-                hidden
-              " id="authorize-order">Authorize Order</a>
+              <a id="authorize-order" href="#" class="
+              button
+              inline-block
+              p-4
+              rounded-t-lg
+              cursor-not-allowed
+              hidden
+              ">Authorize Order</a>
             </li>
             <li>
-              <a href="#" class="
-                button
-                inline-block
-                p-4
-                rounded-t-lg 
-                cursor-not-allowed
-              " id="capture-order">Capture Order</a>
+              <a id="capture-order" href="#" class="
+              button
+              inline-block
+              p-4
+              rounded-t-lg
+              cursor-not-allowed
+              ">Capture Order</a>
             </li>
             <li>
-              <a href="#" class="
-                button
-                inline-block
-                p-4
-                rounded-t-lg 
-                cursor-not-allowed
-              " id="sdk-error">SDK Error</a>
+              <a id="sdk-error" href="#" class="
+              button
+              inline-block
+              p-4
+              rounded-t-lg
+              cursor-not-allowed
+              ">SDK Error</a>
             </li>
           </ul>
-        </div> 
-      
+        </div>
+
         <!-- Tabs -->
         <div id="api-calls-tabs" class="font-mono dark:text-zinc-100">
           <div id="tab-access-token" class="tab center hidden">
             <div id="api-calls-access-token" class="
-              w-full
-              top-0
-              p-2
-              break-words
-              whitespace-pre-wrap
-              bg-zinc-100 dark:bg-zinc-700
+            w-full
+            top-0
+            p-2
+            break-words
+            whitespace-pre-wrap
+            bg-zinc-100 dark:bg-zinc-700
             "></div>
           </div>
           <div id="tab-client-token" class="tab center hidden">
             <div id="api-calls-client-token" class="
-              w-full
-              top-0
-              p-2
-              break-words
-              whitespace-pre-wrap
-              bg-zinc-100 dark:bg-zinc-700
+            w-full
+            top-0
+            p-2
+            break-words
+            whitespace-pre-wrap
+            bg-zinc-100 dark:bg-zinc-700
             "></div>
           </div>
           <div id="tab-create-billing-agreement-token" class="tab center hidden">
             <div id="api-calls-create-billing-agreement-token" class="
-              w-full
-              top-0
-              p-2
-              break-words
-              whitespace-pre-wrap
-              bg-zinc-100 dark:bg-zinc-700
+            w-full
+            top-0
+            p-2
+            break-words
+            whitespace-pre-wrap
+            bg-zinc-100 dark:bg-zinc-700
             "></div>
           </div>
           <div id="tab-create-billing-agreement" class="tab center hidden">
             <div id="api-calls-create-billing-agreement" class="
-              w-full
-              top-0
-              p-2
-              break-words
-              whitespace-pre-wrap
-              bg-zinc-100 dark:bg-zinc-700
+            w-full
+            top-0
+            p-2
+            break-words
+            whitespace-pre-wrap
+            bg-zinc-100 dark:bg-zinc-700
             "></div>
           </div>
           <div id="tab-create-order" class="tab center hidden">
             <div id="api-calls-create-order" class="
-              w-full
-              top-0
-              p-2
-              break-words
-              whitespace-pre-wrap
-              bg-zinc-100 dark:bg-zinc-700
+            w-full
+            top-0
+            p-2
+            break-words
+            whitespace-pre-wrap
+            bg-zinc-100 dark:bg-zinc-700
             "></div>
           </div>
           <div id="tab-authorize-order" class="tab center hidden">
             <div id="api-calls-authorize-order" class="
-              w-full
-              top-0
-              p-2
-              break-words
-              whitespace-pre-wrap
-              bg-zinc-100 dark:bg-zinc-700
+            w-full
+            top-0
+            p-2
+            break-words
+            whitespace-pre-wrap
+            bg-zinc-100 dark:bg-zinc-700
             "></div>
           </div>
           <div id="tab-capture-order" class="tab center hidden">
             <div id="api-calls-capture-order" class="
-              w-full
-              top-0
-              p-2
-              break-words
-              whitespace-pre-wrap
-              bg-zinc-100 dark:bg-zinc-700
+            w-full
+            top-0
+            p-2
+            break-words
+            whitespace-pre-wrap
+            bg-zinc-100 dark:bg-zinc-700
             "></div>
           </div>
           <div id="tab-sdk-error" class="tab center hidden">
             <div id="api-calls-sdk-error" class="
-              w-full
-              top-0
-              p-2
-              break-words
-              whitespace-pre-wrap
-              bg-zinc-100 dark:bg-zinc-700
+            w-full
+            top-0
+            p-2
+            break-words
+            whitespace-pre-wrap
+            bg-zinc-100 dark:bg-zinc-700
             "></div>
           </div>
         </div>
