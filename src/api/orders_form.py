@@ -32,7 +32,7 @@ def build_purchase_unit(
     partner_fee=0,
     reference_id=None,
     include_line_items=True,
-    category=None,
+    item_category=None,
     billing_agreement_id=None,
 ):
     price = float(price)
@@ -69,23 +69,23 @@ def build_purchase_unit(
         breakdown["shipping"] = {"currency_code": "USD", "value": shipping_cost}
 
     if include_line_items:
-        match category:
+        match item_category:
+            case "PHYSICAL_GOODS":
+                name = "A physical good."
             case "DIGITAL_GOODS":
                 name = "A digital good."
             case "DONATION":
                 name = "A donation."
-            case "PHYSICAL_GOODS":
-                name = "A physical good."
             case _:
-                category = None
+                item_category = None
                 name = "A good of unspecified category."
         item = {
             "name": name,
             "quantity": 1,
             "unit_amount": {"currency_code": "USD", "value": price},
         }
-        if category:
-            item["category"] = category
+        if item_category:
+            item["category"] = item_category
         purchase_unit["items"] = [item]
         breakdown["item_total"] = {"currency_code": "USD", "value": price}
 
@@ -144,7 +144,7 @@ def create_order(headers, form_options):
     price = form_options["price"]
     include_shipping_options = shipping_preference != "NO_SHIPPING"
     partner_fee = float(form_options["partner-fee"])
-    category = form_options["category"]
+    item_category = form_options["item-category"]
     billing_agreement_id = form_options.get("ba-id") or None  # Coerce to None if empty!
     purchase_unit = build_purchase_unit(
         partner_id=partner_id,
@@ -152,7 +152,7 @@ def create_order(headers, form_options):
         price=price,
         include_shipping_options=include_shipping_options,
         partner_fee=partner_fee,
-        category=category,
+        item_category=item_category,
         billing_agreement_id=billing_agreement_id,
     )
 
