@@ -32,6 +32,7 @@ def build_purchase_unit(
     partner_fee=0,
     reference_id=None,
     include_line_items=True,
+    include_shipping_address=False,
     item_category=None,
     billing_agreement_id=None,
 ):
@@ -65,8 +66,26 @@ def build_purchase_unit(
     if include_shipping_options:
         shipping_cost = 9.99
         shipping_options = [default_shipping_option(shipping_cost)]
-        purchase_unit["shipping"] = {"options": shipping_options}
+        shipping = {"options": shipping_options}
         breakdown["shipping"] = {"currency_code": "USD", "value": shipping_cost}
+    else:
+        shipping = {}
+
+    if include_shipping_address:
+        shipping["type"] = "SHIPPING"
+        name = {"full_name": "Mister Wilf"}
+        shipping["name"] = name
+        address = {
+            "address_line_1": "1324 Permutation Pattern Parkway",
+            "admin_area_2": "Gainesville",
+            "admin_area_1": "FL",
+            "postal_code": "32601",
+            "country_code": "US",
+        }
+        shipping["address"] = address
+
+    if shipping:
+        purchase_unit["shipping"] = shipping
 
     if include_line_items:
         match item_category:
