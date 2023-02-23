@@ -189,7 +189,7 @@
     PPCP Connected Path Testing Tool
   </div>
   <fieldset>
-    <legend class="block mb-2">
+    <legend class="block mb-2 semibold">
       SDK Options
     </legend>
     <div class="ml-2">
@@ -201,14 +201,15 @@
       items-center
       justify-between
       ">
-        <label for="intent" class="grow">
+        <label for="intent" class="basis-1/3">
           Intent
         </label>
         <select name="intent" id="intent" class="
         leading-none
         px-2
         py-1
-        flex-none
+        basis-2/3
+        grow
         rounded
         border
         focus:outline-none
@@ -229,14 +230,15 @@
       items-center
       justify-between
       ">
-        <label for="currency" class="grow">
+        <label for="currency" class="basis-1/3">
           Currency
         </label>
         <select name="currency" id="currency" class="
         leading-none
         px-2
         py-1
-        flex-none
+        basis-2/3
+        grow
         rounded
         border
         focus:outline-none
@@ -260,10 +262,11 @@
       flex-row
       flex-wrap
       items-center
+      justify-between
       ">
         <label for="partner-id" class="
-        flex-none
         basis-1/3
+        shrink-0
         ">
           Partner ID
         </label>
@@ -284,11 +287,10 @@
         focus:border-blue-500
         ">
         <button type="button" onclick="copyToClipboard('partner-id')" class="
-        h-8
+        px-2
+        py-1
+        ml-1
         basis-1/6
-        flex-none
-        p-1
-        mx-1
         rounded
         uppercase
         text-xs
@@ -333,11 +335,10 @@
         focus:border-blue-500
         ">
         <button type="button" onclick="copyToClipboard('partner-client-id')" class="
-        h-8
+        px-2
+        py-1
+        ml-1
         basis-1/6
-        flex-none
-        p-1
-        mx-1
         rounded
         uppercase
         text-xs
@@ -379,14 +380,13 @@
         focus:outline-none
         bg-zinc-100 dark:bg-zinc-700
         border-zinc-300 dark:border-zinc-600
-        focus:border-blue-500 dark:focus:border-blue-500
+        focus:border-blue-500
         ">
         <button type="button" onclick="copyToClipboard('merchant-id')" class="
-        h-8
+        px-2
+        py-1
+        ml-1
         basis-1/6
-        flex-none
-        p-1
-        mx-1
         rounded
         uppercase
         text-xs
@@ -473,14 +473,15 @@
       items-center
       justify-between
       ">
-        <label for="shipping-preference" class="grow">
+        <label for="shipping-preference" class="basis-1/3">
           Shipping
         </label>
         <select name="shipping-preference" id="shipping-preference" class="
         leading-none
         px-2
         py-1
-        flex-none
+        basis-2/3
+        grow
         rounded
         border
         focus:outline-none
@@ -612,14 +613,15 @@
       items-center
       justify-between
       ">
-        <legend for="item-category" class="grow">
+        <legend for="item-category" class="basis-1/3">
           Category
         </legend>
         <select name="item-category" id="item-category" class="
         leading-none
         px-2
         py-1
-        flex-none
+        basis-2/3
+        grow
         rounded
         border
         focus:outline-none
