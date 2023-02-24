@@ -12,10 +12,10 @@ if __name__ == "__main__":
     testing = True
     # testing = False
     if testing:
-        from partner_specific_config import PartnerInderConfig
+        from partner_specific_config import PartnerInderConfig, MerchantThreeConfig
 
         app.config.from_object(PartnerOneConfig)
-        app.config.from_object(MerchantOneConfig)
+        app.config.from_object(MerchantThreeConfig)
     else:
         app.config.from_object(SandboxConfig)
 
