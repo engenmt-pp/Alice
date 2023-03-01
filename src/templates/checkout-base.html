@@ -636,6 +636,35 @@
           <option value="DONATION">Donation</option>
         </select>
       </div>
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <legend for="disbursement-mode" class="basis-1/3">
+          Disbursement
+        </legend>
+        <select name="disbursement-mode" id="disbursement-mode" class="
+        leading-none
+        px-2
+        py-1
+        basis-2/3
+        grow
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+          <option value="INSTANT">Instant</option>
+          <option value="DELAYED">Delayed</option>
+        </select>
+      </div>
     </div>
   </fieldset>
   {% block additional_options %}

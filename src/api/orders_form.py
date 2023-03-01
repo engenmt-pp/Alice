@@ -29,6 +29,7 @@ def build_purchase_unit(
     merchant_id,
     price,
     include_shipping_options,
+    disbursement_mode=None,
     partner_fee=0,
     reference_id=None,
     include_line_items=True,
@@ -46,14 +47,14 @@ def build_purchase_unit(
         purchase_unit["reference_id"] = reference_id
 
     if partner_fee > 0:
-        purchase_unit["payment_instruction"] = {
-            "platform_fees": [
-                {
-                    "amount": {"currency_code": "USD", "value": partner_fee},
-                    "payee": {"merchant_id": partner_id},
-                }
-            ]
-        }
+        payment_instruction = {}
+        payment_instruction["platform_fees"] = [
+            {
+                "amount": {"currency_code": "USD", "value": partner_fee},
+                "payee": {"merchant_id": partner_id},
+            }
+        ]
+        purchase_unit["payment_instruction"] = payment_instruction
 
     if billing_agreement_id is not None:
         purchase_unit["payment_source"] = {
@@ -137,26 +138,34 @@ def create_order(headers, form_options):
     """
     endpoint = build_endpoint("/v2/checkout/orders")
 
-    shipping_preference = form_options["shipping-preference"]
+    intent = form_options["intent"]
 
+    shipping_preference = form_options["shipping-preference"]
     partner_id = form_options["partner-id"]
     merchant_id = form_options["merchant-id"]
     price = form_options["price"]
     include_shipping_options = shipping_preference != "NO_SHIPPING"
-    partner_fee = float(form_options["partner-fee"])
+
+    if intent == "CAPTURE":
+        partner_fee = float(form_options["partner-fee"])
+        disbursement_mode = form_options["disbursement-mode"]
+    else:
+        # Both partner fee and disbursement mode should be delayed until capture for 'intent: authorize' orders.
+        partner_fee = 0
+        disbursement_mode = None
+
     item_category = form_options["item-category"]
     billing_agreement_id = form_options.get("ba-id") or None  # Coerce to None if empty!
     purchase_unit = build_purchase_unit(
         partner_id=partner_id,
         merchant_id=merchant_id,
         price=price,
+        disbursement_mode=disbursement_mode,
         include_shipping_options=include_shipping_options,
         partner_fee=partner_fee,
         item_category=item_category,
         billing_agreement_id=billing_agreement_id,
     )
-
-    intent = form_options["intent"]
 
     application_context = build_application_context(shipping_preference)
 
@@ -248,17 +257,19 @@ def capture_authorization(auth_id, form_options):
     endpoint = build_endpoint(f"/v2/payments/authorizations/{auth_id}/capture")
     headers = build_headers()
 
-    partner_fees = float(form_options["partner-fee"])
-    if partner_fees > 0:
-        data = {
-            "payment_instruction": {
-                "platform_fees": [
-                    {"amount": {"currency_code": "USD", "value": partner_fees}}
-                ],
-            }
-        }
-    else:
-        data = {}
+    partner_fee = float(form_options["partner-fee"])
+    disbursement_mode = form_options["disbursement-mode"]
+
+    data = dict()
+    payment_instruction = dict()
+    if disbursement_mode == "DELAYED":
+        payment_instruction["disbursement_mode"] = disbursement_mode
+    if partner_fee > 0:
+        payment_instruction["platform_fees"] = [
+            {"amount": {"currency_code": "USD", "value": partner_fee}}
+        ]
+    if payment_instruction:
+        data["payment_instruction"] = payment_instruction
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     return response
