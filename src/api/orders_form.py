@@ -146,10 +146,13 @@ def create_order(headers, form_options):
     price = form_options["price"]
     include_shipping_options = shipping_preference != "NO_SHIPPING"
 
-    partner_fee = float(form_options["partner-fee"]) if intent == "CAPTURE" else 0
-    disbursement_mode = (
-        form_options["disbursement-mode"] if intent == "CAPTURE" else None
-    )
+    if intent == "CAPTURE":
+        partner_fee = float(form_options["partner-fee"])
+        disbursement_mode = form_options["disbursement-mode"]
+    else:
+        # Both partner fee and disbursement mode should be delayed until capture for 'intent: authorize' orders.
+        partner_fee = 0
+        disbursement_mode = None
 
     item_category = form_options["item-category"]
     billing_agreement_id = form_options.get("ba-id") or None  # Coerce to None if empty!
