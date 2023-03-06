@@ -15,7 +15,7 @@
     navigator.clipboard.writeText(document.getElementById(id).value)
   }
   function updateAPICalls(formattedCalls) {
-    document.querySelector('#api-calls').click()
+    document.getElementById('api-calls').click()
     for (var id in formattedCalls) {
       if (formattedCalls.hasOwnProperty(id)) {
         var contents = formattedCalls[id]
@@ -51,12 +51,6 @@
     tab.classList.remove("hidden")
   }
 </script>
-<script id="script-initial-api-calls">
-  const formattedCalls = {{ formatted_calls|default('null')| safe }}
-  if (formattedCalls !== null) {
-    updateAPICalls(formattedCalls)
-  }
-</script>
 <script>
   function populateForm() {
     // Extract querystring parameters and populate form accordingly.
@@ -86,7 +80,7 @@
   }
   // populateForm()
 </script>
-<script id="script-pp-config">
+<script id="script-pp-utils">
   async function buildScriptElement(onload) {
     const options = getOptions()
     const url = new URL('https://www.paypal.com/sdk/js')
@@ -98,10 +92,12 @@
     url.searchParams.append("enable-funding", "venmo,paylater")
 
     const oldScriptElement = document.getElementById('paypal-js-sdk')
-    const oldScriptURL = new URL(oldScriptElement.src)
-    if (oldScriptURL.searchParams.has('components')) {
-      const components = oldScriptURL.searchParams.get('components')
-      url.searchParams.append('components', components)
+    if (oldScriptElement.hasAttribute('src')) {
+      const oldScriptURL = new URL(oldScriptElement.src)
+      if (oldScriptURL.searchParams.has('components')) {
+        const components = oldScriptURL.searchParams.get('components')
+        url.searchParams.append('components', components)
+      }
     }
 
     const newScriptElement = document.createElement('script')
@@ -131,6 +127,12 @@
 {% endblock %}
 
 {% block foot %}
+<script id="script-initial-api-calls">
+  const formattedCalls = {{ formatted_calls|default('null')| safe }}
+  if (formattedCalls !== null) {
+    updateAPICalls(formattedCalls)
+  }
+</script>
 <script id="script-init-tabs">
   (function initializeTopLevelButtons() {
     const root = document.querySelector("#buttons-tabs")
@@ -195,8 +197,11 @@
 
 {% block left_col %}
 <form id="options-form" class="space-y-4">
+  <title class="text-lg underline">
+    Alice - A PPCP Testing Tool
+  </title>
   <div class="text-lg underline">
-    PPCP Connected Path Testing Tool
+    Alice - A PPCP Testing Tool
   </div>
   <fieldset>
     <legend class="block mb-2 semibold">
@@ -461,7 +466,8 @@
       </div>
     </div>
   </fieldset>
-
+  {% block checkout_options %}
+  {% endblock %}
   <fieldset>
     <legend class="block mb-2 font-semibold">Billing Agreement (BA) Info</legend>
     <div class="ml-2">

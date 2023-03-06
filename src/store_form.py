@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, render_template, request
+from flask import Blueprint, current_app, render_template, request, jsonify
 from .api.utils import (
     build_script_tag,
     generate_client_token,
