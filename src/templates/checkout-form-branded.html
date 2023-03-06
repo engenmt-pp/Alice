@@ -6,13 +6,13 @@
   <div id="paypal-button-container"></div>
 </div>
 
-<script>
-  let orderID;
-  let options;
-  let fundingSource;
+<script id="script-pp-checkout">
+  let orderID
+  let options
+  let fundingSource
   function checkoutClosure() {
-    let buttons;
-    async function loadCheckout() { 
+    let buttons
+    async function loadCheckout() {
       buttons = await paypal.Buttons({
         onClick: function (data) {
           fundingSource = data.fundingSource;
@@ -57,14 +57,15 @@
         console.log("Caught an error while rendering checkout: " + err)
       })
     }
-    
+
     async function reloadMyCheckout() {
       await buttons.close()
-      await buildScriptTag()
-      await resetCheckoutContainer()
-      await new Promise((resolve, reject) => setTimeout(loadCheckout, 2000))
+      await buildScriptElement(function() {
+        resetCheckoutContainer()
+        loadCheckout()
+      })
     }
-    loadCheckout()
+    buildScriptElement(loadCheckout)
     return reloadMyCheckout
   }
   const reloadCheckout = checkoutClosure()

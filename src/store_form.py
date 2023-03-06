@@ -55,20 +55,27 @@ def checkout(
     bn_code = request.args.get("bn-code", current_app.config["PARTNER_BN_CODE"])
 
     intent = request.args.get("intent", kwargs.get("intent", "capture"))
-    script_tag = build_script_tag(
-        partner_client_id,
-        merchant_id,
-        intent,
-        bn_code,
-        additional_query,
-        client_token=client_token,
-    )
+
+    if client_token:
+        script_tag = build_script_tag(
+            partner_client_id,
+            merchant_id,
+            intent,
+            bn_code,
+            additional_query,
+            client_token=client_token,
+        )
+    else:
+        # For branded integrations that don't use the client_token,
+        # the script tag will be built on the client side.
+        script_tag = '<script id="paypal-js-sdk"></script>'
 
     return render_template(
         template,
         partner_id=partner_id,
         partner_client_id=partner_client_id,
         merchant_id=merchant_id,
+        bn_code=bn_code,
         script_tag=script_tag,
         **kwargs,
     )
