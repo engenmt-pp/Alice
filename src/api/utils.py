@@ -251,7 +251,7 @@ def generate_client_token(customer_id=None, return_formatted=False):
     endpoint = build_endpoint("/v1/identity/generate-token")
     headers = build_headers(return_formatted=return_formatted)
     if return_formatted:
-        formatted = {"access-token": headers["formatted"]}
+        formatted = headers["formatted"]
         del headers["formatted"]
 
     if customer_id is None:

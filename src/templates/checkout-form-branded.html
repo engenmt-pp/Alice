@@ -1,18 +1,37 @@
 {% extends "checkout-base.html" %}
 
+{% block foot %}
+
+{{ super() }}
+
+<script id="script-onchange-reload">
+  (function addOnChange() {
+    const elementIDs = [
+      'intent',
+    ]
+    for (const elementID of elementIDs) {
+      const element = document.getElementById(elementID)
+      element.addEventListener('change', (event) => {
+        reloadCheckout()
+      })
+    }
+  })();
+</script>
+{% endblock %}
+
 {% block checkout %}
 <!-- Empty (for now) button container -->
 <div id="paypal-button-wrapper" class="text-center">
   <div id="paypal-button-container"></div>
 </div>
 
-<script>
-  let orderID;
-  let options;
-  let fundingSource;
+<script id="script-pp-checkout">
+  let orderID
+  let options
+  let fundingSource
   function checkoutClosure() {
-    let buttons;
-    async function loadCheckout() { 
+    let buttons
+    async function loadCheckout() {
       buttons = await paypal.Buttons({
         onClick: function (data) {
           fundingSource = data.fundingSource;
@@ -57,14 +76,15 @@
         console.log("Caught an error while rendering checkout: " + err)
       })
     }
-    
+
     async function reloadMyCheckout() {
       await buttons.close()
-      await buildScriptTag()
-      await resetCheckoutContainer()
-      await new Promise((resolve, reject) => setTimeout(loadCheckout, 2000))
+      await buildScriptElement(function() {
+        resetCheckoutContainer()
+        loadCheckout()
+      })
     }
-    loadCheckout()
+    buildScriptElement(loadCheckout)
     return reloadMyCheckout
   }
   const reloadCheckout = checkoutClosure()
