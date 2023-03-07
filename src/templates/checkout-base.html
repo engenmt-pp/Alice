@@ -15,7 +15,6 @@
     navigator.clipboard.writeText(document.getElementById(id).value)
   }
   function updateAPICalls(formattedCalls) {
-    console.log(JSON.stringify(formattedCalls, null, 2))
     document.getElementById('api-calls').click()
     for (var id in formattedCalls) {
       if (formattedCalls.hasOwnProperty(id)) {
@@ -178,19 +177,6 @@
       }
     }
   })();
-
-  (function addOnChange() {
-    const elementIDs = [
-      'intent',
-    ]
-    for (const elementID of elementIDs) {
-      const element = document.getElementById(elementID)
-      element.addEventListener('change', (event) => {
-        reloadCheckout()
-      })
-    }
-  })();
-
   document.getElementById("checkout").click()
 </script>
 {% endblock %}

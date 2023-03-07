@@ -1,5 +1,24 @@
 {% extends "checkout-base.html" %}
 
+{% block foot %}
+
+{{ super() }}
+
+<script id="script-onchange-reload">
+  (function addOnChange() {
+    const elementIDs = [
+      'intent',
+    ]
+    for (const elementID of elementIDs) {
+      const element = document.getElementById(elementID)
+      element.addEventListener('change', (event) => {
+        reloadCheckout()
+      })
+    }
+  })();
+</script>
+{% endblock %}
+
 {% block checkout %}
 <!-- Empty (for now) button container -->
 <div id="paypal-button-wrapper" class="text-center">
