@@ -15,6 +15,7 @@
     navigator.clipboard.writeText(document.getElementById(id).value)
   }
   function updateAPICalls(formattedCalls) {
+    console.log(JSON.stringify(formattedCalls, null, 2))
     document.getElementById('api-calls').click()
     for (var id in formattedCalls) {
       if (formattedCalls.hasOwnProperty(id)) {
@@ -194,12 +195,8 @@
 </script>
 {% endblock %}
 
-
 {% block left_col %}
 <form id="options-form" class="space-y-4">
-  <title class="text-lg underline">
-    Alice - A PPCP Testing Tool
-  </title>
   <div class="text-lg underline">
     Alice - A PPCP Testing Tool
   </div>
