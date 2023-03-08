@@ -400,8 +400,57 @@
       items-center
       ">
         <label for="bn-code" class="
+        flex-none
+        basis-1/3
+        ">
+          Merchant ID
+        </label>
+        <input id="merchant-id" name="merchant-id" value="{{ merchant_id }}" disabled class="
+        appearance-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/5
+        border
+        rounded
+        leading-none
+        font-mono
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:border-blue-500
+        ">
+        <button type="button" onclick="copyToClipboard('merchant-id')" class="
+        px-2
+        py-1
+        ml-1
+        basis-1/6
+        rounded
+        uppercase
+        text-xs
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+        ">
+          copy
+        </button>
+      </div>
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      ">
+        <label for="merchant-id" class="
         grow
         shrink-0
+        flex-none
         basis-1/3
         whitespace-nowrap
         mr-auto
