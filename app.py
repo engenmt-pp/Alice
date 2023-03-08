@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
-from config import PartnerOneConfig, MerchantOneConfig
+# from config import PartnerOneConfig, MerchantOneConfig
+from config import MerchantOneConfig
 from src import create_app
 
 
 if __name__ == "__main__":
 
     app = create_app()
+
+    from partner_specific_config import PartnerInderConfig as PartnerOneConfig
 
     app.config.from_object(PartnerOneConfig)
     app.config.from_object(MerchantOneConfig)

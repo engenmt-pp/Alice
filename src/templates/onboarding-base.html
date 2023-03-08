@@ -1,0 +1,546 @@
+{% extends "columnar-base.html" %}
+
+{% block head %}
+<script id="script-utils">
+  function getOptions() {
+    var formData = new FormData(document.getElementById('options-form'))
+    var formOptions = Object.fromEntries(formData)
+    formOptions['partner-id'] = document.getElementById('partner-id').value
+    formOptions['client-id'] = document.getElementById('partner-client-id').value
+    formOptions['merchant-id'] = document.getElementById('merchant-id').value
+    formOptions['bn-code'] = document.getElementById('bn-code').value
+    return formOptions
+  }
+  function copyToClipboard(id) {
+    navigator.clipboard.writeText(document.getElementById(id).value)
+  }
+  function updateAPICalls(formattedCalls) {
+    document.getElementById('api-calls').click()
+    for (const id in formattedCalls) {
+      if (formattedCalls.hasOwnProperty(id)) {
+        const contents = formattedCalls[id]
+        const apiCallTab = document.getElementById('api-calls-' + id)
+        apiCallTab.innerHTML = contents
+        const apiCallsButton = document.getElementById(id)
+        enableButton(apiCallsButton)
+        apiCallsButton.click()
+      }
+    }
+  }
+  function enableButton(button) {
+    const disabledClassList = ["text-zinc-500", "dark:text-zinc-500", "cursor-not-allowed", "hidden"]
+    const enabledClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"]
+
+    button.classList.remove(...disabledClassList)
+    button.classList.add(...enabledClassList)
+  }
+  function makeActiveButton(buttonList, button) {
+    const activeClassList = ["text-blue-600", "bg-zinc-200/50", "dark:text-blue-500", "dark:bg-zinc-600/50", "active"]
+    const inactiveClassList = ["hover:text-zinc-700", "hover:bg-zinc-100/50", "dark:hover:text-zinc-300", "dark:hover:bg-zinc-700/50"]
+
+    buttonList.forEach(each => {
+      each.classList.remove(...activeClassList)
+      each.classList.add(...inactiveClassList)
+    })
+
+    button.classList.remove(...inactiveClassList)
+    button.classList.add(...activeClassList)
+  }
+  function makeActiveTab(tabList, tab) {
+    tabList.forEach(each => {each.classList.add("hidden");})
+    tab.classList.remove("hidden")
+  }
+</script>
+<script id="script-referrals">
+  function populateReferralLink(referralUrl) {
+    const anchor = document.getElementById('anchor-referral')
+    anchor.href = `${referralUrl}&displayMode=minibrowser`
+    anchor.classList.remove('hidden')
+  }
+  function hideGenerateButton() {
+    const generateButton = document.getElementById('button-generate')
+    generateButton.classList.add('hidden')
+  }
+  async function generateReferralLink() {
+    const options = getOptions()
+    const response = await fetch('/api/referrals-form/generate', {
+      headers: {'Content-Type': 'application/json'},
+      method: 'POST',
+      body: JSON.stringify(options)
+    })
+    const responseJson = await response.json()
+    const referralUrl = responseJson.referralUrl
+    hideGenerateButton()
+    populateReferralLink(referralUrl)
+    updateAPICalls(responseJson.formatted)
+  }
+</script>
+{% endblock %}
+
+{% block foot %}
+<script id="script-init-tabs">
+  function initializeTabsAndButtons(prefix) {
+    const root = document.querySelector(`#${prefix}buttons-tabs`)
+    const buttonContainer = root.querySelector(`#${prefix}buttons`)
+    const tabContainer = root.querySelector(`#${prefix}tabs`)
+    const buttonList = buttonContainer.querySelectorAll(".button")
+    const tabList = root.querySelectorAll(`#${prefix}tabs > .tab`)
+    buttonContainer.onclick = function(e) {
+      const button = e.target
+      const buttonId = button.getAttribute("id")
+      if (buttonId != null && !button.classList.contains("cursor-not-allowed")) {
+        makeActiveButton(buttonList, button)
+
+        const tab = document.getElementById(`tab-${buttonId}`)
+        if (tab === null) {
+          console.log(`document.getElementById('tab-${buttonId}') found null!`)
+        } else {
+          makeActiveTab(tabList, tab)
+        }
+      }
+    }
+  }
+  initializeTabsAndButtons('')
+  initializeTabsAndButtons('api-calls-')
+  document.getElementById("onboarding").click()
+</script>
+{% endblock %}
+
+{% block left_col %}
+<form id="options-form" class="space-y-4">
+  <div class="text-lg underline">
+    Alice - A PPCP Testing Tool
+  </div>
+  <fieldset class="space-y-2">
+    <legend class="block font-semibold">Partner/merchant info</legend>
+    <div class="ml-2">
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="partner-id" class="
+        basis-1/3
+        shrink-0
+        ">
+          Partner ID
+        </label>
+        <input id="partner-id" name="partner-id" value="{{ partner_id }}" disabled class="
+        appearance-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/5
+        border
+        rounded
+        leading-none
+        font-mono
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:border-blue-500
+        ">
+        <button type="button" onclick="copyToClipboard('partner-id')" class="
+        px-2
+        py-1
+        ml-1
+        basis-1/6
+        rounded
+        uppercase
+        text-xs
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+        ">
+          copy
+        </button>
+      </div>
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      ">
+        <label for="partner-client-id" class="
+        flex-none
+        basis-1/3
+        ">
+          Client ID
+        </label>
+        <input id="partner-client-id" name="partner-client-id" value="{{ partner_client_id }}" disabled class="
+        appearance-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/5
+        border
+        rounded
+        leading-none
+        font-mono
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:border-blue-500
+        ">
+        <button type="button" onclick="copyToClipboard('partner-client-id')" class="
+        px-2
+        py-1
+        ml-1
+        basis-1/6
+        rounded
+        uppercase
+        text-xs
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+        ">
+          copy
+        </button>
+      </div>
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      ">
+        <label for="bn-code" class="
+        flex-none
+        basis-1/3
+        ">
+          BN Code
+        </label>
+        <input id="bn-code" name="bn-code" value="{{ bn_code }}" disabled class="
+        appearance-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/5
+        border
+        rounded
+        leading-none
+        font-mono
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:border-blue-500
+        ">
+        <button type="button" onclick="copyToClipboard('bn-code')" class="
+        px-2
+        py-1
+        ml-1
+        basis-1/6
+        rounded
+        uppercase
+        text-xs
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+        ">
+          copy
+        </button>
+      </div>
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      ">
+        <label for="merchant-id" class="
+        flex-none
+        basis-1/3
+        ">
+          Merchant ID
+        </label>
+        <input id="merchant-id" name="merchant-id" class="
+        appearance-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/5
+        border
+        rounded
+        leading-none
+        font-mono
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:border-blue-500
+        ">
+        <button type="button" onclick="copyToClipboard('merchant-id')" class="
+        px-2
+        py-1
+        ml-1
+        basis-1/6
+        rounded
+        uppercase
+        text-xs
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+        ">
+          copy
+        </button>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset class="space-y-2">
+    <legend class="block font-semibold">
+      Referral options
+    </legend>
+    <fieldset class="ml-2 space-y-2">
+      <legend class="block">
+        Features
+      </legend>
+      <ul class="ml-1 mb-2 w-full space-y-1">
+        <li class="w-full flex items-center">
+          <input id="feature-payment" type="checkbox" name="feature-payment" value="PAYMENT" class="
+            w-4
+            h-4
+            rounded
+            border-zinc-300 dark:border-zinc-600
+            focus:ring-2
+            focus:ring-blue-300 dark:focus:ring-blue-600
+            dark:bg-zinc-700
+            dark:focus:bg-blue-600
+          ">
+          <label for="feature-payment" class="w-full ml-2">
+            Payment
+          </label>
+        </li>
+        <li class="w-full flex items-center">
+          <input id="feature-refund" type="checkbox" name="feature-refund" value="REFUND" class="
+            w-4
+            h-4
+            rounded
+            border-zinc-300 dark:border-zinc-600
+            focus:ring-2
+            focus:ring-blue-300 dark:focus:ring-blue-600
+            dark:bg-zinc-700
+            dark:focus:bg-blue-600
+          ">
+          <label for="feature-refund" class="w-full ml-2">
+            Refund
+          </label>
+        </li>
+        <li class="w-full flex items-center">
+          <input id="feature-partner-fee" type="checkbox" name="feature-partner-fee" value="PARTNER_FEE" class="
+            w-4
+            h-4
+            rounded
+            border-zinc-300 dark:border-zinc-600
+            focus:ring-2
+            focus:ring-blue-300 dark:focus:ring-blue-600
+            dark:bg-zinc-700
+            dark:focus:bg-blue-600
+          ">
+          <label for="feature-partner-fee" class="w-full ml-2">
+            Partner fee
+          </label>
+        </li>
+      </ul>
+    </fieldset>
+    <fieldset class="ml-2">
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="tracking-id" class="
+        flex-none
+        basis-1/3
+        ">
+          Tracking ID
+        </label>
+        <input id="tracking-id" name="tracking-id" type="text" class="
+        appearance-none
+        leading-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/3
+        font-mono
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+      </div>
+    </fieldset>
+  </fieldset>
+</form>
+{% endblock %}
+
+{% block right_col %}
+<div id="buttons-tabs">
+  <!-- Buttons for tabs -->
+  <div id="buttons">
+    <ul class="
+    mb-2
+    space-x-2
+    flex
+    flex-wrap
+    text-center
+    border-b
+    text-zinc-600 dark:text-zinc-400
+    border-zinc-300 dark:border-zinc-600
+    ">
+      <li>
+        <a href="#" id="onboarding" class="
+        button
+        inline-block
+        p-4
+        rounded-t-lg
+        hover:text-zinc-700 dark:hover:text-zinc-300
+        hover:bg-zinc-100 dark:hover:bg-zinc-700
+        ">Onboarding</a>
+      </li>
+      <li>
+        <a href="#" id="api-calls" class="
+        button
+        inline-block
+        p-4
+        rounded-t-lg
+        hover:text-zinc-700 dark:hover:text-zinc-300
+        hover:bg-zinc-100 dark:hover:bg-zinc-700
+        ">API Calls</a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Tabs -->
+  <div id="tabs" class="w-100">
+    <div id="tab-onboarding" class="tab center hidden">
+      <div class="
+      rounded-b-md
+      w-full
+      top-0
+      p-2
+      ">
+        <script src="https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js" async></script>
+        <button id='button-generate' onclick="generateReferralLink()" class="
+        px-2
+        py-1
+        rounded
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+        ">
+          Generate referral link
+        </button>
+        <a id="anchor-referral" data-paypal-button="true" target="PPFrame" class="
+        px-2
+        py-1
+        rounded
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+        hidden
+        ">
+          Begin Onboarding
+        </a>
+      </div>
+    </div>
+    <div id="tab-api-calls" class="tab center hidden">
+      <div id="api-calls-buttons-tabs">
+        <!-- Buttons for tabs -->
+        <div id="api-calls-buttons">
+          <ul class="
+          flex
+          flex-wrap
+          text-center
+          border-b
+          mb-2
+          text-zinc-500 dark:text-zinc-500
+          border-zinc-300 dark:border-zinc-600
+          ">
+            <li>
+              <a id="access-token" href="#" class="
+              button
+              inline-block
+              p-4
+              rounded-t-lg
+              cursor-not-allowed
+              ">Access Token</a>
+            </li>
+            <li>
+              <a id="generate-referral" href="#" class="
+              button
+              inline-block
+              p-4
+              rounded-t-lg
+              cursor-not-allowed
+              hidden
+              ">Generate Referral</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Tabs -->
+        <div id="api-calls-tabs" class="font-mono dark:text-zinc-100">
+          <div id="tab-access-token" class="tab center hidden">
+            <div id="api-calls-access-token" class="
+            w-full
+            top-0
+            p-2
+            break-words
+            whitespace-pre-wrap
+            bg-zinc-100 dark:bg-zinc-700
+            "></div>
+          </div>
+          <div id="tab-generate-referral" class="tab center hidden">
+            <div id="api-calls-generate-referral" class="
+            w-full
+            top-0
+            p-2
+            break-words
+            whitespace-pre-wrap
+            bg-zinc-100 dark:bg-zinc-700
+            "></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
