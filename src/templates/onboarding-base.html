@@ -108,9 +108,6 @@
 
 {% block left_col %}
 <form id="options-form" class="space-y-4">
-  <div class="text-lg underline">
-    Alice - A PPCP Testing Tool
-  </div>
   <fieldset class="space-y-2">
     <legend class="block font-semibold">Partner/merchant info</legend>
     <div class="ml-2">
@@ -320,14 +317,14 @@
       <ul class="ml-1 mb-2 w-full space-y-1">
         <li class="w-full flex items-center">
           <input id="feature-payment" type="checkbox" name="feature-payment" value="PAYMENT" class="
-            w-4
-            h-4
-            rounded
-            border-zinc-300 dark:border-zinc-600
-            focus:ring-2
-            focus:ring-blue-300 dark:focus:ring-blue-600
-            dark:bg-zinc-700
-            dark:focus:bg-blue-600
+          w-4
+          h-4
+          rounded
+          border-zinc-300 dark:border-zinc-600
+          focus:ring-2
+          focus:ring-blue-300 dark:focus:ring-blue-600
+          dark:bg-zinc-700
+          dark:focus:bg-blue-600
           ">
           <label for="feature-payment" class="w-full ml-2">
             Payment
@@ -335,14 +332,14 @@
         </li>
         <li class="w-full flex items-center">
           <input id="feature-refund" type="checkbox" name="feature-refund" value="REFUND" class="
-            w-4
-            h-4
-            rounded
-            border-zinc-300 dark:border-zinc-600
-            focus:ring-2
-            focus:ring-blue-300 dark:focus:ring-blue-600
-            dark:bg-zinc-700
-            dark:focus:bg-blue-600
+          w-4
+          h-4
+          rounded
+          border-zinc-300 dark:border-zinc-600
+          focus:ring-2
+          focus:ring-blue-300 dark:focus:ring-blue-600
+          dark:bg-zinc-700
+          dark:focus:bg-blue-600
           ">
           <label for="feature-refund" class="w-full ml-2">
             Refund
@@ -350,17 +347,32 @@
         </li>
         <li class="w-full flex items-center">
           <input id="feature-partner-fee" type="checkbox" name="feature-partner-fee" value="PARTNER_FEE" class="
-            w-4
-            h-4
-            rounded
-            border-zinc-300 dark:border-zinc-600
-            focus:ring-2
-            focus:ring-blue-300 dark:focus:ring-blue-600
-            dark:bg-zinc-700
-            dark:focus:bg-blue-600
+          w-4
+          h-4
+          rounded
+          border-zinc-300 dark:border-zinc-600
+          focus:ring-2
+          focus:ring-blue-300 dark:focus:ring-blue-600
+          dark:bg-zinc-700
+          dark:focus:bg-blue-600
           ">
           <label for="feature-partner-fee" class="w-full ml-2">
             Partner fee
+          </label>
+        </li>
+        <li class="w-full flex items-center">
+          <input id="feature-future-payment" type="checkbox" name="feature-future-payment" value="FUTURE_PAYMENT" class="
+          w-4
+          h-4
+          rounded
+          border-zinc-300 dark:border-zinc-600
+          focus:ring-2
+          focus:ring-blue-300 dark:focus:ring-blue-600
+          dark:bg-zinc-700
+          dark:focus:bg-blue-600
+          ">
+          <label for="feature-future-payment" class="w-full ml-2">
+            Future payment
           </label>
         </li>
       </ul>
@@ -510,7 +522,6 @@
               p-4
               rounded-t-lg
               cursor-not-allowed
-              hidden
               ">Generate Referral</a>
             </li>
           </ul>
