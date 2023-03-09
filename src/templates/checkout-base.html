@@ -118,6 +118,10 @@
         const disableFunding = oldScriptURL.searchParams.get('disable-funding')
         url.searchParams.append('disable-funding', disableFunding)
       }
+      if (oldScriptURL.searchParams.has('vault')) {
+        const vault = oldScriptURL.searchParams.get('vault')
+        url.searchParams.append('vault', vault)
+      }
     }
 
     const newScriptElement = document.createElement('script')
