@@ -65,6 +65,14 @@ def checkout(
             additional_query,
             client_token=client_token,
         )
+    elif intent == "tokenize":
+        script_tag = build_script_tag(
+            partner_client_id,
+            merchant_id,
+            intent,
+            bn_code,
+            additional_query,
+        )
     else:
         # For branded integrations that don't use the client_token,
         # the script tag will be built on the client side.

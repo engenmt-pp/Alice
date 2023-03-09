@@ -98,6 +98,10 @@
         const components = oldScriptURL.searchParams.get('components')
         url.searchParams.append('components', components)
       }
+      if (oldScriptURL.searchParams.has('vault')) {
+        const vault = oldScriptURL.searchParams.get('vault')
+        url.searchParams.append('vault', vault)
+      }
     }
 
     const newScriptElement = document.createElement('script')
@@ -218,6 +222,7 @@
         ">
           <option value="CAPTURE" selected>Capture</option>
           <option value="AUTHORIZE">Authorize</option>
+          <option value="TOKENIZE">Tokenize</option>
         </select>
       </div>
       <div class="

@@ -10,7 +10,11 @@ from .utils import (
 bp = Blueprint("billing_form", __name__, url_prefix="/billing-form")
 
 
-def default_billing_agreement():
+def default_billing_agreement(type="MIB"):
+    if type.upper() == "MIB":
+        type = "MERCHANT_INITIATED_BILLING"
+    else:
+        type = "CHANNEL_INITIATED_BILLING"
     return {
         "description": "A billing agreement.",
         "shipping_address": {
@@ -23,7 +27,7 @@ def default_billing_agreement():
         },
         "payer": {"payment_method": "PAYPAL"},
         "plan": {
-            "type": "CHANNEL_INITIATED_BILLING",
+            "type": type,
             "merchant_preferences": {
                 "return_url": "https://example.com/return",
                 "cancel_url": "https://example.com/cancel",
