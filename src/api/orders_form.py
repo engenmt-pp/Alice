@@ -87,6 +87,11 @@ def build_purchase_unit(
         ]
         purchase_unit["payment_instruction"] = payment_instruction
 
+    if billing_agreement_id is not None:
+        purchase_unit["payment_source"] = {
+            "token": {"id": billing_agreement_id, "type": "BILLING_AGREEMENT"}
+        }
+
     breakdown = {}
     shipping_cost = 9.99
     shipping = build_shipping(
@@ -152,9 +157,11 @@ def create_order_router():
     form_options = request.get_json()
     current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
 
-    headers = build_headers(return_formatted=True, include_auth_assertion=False)
-    formatted = headers["formatted"]
-    del headers["formatted"]
+    auth_header = form_options.get("authHeader")
+    headers = build_headers(return_formatted=True, auth_header=auth_header)
+    formatted = headers.get("formatted", dict())
+    if formatted:
+        del headers["formatted"]
     headers["PayPal-Request-Id"] = random_decimal_string(length=10)
 
     create_response = create_order(headers, form_options)
@@ -220,6 +227,7 @@ def create_order(headers, form_options):
         soft_descriptor=soft_descriptor,
         partner_fee=partner_fee,
         item_category=item_category,
+        billing_agreement_id=billing_agreement_id,
         include_payee=include_payee,
     )
 
@@ -229,6 +237,9 @@ def create_order(headers, form_options):
         "application_context": application_context,
         "intent": intent,
         "purchase_units": [purchase_unit],
+        "payment_source": {
+            "token": {"id": billing_agreement_id, "type": "BILLING_AGREEMENT"}
+        },
     }
     if billing_agreement_id:
         payment_source = {
