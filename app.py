@@ -12,6 +12,7 @@ if __name__ == "__main__":
     # app.config.from_object(MerchantOneConfig)
 
     # from partner_specific_config import PartnerMerchantConfig
+
     # app.config.from_object(PartnerMerchantConfig)
 
     from partner_specific_config import MerchantAppConfig

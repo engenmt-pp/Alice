@@ -7,6 +7,7 @@ from .utils import (
     build_headers,
     log_and_request,
     format_request_and_response,
+    random_decimal_string,
 )
 
 bp = Blueprint("orders_form", __name__, url_prefix="/orders-form")
@@ -35,13 +36,15 @@ def build_purchase_unit(
     include_line_items=True,
     item_category=None,
     billing_agreement_id=None,
+    include_payee=True,
 ):
     price = float(price)
     purchase_unit = {
         "custom_id": "Up to 127 characters can go here!",
-        "payee": {"merchant_id": merchant_id},
         "soft_descriptor": "1234567890111213141516",
     }
+    if include_payee:
+        purchase_unit["payee"] = {"merchant_id": merchant_id}
 
     if reference_id is not None:
         purchase_unit["reference_id"] = reference_id
@@ -56,7 +59,7 @@ def build_purchase_unit(
         ]
         purchase_unit["payment_instruction"] = payment_instruction
 
-    if billing_agreement_id is not None:
+    if False and (billing_agreement_id is not None):
         purchase_unit["payment_source"] = {
             "token": {"id": billing_agreement_id, "type": "BILLING_AGREEMENT"}
         }
@@ -116,9 +119,10 @@ def create_order_router():
     form_options = request.get_json()
     current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
 
-    headers = build_headers(return_formatted=True)
+    headers = build_headers(return_formatted=True, include_auth_assertion=True)
     formatted = headers["formatted"]
     del headers["formatted"]
+    headers["PayPal-Request-Id"] = random_decimal_string(length=10)
 
     create_response = create_order(headers, form_options)
     formatted["create-order"] = format_request_and_response(create_response)
@@ -146,6 +150,11 @@ def create_order(headers, form_options):
     price = form_options["price"]
     include_shipping_options = shipping_preference != "NO_SHIPPING"
 
+    if "PayPal-Auth-Assertion" in headers:
+        include_payee = False
+    else:
+        include_payee = True
+
     if intent == "CAPTURE":
         partner_fee = float(form_options["partner-fee"])
         disbursement_mode = form_options["disbursement-mode"]
@@ -165,6 +174,7 @@ def create_order(headers, form_options):
         partner_fee=partner_fee,
         item_category=item_category,
         billing_agreement_id=billing_agreement_id,
+        include_payee=include_payee,
     )
 
     application_context = build_application_context(shipping_preference)
@@ -173,6 +183,9 @@ def create_order(headers, form_options):
         "application_context": application_context,
         "intent": intent,
         "purchase_units": [purchase_unit],
+        "payment_source": {
+            "token": {"id": billing_agreement_id, "type": "BILLING_AGREEMENT"}
+        },
     }
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
@@ -209,10 +222,11 @@ def auth_and_capture_order(order_id, form_options):
         auth_id = auth_response.json()["purchase_units"][0]["payments"][
             "authorizations"
         ][0]["id"]
-    except TypeError as exc:
+    except (TypeError, KeyError) as exc:
         current_app.logger.error(
             f"Error accessing auth id from response json: {json.dumps(dict(auth_response.json),indent=2)}"
         )
+        return formatted_dict
 
     capture_response = capture_authorization(auth_id, form_options)
     formatted_dict["capture-order"] = format_request_and_response(capture_response)

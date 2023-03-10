@@ -1,5 +1,47 @@
 {% extends "checkout-base.html" %}
 
+<!-- {% block head %}
+
+{{ super() }}
+
+<script id="script-orders">
+  function orderClosure() {
+    let orderID
+    async function createOrder() {
+      const options = getOptions()
+      const response = await fetch('/api/orders-form/create', {
+        headers: {'Content-Type': 'application/json'},
+        method: 'POST',
+        body: JSON.stringify(options)
+      })
+      const responseJson = await response.json()
+      updateAPICalls(responseJson.formatted)
+      orderID = responseJson.orderID
+    }
+    async function captureOrder() {
+      const options = getOptions()
+      const response = await fetch(`/api/orders-form/capture/${orderID}`, {
+        headers: {'Content-Type': 'application/json'},
+        method: 'POST',
+        body: JSON.stringify(options)
+      })
+      const responseJson = await response.json()
+      updateAPICalls(responseJson.formatted)
+    }
+    function progressOrder() {
+      if (typeof orderID === 'undefined') {
+        createOrder()
+      } else {
+        captureOrder()
+      }
+    }
+    return progressOrder
+  }
+
+</script>
+
+{% endblock %} -->
+
 {% block foot %}
 
 {{ super() }}
@@ -92,5 +134,12 @@
     return reloadMyCheckout
   }
   const reloadCheckout = checkoutClosure()
+  // const progressOrder = orderClosure()
 </script>
+<!-- <button onclick="progressOrder()">
+  Create Order
+</button>
+<button onclick="progressOrder()">
+  Capture Order
+</button> -->
 {% endblock %}

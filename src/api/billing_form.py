@@ -43,7 +43,7 @@ def default_billing_agreement(type="MIB"):
 @bp.route("/create-billing-agreement-token", methods=("POST",))
 def create_billing_agreement_token():
     endpoint = build_endpoint("/v1/billing-agreements/agreement-tokens")
-    headers = build_headers(include_auth_assertion=True, return_formatted=True)
+    headers = build_headers(include_auth_assertion=False, return_formatted=True)
     formatted = headers["formatted"]
     del headers["formatted"]
 
@@ -63,7 +63,7 @@ def create_billing_agreement_token():
 @bp.route("/create-billing-agreement", methods=("POST",))
 def create_billing_agreement():
     endpoint = build_endpoint("/v1/billing-agreements/agreements")
-    headers = build_headers(include_auth_assertion=True, return_formatted=True)
+    headers = build_headers(include_auth_assertion=False, return_formatted=True)
     formatted = headers["formatted"]
     del headers["formatted"]
 
