@@ -6,23 +6,13 @@ from config import PartnerOneConfig
 # from config import MerchantOneConfig
 from src import create_app
 
+app = create_app()
+
+app.config.from_object(PartnerOneConfig)
+app.config.from_object(MerchantOneConfig)
+
+app.logger.info(f"Partner ID: {app.config['PARTNER_ID']}")
+app.logger.info(f"Merchant ID: {app.config['MERCHANT_ID']}")
 
 if __name__ == "__main__":
-
-    app = create_app()
-
-    app.config.from_object(PartnerOneConfig)
-    # app.config.from_object(MerchantOneConfig)
-
-    # from partner_specific_config import PartnerMerchantConfig
-
-    # app.config.from_object(PartnerMerchantConfig)
-
-    from partner_specific_config import MerchantAppConfig2
-
-    app.config.from_object(MerchantAppConfig2)
-
-    app.logger.info(f"Partner ID: {app.config['PARTNER_ID']}")
-    # app.logger.info(f"Merchant ID: {app.config['MERCHANT_ID']}")
-
     app.run(host="127.0.0.1", port=5000)
