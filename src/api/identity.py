@@ -14,11 +14,7 @@ from .utils import (
 bp = Blueprint("identity", __name__, url_prefix="/identity")
 
 
-def generate_client_token():
-    request_body = request.get_json()
-    customer_id = request_body.get("customerId")
-    return_formatted = request_body.get("return_formatted", True)
-
+def generate_client_token(customer_id=None, return_formatted=False):
     endpoint = build_endpoint("/v1/identity/generate-token")
     headers = build_headers(return_formatted=return_formatted)
     if return_formatted:
