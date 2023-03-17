@@ -227,7 +227,6 @@ def create_order(headers, form_options):
         soft_descriptor=soft_descriptor,
         partner_fee=partner_fee,
         item_category=item_category,
-        billing_agreement_id=billing_agreement_id,
         include_payee=include_payee,
     )
 
@@ -237,9 +236,6 @@ def create_order(headers, form_options):
         "application_context": application_context,
         "intent": intent,
         "purchase_units": [purchase_unit],
-        "payment_source": {
-            "token": {"id": billing_agreement_id, "type": "BILLING_AGREEMENT"}
-        },
     }
     if billing_agreement_id:
         payment_source = {
