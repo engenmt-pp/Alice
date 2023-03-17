@@ -81,7 +81,18 @@
   // populateForm()
 </script>
 <script id="script-pp-utils">
-  async function buildScriptElement(onload, vault=false) {
+  async function getToken(customerId = null) {
+    const clientTokenResponse = await fetch('/api/identity/token', {
+      headers: {'Content-Type': 'application/json'},
+      method: 'POST',
+      body: {
+        customerId: customerId.value,
+      }
+    })
+    const idToken = clientTokenResponse.json()['id-token']
+    return idToken
+  }
+  async function buildScriptElement(onload) {
     const options = getOptions()
     const url = new URL('https://www.paypal.com/sdk/js')
     url.searchParams.append("client-id", options['client-id'])
@@ -111,15 +122,20 @@
     const newScriptElement = document.createElement('script')
     newScriptElement.id = 'paypal-js-sdk'
     newScriptElement.src = url.href
+
+    const customerId = document.getElementById('customer-id')
     if (oldScriptElement.hasAttribute('data-client-token')) {
       const dataClientToken = oldScriptElement.getAttribute('data-client-token')
+      newScriptElement.setAttribute('data-client-token', dataClientToken)
+    } else if (customerId.value !== null) {
+      const dataClientToken = getToken(customerId.value)
       newScriptElement.setAttribute('data-client-token', dataClientToken)
     }
 
     const BNCode = options['bn-code']
     newScriptElement.setAttribute('data-partner-attribution-id', BNCode)
-    newScriptElement.onload = onload
 
+    newScriptElement.onload = onload
     oldScriptElement.replaceWith(newScriptElement)
   }
   async function resetCheckoutContainer() {

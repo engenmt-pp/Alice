@@ -59,9 +59,9 @@ def log_and_request(method, endpoint, **kwargs):
     if not response.ok:
         current_app.logger.error(f"{response.status_code} Error: {response_str}\n\n")
     else:
-        debug_id = f"debug_id = {response.headers.get('PayPal-Debug-Id', None)}"
+        debug_id = response.headers.get("PayPal-Debug-Id")
         current_app.logger.debug(
-            f"({debug_id}) {response.status_code} Response: {response_str}{bar}"
+            f"({debug_id=}) {response.status_code} Response: {response_str}{bar}"
         )
 
     return response
@@ -240,40 +240,6 @@ def format_request_and_response(response):
     formatted_request = format_request(response.request)
     formatted_response = format_response(response)
     return "\n\n".join([formatted_request, formatted_response])
-
-
-def generate_client_token(customer_id=None, return_formatted=False):
-    endpoint = build_endpoint("/v1/identity/generate-token")
-    headers = build_headers(return_formatted=return_formatted)
-    if return_formatted:
-        formatted = headers["formatted"]
-        del headers["formatted"]
-
-    if customer_id is None:
-        response = requests.post(endpoint, headers=headers)
-    else:
-        data = {"customer_id": customer_id}
-        response = log_and_request("POST", endpoint, headers=headers, data=data)
-
-    response_json = response.json()
-    try:
-        client_token = response_json["client_token"]
-    except Exception as exc:
-        current_app.log.error(
-            f"No client_token returned! Response: {json.dumps(response_json, 2)}"
-        )
-        raise exc
-
-    if return_formatted:
-        formatted["client-token"] = format_request_and_response(response)
-        auth_header = headers["Authorization"]
-        return {
-            "client_token": client_token,
-            "formatted": formatted,
-            "auth_header": auth_header,
-        }
-
-    return client_token
 
 
 def random_decimal_string(length):

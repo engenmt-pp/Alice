@@ -1,9 +1,7 @@
 import json
 
 from flask import Blueprint, current_app, render_template, url_for
-from .api.utils import (
-    generate_client_token,
-)
+from .api.identity import generate_client_token
 from .api.orders import (
     get_order_details,
     get_payment_tokens,
