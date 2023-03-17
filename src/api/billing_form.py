@@ -18,7 +18,7 @@ def default_billing_agreement(type="MIB"):
     return {
         "description": "A billing agreement.",
         "shipping_address": {
-            "line1": "1324 Permutation Parkway",
+            "line1": "1324 Permutation Pattern Parkway",
             "city": "Gainesville",
             "state": "FL",
             "postal_code": "32601",

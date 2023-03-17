@@ -59,11 +59,6 @@ def build_purchase_unit(
         ]
         purchase_unit["payment_instruction"] = payment_instruction
 
-    if False and (billing_agreement_id is not None):
-        purchase_unit["payment_source"] = {
-            "token": {"id": billing_agreement_id, "type": "BILLING_AGREEMENT"}
-        }
-
     breakdown = {}
 
     if include_shipping_options:
@@ -173,7 +168,6 @@ def create_order(headers, form_options):
         include_shipping_options=include_shipping_options,
         partner_fee=partner_fee,
         item_category=item_category,
-        billing_agreement_id=billing_agreement_id,
         include_payee=include_payee,
     )
 
@@ -183,10 +177,12 @@ def create_order(headers, form_options):
         "application_context": application_context,
         "intent": intent,
         "purchase_units": [purchase_unit],
-        "payment_source": {
-            "token": {"id": billing_agreement_id, "type": "BILLING_AGREEMENT"}
-        },
     }
+    if billing_agreement_id:
+        payment_source = {
+            "token": {"id": billing_agreement_id, "type": "BILLING_AGREEMENT"}
+        }
+        data["payment_source"] = payment_source
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     return response

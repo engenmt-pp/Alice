@@ -9,7 +9,7 @@ if __name__ == "__main__":
     app = create_app()
 
     app.config.from_object(PartnerOneConfig)
-    # app.config.from_object(MerchantOneConfig)
+    app.config.from_object(MerchantOneConfig)
 
     # from partner_specific_config import PartnerMerchantConfig
 
