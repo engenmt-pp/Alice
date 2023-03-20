@@ -30,12 +30,14 @@ def generate_partner_referral():
     form_options = request.get_json()
     current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
 
-    product = "EXPRESS_CHECKOUT"
+    product = form_options.get("product")
     tracking_id = form_options.get("tracking-id")
     return_url = "http://localhost:5000"
     features = [
         value for option, value in form_options.items() if option.startswith("feature-")
     ]
+    country_code = form_options.get("country-code")
+    email = form_options.get("email")
 
     data = {
         "operations": [
@@ -57,6 +59,12 @@ def generate_partner_referral():
             "return_url_description": "A description of the return URL.",
         },
     }
+    if country_code:
+        data["business_entity"] = (
+            {"addresses": [{"country_code": country_code, "type": "WORK"}]},
+        )
+    if email:
+        data["email"] = email
 
     if tracking_id:
         data["tracking_id"] = tracking_id

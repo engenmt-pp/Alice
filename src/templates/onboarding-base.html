@@ -79,7 +79,7 @@
 
 {% block foot %}
 <script id="script-init-tabs">
-  function initializeTabsAndButtons(prefix) {
+  function initializeTabsAndButtons(prefix='') {
     const root = document.querySelector(`#${prefix}buttons-tabs`)
     const buttonContainer = root.querySelector(`#${prefix}buttons`)
     const tabContainer = root.querySelector(`#${prefix}tabs`)
@@ -100,7 +100,7 @@
       }
     }
   }
-  initializeTabsAndButtons('')
+  initializeTabsAndButtons()
   initializeTabsAndButtons('api-calls-')
   document.getElementById("onboarding").click()
 </script>
@@ -409,6 +409,98 @@
         focus:bg-white dark:focus:bg-zinc-900
         focus:border-blue-500 dark:focus:border-blue-500
         ">
+      </div>
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <legend for="product" class="basis-1/3">
+          Product
+        </legend>
+        <select name="product" id="product" class="
+        leading-none
+        px-2
+        py-1
+        basis-2/3
+        grow
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+          <option value="EXPRESS_CHECKOUT" selected>Branded only</option>
+          <option value="PPCP">Branded + ACDC</option>
+        </select>
+      </div>
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="email" class="
+        flex-none
+        basis-1/3
+        ">
+          Email
+        </label>
+        <input id="email" name="email" type="text" class="
+        appearance-none
+        leading-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/3
+        font-mono
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+      </div>
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <legend for="country-code" class="basis-1/3">
+          Country
+        </legend>
+        <select name="country-code" id="country-code" class="
+        leading-none
+        px-2
+        py-1
+        basis-2/3
+        grow
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+          <option value='' selected>None</option>
+          <option value="US">United States</option>
+          <option value="GB">Great Britain</option>
+          <option value="IE">Ireland</option>
+        </select>
       </div>
     </fieldset>
   </fieldset>
