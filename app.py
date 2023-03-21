@@ -15,9 +15,9 @@ if __name__ == "__main__":
 
     # app.config.from_object(PartnerMerchantConfig)
 
-    from partner_specific_config import MerchantAppConfig
+    from partner_specific_config import MerchantAppConfig2
 
-    app.config.from_object(MerchantAppConfig)
+    app.config.from_object(MerchantAppConfig2)
 
     app.logger.info(f"Partner ID: {app.config['PARTNER_ID']}")
     app.logger.info(f"Merchant ID: {app.config['MERCHANT_ID']}")

@@ -84,7 +84,15 @@
   async function buildScriptElement(onload) {
     const options = getOptions()
     const url = new URL('https://www.paypal.com/sdk/js')
-    url.searchParams.append("client-id", options['client-id'])
+    const merchantClientId = '{{merchant_client_id}}'
+    const apiCaller = document.getElementById('api-caller')
+    let clientId
+    if (apiCaller !== null && apiCaller.value == 'merchant') {
+      clientId = merchantClientId
+    } else {
+      clientId = options['client-id']
+    }
+    url.searchParams.append("client-id", clientId)
     url.searchParams.append("merchant-id", options['merchant-id'])
     url.searchParams.append("intent", options['intent'].toLowerCase())
     url.searchParams.append("currency", options['currency'])

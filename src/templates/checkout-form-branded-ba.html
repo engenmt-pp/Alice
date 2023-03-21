@@ -1,46 +1,72 @@
 {% extends "checkout-base.html" %}
 
-<!-- {% block head %}
-
-{{ super() }}
-
-<script id="script-orders">
-  function orderClosure() {
-    let orderID
-    async function createOrder() {
-      const options = getOptions()
-      const response = await fetch('/api/orders-form/create', {
-        headers: {'Content-Type': 'application/json'},
-        method: 'POST',
-        body: JSON.stringify(options)
-      })
-      const responseJson = await response.json()
-      updateAPICalls(responseJson.formatted)
-      orderID = responseJson.orderID
-    }
-    async function captureOrder() {
-      const options = getOptions()
-      const response = await fetch(`/api/orders-form/capture/${orderID}`, {
-        headers: {'Content-Type': 'application/json'},
-        method: 'POST',
-        body: JSON.stringify(options)
-      })
-      const responseJson = await response.json()
-      updateAPICalls(responseJson.formatted)
-    }
-    function progressOrder() {
-      if (typeof orderID === 'undefined') {
-        createOrder()
-      } else {
-        captureOrder()
-      }
-    }
-    return progressOrder
-  }
-
-</script>
-
-{% endblock %} -->
+{% block checkout_options %}
+<fieldset>
+  <legend class="block mb-2 font-semibold">
+    Meta
+  </legend>
+  <div class="ml-2">
+    <div class="
+    mb-2
+    flex
+    flex-row
+    flex-wrap
+    items-center
+    justify-between
+    ">
+      <label for="api-caller" class="basis-1/3">
+        API-caller
+      </label>
+      <select name="api-caller" id="api-caller" class="
+      leading-none
+      px-2
+      py-1
+      basis-2/3
+      grow
+      rounded
+      border
+      focus:outline-none
+      bg-zinc-100 dark:bg-zinc-700
+      border-zinc-300 dark:border-zinc-600
+      focus:bg-white dark:focus:bg-zinc-900
+      focus:border-blue-500 dark:focus:border-blue-500
+      ">
+        <option value="partner" selected>Partner</option>
+        <option value="merchant">Merchant</option>
+      </select>
+    </div>
+    <div class="
+    mb-2
+    flex
+    flex-row
+    flex-wrap
+    items-center
+    justify-between
+    ">
+      <label for="ba-type" class="basis-1/3">
+        BA Type
+      </label>
+      <select name="ba-type" id="ba-type" class="
+      leading-none
+      px-2
+      py-1
+      basis-2/3
+      grow
+      rounded
+      border
+      focus:outline-none
+      bg-zinc-100 dark:bg-zinc-700
+      border-zinc-300 dark:border-zinc-600
+      focus:bg-white dark:focus:bg-zinc-900
+      focus:border-blue-500 dark:focus:border-blue-500
+      ">
+        <option value="CIB" selected>Channel-initiated</option>
+        <option value="MIB">Merchant-initiated</option>
+      </select>
+    </div>
+  </div>
+</fieldset>
+{% endblock %}
 
 {% block foot %}
 
@@ -53,6 +79,7 @@
   (function addOnChange() {
     const elementIDs = [
       'intent',
+      'api-caller'
     ]
     for (const elementID of elementIDs) {
       const element = document.getElementById(elementID)
@@ -81,9 +108,11 @@
       buttons = await paypal.Buttons({
         createBillingAgreement: function (data, actions) {
           console.log("Creating billing agreement token...")
+          options = getOptions()
           return fetch('/api/billing-form/create-billing-agreement-token', {
             headers: {'Content-Type': 'application/json'},
             method: 'POST',
+            body: JSON.stringify(options),
           }).then(function(res) {
             return res.json();
           }).then(function(createData) {
@@ -99,18 +128,18 @@
         },
         onApprove: function (data, actions) {
           console.log("Creating billing agreement...")
-          options = getOptions();
+          options = getOptions()
           return fetch('/api/billing-form/create-billing-agreement', {
             headers: {'Content-Type': 'application/json'},
             method: 'POST',
             body: JSON.stringify(options),
           }).then(function(res) {
-            return res.json();
+            return res.json()
           }).then(function(createData) {
-            updateAPICalls(createData.formatted);
-            billingAgreementID = createData.billingAgreementID;
-            document.getElementById('ba-id').value = billingAgreementID;
-            return billingAgreementID;
+            updateAPICalls(createData.formatted)
+            billingAgreementID = createData.billingAgreementID
+            document.getElementById('ba-id').value = billingAgreementID
+            return billingAgreementIDX
           })
         },
         onError: function (data, actions) {
@@ -134,12 +163,5 @@
     return reloadMyCheckout
   }
   const reloadCheckout = checkoutClosure()
-  // const progressOrder = orderClosure()
 </script>
-<!-- <button onclick="progressOrder()">
-  Create Order
-</button>
-<button onclick="progressOrder()">
-  Capture Order
-</button> -->
 {% endblock %}

@@ -21,8 +21,14 @@ def checkout_branded():
 def checkout_branded_ba():
     template = "checkout-form-branded-ba.html"
     intent = "tokenize"
+    merchant_client_id = current_app.config["MERCHANT_CLIENT_ID"]
     additional_query = {"commit": "true", "vault": "true"}
-    return checkout(template, intent=intent, additional_query=additional_query)
+    return checkout(
+        template,
+        intent=intent,
+        additional_query=additional_query,
+        merchant_client_id=merchant_client_id,
+    )
 
 
 @bp.route("/hosted")

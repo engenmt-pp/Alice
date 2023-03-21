@@ -114,7 +114,7 @@ def create_order_router():
     form_options = request.get_json()
     current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
 
-    headers = build_headers(return_formatted=True, include_auth_assertion=True)
+    headers = build_headers(return_formatted=True, include_auth_assertion=False)
     formatted = headers["formatted"]
     del headers["formatted"]
     headers["PayPal-Request-Id"] = random_decimal_string(length=10)

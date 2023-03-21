@@ -108,6 +108,7 @@ def request_access_token(client_id, secret, return_formatted=False):
 
 
 def build_headers(
+    api_caller=None,
     client_id=None,
     secret=None,
     bn_code=None,
@@ -116,10 +117,14 @@ def build_headers(
     return_formatted=False,
 ):
     """Build commonly used headers using a new PayPal access token."""
-    if client_id is None:
-        client_id = current_app.config["PARTNER_CLIENT_ID"]
-    if secret is None:
-        secret = current_app.config["PARTNER_SECRET"]
+    if api_caller == "merchant":
+        client_id = current_app.config["MERCHANT_CLIENT_ID"]
+        secret = current_app.config["MERCHANT_SECRET"]
+        include_bn_code = False
+        include_auth_assertion = False
+    else:
+        client_id = client_id or current_app.config["PARTNER_CLIENT_ID"]
+        secret = secret or current_app.config["PARTNER_SECRET"]
 
     access_token_response = request_access_token(
         client_id, secret, return_formatted=return_formatted
@@ -133,8 +138,7 @@ def build_headers(
     }
 
     if include_bn_code:
-        if bn_code is None:
-            bn_code = current_app.config["PARTNER_BN_CODE"]
+        bn_code = bn_code or current_app.config["PARTNER_BN_CODE"]
         headers["PayPal-Partner-Attribution-Id"] = bn_code
 
     formatted = dict()
