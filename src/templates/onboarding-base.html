@@ -375,6 +375,21 @@
             Future payment
           </label>
         </li>
+        <li class="w-full flex items-center">
+          <input id="feature-access-merchant-information" type="checkbox" name="feature-access-merchant-information" value="ACCESS_MERCHANT_INFORMATION" class="
+          w-4
+          h-4
+          rounded
+          border-zinc-300 dark:border-zinc-600
+          focus:ring-2
+          focus:ring-blue-300 dark:focus:ring-blue-600
+          dark:bg-zinc-700
+          dark:focus:bg-blue-600
+          ">
+          <label for="feature-access-merchant-information" class="w-full ml-2">
+            Access merchant information
+          </label>
+        </li>
       </ul>
     </fieldset>
     <fieldset class="ml-2">
@@ -501,6 +516,77 @@
           <option value="GB">Great Britain</option>
           <option value="IE">Ireland</option>
         </select>
+      </div>
+    </fieldset>
+  </fieldset>
+  <fieldset class="space-y-2">
+    <legend class="block font-semibold">
+      Partner Config. Override
+    </legend>
+    <fieldset class="ml-2">
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="partner-logo-url" class="
+        flex-none
+        basis-1/3
+        ">
+          Logo URL
+        </label>
+        <input id="partner-logo-url" name="partner-logo-url" type="text" class="
+        appearance-none
+        leading-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/3
+        font-mono
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+      </div>
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="partner-return-url" class="
+        flex-none
+        basis-1/3
+        ">
+          Return URL
+        </label>
+        <input id="partner-return-url" name="partner-return-url" type="text" class="
+        appearance-none
+        leading-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/3
+        font-mono
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
       </div>
     </fieldset>
   </fieldset>
