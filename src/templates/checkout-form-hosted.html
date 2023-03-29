@@ -234,7 +234,7 @@
             updateAPICalls(statusData.formatted)
             return statusData
           }).then(function() {
-            return fetch('/api/orders-form/capture/' + orderID, {
+            return fetch(`/api/orders-form/capture/${orderID}`, {
               headers: {'Content-Type': 'application/json'},
               method: 'POST',
               body: JSON.stringify(options)
@@ -242,7 +242,6 @@
           }).then(function(res) {
             return res.json()
           }).then(function (captureData) {
-            console.log("captureData: " + JSON.stringify(captureData))
             updateAPICalls(captureData.formatted)
 
             var errorDetail = Array.isArray(captureData.details) && captureData.details[0]
