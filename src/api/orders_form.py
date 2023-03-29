@@ -283,3 +283,18 @@ def capture_authorization(auth_id, form_options):
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     return response
+
+
+@bp.route("/status/<order_id>", methods=("GET",))
+def get_order_status(order_id):
+    """Get the status of the order with the /v2/checkout/orders API.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_get
+    """
+    endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}")
+    headers = build_headers()
+
+    response = log_and_request("GET", endpoint, headers=headers)
+    formatted = {"get-order": format_request_and_response(response)}
+    response_dict = {"formatted": formatted}
+    return jsonify(response_dict)
