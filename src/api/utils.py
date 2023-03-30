@@ -113,7 +113,6 @@ def build_headers(
     auth_header=None,
 ):
     """Build commonly used headers using a new PayPal access token."""
-
     headers = {
         "Accept": "application/json",
         "Accept-Language": "en_US",

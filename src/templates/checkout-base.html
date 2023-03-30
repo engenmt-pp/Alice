@@ -92,7 +92,7 @@
     const idToken = clientTokenResponse.json()['id-token']
     return idToken
   }
-  async function buildScriptElement(onload) {
+  async function buildScriptElement(onload, vault=false) {
     const options = getOptions()
     const url = new URL('https://www.paypal.com/sdk/js')
     url.searchParams.append("client-id", options['client-id'])
