@@ -81,7 +81,7 @@
   // populateForm()
 </script>
 <script id="script-pp-utils">
-  async function buildScriptElement(onload) {
+  async function buildScriptElement(onload, vault=false) {
     const options = getOptions()
     const url = new URL('https://www.paypal.com/sdk/js')
     url.searchParams.append("client-id", options['client-id'])
@@ -90,6 +90,7 @@
     url.searchParams.append("currency", options['currency'])
     url.searchParams.append("commit", true)
     url.searchParams.append("enable-funding", "venmo,paylater")
+    url.searchParams.append("vault", vault)
 
     const oldScriptElement = document.getElementById('paypal-js-sdk')
     if (oldScriptElement.hasAttribute('src')) {
@@ -781,7 +782,6 @@
           mb-2
           text-zinc-500 dark:text-zinc-500
           border-zinc-300 dark:border-zinc-600
-          space-x-2
           ">
             <li>
               <a id="access-token" href="#" class="
@@ -838,6 +838,7 @@
               p-4
               rounded-t-lg
               cursor-not-allowed
+              hidden
               ">Get Order</a>
             </li>
             <li>

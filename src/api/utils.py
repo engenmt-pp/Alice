@@ -67,10 +67,6 @@ def log_and_request(method, endpoint, **kwargs):
     return response
 
 
-from functools import cache
-
-
-@cache
 def request_access_token(client_id, secret, return_formatted=False):
     """Request an access token using the /v1/oauth2/token API.
 
@@ -114,37 +110,44 @@ def build_headers(
     include_bn_code=True,
     include_auth_assertion=False,
     return_formatted=False,
+    auth_header=None,
 ):
     """Build commonly used headers using a new PayPal access token."""
-    if client_id is None:
-        client_id = current_app.config["PARTNER_CLIENT_ID"]
-    if secret is None:
-        secret = current_app.config["PARTNER_SECRET"]
-
-    access_token_response = request_access_token(
-        client_id, secret, return_formatted=return_formatted
-    )
-    access_token = access_token_response["access_token"]
     headers = {
         "Accept": "application/json",
         "Accept-Language": "en_US",
-        "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
     }
 
+    if auth_header is None:
+        client_id = client_id or current_app.config["PARTNER_CLIENT_ID"]
+        secret = secret or current_app.config["PARTNER_SECRET"]
+
+        access_token_response = request_access_token(
+            client_id, secret, return_formatted=return_formatted
+        )
+
+        access_token = access_token_response["access_token"]
+        auth_header = f"Bearer {access_token}"
+        if return_formatted:
+            formatted = {"access-token": access_token_response["formatted"]}
+            headers["formatted"] = formatted
+
+    elif return_formatted:
+        # If we're here, then 'return_formatted' is True and an 'auth_header' was provided!
+        raise Exception(
+            f"Incompatible options selected:\n{auth_header=}\n{return_formatted=}"
+        )
+
+    headers["Authorization"] = auth_header
+
     if include_bn_code:
-        if bn_code is None:
-            bn_code = current_app.config["PARTNER_BN_CODE"]
+        bn_code = bn_code or current_app.config["PARTNER_BN_CODE"]
         headers["PayPal-Partner-Attribution-Id"] = bn_code
 
-    formatted = dict()
     if include_auth_assertion:
         auth_assertion = build_auth_assertion()
         headers["PayPal-Auth-Assertion"] = auth_assertion
-
-    if return_formatted:
-        formatted = {"access-token": access_token_response["formatted"]}
-        headers["formatted"] = formatted
 
     return headers
 
@@ -250,6 +253,7 @@ def format_request_and_response(response):
 def generate_client_token(customer_id=None, return_formatted=False):
     endpoint = build_endpoint("/v1/identity/generate-token")
     headers = build_headers(return_formatted=return_formatted)
+
     if return_formatted:
         formatted = headers["formatted"]
         del headers["formatted"]
@@ -264,7 +268,12 @@ def generate_client_token(customer_id=None, return_formatted=False):
 
     if return_formatted:
         formatted["client-token"] = format_request_and_response(response)
-        return {"client_token": client_token, "formatted": formatted}
+        auth_header = headers["Authorization"]
+        return {
+            "client_token": client_token,
+            "formatted": formatted,
+            "auth_header": auth_header,
+        }
 
     return client_token
 
