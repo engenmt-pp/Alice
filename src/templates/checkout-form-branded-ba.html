@@ -2,58 +2,77 @@
 
 {% block checkout %}
 <!-- Empty (for now) button container -->
-<div class="smart-button-container", id="smart-button-container">
-  <div style="text-align: center;">
-    <div id="paypal-button-container"></div>
-  </div>
+<div id="paypal-button-wrapper" class="text-center">
+  <div id="paypal-button-container"></div>
 </div>
 
-<script>
-  let billingAgreementToken;
-  let billingAgreementID;
-  let options;
-  let orderID;
-  function initPayPalButton() {
-    paypal.Buttons({
-      createBillingAgreement: function (data, actions) {
-        console.log("Creating billing agreement token...")
-        return fetch('/api/billing-form/create-billing-agreement-token', {
-          headers: {'Content-Type': 'application/json'},
-          method: 'POST',
-        }).then(function(res) {
-          return res.json();
-        }).then(function(createData) {
-          updateAPICalls(createData.formatted);
-          if (createData.tokenId === null) {
-            alert("No BA token ID returned! Is CIB enabled on both the API caller and merchant accounts?")
-          } else {
-            billingAgreementToken = createData.tokenId;
-            document.getElementById('ba-token').value = billingAgreementToken;
-            return billingAgreementToken;
-          }
-        })
-      },
-      onApprove: function (data, actions) {
-        console.log("Creating billing agreement...")
-        options = getOptions();
-        return fetch('/api/billing-form/create-billing-agreement', {
-          headers: {'Content-Type': 'application/json'},
-          method: 'POST',
-          body: JSON.stringify(options),
-        }).then(function(res) {
-          return res.json();
-        }).then(function(createData) {
-          updateAPICalls(createData.formatted);
-          billingAgreementID = createData.billingAgreementID;
-          document.getElementById('ba-id').value = billingAgreementID;
-          return billingAgreementID;
-        })
-      },
-      onError: function (data, actions) {
-        alert("An error with the JS SDK occurred! Check the console for more information.");
-      },
-    }).render('#paypal-button-container');
+<script id="script-pp-checkout">
+  let authHeader
+  let orderID
+  let options
+  let billingAgreementToken
+  let billingAgreementID
+  function checkoutClosure() {
+    let buttons
+    async function loadCheckout() {
+      buttons = await paypal.Buttons({
+        createBillingAgreement: function (data, actions) {
+          console.log("Creating billing agreement token...")
+          return fetch('/api/billing-form/create-billing-agreement-token', {
+            headers: {'Content-Type': 'application/json'},
+            method: 'POST',
+          }).then(function(res) {
+            return res.json();
+          }).then(function(createData) {
+            authHeader = createData.authHeader
+            updateAPICalls(createData.formatted)
+            if (createData.tokenId === null) {
+              alert("No BA token ID returned! Is CIB enabled on both the API caller and merchant accounts?")
+            } else {
+              billingAgreementToken = createData.tokenId
+              document.getElementById('ba-token').value = billingAgreementToken
+              return billingAgreementToken
+            }
+          })
+        },
+        onApprove: function (data, actions) {
+          console.log("Creating billing agreement...")
+          options = getOptions()
+          options.authHeader = authHeader
+          return fetch('/api/billing-form/create-billing-agreement', {
+            headers: {'Content-Type': 'application/json'},
+            method: 'POST',
+            body: JSON.stringify(options),
+          }).then(function(res) {
+            return res.json()
+          }).then(function(createData) {
+            updateAPICalls(createData.formatted)
+            billingAgreementID = createData.billingAgreementID
+            document.getElementById('ba-id').value = billingAgreementID
+            return billingAgreementID
+          })
+        },
+        onError: function (data, actions) {
+          alert("An error with the JS SDK occurred! Check the console for more information.")
+        },
+      })
+      return buttons
+      .render('#paypal-button-container')
+      .catch((err) => {
+        console.log("Caught an error while rendering checkout:", err)
+      })
+    }
+
+    async function reloadMyCheckout() {
+      await buttons.close()
+      await buildScriptElement(function() {
+        resetCheckoutContainer()
+        loadCheckout()
+      })
+    }
+    buildScriptElement(loadCheckout, vault=true)
+    return reloadMyCheckout
   }
-  initPayPalButton();
+  const reloadCheckout = checkoutClosure()
 </script>
 {% endblock %}

@@ -167,12 +167,14 @@
 <script>
   let orderID
   let options
+  let authHeader = '{{ auth_header }}'
   function loadCheckout() {
     if (paypal.HostedFields.isEligible()) {
       paypal.HostedFields.render({
         createOrder: function() {
           console.log("Getting form info...")
           options = getOptions()
+          options.authHeader = authHeader
           console.log("Creating the order...")
           return fetch('/api/orders-form/create', {
             headers: {'Content-Type': 'application/json'},
@@ -223,8 +225,9 @@
             // Trigger 3D Secure authentication
             contingencies: getContingencies()
           }).then(function() {
-            return fetch(`/api/orders-form/status/${orderID}`, {
-              headers: {'Content-Type': 'application/json'},
+            console.log('Getting order status...')
+            const params = new URLSearchParams({authHeader: authHeader})
+            return fetch(`/api/orders-form/status/${orderID}?${params.toString()}`, {
               method: 'GET',
             })
           }).then(function(res) {
@@ -234,6 +237,7 @@
             updateAPICalls(statusData.formatted)
             return statusData
           }).then(function() {
+            console.log('Capturing order...')
             return fetch(`/api/orders-form/capture/${orderID}`, {
               headers: {'Content-Type': 'application/json'},
               method: 'POST',
