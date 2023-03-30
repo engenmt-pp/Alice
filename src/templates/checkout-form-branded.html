@@ -26,6 +26,7 @@
 </div>
 
 <script id="script-pp-checkout">
+  let authHeader
   let orderID
   let options
   let fundingSource
@@ -49,19 +50,20 @@
             return res.json()
           }).then(function(createData) {
             updateAPICalls(createData.formatted)
+            options.authHeader = createData.authHeader
             orderID = createData.orderID
             return orderID;
           })
         },
         onApprove: function(data, actions) {
-          return fetch('/api/orders-form/capture/' + data.orderID, {
+          return fetch(`/api/orders-form/capture/${data.orderID}`, {
             headers: {'Content-Type': 'application/json'},
             method: 'POST',
             body: JSON.stringify(options)
           }).then(function(res) {
             return res.json();
           }).then(function(captureData) {
-            console.log("captureData: " + JSON.stringify(captureData))
+            console.log(`captureData: ${JSON.stringify(captureData)}`)
             updateAPICalls(captureData.formatted)
             // Your server response structure and key names are what you choose
             if (captureData.error === 'INSTRUMENT_DECLINED') {

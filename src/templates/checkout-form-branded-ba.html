@@ -97,11 +97,12 @@
   <div id="paypal-button-container"></div>
 </div>
 
-<script>
-  let billingAgreementToken
-  let billingAgreementID
+<script id="script-pp-checkout">
+  let authHeader
   let orderID
   let options
+  let billingAgreementToken
+  let billingAgreementID
   function checkoutClosure() {
     let buttons
     async function loadCheckout() {
@@ -114,21 +115,24 @@
             method: 'POST',
             body: JSON.stringify(options),
           }).then(function(res) {
-            return res.json();
+            return res.json()
           }).then(function(createData) {
-            updateAPICalls(createData.formatted);
+            authHeader = createData.authHeader
+            options.authHeader = createData.authHeader
+            updateAPICalls(createData.formatted)
             if (createData.tokenId === null) {
               alert("No BA token ID returned! Is CIB enabled on both the API caller and merchant accounts?")
             } else {
-              billingAgreementToken = createData.tokenId;
-              document.getElementById('ba-token').value = billingAgreementToken;
-              return billingAgreementToken;
+              billingAgreementToken = createData.tokenId
+              document.getElementById('ba-token').value = billingAgreementToken
+              return billingAgreementToken
             }
           })
         },
         onApprove: function (data, actions) {
           console.log("Creating billing agreement...")
           options = getOptions()
+          options.authHeader = authHeader
           return fetch('/api/billing-form/create-billing-agreement', {
             headers: {'Content-Type': 'application/json'},
             method: 'POST',
@@ -139,7 +143,7 @@
             updateAPICalls(createData.formatted)
             billingAgreementID = createData.billingAgreementID
             document.getElementById('ba-id').value = billingAgreementID
-            return billingAgreementIDX
+            return billingAgreementID
           })
         },
         onError: function (data, actions) {
@@ -159,7 +163,7 @@
         loadCheckout()
       })
     }
-    buildScriptElement(loadCheckout)
+    buildScriptElement(loadCheckout, vault=true)
     return reloadMyCheckout
   }
   const reloadCheckout = checkoutClosure()

@@ -54,6 +54,7 @@ def create_billing_agreement_token():
         return_formatted=True,
     )
     formatted = headers["formatted"]
+    auth_header = headers["Authorization"]
     del headers["formatted"]
 
     data = default_billing_agreement(type=ba_type)
@@ -65,7 +66,11 @@ def create_billing_agreement_token():
 
     token_id = create_response.json().get("token_id")
 
-    response_dict = {"formatted": formatted, "tokenId": token_id}
+    response_dict = {
+        "formatted": formatted,
+        "tokenId": token_id,
+        "authHeader": auth_header,
+    }
     return jsonify(response_dict)
 
 
@@ -84,12 +89,17 @@ def create_billing_agreement():
     formatted = headers["formatted"]
     del headers["formatted"]
 
-    ba_token = request.get_json()["ba-token"]
+    form_options = request.get_json()
+    auth_header = form_options["authHeader"]
+    headers = build_headers(include_auth_assertion=True, auth_header=auth_header)
+
+    ba_token = form_options["ba-token"]
     data = {"token_id": ba_token}
 
     create_response = log_and_request("POST", endpoint, headers=headers, data=data)
-    formatted["create-billing-agreement"] = format_request_and_response(create_response)
-
+    formatted = {
+        "create-billing-agreement": format_request_and_response(create_response)
+    }
     ba_id = create_response.json().get("id")
 
     response_dict = {"formatted": formatted, "billingAgreementID": ba_id}
