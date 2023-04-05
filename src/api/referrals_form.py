@@ -38,17 +38,6 @@ def generate_partner_referral():
     country_code = form_options.get("country-code")
     email = form_options.get("email")
 
-    partner_config_override = dict()
-    partner_logo_url = form_options.get("partner-logo-url")
-    if partner_logo_url:
-        partner_config_override["partner_logo_url"] = partner_logo_url
-    partner_return_url = form_options.get("partner-return-url")
-    if partner_return_url:
-        partner_config_override["return_url"] = partner_return_url
-        partner_config_override[
-            "return_url_description"
-        ] = "A description of the return URL"
-
     data = {
         "operations": [
             {
@@ -64,8 +53,22 @@ def generate_partner_referral():
         ],
         "products": [product],
         "legal_consents": [{"type": "SHARE_DATA_CONSENT", "granted": True}],
-        "partner_config_override": partner_config_override,
     }
+
+    partner_config_override = dict()
+    partner_logo_url = form_options.get("partner-logo-url")
+    if partner_logo_url:
+        partner_config_override["partner_logo_url"] = partner_logo_url
+    partner_return_url = form_options.get("partner-return-url")
+    if partner_return_url:
+        partner_config_override["return_url"] = partner_return_url
+        partner_config_override[
+            "return_url_description"
+        ] = "A description of the return URL"
+
+    if partner_config_override:
+        data["partner_config_override"] = partner_config_override
+
     if country_code:
         data["business_entity"] = (
             {"addresses": [{"country_code": country_code, "type": "WORK"}]},
