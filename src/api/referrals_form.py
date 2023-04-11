@@ -52,8 +52,11 @@ def generate_partner_referral():
             }
         ],
         "products": [product],
-        "legal_consents": [{"type": "SHARE_DATA_CONSENT", "granted": True}],
     }
+
+    include_data_consents = False
+    if include_data_consents:
+        data["legal_consents"] = [{"type": "SHARE_DATA_CONSENT", "granted": True}]
 
     partner_config_override = dict()
     partner_logo_url = form_options.get("partner-logo-url")
