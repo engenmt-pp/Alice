@@ -67,6 +67,10 @@ def log_and_request(method, endpoint, **kwargs):
     return response
 
 
+from functools import cache
+
+
+@cache
 def request_access_token(client_id, secret, return_formatted=False):
     """Request an access token using the /v1/oauth2/token API.
 
@@ -113,6 +117,7 @@ def build_headers(
     auth_header=None,
 ):
     """Build commonly used headers using a new PayPal access token."""
+
     headers = {
         "Accept": "application/json",
         "Accept-Language": "en_US",
