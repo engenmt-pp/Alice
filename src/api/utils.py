@@ -67,6 +67,10 @@ def log_and_request(method, endpoint, **kwargs):
     return response
 
 
+from functools import cache
+
+
+@cache
 def request_access_token(client_id, secret, return_formatted=False):
     """Request an access token using the /v1/oauth2/token API.
 
@@ -113,6 +117,7 @@ def build_headers(
     auth_header=None,
 ):
     """Build commonly used headers using a new PayPal access token."""
+
     headers = {
         "Accept": "application/json",
         "Accept-Language": "en_US",
@@ -126,18 +131,11 @@ def build_headers(
         access_token_response = request_access_token(
             client_id, secret, return_formatted=return_formatted
         )
-
         access_token = access_token_response["access_token"]
         auth_header = f"Bearer {access_token}"
         if return_formatted:
             formatted = {"access-token": access_token_response["formatted"]}
             headers["formatted"] = formatted
-
-    elif return_formatted:
-        # If we're here, then 'return_formatted' is True and an 'auth_header' was provided!
-        raise Exception(
-            f"Incompatible options selected:\n{auth_header=}\n{return_formatted=}"
-        )
 
     headers["Authorization"] = auth_header
 
@@ -157,10 +155,8 @@ def build_auth_assertion(client_id=None, merchant_id=None):
 
     Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
     """
-    if client_id is None:
-        client_id = current_app.config["PARTNER_CLIENT_ID"]
-    if merchant_id is None:
-        merchant_id = current_app.config["MERCHANT_ID"]
+    client_id = client_id or current_app.config["PARTNER_CLIENT_ID"]
+    merchant_id = merchant_id or current_app.config["MERCHANT_ID"]
 
     header = {"alg": "none"}
     header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
@@ -253,7 +249,6 @@ def format_request_and_response(response):
 def generate_client_token(customer_id=None, return_formatted=False):
     endpoint = build_endpoint("/v1/identity/generate-token")
     headers = build_headers(return_formatted=return_formatted)
-
     if return_formatted:
         formatted = headers["formatted"]
         del headers["formatted"]
@@ -264,7 +259,14 @@ def generate_client_token(customer_id=None, return_formatted=False):
         data = {"customer_id": customer_id}
         response = log_and_request("POST", endpoint, headers=headers, data=data)
 
-    client_token = response.json()["client_token"]
+    response_json = response.json()
+    try:
+        client_token = response_json["client_token"]
+    except Exception as exc:
+        current_app.log.error(
+            f"No client_token returned! Response: {json.dumps(response_json, 2)}"
+        )
+        raise exc
 
     if return_formatted:
         formatted["client-token"] = format_request_and_response(response)
