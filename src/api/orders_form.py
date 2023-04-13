@@ -116,9 +116,17 @@ def create_order_router():
     form_options = request.get_json()
     current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
 
-    headers = build_headers(return_formatted=True)
-    formatted = headers["formatted"]
-    del headers["formatted"]
+    auth_header = form_options.get("authHeader")
+    return_formatted = auth_header is None
+    headers = build_headers(return_formatted=return_formatted, auth_header=auth_header)
+    if return_formatted:
+        formatted = headers["formatted"]
+        del headers["formatted"]
+    else:
+        formatted = {}
+
+    if auth_header is None:
+        auth_header = headers["Authorization"]
 
     create_response = create_order(headers, form_options)
     formatted["create-order"] = format_request_and_response(create_response)
@@ -127,7 +135,11 @@ def create_order_router():
     except KeyError:
         order_id = None
 
-    response_dict = {"formatted": formatted, "orderID": order_id}
+    response_dict = {
+        "formatted": formatted,
+        "orderID": order_id,
+        "authHeader": auth_header,
+    }
     return jsonify(response_dict)
 
 
@@ -186,11 +198,16 @@ def capture_order_router(order_id):
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
     """
     form_options = request.get_json()
+    current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
+
+    auth_header = form_options["authHeader"]
     intent = form_options["intent"]
     if intent == "AUTHORIZE":
-        formatted_dict = auth_and_capture_order(order_id, form_options)
+        formatted_dict = auth_and_capture_order(
+            order_id, form_options, auth_header=auth_header
+        )
     else:
-        capture_response = capture_order(order_id)
+        capture_response = capture_order(order_id, auth_header=auth_header)
         formatted_dict = {
             "capture-order": format_request_and_response(capture_response)
         }
@@ -198,12 +215,12 @@ def capture_order_router(order_id):
     return jsonify({"formatted": formatted_dict})
 
 
-def auth_and_capture_order(order_id, form_options):
+def auth_and_capture_order(order_id, form_options, auth_header):
     """Authorize and then capture the order according to the provided form options.
 
     Return a dictionary of the formatted requests and responses.
     """
-    auth_response = authorize_order(order_id)
+    auth_response = authorize_order(order_id, auth_header=auth_header)
     formatted_dict = {"authorize-order": format_request_and_response(auth_response)}
     try:
         auth_id = auth_response.json()["purchase_units"][0]["payments"][
@@ -211,15 +228,17 @@ def auth_and_capture_order(order_id, form_options):
         ][0]["id"]
     except TypeError as exc:
         current_app.logger.error(
-            f"Error accessing auth id from response json: {json.dumps(dict(auth_response.json),indent=2)}"
+            f"Error accessing auth id from response json: {json.dumps(dict(auth_response.json()),indent=2)}"
         )
 
-    capture_response = capture_authorization(auth_id, form_options)
+    capture_response = capture_authorization(
+        auth_id, form_options, auth_header=auth_header
+    )
     formatted_dict["capture-order"] = format_request_and_response(capture_response)
     return formatted_dict
 
 
-def authorize_order(order_id):
+def authorize_order(order_id, auth_header):
     """Authorize the order using the /v2/checkout/orders API.
 
     Returns the response object.
@@ -227,13 +246,13 @@ def authorize_order(order_id):
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_authorize
     """
     endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}/authorize")
-    headers = build_headers()
+    headers = build_headers(auth_header=auth_header)
 
     response = log_and_request("POST", endpoint, headers=headers)
     return response
 
 
-def capture_order(order_id):
+def capture_order(order_id, auth_header):
     """Capture the order with the /v2/checkout/orders API.
 
     Returns the response object.
@@ -241,13 +260,13 @@ def capture_order(order_id):
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
     """
     endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}/capture")
-    headers = build_headers()
+    headers = build_headers(auth_header=auth_header)
 
     response = log_and_request("POST", endpoint, headers=headers)
     return response
 
 
-def capture_authorization(auth_id, form_options):
+def capture_authorization(auth_id, form_options, auth_header):
     """Capture the authorization with the given `auth_id` using the /v2/payments API.
 
     Returns the response object.
@@ -255,7 +274,7 @@ def capture_authorization(auth_id, form_options):
     Docs: https://developer.paypal.com/docs/api/payments/v2/#authorizations_capture
     """
     endpoint = build_endpoint(f"/v2/payments/authorizations/{auth_id}/capture")
-    headers = build_headers()
+    headers = build_headers(auth_header=auth_header)
 
     partner_fee = float(form_options["partner-fee"])
     disbursement_mode = form_options["disbursement-mode"]
@@ -273,3 +292,20 @@ def capture_authorization(auth_id, form_options):
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     return response
+
+
+@bp.route("/status/<order_id>", methods=("GET",))
+def get_order_status(order_id):
+    """Get the status of the order with the /v2/checkout/orders API.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_get
+    """
+    endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}")
+
+    auth_header = request.args.get("authHeader")
+    headers = build_headers(auth_header=auth_header)
+
+    response = log_and_request("GET", endpoint, headers=headers)
+    formatted = {"get-order": format_request_and_response(response)}
+    response_dict = {"formatted": formatted}
+    return jsonify(response_dict)

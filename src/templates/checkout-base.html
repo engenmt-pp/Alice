@@ -81,7 +81,7 @@
   // populateForm()
 </script>
 <script id="script-pp-utils">
-  async function buildScriptElement(onload) {
+  async function buildScriptElement(onload, vault=false) {
     const options = getOptions()
     const url = new URL('https://www.paypal.com/sdk/js')
     url.searchParams.append("client-id", options['client-id'])
@@ -90,6 +90,7 @@
     url.searchParams.append("currency", options['currency'])
     url.searchParams.append("commit", true)
     url.searchParams.append("enable-funding", "venmo,paylater")
+    url.searchParams.append("vault", vault)
 
     const oldScriptElement = document.getElementById('paypal-js-sdk')
     if (oldScriptElement.hasAttribute('src')) {
@@ -806,6 +807,16 @@
               ">Create Order</a>
             </li>
             <li>
+              <a id="get-order" href="#" class="
+              button
+              inline-block
+              p-4
+              rounded-t-lg
+              cursor-not-allowed
+              hidden
+              ">Get Order</a>
+            </li>
+            <li>
               <a id="authorize-order" href="#" class="
               button
               inline-block
@@ -880,6 +891,16 @@
           </div>
           <div id="tab-create-order" class="tab center hidden">
             <div id="api-calls-create-order" class="
+            w-full
+            top-0
+            p-2
+            break-words
+            whitespace-pre-wrap
+            bg-zinc-100 dark:bg-zinc-700
+            "></div>
+          </div>
+          <div id="tab-get-order" class="tab center hidden">
+            <div id="api-calls-get-order" class="
             w-full
             top-0
             p-2

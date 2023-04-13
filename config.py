@@ -30,7 +30,6 @@ class PartnerOneConfig(TestingConfig):
     PARTNER_CLIENT_ID = os.environ.get("PARTNER_CLIENT_ID")
     PARTNER_SECRET = os.environ.get("PARTNER_SECRET")
     PARTNER_ID = os.environ.get("PARTNER_ID")
-    PARNTER_ACCOUNT_NUM = os.environ.get("PARNTER_ACCOUNT_NUM")
     PARTNER_BN_CODE = os.environ.get("PARTNER_BN_CODE")
 
     WEBHOOK_ID = os.environ.get("WEBHOOK_ID")

@@ -26,54 +26,63 @@
 </div>
 
 <script id="script-pp-checkout">
+  let authHeader
   let orderID
   let options
-  let fundingSource
+  // let fundingSource
   function checkoutClosure() {
     let buttons
     async function loadCheckout() {
       buttons = await paypal.Buttons({
         onClick: function (data) {
-          fundingSource = data.fundingSource;
-          console.log("fundingSource = " + fundingSource)
+          console.group("Button clicked!")
+          const fundingSource = data.fundingSource
+          console.log("fundingSource:", fundingSource)
+          console.groupEnd()
         },
-        createOrder: function (data, actions) {
+        createOrder: async function (data, actions) {
+          console.group("Creating the order...")
+          const paymentSource = data.paymentSource
+          console.log("paymentSource:", paymentSource)
           console.log("Getting form info...")
           options = getOptions()
-          console.log("Creating the order...")
-          return fetch('/api/orders-form/create', {
+          const res = await fetch('/api/orders-form/create', {
             headers: {'Content-Type': 'application/json'},
             method: 'POST',
             body: JSON.stringify(options)
-          }).then(function(res) {
-            return res.json()
-          }).then(function(createData) {
-            updateAPICalls(createData.formatted)
-            orderID = createData.orderID
-            return orderID;
           })
+          const createData = await res.json()
+          updateAPICalls(createData.formatted)
+          options.authHeader = createData.authHeader
+          orderID = createData.orderID
+          console.log("orderID:", orderID)
+          console.groupEnd()
+          return orderID
         },
-        onApprove: function(data, actions) {
-          return fetch('/api/orders-form/capture/' + data.orderID, {
+        onApprove: async function(data, actions) {
+          console.group("Order approved!")
+          const paymentSource = data.paymentSource
+          console.log("paymentSource:", paymentSource)
+
+          const res = await fetch(`/api/orders-form/capture/${data.orderID}`, {
             headers: {'Content-Type': 'application/json'},
             method: 'POST',
             body: JSON.stringify(options)
-          }).then(function(res) {
-            return res.json();
-          }).then(function(captureData) {
-            console.log("captureData: " + JSON.stringify(captureData))
-            updateAPICalls(captureData.formatted)
-            // Your server response structure and key names are what you choose
-            if (captureData.error === 'INSTRUMENT_DECLINED') {
-              return actions.restart()
-            }
           })
+          const captureData = await res.json()
+
+          updateAPICalls(captureData.formatted)
+          console.groupEnd()
+          // Your server response structure and key names are what you choose
+          if (captureData.error === 'INSTRUMENT_DECLINED') {
+            return actions.restart()
+          }
         },
       })
       return buttons
       .render('#paypal-button-container')
       .catch((err) => {
-        console.log("Caught an error while rendering checkout: " + err)
+        console.log("Caught an error while rendering checkout:", err)
       })
     }
 
