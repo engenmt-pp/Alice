@@ -29,6 +29,7 @@ def build_purchase_unit(
     merchant_id,
     price,
     include_shipping_options,
+    include_shipping_address,
     disbursement_mode=None,
     partner_fee=0,
     reference_id=None,
@@ -62,6 +63,20 @@ def build_purchase_unit(
         }
 
     breakdown = {}
+
+    if include_shipping_address:
+        shipping = {
+            "type": "SHIPPING",
+            "name": {"full_name": "Trogdor"},
+            "address": {
+                "address_line_1": "1324 Permutation Parkway",
+                "admin_area_2": "Gainesville",
+                "admin_area_1": "FL",
+                "postal_code": "32601",
+                "country_code": "US",
+            },
+        }
+        purchase_unit["shipping"] = shipping
 
     if include_shipping_options:
         shipping_cost = 9.99
@@ -100,11 +115,13 @@ def build_purchase_unit(
 
 
 def build_application_context(shipping_preference):
-    return {
+    application_context = {
         "return_url": "http://localhost:5000/",
         "cancel_url": "http://localhost:5000/",
-        "shipping_preference": shipping_preference,
     }
+    if shipping_preference:
+        application_context["shipping_preference"] = shipping_preference
+    return application_context
 
 
 @bp.route("/create", methods=("POST",))
@@ -156,7 +173,8 @@ def create_order(headers, form_options):
     partner_id = form_options["partner-id"]
     merchant_id = form_options["merchant-id"]
     price = form_options["price"]
-    include_shipping_options = shipping_preference != "NO_SHIPPING"
+    include_shipping_options = form_options["include-shipping-options"] == "YES"
+    include_shipping_address = form_options["include-shipping-address"] == "YES"
 
     if intent == "CAPTURE":
         partner_fee = float(form_options["partner-fee"])
@@ -174,6 +192,7 @@ def create_order(headers, form_options):
         price=price,
         disbursement_mode=disbursement_mode,
         include_shipping_options=include_shipping_options,
+        include_shipping_address=include_shipping_address,
         partner_fee=partner_fee,
         item_category=item_category,
         billing_agreement_id=billing_agreement_id,
