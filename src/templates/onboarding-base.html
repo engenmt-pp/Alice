@@ -16,12 +16,12 @@
   }
   function updateAPICalls(formattedCalls) {
     document.getElementById('api-calls').click()
-    for (var id in formattedCalls) {
+    for (const id in formattedCalls) {
       if (formattedCalls.hasOwnProperty(id)) {
-        var contents = formattedCalls[id]
-        var apiCallTab = document.getElementById('api-calls-' + id)
+        const contents = formattedCalls[id]
+        const apiCallTab = document.getElementById('api-calls-' + id)
         apiCallTab.innerHTML = contents
-        var apiCallsButton = document.getElementById(id)
+        const apiCallsButton = document.getElementById(id)
         enableButton(apiCallsButton)
         apiCallsButton.click()
       }
@@ -51,91 +51,35 @@
     tab.classList.remove("hidden")
   }
 </script>
-<script>
-  function populateForm() {
-    // Extract querystring parameters and populate form accordingly.
-    const params = new Proxy(new URLSearchParams(window.location.search), {
-      get: (searchParams, prop) => searchParams.get(prop),
-    })
-    const intent = params.intent
-    document.getElementById('intent').value = intent
-
-    const shippingPreference = params['shipping-preference']
-    document.getElementById('shipping-preference').value = shippingPreference
-
-    const price = params.price
-    document.getElementById('price').value = price || 3.14
-
-    const referenceID = params['reference-id']
-    document.getElementById('reference-id').value = referenceID || ''
-
-    const partnerFee = params['partner-fee']
-    document.getElementById('partner-fee').value = partnerFee || 0
-
-    const itemCategory = params['item-category']
-    document.getElementById('item-category').value = itemCategory
-
-    const BAToken = params['ba-token']
-    document.getElementById('ba-token').value = BAToken || ''
+<script id="script-referrals">
+  function populateReferralLink(referralUrl) {
+    const anchor = document.getElementById('anchor-referral')
+    anchor.href = `${referralUrl}&displayMode=minibrowser`
+    anchor.classList.remove('hidden')
   }
-  // populateForm()
-</script>
-<script id="script-pp-utils">
-  async function buildScriptElement(onload, vault=false) {
+  function hideGenerateButton() {
+    const generateButton = document.getElementById('button-generate')
+    generateButton.classList.add('hidden')
+  }
+  async function generateReferralLink() {
     const options = getOptions()
-    const url = new URL('https://www.paypal.com/sdk/js')
-    url.searchParams.append("client-id", options['client-id'])
-    url.searchParams.append("merchant-id", options['merchant-id'])
-    url.searchParams.append("intent", options['intent'].toLowerCase())
-    url.searchParams.append("currency", options['currency'])
-    url.searchParams.append("commit", true)
-    url.searchParams.append("enable-funding", "venmo,paylater")
-    url.searchParams.append("vault", vault)
-
-    const oldScriptElement = document.getElementById('paypal-js-sdk')
-    if (oldScriptElement.hasAttribute('src')) {
-      const oldScriptURL = new URL(oldScriptElement.src)
-      if (oldScriptURL.searchParams.has('components')) {
-        const components = oldScriptURL.searchParams.get('components')
-        url.searchParams.append('components', components)
-      }
-    }
-
-    const newScriptElement = document.createElement('script')
-    newScriptElement.id = 'paypal-js-sdk'
-    newScriptElement.src = url.href
-    if (oldScriptElement.hasAttribute('data-client-token')) {
-      const dataClientToken = oldScriptElement.getAttribute('data-client-token')
-      newScriptElement.setAttribute('data-client-token', dataClientToken)
-    }
-
-    const BNCode = options['bn-code']
-    newScriptElement.setAttribute('data-partner-attribution-id', BNCode)
-    newScriptElement.onload = onload
-
-    oldScriptElement.replaceWith(newScriptElement)
-  }
-  async function resetCheckoutContainer() {
-    const containerID = 'paypal-button-container'
-
-    const newContainer = document.createElement('div')
-    newContainer.setAttribute('id', containerID)
-
-    const oldContainer = document.getElementById(containerID)
-    oldContainer.replaceWith(newContainer)
+    const response = await fetch('/api/referrals-form/generate', {
+      headers: {'Content-Type': 'application/json'},
+      method: 'POST',
+      body: JSON.stringify(options)
+    })
+    const responseJson = await response.json()
+    const referralUrl = responseJson.referralUrl
+    hideGenerateButton()
+    populateReferralLink(referralUrl)
+    updateAPICalls(responseJson.formatted)
   }
 </script>
 {% endblock %}
 
 {% block foot %}
-<script id="script-initial-api-calls">
-  const formattedCalls = {{ formatted_calls|default('null')| safe }}
-  if (formattedCalls !== null) {
-    updateAPICalls(formattedCalls)
-  }
-</script>
 <script id="script-init-tabs">
-  function initializeTabsAndButtons(prefix) {
+  function initializeTabsAndButtons(prefix='') {
     const root = document.querySelector(`#${prefix}buttons-tabs`)
     const buttonContainer = root.querySelector(`#${prefix}buttons`)
     const tabContainer = root.querySelector(`#${prefix}tabs`)
@@ -156,80 +100,16 @@
       }
     }
   }
-  initializeTabsAndButtons('')
+  initializeTabsAndButtons()
   initializeTabsAndButtons('api-calls-')
-  document.getElementById("checkout").click()
+  document.getElementById("onboarding").click()
 </script>
 {% endblock %}
 
 {% block left_col %}
 <form id="options-form" class="space-y-4">
-  <fieldset>
-    <legend class="block mb-2 semibold">
-      SDK Options
-    </legend>
-    <div class="ml-2">
-      <div class="
-      mb-2
-      flex
-      flex-row
-      flex-wrap
-      items-center
-      justify-between
-      ">
-        <label for="intent" class="basis-1/3">
-          Intent
-        </label>
-        <select name="intent" id="intent" class="
-        leading-none
-        px-2
-        py-1
-        basis-2/3
-        grow
-        rounded
-        border
-        focus:outline-none
-        bg-zinc-100 dark:bg-zinc-700
-        border-zinc-300 dark:border-zinc-600
-        focus:bg-white dark:focus:bg-zinc-900
-        focus:border-blue-500 dark:focus:border-blue-500
-        ">
-          <option value="CAPTURE" selected>Capture</option>
-          <option value="AUTHORIZE">Authorize</option>
-        </select>
-      </div>
-      <div class="
-      mb-2
-      flex
-      flex-row
-      flex-wrap
-      items-center
-      justify-between
-      ">
-        <label for="currency" class="basis-1/3">
-          Currency
-        </label>
-        <select name="currency" id="currency" class="
-        leading-none
-        px-2
-        py-1
-        basis-2/3
-        grow
-        rounded
-        border
-        focus:outline-none
-        bg-zinc-100 dark:bg-zinc-700
-        border-zinc-300 dark:border-zinc-600
-        focus:bg-white dark:focus:bg-zinc-900
-        focus:border-blue-500 dark:focus:border-blue-500
-        ">
-          <option value="USD" selected>USD</option>
-        </select>
-      </div>
-    </div>
-  </fieldset>
-  <fieldset>
-    <legend class="block mb-2 font-semibold">Partner/merchant info</legend>
+  <fieldset class="space-y-2">
+    <legend class="block font-semibold">Partner/merchant info</legend>
     <div class="ml-2">
       <div class="
       mb-2
@@ -389,7 +269,7 @@
         ">
           Merchant ID
         </label>
-        <input id="merchant-id" name="merchant-id" value="{{ merchant_id }}" disabled class="
+        <input id="merchant-id" name="merchant-id" class="
         appearance-none
         px-2
         py-1
@@ -426,68 +306,93 @@
       </div>
     </div>
   </fieldset>
-  {% block checkout_options %}
-  {% endblock %}
-  <fieldset>
-    <legend class="block mb-2 font-semibold">Billing Agreement (BA) Info</legend>
-    <div class="ml-2">
-      <div class="flex flex-row flex-wrap items-center mb-2">
-        <label for="ba-token" class="
-        flex-none
-        basis-1/3
-        ">
-          BA Token
-        </label>
-        <input id="ba-token" name="ba-token" class="
-        appearance-none
-        leading-none
-        px-2
-        py-1
-        min-w-0
-        flex-auto
-        basis-2/3
-        font-mono
-        rounded
-        border
-        focus:outline-none
-        bg-zinc-100 dark:bg-zinc-700
-        border-zinc-300 dark:border-zinc-600
-        focus:bg-white dark:focus:bg-zinc-900
-        focus:border-blue-500 dark:focus:border-blue-500
-        ">
-      </div>
-      <div class="flex flex-row flex-wrap items-center mb-2">
-        <label for="ba-id" class="
-        flex-none
-        basis-1/3
-        ">
-          BA ID
-        </label>
-        <input id="ba-id" name="ba-id" class="
-        appearance-none
-        leading-none
-        px-2
-        py-1
-        min-w-0
-        flex-auto
-        basis-2/3
-        font-mono
-        rounded
-        border
-        focus:outline-none
-        bg-zinc-100 dark:bg-zinc-700
-        border-zinc-300 dark:border-zinc-600
-        focus:bg-white dark:focus:bg-zinc-900
-        focus:border-blue-500 dark:focus:border-blue-500
-        ">
-      </div>
-    </div>
-  </fieldset>
-  <fieldset>
-    <legend class="block mb-2 font-semibold">
-      Order options
+  <fieldset class="space-y-2">
+    <legend class="block font-semibold">
+      Referral options
     </legend>
-    <div class="ml-2">
+    <fieldset class="ml-2 space-y-2">
+      <legend class="block">
+        Features
+      </legend>
+      <ul class="ml-1 mb-2 w-full space-y-1">
+        <li class="w-full flex items-center">
+          <input id="feature-payment" type="checkbox" name="feature-payment" value="PAYMENT" class="
+          w-4
+          h-4
+          rounded
+          border-zinc-300 dark:border-zinc-600
+          focus:ring-2
+          focus:ring-blue-300 dark:focus:ring-blue-600
+          dark:bg-zinc-700
+          dark:focus:bg-blue-600
+          ">
+          <label for="feature-payment" class="w-full ml-2">
+            Payment
+          </label>
+        </li>
+        <li class="w-full flex items-center">
+          <input id="feature-refund" type="checkbox" name="feature-refund" value="REFUND" class="
+          w-4
+          h-4
+          rounded
+          border-zinc-300 dark:border-zinc-600
+          focus:ring-2
+          focus:ring-blue-300 dark:focus:ring-blue-600
+          dark:bg-zinc-700
+          dark:focus:bg-blue-600
+          ">
+          <label for="feature-refund" class="w-full ml-2">
+            Refund
+          </label>
+        </li>
+        <li class="w-full flex items-center">
+          <input id="feature-partner-fee" type="checkbox" name="feature-partner-fee" value="PARTNER_FEE" class="
+          w-4
+          h-4
+          rounded
+          border-zinc-300 dark:border-zinc-600
+          focus:ring-2
+          focus:ring-blue-300 dark:focus:ring-blue-600
+          dark:bg-zinc-700
+          dark:focus:bg-blue-600
+          ">
+          <label for="feature-partner-fee" class="w-full ml-2">
+            Partner fee
+          </label>
+        </li>
+        <li class="w-full flex items-center">
+          <input id="feature-future-payment" type="checkbox" name="feature-future-payment" value="FUTURE_PAYMENT" class="
+          w-4
+          h-4
+          rounded
+          border-zinc-300 dark:border-zinc-600
+          focus:ring-2
+          focus:ring-blue-300 dark:focus:ring-blue-600
+          dark:bg-zinc-700
+          dark:focus:bg-blue-600
+          ">
+          <label for="feature-future-payment" class="w-full ml-2">
+            Future payment
+          </label>
+        </li>
+        <li class="w-full flex items-center">
+          <input id="feature-access-merchant-information" type="checkbox" name="feature-access-merchant-information" value="ACCESS_MERCHANT_INFORMATION" class="
+          w-4
+          h-4
+          rounded
+          border-zinc-300 dark:border-zinc-600
+          focus:ring-2
+          focus:ring-blue-300 dark:focus:ring-blue-600
+          dark:bg-zinc-700
+          dark:focus:bg-blue-600
+          ">
+          <label for="feature-access-merchant-information" class="w-full ml-2">
+            Access merchant information
+          </label>
+        </li>
+      </ul>
+    </fieldset>
+    <fieldset class="ml-2">
       <div class="
       mb-2
       flex
@@ -496,49 +401,13 @@
       items-center
       justify-between
       ">
-        <label for="shipping-preference" class="basis-1/3">
-          Shipping
-        </label>
-        <select name="shipping-preference" id="shipping-preference" class="
-        leading-none
-        px-2
-        py-1
-        basis-2/3
-        grow
-        rounded
-        border
-        focus:outline-none
-        bg-zinc-100 dark:bg-zinc-700
-        border-zinc-300 dark:border-zinc-600
-        focus:bg-white dark:focus:bg-zinc-900
-        focus:border-blue-500 dark:focus:border-blue-500
-        ">
-          <option value="NO_SHIPPING" selected>No shipping</option>
-          <option value="GET_FROM_FILE">Get from file</option>
-        </select>
-      </div>
-    </div>
-  </fieldset>
-  <fieldset>
-    <legend class="block mb-2 font-semibold">
-      Purchase unit options
-    </legend>
-    <div class="ml-2">
-      <div class="
-      mb-2
-      flex
-      flex-row
-      flex-wrap
-      items-center
-      justify-between
-      ">
-        <label for="reference-id" class="
+        <label for="tracking-id" class="
         flex-none
         basis-1/3
         ">
-          Reference ID
+          Tracking ID
         </label>
-        <input id="reference-id" name="reference-id" placeholder="default" type="text" class="
+        <input id="tracking-id" name="tracking-id" type="text" class="
         appearance-none
         leading-none
         px-2
@@ -564,82 +433,10 @@
       items-center
       justify-between
       ">
-        <label for="partner-fee" class="
-        flex-none
-        basis-1/3
-        ">
-          Partner fee
-        </label>
-        <input id="partner-fee" type="number" name="partner-fee" value="0" class="
-        appearance-none
-        leading-none
-        px-2
-        py-1
-        min-w-0
-        flex-auto
-        basis-2/3
-        font-mono
-        rounded
-        border
-        focus:outline-none
-        bg-zinc-100 dark:bg-zinc-700
-        border-zinc-300 dark:border-zinc-600
-        focus:bg-white dark:focus:bg-zinc-900
-        focus:border-blue-500 dark:focus:border-blue-500
-        ">
-      </div>
-    </div>
-  </fieldset>
-
-  <fieldset>
-    <legend class="block mb-2 font-semibold">
-      Item options
-    </legend>
-    <div class="ml-2">
-      <div class="
-      mb-2
-      flex
-      flex-row
-      flex-wrap
-      items-center
-      justify-between
-      ">
-        <label for="price" class="
-        flex-none
-        basis-1/3
-        ">
-          Price
-        </label>
-        <input id="price" type="number" name="price" value="3.14" class="
-        appearance-none
-        leading-none
-        px-2
-        py-1
-        min-w-0
-        flex-auto
-        basis-2/3
-        font-mono
-        rounded
-        border
-        focus:outline-none
-        bg-zinc-100 dark:bg-zinc-700
-        border-zinc-300 dark:border-zinc-600
-        focus:bg-white dark:focus:bg-zinc-900
-        focus:border-blue-500 dark:focus:border-blue-500
-        ">
-      </div>
-      <div class="
-      mb-2
-      flex
-      flex-row
-      flex-wrap
-      items-center
-      justify-between
-      ">
-        <legend for="item-category" class="basis-1/3">
-          Category
+        <legend for="product" class="basis-1/3">
+          Product
         </legend>
-        <select name="item-category" id="item-category" class="
+        <select name="product" id="product" class="
         leading-none
         px-2
         py-1
@@ -653,10 +450,8 @@
         focus:bg-white dark:focus:bg-zinc-900
         focus:border-blue-500 dark:focus:border-blue-500
         ">
-          <option value="None" selected>Unspecified</option>
-          <option value="PHYSICAL_GOODS">Physical goods</option>
-          <option value="DIGITAL_GOODS">Digital goods</option>
-          <option value="DONATION">Donation</option>
+          <option value="EXPRESS_CHECKOUT" selected>Branded only</option>
+          <option value="PPCP">Branded + ACDC</option>
         </select>
       </div>
       <div class="
@@ -667,10 +462,42 @@
       items-center
       justify-between
       ">
-        <legend for="disbursement-mode" class="basis-1/3">
-          Disbursement
+        <label for="email" class="
+        flex-none
+        basis-1/3
+        ">
+          Email
+        </label>
+        <input id="email" name="email" type="text" class="
+        appearance-none
+        leading-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/3
+        font-mono
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+      </div>
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <legend for="country-code" class="basis-1/3">
+          Country
         </legend>
-        <select name="disbursement-mode" id="disbursement-mode" class="
+        <select name="country-code" id="country-code" class="
         leading-none
         px-2
         py-1
@@ -684,14 +511,116 @@
         focus:bg-white dark:focus:bg-zinc-900
         focus:border-blue-500 dark:focus:border-blue-500
         ">
-          <option value="INSTANT" selected>Instant</option>
-          <option value="DELAYED">Delayed</option>
+          <option value='' selected>None</option>
+          <option value="BE">Belgium</option>
+          <option value="GB">Great Britain</option>
+          <option value="IE">Ireland</option>
+          <option value="MX">Mexico</option>
+          <option value="US">United States</option>
         </select>
       </div>
-    </div>
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <legend for="include-legal-consents" class="basis-1/3">
+          Include legal consents
+        </legend>
+        <select name="include-legal-consents" id="include-legal-consents" class="
+        leading-none
+        px-2
+        py-1
+        basis-2/3
+        grow
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+          <option value="Yes" selected>Yes</option>
+          <option value="">No</option>
+        </select>
+      </div>
+    </fieldset>
   </fieldset>
-  {% block additional_options %}
-  {% endblock %}
+  <fieldset class="space-y-2">
+    <legend class="block font-semibold">
+      Partner Config. Override
+    </legend>
+    <fieldset class="ml-2">
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="partner-logo-url" class="
+        flex-none
+        basis-1/3
+        ">
+          Logo URL
+        </label>
+        <input id="partner-logo-url" name="partner-logo-url" type="text" class="
+        appearance-none
+        leading-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/3
+        font-mono
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+      </div>
+      <div class="
+      mb-2
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="partner-return-url" class="
+        flex-none
+        basis-1/3
+        ">
+          Return URL
+        </label>
+        <input id="partner-return-url" name="partner-return-url" type="text" class="
+        appearance-none
+        leading-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/3
+        font-mono
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+      </div>
+    </fieldset>
+  </fieldset>
 </form>
 {% endblock %}
 
@@ -700,25 +629,26 @@
   <!-- Buttons for tabs -->
   <div id="buttons">
     <ul class="
+    mb-2
+    space-x-2
     flex
     flex-wrap
     text-center
     border-b
-    mb-2
     text-zinc-600 dark:text-zinc-400
     border-zinc-300 dark:border-zinc-600
     ">
-      <li class="mr-2">
-        <a href="#" id="checkout" class="
+      <li>
+        <a href="#" id="onboarding" class="
         button
         inline-block
         p-4
         rounded-t-lg
         hover:text-zinc-700 dark:hover:text-zinc-300
         hover:bg-zinc-100 dark:hover:bg-zinc-700
-        ">Checkout</a>
+        ">Onboarding</a>
       </li>
-      <li class="mr-2">
+      <li>
         <a href="#" id="api-calls" class="
         button
         inline-block
@@ -733,16 +663,43 @@
 
   <!-- Tabs -->
   <div id="tabs" class="w-100">
-    <div id="tab-checkout" class="tab center hidden">
+    <div id="tab-onboarding" class="tab center hidden">
       <div class="
       rounded-b-md
       w-full
       top-0
       p-2
       ">
-        {{ script_tag | safe }}
-        {% block checkout %}
-        {% endblock %}
+        <script src="https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js" async></script>
+        <button id='button-generate' onclick="generateReferralLink()" class="
+        px-2
+        py-1
+        rounded
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+        ">
+          Generate referral link
+        </button>
+        <a id="anchor-referral" data-paypal-button="true" target="PPFrame" class="
+        px-2
+        py-1
+        rounded
+        text-white
+        bg-blue-600
+        hover:bg-blue-700
+        active:bg-blue-800
+        focus:outline-none
+        focus:ring
+        focus:ring-blue-400
+        hidden
+        ">
+          Begin Onboarding
+        </a>
       </div>
     </div>
     <div id="tab-api-calls" class="tab center hidden">
@@ -768,81 +725,13 @@
               ">Access Token</a>
             </li>
             <li>
-              <a id="client-token" href="#" class="
+              <a id="generate-referral" href="#" class="
               button
               inline-block
               p-4
               rounded-t-lg
               cursor-not-allowed
-              hidden
-              ">Client Token</a>
-            </li>
-            <li>
-              <a id="create-billing-agreement-token" href="#" class="
-              button
-              inline-block
-              p-4
-              rounded-t-lg
-              cursor-not-allowed
-              hidden
-              ">Create BA Token</a>
-            </li>
-            <li>
-              <a id="create-billing-agreement" href="#" class="
-              button
-              inline-block
-              p-4
-              rounded-t-lg
-              cursor-not-allowed
-              hidden
-              ">Create BA</a>
-            </li>
-            <li>
-              <a id="create-order" href="#" class="
-              button
-              inline-block
-              p-4
-              rounded-t-lg
-              cursor-not-allowed
-              ">Create Order</a>
-            </li>
-            <li>
-              <a id="get-order" href="#" class="
-              button
-              inline-block
-              p-4
-              rounded-t-lg
-              cursor-not-allowed
-              hidden
-              ">Get Order</a>
-            </li>
-            <li>
-              <a id="authorize-order" href="#" class="
-              button
-              inline-block
-              p-4
-              rounded-t-lg
-              cursor-not-allowed
-              hidden
-              ">Authorize Order</a>
-            </li>
-            <li>
-              <a id="capture-order" href="#" class="
-              button
-              inline-block
-              p-4
-              rounded-t-lg
-              cursor-not-allowed
-              ">Capture Order</a>
-            </li>
-            <li>
-              <a id="sdk-error" href="#" class="
-              button
-              inline-block
-              p-4
-              rounded-t-lg
-              cursor-not-allowed
-              ">SDK Error</a>
+              ">Generate Referral</a>
             </li>
           </ul>
         </div>
@@ -859,78 +748,8 @@
             bg-zinc-100 dark:bg-zinc-700
             "></div>
           </div>
-          <div id="tab-client-token" class="tab center hidden">
-            <div id="api-calls-client-token" class="
-            w-full
-            top-0
-            p-2
-            break-words
-            whitespace-pre-wrap
-            bg-zinc-100 dark:bg-zinc-700
-            "></div>
-          </div>
-          <div id="tab-create-billing-agreement-token" class="tab center hidden">
-            <div id="api-calls-create-billing-agreement-token" class="
-            w-full
-            top-0
-            p-2
-            break-words
-            whitespace-pre-wrap
-            bg-zinc-100 dark:bg-zinc-700
-            "></div>
-          </div>
-          <div id="tab-create-billing-agreement" class="tab center hidden">
-            <div id="api-calls-create-billing-agreement" class="
-            w-full
-            top-0
-            p-2
-            break-words
-            whitespace-pre-wrap
-            bg-zinc-100 dark:bg-zinc-700
-            "></div>
-          </div>
-          <div id="tab-create-order" class="tab center hidden">
-            <div id="api-calls-create-order" class="
-            w-full
-            top-0
-            p-2
-            break-words
-            whitespace-pre-wrap
-            bg-zinc-100 dark:bg-zinc-700
-            "></div>
-          </div>
-          <div id="tab-get-order" class="tab center hidden">
-            <div id="api-calls-get-order" class="
-            w-full
-            top-0
-            p-2
-            break-words
-            whitespace-pre-wrap
-            bg-zinc-100 dark:bg-zinc-700
-            "></div>
-          </div>
-          <div id="tab-authorize-order" class="tab center hidden">
-            <div id="api-calls-authorize-order" class="
-            w-full
-            top-0
-            p-2
-            break-words
-            whitespace-pre-wrap
-            bg-zinc-100 dark:bg-zinc-700
-            "></div>
-          </div>
-          <div id="tab-capture-order" class="tab center hidden">
-            <div id="api-calls-capture-order" class="
-            w-full
-            top-0
-            p-2
-            break-words
-            whitespace-pre-wrap
-            bg-zinc-100 dark:bg-zinc-700
-            "></div>
-          </div>
-          <div id="tab-sdk-error" class="tab center hidden">
-            <div id="api-calls-sdk-error" class="
+          <div id="tab-generate-referral" class="tab center hidden">
+            <div id="api-calls-generate-referral" class="
             w-full
             top-0
             p-2
