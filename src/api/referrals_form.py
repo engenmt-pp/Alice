@@ -54,8 +54,8 @@ def generate_partner_referral():
         "products": [product],
     }
 
-    include_data_consents = False
-    if include_data_consents:
+    include_legal_consents = form_options.get("include-legal-consents", "")
+    if include_legal_consents:
         data["legal_consents"] = [{"type": "SHARE_DATA_CONSENT", "granted": True}]
 
     partner_config_override = dict()
