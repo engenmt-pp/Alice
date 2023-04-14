@@ -3,12 +3,14 @@
 {% block head %}
 <script id="script-utils">
   function getOptions() {
-    var formData = new FormData(document.getElementById('options-form'))
-    var formOptions = Object.fromEntries(formData)
+    const formData = new FormData(document.getElementById('options-form'))
+    console.log("Form:", formData)
+    const formOptions = Object.fromEntries(formData)
     formOptions['partner-id'] = document.getElementById('partner-id').value
     formOptions['client-id'] = document.getElementById('partner-client-id').value
     formOptions['merchant-id'] = document.getElementById('merchant-id').value
     formOptions['bn-code'] = document.getElementById('bn-code').value
+    console.log(JSON.stringify(formOptions, null, 2))
     return formOptions
   }
   function copyToClipboard(id) {
@@ -16,12 +18,12 @@
   }
   function updateAPICalls(formattedCalls) {
     document.getElementById('api-calls').click()
-    for (var id in formattedCalls) {
+    for (const id in formattedCalls) {
       if (formattedCalls.hasOwnProperty(id)) {
-        var contents = formattedCalls[id]
-        var apiCallTab = document.getElementById('api-calls-' + id)
+        const contents = formattedCalls[id]
+        const apiCallTab = document.getElementById('api-calls-' + id)
         apiCallTab.innerHTML = contents
-        var apiCallsButton = document.getElementById(id)
+        const apiCallsButton = document.getElementById(id)
         enableButton(apiCallsButton)
         apiCallsButton.click()
       }
@@ -513,7 +515,7 @@
         focus:bg-white dark:focus:bg-zinc-900
         focus:border-blue-500 dark:focus:border-blue-500
         ">
-          <option value="None" selected>Unspecified</option>
+          <option value="" selected>Unspecified</option>
           <option value="NO_SHIPPING">No shipping</option>
           <option value="GET_FROM_FILE">Get from file</option>
         </select>
@@ -611,7 +613,7 @@
           </label>
         </li>
         <li class="w-full">
-          <input id="include-shipping-option" type="checkbox" name="include-shipping-option" value="YES" class="
+          <input id="include-shipping-options" type="checkbox" name="include-shipping-options" value="YES" class="
           w-4
           h-4
           rounded
@@ -621,7 +623,7 @@
           dark:bg-zinc-700
           dark:focus:bg-blue-600
           ">
-          <label for="include-shipping-option" class="w-full ml-2">
+          <label for="include-shipping-options" class="w-full ml-2">
             Shipping option
           </label>
         </li>
