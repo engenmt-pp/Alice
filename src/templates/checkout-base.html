@@ -3,8 +3,8 @@
 {% block head %}
 <script id="script-utils">
   function getOptions() {
-    var formData = new FormData(document.getElementById('options-form'))
-    var formOptions = Object.fromEntries(formData)
+    const formData = new FormData(document.getElementById('options-form'))
+    const formOptions = Object.fromEntries(formData)
     formOptions['partner-id'] = document.getElementById('partner-id').value
     formOptions['client-id'] = document.getElementById('partner-client-id').value
     formOptions['merchant-id'] = document.getElementById('merchant-id').value
@@ -16,12 +16,12 @@
   }
   function updateAPICalls(formattedCalls) {
     document.getElementById('api-calls').click()
-    for (var id in formattedCalls) {
+    for (const id in formattedCalls) {
       if (formattedCalls.hasOwnProperty(id)) {
-        var contents = formattedCalls[id]
-        var apiCallTab = document.getElementById('api-calls-' + id)
+        const contents = formattedCalls[id]
+        const apiCallTab = document.getElementById('api-calls-' + id)
         apiCallTab.innerHTML = contents
-        var apiCallsButton = document.getElementById(id)
+        const apiCallsButton = document.getElementById(id)
         enableButton(apiCallsButton)
         apiCallsButton.click()
       }
@@ -513,82 +513,120 @@
         focus:bg-white dark:focus:bg-zinc-900
         focus:border-blue-500 dark:focus:border-blue-500
         ">
-          <option value="NO_SHIPPING" selected>No shipping</option>
+          <option value="" selected>Unspecified</option>
+          <option value="NO_SHIPPING">No shipping</option>
           <option value="GET_FROM_FILE">Get from file</option>
         </select>
       </div>
     </div>
   </fieldset>
-  <fieldset>
-    <legend class="block mb-2 font-semibold">
+  <fieldset class="space-y-2">
+    <legend class="block font-semibold">
       Purchase unit options
     </legend>
-    <div class="ml-2">
-      <div class="
-      mb-2
-      flex
-      flex-row
-      flex-wrap
-      items-center
-      justify-between
+    <fieldset class="
+    ml-2
+    mb-2
+    flex
+    flex-row
+    flex-wrap
+    items-center
+    justify-between
+    ">
+      <label for="reference-id" class="
+      flex-none
+      basis-1/3
       ">
-        <label for="reference-id" class="
-        flex-none
-        basis-1/3
-        ">
-          Reference ID
-        </label>
-        <input id="reference-id" name="reference-id" placeholder="default" type="text" class="
-        appearance-none
-        leading-none
-        px-2
-        py-1
-        min-w-0
-        flex-auto
-        basis-2/3
-        font-mono
-        rounded
-        border
-        focus:outline-none
-        bg-zinc-100 dark:bg-zinc-700
-        border-zinc-300 dark:border-zinc-600
-        focus:bg-white dark:focus:bg-zinc-900
-        focus:border-blue-500 dark:focus:border-blue-500
-        ">
-      </div>
-      <div class="
-      mb-2
-      flex
-      flex-row
-      flex-wrap
-      items-center
-      justify-between
+        Reference ID
+      </label>
+      <input id="reference-id" name="reference-id" placeholder="default" type="text" class="
+      appearance-none
+      leading-none
+      px-2
+      py-1
+      min-w-0
+      flex-auto
+      basis-2/3
+      font-mono
+      rounded
+      border
+      focus:outline-none
+      bg-zinc-100 dark:bg-zinc-700
+      border-zinc-300 dark:border-zinc-600
+      focus:bg-white dark:focus:bg-zinc-900
+      focus:border-blue-500 dark:focus:border-blue-500
       ">
-        <label for="partner-fee" class="
-        flex-none
-        basis-1/3
-        ">
-          Partner fee
-        </label>
-        <input id="partner-fee" type="number" name="partner-fee" value="0" class="
-        appearance-none
-        leading-none
-        px-2
-        py-1
-        min-w-0
-        flex-auto
-        basis-2/3
-        font-mono
-        rounded
-        border
-        focus:outline-none
-        bg-zinc-100 dark:bg-zinc-700
-        border-zinc-300 dark:border-zinc-600
-        focus:bg-white dark:focus:bg-zinc-900
-        focus:border-blue-500 dark:focus:border-blue-500
-        ">
-      </div>
-    </div>
+    </fieldset>
+    <fieldset class="
+    ml-2
+    mb-2
+    flex
+    flex-row
+    flex-wrap
+    items-center
+    justify-between
+    ">
+      <label for="partner-fee" class="
+      flex-none
+      basis-1/3
+      ">
+        Partner fee
+      </label>
+      <input id="partner-fee" type="number" name="partner-fee" value="0" class="
+      appearance-none
+      leading-none
+      px-2
+      py-1
+      min-w-0
+      flex-auto
+      basis-2/3
+      font-mono
+      rounded
+      border
+      focus:outline-none
+      bg-zinc-100 dark:bg-zinc-700
+      border-zinc-300 dark:border-zinc-600
+      focus:bg-white dark:focus:bg-zinc-900
+      focus:border-blue-500 dark:focus:border-blue-500
+      ">
+    </fieldset>
+    <fieldset class="ml-2 space-y-2">
+      <legend class="block">
+        Include:
+      </legend>
+      <ul class="ml-1 mb-2 w-full space-y-1">
+        <li class="w-full">
+          <input id="include-shipping-address" type="checkbox" name="include-shipping-address" value="YES" class="
+          w-4
+          h-4
+          rounded
+          border-zinc-300 dark:border-zinc-600
+          focus:ring-2
+          focus:ring-blue-300 dark:focus:ring-blue-600
+          dark:bg-zinc-700
+          dark:focus:bg-blue-600
+          ">
+          <label for="include-shipping-address" class="w-full ml-2">
+            Shipping address
+          </label>
+        </li>
+        <li class="w-full">
+          <input id="include-shipping-options" type="checkbox" name="include-shipping-options" value="YES" class="
+          w-4
+          h-4
+          rounded
+          border-zinc-300 dark:border-zinc-600
+          focus:ring-2
+          focus:ring-blue-300 dark:focus:ring-blue-600
+          dark:bg-zinc-700
+          dark:focus:bg-blue-600
+          ">
+          <label for="include-shipping-options" class="w-full ml-2">
+            Shipping option
+          </label>
+        </li>
+      </ul>
+    </fieldset>
   </fieldset>
 
   <fieldset>
