@@ -30,7 +30,6 @@ def build_purchase_unit(
     price,
     include_shipping_options,
     include_shipping_address,
-    disbursement_mode=None,
     partner_fee=0,
     reference_id=None,
     include_line_items=True,
@@ -81,7 +80,9 @@ def build_purchase_unit(
     if include_shipping_options:
         shipping_cost = 9.99
         shipping_options = [default_shipping_option(shipping_cost)]
-        purchase_unit["shipping"] = {"options": shipping_options}
+        if "shipping" not in purchase_unit:
+            purchase_unit["shipping"] = dict()
+        purchase_unit["shipping"]["options"] = shipping_options
         breakdown["shipping"] = {"currency_code": "USD", "value": shipping_cost}
 
     if include_line_items:
@@ -185,7 +186,7 @@ def create_order(headers, form_options):
         disbursement_mode = None
 
     item_category = form_options["item-category"]
-    billing_agreement_id = form_options.get("ba-id")
+    billing_agreement_id = form_options.get("ba-id") or None  # Coerce to None if empty!
     purchase_unit = build_purchase_unit(
         partner_id=partner_id,
         merchant_id=merchant_id,

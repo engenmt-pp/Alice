@@ -4,13 +4,11 @@
 <script id="script-utils">
   function getOptions() {
     const formData = new FormData(document.getElementById('options-form'))
-    console.log("Form:", formData)
     const formOptions = Object.fromEntries(formData)
     formOptions['partner-id'] = document.getElementById('partner-id').value
     formOptions['client-id'] = document.getElementById('partner-client-id').value
     formOptions['merchant-id'] = document.getElementById('merchant-id').value
     formOptions['bn-code'] = document.getElementById('bn-code').value
-    console.log(JSON.stringify(formOptions, null, 2))
     return formOptions
   }
   function copyToClipboard(id) {
