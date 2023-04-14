@@ -24,6 +24,29 @@ def default_shipping_option(shipping_cost):
     }
 
 
+def build_shipping(include_shipping_address, include_shipping_options, shipping_cost):
+    if include_shipping_address:
+        shipping = {
+            "type": "SHIPPING",
+            "name": {"full_name": "Trogdor"},
+            "address": {
+                "address_line_1": "1324 Permutation Parkway",
+                "admin_area_2": "Gainesville",
+                "admin_area_1": "FL",
+                "postal_code": "32601",
+                "country_code": "US",
+            },
+        }
+    else:
+        shipping = {}
+
+    if include_shipping_options:
+        shipping_options = [default_shipping_option(shipping_cost)]
+        shipping["options"] = shipping_options
+
+    return shipping
+
+
 def build_purchase_unit(
     partner_id,
     merchant_id,
@@ -63,27 +86,15 @@ def build_purchase_unit(
         }
 
     breakdown = {}
-
-    if include_shipping_address:
-        shipping = {
-            "type": "SHIPPING",
-            "name": {"full_name": "Trogdor"},
-            "address": {
-                "address_line_1": "1324 Permutation Parkway",
-                "admin_area_2": "Gainesville",
-                "admin_area_1": "FL",
-                "postal_code": "32601",
-                "country_code": "US",
-            },
-        }
+    shipping_cost = 9.99
+    shipping = build_shipping(
+        include_shipping_address=include_shipping_address,
+        include_shipping_options=include_shipping_options,
+        shipping_cost=shipping_cost,
+    )
+    if shipping:
         purchase_unit["shipping"] = shipping
-
     if include_shipping_options:
-        shipping_cost = 9.99
-        shipping_options = [default_shipping_option(shipping_cost)]
-        if "shipping" not in purchase_unit:
-            purchase_unit["shipping"] = dict()
-        purchase_unit["shipping"]["options"] = shipping_options
         breakdown["shipping"] = {"currency_code": "USD", "value": shipping_cost}
 
     if include_line_items:
