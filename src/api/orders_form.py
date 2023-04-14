@@ -164,8 +164,8 @@ def create_order(headers, form_options):
     partner_id = form_options["partner-id"]
     merchant_id = form_options["merchant-id"]
     price = form_options["price"]
-    include_shipping_options = form_options["include-shipping-options"] == "YES"
-    include_shipping_address = form_options["include-shipping-address"] == "YES"
+    include_shipping_options = form_options.get("include-shipping-options")
+    include_shipping_address = form_options.get("include-shipping-address")
 
     if "PayPal-Auth-Assertion" in headers:
         include_payee = False
@@ -181,7 +181,7 @@ def create_order(headers, form_options):
         disbursement_mode = None
 
     item_category = form_options["item-category"]
-    billing_agreement_id = form_options.get("ba-id") or None  # Coerce to None if empty!
+    billing_agreement_id = form_options.get("ba-id")
     purchase_unit = build_purchase_unit(
         partner_id=partner_id,
         merchant_id=merchant_id,
