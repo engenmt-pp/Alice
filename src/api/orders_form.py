@@ -57,6 +57,8 @@ def build_purchase_unit(
     disbursement_mode=None,
     partner_fee=0,
     reference_id=None,
+    custom_id=None,
+    soft_descriptor=None,
     include_line_items=True,
     item_category=None,
     billing_agreement_id=None,
@@ -64,13 +66,14 @@ def build_purchase_unit(
     price = float(price)
     tax = float(tax)
     purchase_unit = {
-        "custom_id": "Up to 127 characters can go here!",
         "payee": {"merchant_id": merchant_id},
-        "soft_descriptor": "1234567890111213141516",
     }
-
-    if reference_id is not None:
+    if reference_id:
         purchase_unit["reference_id"] = reference_id
+    if custom_id:
+        purchase_unit["custom_id"] = custom_id
+    if soft_descriptor:
+        purchase_unit["soft_descriptor"] = soft_descriptor
 
     if partner_fee > 0:
         payment_instruction = {}
@@ -195,6 +198,9 @@ def create_order(headers, form_options):
     tax = form_options["tax"]
     include_shipping_options = form_options.get("include-shipping-options")
     include_shipping_address = form_options.get("include-shipping-address")
+    reference_id = form_options.get("reference-id")
+    custom_id = form_options.get("custom-id")
+    soft_descriptor = form_options.get("soft-descriptor")
 
     if intent == "CAPTURE":
         partner_fee = float(form_options["partner-fee"])
@@ -214,6 +220,9 @@ def create_order(headers, form_options):
         disbursement_mode=disbursement_mode,
         include_shipping_options=include_shipping_options,
         include_shipping_address=include_shipping_address,
+        reference_id=reference_id,
+        custom_id=custom_id,
+        soft_descriptor=soft_descriptor,
         partner_fee=partner_fee,
         item_category=item_category,
         billing_agreement_id=billing_agreement_id,
