@@ -51,6 +51,7 @@ def build_purchase_unit(
     partner_id,
     merchant_id,
     price,
+    tax,
     include_shipping_options,
     include_shipping_address,
     disbursement_mode=None,
@@ -61,6 +62,7 @@ def build_purchase_unit(
     billing_agreement_id=None,
 ):
     price = float(price)
+    tax = float(tax)
     purchase_unit = {
         "custom_id": "Up to 127 characters can go here!",
         "payee": {"merchant_id": merchant_id},
@@ -113,6 +115,10 @@ def build_purchase_unit(
             "quantity": 1,
             "unit_amount": {"currency_code": "USD", "value": price},
         }
+        if tax:
+            tax_amount = {"currency_code": "USD", "value": tax}
+            item["tax"] = tax_amount
+            breakdown["tax_total"] = tax_amount
         if item_category:
             item["category"] = item_category
         purchase_unit["items"] = [item]
@@ -186,6 +192,7 @@ def create_order(headers, form_options):
     partner_id = form_options["partner-id"]
     merchant_id = form_options["merchant-id"]
     price = form_options["price"]
+    tax = form_options["tax"]
     include_shipping_options = form_options.get("include-shipping-options")
     include_shipping_address = form_options.get("include-shipping-address")
 
@@ -203,6 +210,7 @@ def create_order(headers, form_options):
         partner_id=partner_id,
         merchant_id=merchant_id,
         price=price,
+        tax=tax,
         disbursement_mode=disbursement_mode,
         include_shipping_options=include_shipping_options,
         include_shipping_address=include_shipping_address,
