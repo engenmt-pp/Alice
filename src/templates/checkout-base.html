@@ -97,7 +97,6 @@
     url.searchParams.append("intent", options['intent'].toLowerCase())
     url.searchParams.append("currency", options['currency'])
     url.searchParams.append("commit", true)
-    url.searchParams.append("enable-funding", "venmo,paylater")
     url.searchParams.append("vault", vault)
 
     const oldScriptElement = document.getElementById('paypal-js-sdk')
@@ -110,6 +109,14 @@
       if (oldScriptURL.searchParams.has('vault')) {
         const vault = oldScriptURL.searchParams.get('vault')
         url.searchParams.append('vault', vault)
+      }
+      if (oldScriptURL.searchParams.has('enable-funding')) {
+        const enableFunding = oldScriptURL.searchParams.get('enable-funding')
+        url.searchParams.append('enable-funding', enableFunding)
+      }
+      if (oldScriptURL.searchParams.has('disable-funding')) {
+        const disableFunding = oldScriptURL.searchParams.get('disable-funding')
+        url.searchParams.append('disable-funding', disableFunding)
       }
     }
 
