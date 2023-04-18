@@ -42,8 +42,8 @@ def generate_partner_referral():
             features.extend(["VAULT", "BILLING_AGREEMENT"])
             products.append("ADVANCED_VAULTING")
             capabilities = ["PAYPAL_WALLET_VAULTING_ADVANCED"]
-        case "partner-level":
-            features.extend(["VAULT", "BILLING_AGREEMENT"])
+        case _:
+            pass
 
     tracking_id = form_options.get("tracking-id")
     country_code = form_options.get("country-code")
