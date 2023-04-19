@@ -3,6 +3,7 @@ import json
 import random
 import requests
 
+from .identity import request_access_token
 
 from flask import current_app
 from urllib.parse import urlencode
@@ -65,46 +66,6 @@ def log_and_request(method, endpoint, **kwargs):
         )
 
     return response
-
-
-from functools import cache
-
-
-@cache
-def request_access_token(client_id, secret, return_formatted=False):
-    """Request an access token using the /v1/oauth2/token API.
-
-    Docs: https://developer.paypal.com/docs/api/reference/get-an-access-token/
-    """
-    endpoint = build_endpoint("/v1/oauth2/token")
-    headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
-
-    data = {"grant_type": "client_credentials", "ignoreCache": True}
-
-    response = requests.post(
-        endpoint, headers=headers, data=data, auth=(client_id, secret)
-    )
-    try:
-        current_app.logger.debug(
-            f'*****\n\nAccess token debug_id = {response.headers["PayPal-Debug-Id"]}\n\n*****'
-        )
-    except:
-        pass
-    response_dict = response.json()
-
-    try:
-        access_token = response_dict["access_token"]
-        return_val = {"access_token": access_token}
-        if return_formatted:
-            formatted = format_request_and_response(response)
-            return_val["formatted"] = formatted
-        return return_val
-    except KeyError as exc:
-        current_app.logger.error(f"Encountered a KeyError: {exc}")
-        current_app.logger.error(
-            f"response_dict = {json.dumps(response_dict, indent=2)}"
-        )
-        raise exc
 
 
 def build_headers(
