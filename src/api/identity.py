@@ -1,7 +1,7 @@
 import json
 import requests
 
-from flask import Blueprint, current_app
+from flask import Blueprint, current_app, jsonify
 from .utils import (
     build_endpoint,
     log_and_request,
@@ -12,6 +12,7 @@ from .utils import (
 bp = Blueprint("identity", __name__, url_prefix="/identity")
 
 
+@bp.route("/token", methods=("POST",))
 def generate_client_token(customer_id=None, return_formatted=False):
     endpoint = build_endpoint("/v1/identity/generate-token")
     headers = build_headers(return_formatted=return_formatted)
@@ -26,12 +27,13 @@ def generate_client_token(customer_id=None, return_formatted=False):
         response = log_and_request("POST", endpoint, headers=headers, data=data)
 
     client_token = response.json()["client_token"]
+    response_dict = {"client-token": client_token}
 
     if return_formatted:
         formatted["client-token"] = format_request_and_response(response)
-        return {"client_token": client_token, "formatted": formatted}
+        response_dict["formatted"] = formatted
 
-    return client_token
+    return jsonify(response_dict)
 
 
 def request_access_token(client_id, secret, return_formatted=False):
