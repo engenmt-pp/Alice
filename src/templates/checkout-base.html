@@ -14,16 +14,21 @@
   function copyToClipboard(id) {
     navigator.clipboard.writeText(document.getElementById(id).value)
   }
-  function updateAPICalls(formattedCalls) {
-    document.getElementById('api-calls').click()
+  function updateAPICalls(formattedCalls, click=true) {
+    const apiCallsButton = document.getElementById('api-calls')
+    if (click) {
+      apiCallsButton.click()
+    }
     for (const id in formattedCalls) {
       if (formattedCalls.hasOwnProperty(id)) {
         const contents = formattedCalls[id]
         const apiCallTab = document.getElementById('api-calls-' + id)
         apiCallTab.innerHTML = contents
-        const apiCallsButton = document.getElementById(id)
-        enableButton(apiCallsButton)
-        apiCallsButton.click()
+        const apiCallsSubButton = document.getElementById(id)
+        enableButton(apiCallsSubButton)
+        if (click) {
+          apiCallsSubButton.click()
+        }
       }
     }
   }
@@ -86,14 +91,16 @@
     const clientTokenResponse = await fetch('/api/identity/token', {
       headers: {'Content-Type': 'application/json'},
       method: 'POST',
-      body: {
+      body: JSON.stringify({
         customerId: customerId,
-      }
+      })
     })
     console.log("Response:", clientTokenResponse)
     const responseJson = await clientTokenResponse.json()
     console.log("Response JSON:", JSON.stringify(responseJson,null,2))
     const clientToken = responseJson['client-token']
+    const formatted = responseJson['formatted']
+    updateAPICalls(formatted, click=false)
     console.log("Client token:", clientToken)
     console.groupEnd()
     return clientToken

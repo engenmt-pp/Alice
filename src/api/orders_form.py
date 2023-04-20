@@ -59,6 +59,7 @@ def build_purchase_unit(
     include_shipping_options=False,
     include_shipping_address=False,
     custom_id=None,
+    vault_owner=None,
     reference_id=None,
     item_category=None,
     soft_descriptor=None,
@@ -89,10 +90,22 @@ def build_purchase_unit(
         ]
         purchase_unit["payment_instruction"] = payment_instruction
 
-    if billing_agreement_id is not None:
-        purchase_unit["payment_source"] = {
+    payment_source = dict()
+    if billing_agreement_id:
+        payment_source["token"] = {
             "token": {"id": billing_agreement_id, "type": "BILLING_AGREEMENT"}
         }
+    elif vault_owner:
+        payment_source["paypal"] = {
+            "attributes": {
+                "vault": {
+                    "store_in_vault": "ON_SUCCESS",
+                    "usage_type": vault_owner.upper(),
+                }
+            }
+        }
+    if payment_source:
+        purchase_unit["payment_source"] = payment_source
 
     breakdown = {}
     shipping_cost = 9.99
@@ -211,7 +224,8 @@ def create_order(headers, form_options):
     merchant_id = form_options["merchant-id"]
     price = form_options["price"]
     tax = form_options["tax"]
-    include_payee = form_options.get("vault-owner") != "merchant"
+    vault_owner = form_options.get("vault-owner")
+    include_payee = vault_owner != "merchant"
     include_shipping_options = form_options.get("include-shipping-options")
     include_shipping_address = form_options.get("include-shipping-address")
     reference_id = form_options.get("reference-id")
@@ -238,6 +252,7 @@ def create_order(headers, form_options):
         include_shipping_options=include_shipping_options,
         include_shipping_address=include_shipping_address,
         custom_id=custom_id,
+        vault_owner=vault_owner,
         reference_id=reference_id,
         item_category=item_category,
         soft_descriptor=soft_descriptor,

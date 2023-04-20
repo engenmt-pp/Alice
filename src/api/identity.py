@@ -2,7 +2,7 @@ import base64
 import json
 import requests
 
-from flask import Blueprint, current_app, jsonify
+from flask import Blueprint, current_app, jsonify, request
 from .utils import (
     build_endpoint,
     log_and_request,
@@ -14,7 +14,11 @@ bp = Blueprint("identity", __name__, url_prefix="/identity")
 
 
 @bp.route("/token", methods=("POST",))
-def generate_client_token(customer_id=None, return_formatted=False):
+def generate_client_token():
+    request_body = request.get_json()
+    customer_id = request_body.get("customerId")
+    return_formatted = request_body.get("return_formatted", True)
+
     endpoint = build_endpoint("/v1/identity/generate-token")
     headers = build_headers(return_formatted=return_formatted)
     if return_formatted:
