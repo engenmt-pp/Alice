@@ -4,10 +4,10 @@ from flask import Blueprint, current_app, jsonify, request
 
 from .utils import (
     build_endpoint,
-    build_headers,
     log_and_request,
     random_decimal_string,
 )
+from .identity import build_headers
 
 
 bp = Blueprint("orders", __name__, url_prefix="/orders")

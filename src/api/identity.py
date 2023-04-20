@@ -1,3 +1,4 @@
+import base64
 import json
 import requests
 
@@ -70,6 +71,24 @@ def request_access_token(client_id, secret, return_formatted=False):
             f"response_dict = {json.dumps(response_dict, indent=2)}"
         )
         raise exc
+
+
+def build_auth_assertion(client_id=None, merchant_id=None):
+    """Build and return the PayPal Auth Assertion.
+
+    Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
+    """
+    client_id = client_id or current_app.config["PARTNER_CLIENT_ID"]
+    merchant_id = merchant_id or current_app.config["MERCHANT_ID"]
+
+    header = {"alg": "none"}
+    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
+
+    payload = {"iss": client_id, "payer_id": merchant_id}
+    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
+
+    signature = b""
+    return b".".join([header_b64, payload_b64, signature])
 
 
 def build_headers(

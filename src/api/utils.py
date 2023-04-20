@@ -1,4 +1,3 @@
-import base64
 import json
 import random
 import requests
@@ -66,67 +65,6 @@ def log_and_request(method, endpoint, **kwargs):
     return response
 
 
-def build_headers(
-    client_id=None,
-    secret=None,
-    bn_code=None,
-    include_bn_code=True,
-    include_auth_assertion=False,
-    return_formatted=False,
-    auth_header=None,
-):
-    """Build commonly used headers using a new PayPal access token."""
-
-    headers = {
-        "Accept": "application/json",
-        "Accept-Language": "en_US",
-        "Content-Type": "application/json",
-    }
-
-    if auth_header is None:
-        client_id = client_id or current_app.config["PARTNER_CLIENT_ID"]
-        secret = secret or current_app.config["PARTNER_SECRET"]
-
-        access_token_response = request_access_token(
-            client_id, secret, return_formatted=return_formatted
-        )
-        access_token = access_token_response["access_token"]
-        auth_header = f"Bearer {access_token}"
-        if return_formatted:
-            formatted = {"access-token": access_token_response["formatted"]}
-            headers["formatted"] = formatted
-
-    headers["Authorization"] = auth_header
-
-    if include_bn_code:
-        bn_code = bn_code or current_app.config["PARTNER_BN_CODE"]
-        headers["PayPal-Partner-Attribution-Id"] = bn_code
-
-    if include_auth_assertion:
-        auth_assertion = build_auth_assertion()
-        headers["PayPal-Auth-Assertion"] = auth_assertion
-
-    return headers
-
-
-def build_auth_assertion(client_id=None, merchant_id=None):
-    """Build and return the PayPal Auth Assertion.
-
-    Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
-    """
-    client_id = client_id or current_app.config["PARTNER_CLIENT_ID"]
-    merchant_id = merchant_id or current_app.config["MERCHANT_ID"]
-
-    header = {"alg": "none"}
-    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
-
-    payload = {"iss": client_id, "payer_id": merchant_id}
-    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
-
-    signature = b""
-    return b".".join([header_b64, payload_b64, signature])
-
-
 def format_request(request):
     headers_sent_whitelist = [
         "Authorization",
@@ -146,7 +84,7 @@ def format_request(request):
     except TypeError:
         headers_sent_copy = dict(headers_sent)
         auth_assertion_str = str(headers_sent["PayPal-Auth-Assertion"], "utf-8")
-        headers_sent_copy["PayPal-Auth-Assertion"] = f"b'{auth_assertion_str}'"
+        headers_sent_copy["PayPal-Auth-Assertion"] = auth_assertion_str
         headers_sent_str = json.dumps(headers_sent_copy, indent=2)
 
     body_sent = request.body

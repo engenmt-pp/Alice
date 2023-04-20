@@ -1,5 +1,7 @@
 from flask import Blueprint, current_app
-from .utils import build_endpoint, build_headers, log_and_request
+from .utils import build_endpoint, log_and_request
+
+from .identity import build_headers
 
 
 bp = Blueprint("referrals", __name__, url_prefix="/referrals")

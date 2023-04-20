@@ -2,10 +2,10 @@ from flask import Blueprint, current_app, jsonify, request
 
 from .utils import (
     build_endpoint,
-    build_headers,
     log_and_request,
     format_request_and_response,
 )
+from .identity import build_headers
 
 bp = Blueprint("billing_form", __name__, url_prefix="/billing-form")
 
