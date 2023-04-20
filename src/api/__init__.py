@@ -19,7 +19,7 @@ bp.register_blueprint(orders.bp)
 bp.register_blueprint(referrals.bp)
 bp.register_blueprint(webhooks.bp)
 
-bp.register_blueprint(orders_merchant.bp)
+# bp.register_blueprint(orders_merchant.bp)
 
 bp.register_blueprint(orders_form.bp)
 bp.register_blueprint(billing_form.bp)

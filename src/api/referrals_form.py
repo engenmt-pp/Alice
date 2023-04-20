@@ -4,10 +4,11 @@ import json
 
 from .utils import (
     build_endpoint,
-    build_headers,
     log_and_request,
     format_request_and_response,
 )
+
+from .identity import build_headers
 
 bp = Blueprint("referrals_form", __name__, url_prefix="/referrals-form")
 
@@ -43,7 +44,7 @@ def generate_partner_referral():
             products.append("ADVANCED_VAULTING")
             capabilities = ["PAYPAL_WALLET_VAULTING_ADVANCED"]
         case _:
-            pass
+            capabilities = []
 
     tracking_id = form_options.get("tracking-id")
     country_code = form_options.get("country-code")

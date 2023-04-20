@@ -3,8 +3,6 @@ import json
 import random
 import requests
 
-from .identity import request_access_token
-
 from flask import current_app
 from urllib.parse import urlencode
 

@@ -3,10 +3,10 @@ from flask import Blueprint, current_app, jsonify, request
 from .utils import (
     build_endpoint,
     log_and_request,
-    request_access_token,
     random_decimal_string,
 )
 
+from .identity import request_access_token
 
 bp = Blueprint("orders_merchant", __name__, url_prefix="/orders-merchant")
 

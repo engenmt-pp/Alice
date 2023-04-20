@@ -4,10 +4,11 @@ import json
 
 from .utils import (
     build_endpoint,
-    build_headers,
     log_and_request,
     format_request_and_response,
 )
+
+from .identity import build_headers
 
 bp = Blueprint("orders_form", __name__, url_prefix="/orders-form")
 
