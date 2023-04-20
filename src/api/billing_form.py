@@ -80,3 +80,26 @@ def create_billing_agreement():
 
     response_dict = {"formatted": formatted, "billingAgreementID": ba_id}
     return jsonify(response_dict)
+
+
+# @bp.route("/status")
+# @bp.route("/status/<baid>")
+@bp.route("/status/<baid>", methods=("GET",))
+def billing_agreement_status(baid):
+    current_app.logger.error(f"Called billing_agreement_status with {baid=}")
+    endpoint = build_endpoint(f"/v1/billing-agreements/agreements/{baid}")
+
+    # form_options = request.get_json()
+    # auth_header = form_options.get("authHeader")
+    headers = build_headers(
+        include_auth_assertion=True, return_formatted=True, auth_header=None
+    )
+    formatted = headers["formatted"]
+    del headers["formatted"]
+
+    status_response = log_and_request("GET", endpoint, headers=headers)
+    formatted["ba-status"] = format_request_and_response(status_response)
+
+    response_dict = {"formatted": formatted}
+
+    return jsonify(response_dict)

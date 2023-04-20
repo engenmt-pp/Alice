@@ -19,6 +19,7 @@ def create_app():
 
     from . import api, partner, store, store_form, partner_form, reports
     from . import store_merchant
+    from . import statuses
 
     app.register_blueprint(api.bp)
     app.register_blueprint(reports.bp)
@@ -27,7 +28,8 @@ def create_app():
     app.register_blueprint(store.bp)
     app.register_blueprint(store_form.bp)
     app.register_blueprint(partner_form.bp)
-    app.add_url_rule("/", endpoint="store_form.checkout_branded")
+    app.register_blueprint(statuses.bp)
+    app.add_url_rule("/", endpoint="statuses.statuses")
 
     app.register_blueprint(store_merchant.bp)
 
