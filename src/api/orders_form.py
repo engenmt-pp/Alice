@@ -281,7 +281,7 @@ def capture_order_router(order_id):
     form_options = request.get_json()
     current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
 
-    auth_header = form_options["authHeader"]
+    auth_header = form_options["auth-header"]
     include_auth_assertion = form_options.get("vault-owner") == "merchant"
     headers = build_headers(
         auth_header=auth_header, include_auth_assertion=include_auth_assertion
@@ -381,7 +381,7 @@ def get_order_status(order_id):
     """
     endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}")
 
-    auth_header = request.args.get("authHeader")
+    auth_header = request.args.get("auth-header")
     headers = build_headers(auth_header=auth_header)
 
     response = log_and_request("GET", endpoint, headers=headers)

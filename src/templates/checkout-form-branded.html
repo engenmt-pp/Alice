@@ -54,6 +54,8 @@
           const createData = await res.json()
           updateAPICalls(createData.formatted)
           document.getElementById('auth-header').value = createData.authHeader
+          console.log('authHeader:', createData.authHeader)
+          options['auth-header'] = createData.authHeader
           orderID = createData.orderID
           console.log("orderID:", orderID)
           console.groupEnd()
