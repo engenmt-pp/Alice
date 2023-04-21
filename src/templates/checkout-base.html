@@ -85,25 +85,35 @@
   }
   // populateForm()
 </script>
+{% endblock %}
+
+{% block foot %}
 <script id="script-pp-utils">
-  async function getToken(customerId = null) {
-    console.group("Requesting client token for customerId:", customerId)
-    const clientTokenResponse = await fetch('/api/identity/token', {
-      headers: {'Content-Type': 'application/json'},
-      method: 'POST',
-      body: JSON.stringify({
-        customerId: customerId,
-      })
-    })
-    console.log("Response:", clientTokenResponse)
-    const responseJson = await clientTokenResponse.json()
-    console.log("Response JSON:", JSON.stringify(responseJson,null,2))
-    const clientToken = responseJson['client-token']
+  async function getIdToken() {
+    console.group("Requesting ID token...")
+
+    const idTokenResponse = await fetch('/api/identity/id-token')
+    console.log("Response:", idTokenResponse)
+
+    const responseJson = await idTokenResponse.json()
+    console.log("Response JSON:", JSON.stringify(responseJson, null, 2))
+
     const formatted = responseJson['formatted']
     updateAPICalls(formatted, click=false)
-    console.log("Client token:", clientToken)
+
+    let idToken
+    if (responseJson.hasOwnProperty('id-token')) {
+      idToken = responseJson['id-token']
+      console.log("ID token:", idToken)
+    }
+    if (responseJson.hasOwnProperty('auth-header')) {
+      const authHeader = responseJson['auth-header']
+      document.getElementById('auth-header').value = authHeader
+    }
+
     console.groupEnd()
-    return clientToken
+    console.log("idToken:", idToken)
+    return idToken
   }
   async function buildScriptElement(onload, vault=false) {
     const options = getOptions()
@@ -112,8 +122,8 @@
     url.searchParams.append("merchant-id", options['merchant-id'])
     url.searchParams.append("intent", options['intent'].toLowerCase())
     url.searchParams.append("currency", options['currency'])
+    url.searchParams.append("vault", options['vault'])
     url.searchParams.append("commit", true)
-    url.searchParams.append("vault", vault)
 
     const oldScriptElement = document.getElementById('paypal-js-sdk')
     if (oldScriptElement.hasAttribute('src')) {
@@ -136,14 +146,13 @@
     newScriptElement.id = 'paypal-js-sdk'
     newScriptElement.src = url.href
 
-    const customerId = document.getElementById('customer-id')
-    if (customerId !== null) {
-      const dataClientToken = await getToken(customerId.value)
-      newScriptElement.setAttribute('data-client-token', dataClientToken)
-    } else if (oldScriptElement.hasAttribute('data-client-token')) {
-      const dataClientToken = oldScriptElement.getAttribute('data-client-token')
-      newScriptElement.setAttribute('data-client-token', dataClientToken)
+    let idToken
+    if (oldScriptElement.hasAttribute('data-user-id-token')) {
+      idToken = oldScriptElement.getAttribute('data-user-id-token')
+    } else {
+      idToken = await getIdToken()
     }
+    newScriptElement.setAttribute('data-user-id-token', idToken)
 
     const BNCode = options['bn-code']
     newScriptElement.setAttribute('data-partner-attribution-id', BNCode)
@@ -161,9 +170,6 @@
     oldContainer.replaceWith(newContainer)
   }
 </script>
-{% endblock %}
-
-{% block foot %}
 <script id="script-initial-api-calls">
   const formattedCalls = {{ formatted_calls|default('null')| safe }}
   if (formattedCalls !== null) {
@@ -200,6 +206,7 @@
 
 {% block left_col %}
 <form id="options-form" class="space-y-4">
+  <input class="hidden" id="auth-header"></input>
   <fieldset class="space-y-2">
     <legend class="block font-semibold">
       SDK Options
@@ -246,16 +253,16 @@
       items-center
       justify-between
       ">
-        <label for="currency" class="
+        <label for="vault" class="
         grow
         shrink-0
         basis-1/3
         whitespace-nowrap
         mr-auto
         ">
-          Currency
+          Vault
         </label>
-        <select name="currency" id="currency" class="
+        <select name="vault" id="vault" class="
         leading-none
         px-2
         py-1
@@ -269,7 +276,8 @@
         focus:bg-white dark:focus:bg-zinc-900
         focus:border-blue-500 dark:focus:border-blue-500
         ">
-          <option value="USD" selected>USD</option>
+          <option value="false">False</option>
+          <option value="true" selected>True</option>
         </select>
       </fieldset>
       <fieldset class="
@@ -305,6 +313,39 @@
         focus:bg-white dark:focus:bg-zinc-900
         focus:border-blue-500 dark:focus:border-blue-500
         ">
+      </fieldset>
+      <fieldset class="
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="currency" class="
+        grow
+        shrink-0
+        basis-1/3
+        whitespace-nowrap
+        mr-auto
+        ">
+          Currency
+        </label>
+        <select name="currency" id="currency" class="
+        leading-none
+        px-2
+        py-1
+        basis-2/3
+        grow
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+          <option value="USD" selected>USD</option>
+        </select>
       </fieldset>
     </fieldset>
   </fieldset>

@@ -13,7 +13,6 @@ from .utils import (
 bp = Blueprint("identity", __name__, url_prefix="/identity")
 
 
-@bp.route("/token", methods=("POST",))
 def generate_client_token():
     request_body = request.get_json()
     customer_id = request_body.get("customerId")
@@ -25,11 +24,11 @@ def generate_client_token():
         formatted = headers["formatted"]
         del headers["formatted"]
 
-    if customer_id is None:
-        response = requests.post(endpoint, headers=headers)
-    else:
+    if customer_id:
         data = {"customer_id": customer_id}
         response = log_and_request("POST", endpoint, headers=headers, data=data)
+    else:
+        response = requests.post(endpoint, headers=headers)
 
     client_token = response.json()["client_token"]
     response_dict = {"client-token": client_token}
@@ -39,6 +38,44 @@ def generate_client_token():
         response_dict["formatted"] = formatted
 
     return jsonify(response_dict)
+
+
+@bp.route("/id-token", methods=("GET",))
+def get_id_token():
+    """Request access and ID tokens using the /v1/oauth2/token API.
+
+    Docs: https://developer.paypal.com/docs/api/reference/get-an-access-token/
+    """
+    endpoint = build_endpoint("/v1/oauth2/token")
+    headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
+
+    data = {
+        "ignoreCache": True,
+        "grant_type": "client_credentials",
+        "response_type": "id_token",
+    }
+
+    client_id = current_app.config["PARTNER_CLIENT_ID"]
+    secret = current_app.config["PARTNER_SECRET"]
+
+    response = requests.post(
+        endpoint, headers=headers, data=data, auth=(client_id, secret)
+    )
+    response_dict = response.json()
+
+    formatted = {"access-token": format_request_and_response(response)}
+    return_val = {"formatted": formatted}
+    try:
+        access_token = response_dict["access_token"]
+        id_token = response_dict["id_token"]
+    except KeyError:
+        return return_val
+
+    auth_header = f"Bearer {access_token}"
+    return_val["auth-header"] = auth_header
+    return_val["id-token"] = id_token
+
+    return jsonify(return_val)
 
 
 def request_access_token(client_id, secret, return_formatted=False):
@@ -54,12 +91,6 @@ def request_access_token(client_id, secret, return_formatted=False):
     response = requests.post(
         endpoint, headers=headers, data=data, auth=(client_id, secret)
     )
-    try:
-        current_app.logger.debug(
-            f'*****\n\nAccess token debug_id = {response.headers["PayPal-Debug-Id"]}\n\n*****'
-        )
-    except:
-        pass
     response_dict = response.json()
 
     try:
