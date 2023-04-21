@@ -69,10 +69,13 @@
       body: JSON.stringify(options)
     })
     const responseJson = await response.json()
-    const referralUrl = responseJson.referralUrl
-    hideGenerateButton()
-    populateReferralLink(referralUrl)
+
     updateAPICalls(responseJson.formatted)
+    if (responseJson.hasOwnProperty('referralUrl')) {
+      const referralUrl = responseJson.referralUrl
+      hideGenerateButton()
+      populateReferralLink(referralUrl)
+    }
   }
 </script>
 {% endblock %}
