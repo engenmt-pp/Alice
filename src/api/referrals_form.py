@@ -87,7 +87,8 @@ def generate_partner_referral():
     response_dict = {"formatted": formatted}
 
     try:
-        referral_url = extract_referral_url(response.json()["links"])
+        links = response.json().get("links")
+        referral_url = extract_referral_url(links)
     except Exception:
         return response_dict
 
