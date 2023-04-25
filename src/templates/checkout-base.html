@@ -152,14 +152,8 @@
     newScriptElement.id = 'paypal-js-sdk'
     newScriptElement.src = url.href
 
-    const customerId = document.getElementById('customer-id')
-    if (oldScriptElement.hasAttribute('data-client-token')) {
-      const dataClientToken = oldScriptElement.getAttribute('data-client-token')
-      newScriptElement.setAttribute('data-client-token', dataClientToken)
-    } else if (customerId.value !== null) {
-      const dataClientToken = getToken(customerId.value)
-      newScriptElement.setAttribute('data-client-token', dataClientToken)
-    }
+    const idToken = await getIdToken()
+    newScriptElement.setAttribute('data-user-id-token', idToken)
 
     const BNCode = options['bn-code']
     newScriptElement.setAttribute('data-partner-attribution-id', BNCode)
@@ -252,6 +246,75 @@
           <option value="CAPTURE" selected>Capture</option>
           <option value="AUTHORIZE">Authorize</option>
         </select>
+      </fieldset>
+      <fieldset class="
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="vault-v3" class="
+        grow
+        shrink-0
+        basis-1/3
+        whitespace-nowrap
+        mr-auto
+        ">
+          Vault v3
+        </label>
+        <select name="vault-v3" id="vault-v3" class="
+        leading-none
+        px-2
+        py-1
+        basis-2/3
+        grow
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+          <option value="" selected>None</option>
+          <option value="merchant">Merchant-level</option>
+          <option value="platform">Partner-level</option>
+        </select>
+      </fieldset>
+      <fieldset class="
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="customer-id" type="text" class="
+        grow
+        shrink-0
+        basis-1/3
+        whitespace-nowrap
+        mr-auto
+        ">
+          Customer ID
+        </label>
+        <input id="customer-id" name="customer-id" type="text" class="
+        appearance-none
+        leading-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/3
+        font-mono
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
       </fieldset>
       <fieldset class="
       flex
@@ -712,6 +775,40 @@
           BA ID
         </label>
         <input id="ba-id" name="ba-id" class="
+        appearance-none
+        leading-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/3
+        font-mono
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+      </fieldset>
+      <fieldset class="
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="vault-id" class="
+        grow
+        shrink-0
+        basis-1/3
+        whitespace-nowrap
+        mr-auto
+        ">
+          Vault v3 ID
+        </label>
+        <input id="vault-id" name="vault-id" class="
         appearance-none
         leading-none
         px-2
