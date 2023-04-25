@@ -73,9 +73,9 @@ def generate_partner_referral():
         data["partner_config_override"] = partner_config_override
 
     if country_code:
-        data["business_entity"] = (
-            {"addresses": [{"country_code": country_code, "type": "WORK"}]},
-        )
+        data["business_entity"] = {
+            "addresses": [{"country_code": country_code, "type": "WORK"}]
+        }
     if email:
         data["email"] = email
 
