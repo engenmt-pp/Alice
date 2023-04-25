@@ -29,7 +29,7 @@ def generate_partner_referral():
     del headers["formatted"]
 
     form_options = request.get_json()
-    current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
+    current_app.logger.debug(f"form_options = {json.dumps(form_options, indent=2)}")
 
     features = [
         value for option, value in form_options.items() if option.startswith("feature-")
