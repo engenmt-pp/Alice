@@ -59,7 +59,6 @@ def build_purchase_unit(
     include_shipping_options=False,
     include_shipping_address=False,
     custom_id=None,
-    vault_owner=None,
     reference_id=None,
     item_category=None,
     soft_descriptor=None,
@@ -81,30 +80,20 @@ def build_purchase_unit(
         purchase_unit["soft_descriptor"] = soft_descriptor
 
     if partner_fee > 0:
-        payment_instruction = {}
-        payment_instruction["platform_fees"] = [
-            {
-                "amount": {"currency_code": "USD", "value": partner_fee},
-                "payee": {"merchant_id": partner_id},
-            }
-        ]
+        payment_instruction = {
+            "platform_fees": [
+                {
+                    "amount": {"currency_code": "USD", "value": partner_fee},
+                    "payee": {"merchant_id": partner_id},
+                }
+            ]
+        }
         purchase_unit["payment_instruction"] = payment_instruction
 
-    payment_source = dict()
     if billing_agreement_id:
-        payment_source["token"] = {
+        payment_source = {
             "token": {"id": billing_agreement_id, "type": "BILLING_AGREEMENT"}
         }
-    elif vault_owner:
-        payment_source["paypal"] = {
-            "attributes": {
-                "vault": {
-                    "store_in_vault": "ON_SUCCESS",
-                    "usage_type": vault_owner.upper(),
-                }
-            }
-        }
-    if payment_source:
         purchase_unit["payment_source"] = payment_source
 
     breakdown = {}
@@ -153,14 +142,14 @@ def build_purchase_unit(
     return purchase_unit
 
 
-def build_application_context(shipping_preference):
-    application_context = {
+def build_context(shipping_preference):
+    context = {
         "return_url": "http://localhost:5000/",
         "cancel_url": "http://localhost:5000/",
     }
     if shipping_preference:
-        application_context["shipping_preference"] = shipping_preference
-    return application_context
+        context["shipping_preference"] = shipping_preference
+    return context
 
 
 @bp.route("/create", methods=("POST",))
@@ -175,7 +164,7 @@ def create_order_router():
     auth_header = form_options.get("authHeader")
     return_formatted = auth_header is None
 
-    vaulting_v3 = form_options.get("vault-owner", "")
+    vaulting_v3 = form_options.get("vault-v3", "")
     if vaulting_v3 == "merchant":
         include_auth_assertion = True
     else:
@@ -185,6 +174,7 @@ def create_order_router():
         return_formatted=return_formatted,
         auth_header=auth_header,
         include_auth_assertion=include_auth_assertion,
+        include_request_id=True,
     )
     if return_formatted:
         formatted = headers["formatted"]
@@ -224,8 +214,9 @@ def create_order(headers, form_options):
     merchant_id = form_options["merchant-id"]
     price = form_options["price"]
     tax = form_options["tax"]
-    vault_owner = form_options.get("vault-owner")
-    include_payee = vault_owner != "merchant"
+    vault_v3 = form_options.get("vault-v3")
+    vault_v3_id = form_options.get("vault-id")
+    include_payee = vault_v3 != "merchant"
     include_shipping_options = form_options.get("include-shipping-options")
     include_shipping_address = form_options.get("include-shipping-address")
     reference_id = form_options.get("reference-id")
@@ -252,21 +243,35 @@ def create_order(headers, form_options):
         include_shipping_options=include_shipping_options,
         include_shipping_address=include_shipping_address,
         custom_id=custom_id,
-        vault_owner=vault_owner,
         reference_id=reference_id,
         item_category=item_category,
         soft_descriptor=soft_descriptor,
-        disbursement_mode=disbursement_mode,
+        # disbursement_mode=disbursement_mode,
         billing_agreement_id=billing_agreement_id,
     )
 
-    application_context = build_application_context(shipping_preference)
+    context = build_context(shipping_preference)
 
     data = {
-        "application_context": application_context,
         "intent": intent,
         "purchase_units": [purchase_unit],
     }
+
+    payment_source = {
+        "paypal": {
+            "experience_context": context,
+        },
+    }
+    if vault_v3_id:
+        payment_source["paypal"]["vault_id"] = vault_v3_id
+    elif vault_v3:
+        payment_source["paypal"]["attributes"] = {
+            "vault": {
+                "store_in_vault": "ON_SUCCESS",
+                "usage_type": vault_v3.upper(),
+            }
+        }
+    data["payment_source"] = payment_source
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     return response
@@ -282,7 +287,7 @@ def capture_order_router(order_id):
     current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
 
     auth_header = form_options["auth-header"]
-    include_auth_assertion = form_options.get("vault-owner") == "merchant"
+    include_auth_assertion = form_options.get("vault-v3") == "merchant"
     headers = build_headers(
         auth_header=auth_header, include_auth_assertion=include_auth_assertion
     )

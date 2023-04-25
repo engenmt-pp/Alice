@@ -7,6 +7,7 @@ from .utils import (
     build_endpoint,
     log_and_request,
     format_request_and_response,
+    random_decimal_string,
 )
 
 
@@ -40,8 +41,11 @@ def generate_client_token():
     return jsonify(response_dict)
 
 
-@bp.route("/id-token", methods=("GET",))
-def get_id_token():
+@bp.route("/id-token/", defaults={"customer_id": None}, methods=("GET",))
+@bp.route("/id-token/<customer_id>", methods=("GET",))
+@bp.route("/id-token-with-auth/", defaults={"customer_id": None}, methods=("GET",))
+@bp.route("/id-token-with-auth/<customer_id>", methods=("GET",))
+def get_id_token(customer_id):
     """Request access and ID tokens using the /v1/oauth2/token API.
 
     Docs: https://developer.paypal.com/docs/api/reference/get-an-access-token/
@@ -49,11 +53,18 @@ def get_id_token():
     endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
 
+    if "id-token-with-auth/" in request.path:
+        auth_assertion = build_auth_assertion()
+        headers["PayPal-Auth-Assertion"] = auth_assertion
+
     data = {
         "ignoreCache": True,
         "grant_type": "client_credentials",
         "response_type": "id_token",
     }
+
+    if customer_id:
+        data["target_customer_id"] = customer_id
 
     client_id = current_app.config["PARTNER_CLIENT_ID"]
     secret = current_app.config["PARTNER_SECRET"]
@@ -132,6 +143,7 @@ def build_headers(
     bn_code=None,
     include_bn_code=True,
     include_auth_assertion=False,
+    include_request_id=False,
     return_formatted=False,
     auth_header=None,
 ):
@@ -157,6 +169,10 @@ def build_headers(
             headers["formatted"] = formatted
 
     headers["Authorization"] = auth_header
+
+    if include_request_id:
+        request_id = random_decimal_string(10)
+        headers["PayPal-Request-Id"] = request_id
 
     if include_bn_code:
         bn_code = bn_code or current_app.config["PARTNER_BN_CODE"]

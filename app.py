@@ -10,4 +10,7 @@ app.config.from_object(PartnerOneConfig)
 app.config.from_object(MerchantOneConfig)
 
 if __name__ == "__main__":
+    from logging.config import dictConfig
+
+    dictConfig({"version": 1, "root": {"level": "ERROR"}})
     app.run(host="127.0.0.1", port=5000)
