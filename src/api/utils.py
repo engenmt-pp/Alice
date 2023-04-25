@@ -92,7 +92,7 @@ def format_request(request):
         try:
             body_sent = json.loads(body_sent)
         except (json.decoder.JSONDecodeError, TypeError) as exc:
-            current_app.logger.info(
+            current_app.logger.debug(
                 f"Exception occurred during json.loads('{body_sent}'): ({type(exc)}) {exc}"
             )
 

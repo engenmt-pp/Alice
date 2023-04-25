@@ -159,7 +159,7 @@ def create_order_router():
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
     """
     form_options = request.get_json()
-    current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
+    current_app.logger.debug(f"form_options = {json.dumps(form_options, indent=2)}")
 
     auth_header = form_options.get("authHeader")
     return_formatted = auth_header is None
@@ -284,7 +284,7 @@ def capture_order_router(order_id):
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
     """
     form_options = request.get_json()
-    current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
+    current_app.logger.debug(f"form_options = {json.dumps(form_options, indent=2)}")
 
     auth_header = form_options["auth-header"]
     include_auth_assertion = form_options.get("vault-v3") == "merchant"
@@ -315,10 +315,11 @@ def auth_and_capture_order(order_id, form_options, headers):
         auth_id = auth_response.json()["purchase_units"][0]["payments"][
             "authorizations"
         ][0]["id"]
-    except TypeError as exc:
+    except (TypeError, IndexError) as exc:
         current_app.logger.error(
             f"Error accessing auth id from response json: {json.dumps(dict(auth_response.json()),indent=2)}"
         )
+        return formatted_dict
 
     capture_response = capture_authorization(auth_id, form_options, headers)
     formatted_dict["capture-order"] = format_request_and_response(capture_response)

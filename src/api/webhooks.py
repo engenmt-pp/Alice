@@ -50,7 +50,7 @@ def to_verification_dict(webhook_headers, webhook_body):
 @bp.route("/", methods=("POST",))
 def listener():
     webhook_body = request.json()
-    current_app.logger.info(f"Webhook received:\n{json.dumps(webhook_body, indent=2)}")
+    current_app.logger.debug(f"Webhook received:\n{json.dumps(webhook_body, indent=2)}")
 
     webhook_headers = request.headers
 
@@ -58,7 +58,7 @@ def listener():
     resp = verify_webhook_signature(verification_dict)
 
     if resp.get("verification_status") == "SUCCESS":
-        current_app.logger.info("Verification successful!")
+        current_app.logger.debug("Verification successful!")
     else:
         current_app.logger.error("Verification unsuccessful. Response dict:")
         current_app.logger.error(json.dumps(resp, indent=2))
