@@ -4,10 +4,11 @@ import json
 
 from .utils import (
     build_endpoint,
-    build_headers,
     log_and_request,
     format_request_and_response,
 )
+
+from .identity import build_headers
 
 bp = Blueprint("referrals_form", __name__, url_prefix="/referrals-form")
 
@@ -28,13 +29,24 @@ def generate_partner_referral():
     del headers["formatted"]
 
     form_options = request.get_json()
-    current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
+    current_app.logger.debug(f"form_options = {json.dumps(form_options, indent=2)}")
 
-    product = form_options.get("product")
-    tracking_id = form_options.get("tracking-id")
     features = [
         value for option, value in form_options.items() if option.startswith("feature-")
     ]
+
+    product = form_options.get("product")
+    products = [product]
+    vault_v3 = form_options.get("vault-v3")
+    match vault_v3:
+        case "merchant-level":
+            features.extend(["VAULT", "BILLING_AGREEMENT"])
+            products.append("ADVANCED_VAULTING")
+            capabilities = ["PAYPAL_WALLET_VAULTING_ADVANCED"]
+        case _:
+            capabilities = []
+
+    tracking_id = form_options.get("tracking-id")
     country_code = form_options.get("country-code")
     email = form_options.get("email")
 
@@ -51,8 +63,10 @@ def generate_partner_referral():
                 },
             }
         ],
-        "products": [product],
+        "products": products,
     }
+    if capabilities:
+        data["capabilities"] = capabilities
 
     include_legal_consents = form_options.get("include-legal-consents", "")
     if include_legal_consents:

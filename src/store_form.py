@@ -1,8 +1,8 @@
 from flask import Blueprint, current_app, render_template, request
 from .api.utils import (
     build_script_tag,
-    generate_client_token,
 )
+from .api.identity import generate_client_token
 
 bp = Blueprint("store_form", __name__, url_prefix="/store-form")
 

@@ -4,10 +4,11 @@ import json
 
 from .utils import (
     build_endpoint,
-    build_headers,
     log_and_request,
     format_request_and_response,
 )
+
+from .identity import build_headers
 
 bp = Blueprint("orders_form", __name__, url_prefix="/orders-form")
 
@@ -52,22 +53,25 @@ def build_purchase_unit(
     merchant_id,
     price,
     tax,
-    include_shipping_options,
-    include_shipping_address,
-    disbursement_mode=None,
     partner_fee=0,
-    reference_id=None,
-    custom_id=None,
-    soft_descriptor=None,
+    include_payee=True,
     include_line_items=True,
+    include_shipping_options=False,
+    include_shipping_address=False,
+    custom_id=None,
+    reference_id=None,
     item_category=None,
+    soft_descriptor=None,
+    disbursement_mode=None,
     billing_agreement_id=None,
 ):
     price = float(price)
     tax = float(tax)
-    purchase_unit = {
-        "payee": {"merchant_id": merchant_id},
-    }
+
+    purchase_unit = dict()
+
+    if include_payee:
+        purchase_unit["payee"] = {"merchant_id": merchant_id}
     if reference_id:
         purchase_unit["reference_id"] = reference_id
     if custom_id:
@@ -76,19 +80,21 @@ def build_purchase_unit(
         purchase_unit["soft_descriptor"] = soft_descriptor
 
     if partner_fee > 0:
-        payment_instruction = {}
-        payment_instruction["platform_fees"] = [
-            {
-                "amount": {"currency_code": "USD", "value": partner_fee},
-                "payee": {"merchant_id": partner_id},
-            }
-        ]
+        payment_instruction = {
+            "platform_fees": [
+                {
+                    "amount": {"currency_code": "USD", "value": partner_fee},
+                    "payee": {"merchant_id": partner_id},
+                }
+            ]
+        }
         purchase_unit["payment_instruction"] = payment_instruction
 
-    if billing_agreement_id is not None:
-        purchase_unit["payment_source"] = {
+    if billing_agreement_id:
+        payment_source = {
             "token": {"id": billing_agreement_id, "type": "BILLING_AGREEMENT"}
         }
+        purchase_unit["payment_source"] = payment_source
 
     breakdown = {}
     shipping_cost = 9.99
@@ -136,14 +142,14 @@ def build_purchase_unit(
     return purchase_unit
 
 
-def build_application_context(shipping_preference):
-    application_context = {
+def build_context(shipping_preference):
+    context = {
         "return_url": "http://localhost:5000/",
         "cancel_url": "http://localhost:5000/",
     }
     if shipping_preference:
-        application_context["shipping_preference"] = shipping_preference
-    return application_context
+        context["shipping_preference"] = shipping_preference
+    return context
 
 
 @bp.route("/create", methods=("POST",))
@@ -153,11 +159,23 @@ def create_order_router():
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
     """
     form_options = request.get_json()
-    current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
+    current_app.logger.debug(f"form_options = {json.dumps(form_options, indent=2)}")
 
     auth_header = form_options.get("authHeader")
     return_formatted = auth_header is None
-    headers = build_headers(return_formatted=return_formatted, auth_header=auth_header)
+
+    vaulting_v3 = form_options.get("vault-v3", "")
+    if vaulting_v3 == "merchant":
+        include_auth_assertion = True
+    else:
+        include_auth_assertion = False
+
+    headers = build_headers(
+        return_formatted=return_formatted,
+        auth_header=auth_header,
+        include_auth_assertion=include_auth_assertion,
+        include_request_id=True,
+    )
     if return_formatted:
         formatted = headers["formatted"]
         del headers["formatted"]
@@ -196,6 +214,9 @@ def create_order(headers, form_options):
     merchant_id = form_options["merchant-id"]
     price = form_options["price"]
     tax = form_options["tax"]
+    vault_v3 = form_options.get("vault-v3")
+    vault_v3_id = form_options.get("vault-id")
+    include_payee = vault_v3 != "merchant"
     include_shipping_options = form_options.get("include-shipping-options")
     include_shipping_address = form_options.get("include-shipping-address")
     reference_id = form_options.get("reference-id")
@@ -217,24 +238,40 @@ def create_order(headers, form_options):
         merchant_id=merchant_id,
         price=price,
         tax=tax,
-        disbursement_mode=disbursement_mode,
+        partner_fee=partner_fee,
+        include_payee=include_payee,
         include_shipping_options=include_shipping_options,
         include_shipping_address=include_shipping_address,
-        reference_id=reference_id,
         custom_id=custom_id,
-        soft_descriptor=soft_descriptor,
-        partner_fee=partner_fee,
+        reference_id=reference_id,
         item_category=item_category,
+        soft_descriptor=soft_descriptor,
+        # disbursement_mode=disbursement_mode,
         billing_agreement_id=billing_agreement_id,
     )
 
-    application_context = build_application_context(shipping_preference)
+    context = build_context(shipping_preference)
 
     data = {
-        "application_context": application_context,
         "intent": intent,
         "purchase_units": [purchase_unit],
     }
+
+    payment_source = {
+        "paypal": {
+            "experience_context": context,
+        },
+    }
+    if vault_v3_id:
+        payment_source["paypal"]["vault_id"] = vault_v3_id
+    elif vault_v3:
+        payment_source["paypal"]["attributes"] = {
+            "vault": {
+                "store_in_vault": "ON_SUCCESS",
+                "usage_type": vault_v3.upper(),
+            }
+        }
+    data["payment_source"] = payment_source
 
     response = log_and_request("POST", endpoint, headers=headers, data=data)
     return response
@@ -247,16 +284,19 @@ def capture_order_router(order_id):
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
     """
     form_options = request.get_json()
-    current_app.logger.error(f"form_options = {json.dumps(form_options, indent=2)}")
+    current_app.logger.debug(f"form_options = {json.dumps(form_options, indent=2)}")
 
-    auth_header = form_options["authHeader"]
+    auth_header = form_options["auth-header"]
+    include_auth_assertion = form_options.get("vault-v3") == "merchant"
+    headers = build_headers(
+        auth_header=auth_header, include_auth_assertion=include_auth_assertion
+    )
+
     intent = form_options["intent"]
     if intent == "AUTHORIZE":
-        formatted_dict = auth_and_capture_order(
-            order_id, form_options, auth_header=auth_header
-        )
+        formatted_dict = auth_and_capture_order(order_id, form_options, headers)
     else:
-        capture_response = capture_order(order_id, auth_header=auth_header)
+        capture_response = capture_order(order_id, headers)
         formatted_dict = {
             "capture-order": format_request_and_response(capture_response)
         }
@@ -264,30 +304,29 @@ def capture_order_router(order_id):
     return jsonify({"formatted": formatted_dict})
 
 
-def auth_and_capture_order(order_id, form_options, auth_header):
+def auth_and_capture_order(order_id, form_options, headers):
     """Authorize and then capture the order according to the provided form options.
 
     Return a dictionary of the formatted requests and responses.
     """
-    auth_response = authorize_order(order_id, auth_header=auth_header)
+    auth_response = authorize_order(order_id, headers)
     formatted_dict = {"authorize-order": format_request_and_response(auth_response)}
     try:
         auth_id = auth_response.json()["purchase_units"][0]["payments"][
             "authorizations"
         ][0]["id"]
-    except TypeError as exc:
+    except (TypeError, IndexError) as exc:
         current_app.logger.error(
             f"Error accessing auth id from response json: {json.dumps(dict(auth_response.json()),indent=2)}"
         )
+        return formatted_dict
 
-    capture_response = capture_authorization(
-        auth_id, form_options, auth_header=auth_header
-    )
+    capture_response = capture_authorization(auth_id, form_options, headers)
     formatted_dict["capture-order"] = format_request_and_response(capture_response)
     return formatted_dict
 
 
-def authorize_order(order_id, auth_header):
+def authorize_order(order_id, headers):
     """Authorize the order using the /v2/checkout/orders API.
 
     Returns the response object.
@@ -295,13 +334,12 @@ def authorize_order(order_id, auth_header):
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_authorize
     """
     endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}/authorize")
-    headers = build_headers(auth_header=auth_header)
 
     response = log_and_request("POST", endpoint, headers=headers)
     return response
 
 
-def capture_order(order_id, auth_header):
+def capture_order(order_id, headers):
     """Capture the order with the /v2/checkout/orders API.
 
     Returns the response object.
@@ -309,13 +347,12 @@ def capture_order(order_id, auth_header):
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
     """
     endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}/capture")
-    headers = build_headers(auth_header=auth_header)
 
     response = log_and_request("POST", endpoint, headers=headers)
     return response
 
 
-def capture_authorization(auth_id, form_options, auth_header):
+def capture_authorization(auth_id, form_options, headers):
     """Capture the authorization with the given `auth_id` using the /v2/payments API.
 
     Returns the response object.
@@ -323,7 +360,6 @@ def capture_authorization(auth_id, form_options, auth_header):
     Docs: https://developer.paypal.com/docs/api/payments/v2/#authorizations_capture
     """
     endpoint = build_endpoint(f"/v2/payments/authorizations/{auth_id}/capture")
-    headers = build_headers(auth_header=auth_header)
 
     partner_fee = float(form_options["partner-fee"])
     disbursement_mode = form_options["disbursement-mode"]
@@ -351,7 +387,7 @@ def get_order_status(order_id):
     """
     endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}")
 
-    auth_header = request.args.get("authHeader")
+    auth_header = request.args.get("auth-header")
     headers = build_headers(auth_header=auth_header)
 
     response = log_and_request("GET", endpoint, headers=headers)

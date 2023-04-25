@@ -1,8 +1,6 @@
-import base64
 import json
 import random
 import requests
-
 
 from flask import current_app
 from urllib.parse import urlencode
@@ -59,109 +57,12 @@ def log_and_request(method, endpoint, **kwargs):
     if not response.ok:
         current_app.logger.error(f"{response.status_code} Error: {response_str}\n\n")
     else:
-        debug_id = f"debug_id = {response.headers.get('PayPal-Debug-Id', None)}"
+        debug_id = response.headers.get("PayPal-Debug-Id")
         current_app.logger.debug(
-            f"({debug_id}) {response.status_code} Response: {response_str}{bar}"
+            f"({debug_id=}) {response.status_code} Response: {response_str}{bar}"
         )
 
     return response
-
-
-def request_access_token(client_id, secret, return_formatted=False):
-    """Request an access token using the /v1/oauth2/token API.
-
-    Docs: https://developer.paypal.com/docs/api/reference/get-an-access-token/
-    """
-    endpoint = build_endpoint("/v1/oauth2/token")
-    headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
-
-    data = {"grant_type": "client_credentials", "ignoreCache": True}
-
-    response = requests.post(
-        endpoint, headers=headers, data=data, auth=(client_id, secret)
-    )
-    try:
-        current_app.logger.debug(
-            f'*****\n\nAccess token debug_id = {response.headers["PayPal-Debug-Id"]}\n\n*****'
-        )
-    except:
-        pass
-    response_dict = response.json()
-
-    try:
-        access_token = response_dict["access_token"]
-        return_val = {"access_token": access_token}
-        if return_formatted:
-            formatted = format_request_and_response(response)
-            return_val["formatted"] = formatted
-        return return_val
-    except KeyError as exc:
-        current_app.logger.error(f"Encountered a KeyError: {exc}")
-        current_app.logger.error(
-            f"response_dict = {json.dumps(response_dict, indent=2)}"
-        )
-        raise exc
-
-
-def build_headers(
-    client_id=None,
-    secret=None,
-    bn_code=None,
-    include_bn_code=True,
-    include_auth_assertion=False,
-    return_formatted=False,
-    auth_header=None,
-):
-    """Build commonly used headers using a new PayPal access token."""
-
-    headers = {
-        "Accept": "application/json",
-        "Accept-Language": "en_US",
-        "Content-Type": "application/json",
-    }
-
-    if auth_header is None:
-        client_id = client_id or current_app.config["PARTNER_CLIENT_ID"]
-        secret = secret or current_app.config["PARTNER_SECRET"]
-
-        access_token_response = request_access_token(
-            client_id, secret, return_formatted=return_formatted
-        )
-        access_token = access_token_response["access_token"]
-        auth_header = f"Bearer {access_token}"
-        if return_formatted:
-            formatted = {"access-token": access_token_response["formatted"]}
-            headers["formatted"] = formatted
-
-    headers["Authorization"] = auth_header
-
-    if include_bn_code:
-        bn_code = bn_code or current_app.config["PARTNER_BN_CODE"]
-        headers["PayPal-Partner-Attribution-Id"] = bn_code
-
-    if include_auth_assertion:
-        auth_assertion = build_auth_assertion()
-        headers["PayPal-Auth-Assertion"] = auth_assertion
-
-    return headers
-
-
-def build_auth_assertion(client_id=None, merchant_id=None):
-    """Build and return the PayPal Auth Assertion.
-
-    Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
-    """
-    client_id = client_id or current_app.config["PARTNER_CLIENT_ID"]
-    merchant_id = merchant_id or current_app.config["MERCHANT_ID"]
-
-    header = {"alg": "none"}
-    header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
-
-    payload = {"iss": client_id, "payer_id": merchant_id}
-    payload_b64 = base64.b64encode(json.dumps(payload).encode("ascii"))
-
-    signature = b""
-    return b".".join([header_b64, payload_b64, signature])
 
 
 def format_request(request):
@@ -183,7 +84,7 @@ def format_request(request):
     except TypeError:
         headers_sent_copy = dict(headers_sent)
         auth_assertion_str = str(headers_sent["PayPal-Auth-Assertion"], "utf-8")
-        headers_sent_copy["PayPal-Auth-Assertion"] = f"b'{auth_assertion_str}'"
+        headers_sent_copy["PayPal-Auth-Assertion"] = auth_assertion_str
         headers_sent_str = json.dumps(headers_sent_copy, indent=2)
 
     body_sent = request.body
@@ -191,7 +92,7 @@ def format_request(request):
         try:
             body_sent = json.loads(body_sent)
         except (json.decoder.JSONDecodeError, TypeError) as exc:
-            current_app.logger.error(
+            current_app.logger.debug(
                 f"Exception occurred during json.loads('{body_sent}'): ({type(exc)}) {exc}"
             )
 
@@ -240,40 +141,6 @@ def format_request_and_response(response):
     formatted_request = format_request(response.request)
     formatted_response = format_response(response)
     return "\n\n".join([formatted_request, formatted_response])
-
-
-def generate_client_token(customer_id=None, return_formatted=False):
-    endpoint = build_endpoint("/v1/identity/generate-token")
-    headers = build_headers(return_formatted=return_formatted)
-    if return_formatted:
-        formatted = headers["formatted"]
-        del headers["formatted"]
-
-    if customer_id is None:
-        response = requests.post(endpoint, headers=headers)
-    else:
-        data = {"customer_id": customer_id}
-        response = log_and_request("POST", endpoint, headers=headers, data=data)
-
-    response_json = response.json()
-    try:
-        client_token = response_json["client_token"]
-    except Exception as exc:
-        current_app.log.error(
-            f"No client_token returned! Response: {json.dumps(response_json, 2)}"
-        )
-        raise exc
-
-    if return_formatted:
-        formatted["client-token"] = format_request_and_response(response)
-        auth_header = headers["Authorization"]
-        return {
-            "client_token": client_token,
-            "formatted": formatted,
-            "auth_header": auth_header,
-        }
-
-    return client_token
 
 
 def random_decimal_string(length):

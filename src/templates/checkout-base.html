@@ -14,16 +14,21 @@
   function copyToClipboard(id) {
     navigator.clipboard.writeText(document.getElementById(id).value)
   }
-  function updateAPICalls(formattedCalls) {
-    document.getElementById('api-calls').click()
+  function updateAPICalls(formattedCalls, click=true) {
+    const apiCallsButton = document.getElementById('api-calls')
+    if (click) {
+      apiCallsButton.click()
+    }
     for (const id in formattedCalls) {
       if (formattedCalls.hasOwnProperty(id)) {
         const contents = formattedCalls[id]
-        const apiCallTab = document.getElementById('api-calls-' + id)
+        const apiCallTab = document.getElementById(`api-calls-${id}`)
         apiCallTab.innerHTML = contents
-        const apiCallsButton = document.getElementById(id)
-        enableButton(apiCallsButton)
-        apiCallsButton.click()
+        const apiCallsSubButton = document.getElementById(id)
+        enableButton(apiCallsSubButton)
+        if (click) {
+          apiCallsSubButton.click()
+        }
       }
     }
   }
@@ -80,7 +85,41 @@
   }
   // populateForm()
 </script>
+{% endblock %}
+
+{% block foot %}
 <script id="script-pp-utils">
+  async function getIdToken() {
+    console.groupCollapsed("Requesting ID token...")
+
+    const vaultV3 = document.getElementById('vault-v3').value
+    const customerId = document.getElementById('customer-id').value
+    let endpoint
+    if (vaultV3 === 'merchant') {
+      endpoint = `/api/identity/id-token-with-auth/${customerId}`
+    } else {
+      endpoint = `/api/identity/id-token/${customerId}`
+    }
+    const idTokenResponse = await fetch(endpoint)
+    const responseJson = await idTokenResponse.json()
+    console.log("Response JSON:", JSON.stringify(responseJson, null, 2))
+
+    const formatted = responseJson['formatted']
+    updateAPICalls(formatted, click=false)
+
+    let idToken
+    if (responseJson.hasOwnProperty('id-token')) {
+      idToken = responseJson['id-token']
+      console.log("ID token:", idToken)
+    }
+    if (responseJson.hasOwnProperty('auth-header')) {
+      const authHeader = responseJson['auth-header']
+      document.getElementById('auth-header').value = authHeader
+    }
+
+    console.groupEnd()
+    return idToken
+  }
   async function buildScriptElement(onload, vault=false) {
     const options = getOptions()
     const url = new URL('https://www.paypal.com/sdk/js')
@@ -89,7 +128,8 @@
     url.searchParams.append("intent", options['intent'].toLowerCase())
     url.searchParams.append("currency", options['currency'])
     url.searchParams.append("commit", true)
-    url.searchParams.append("vault", vault)
+
+    url.searchParams.append("vault", Boolean(options['vault-v3']))
 
     const oldScriptElement = document.getElementById('paypal-js-sdk')
     if (oldScriptElement.hasAttribute('src')) {
@@ -111,15 +151,14 @@
     const newScriptElement = document.createElement('script')
     newScriptElement.id = 'paypal-js-sdk'
     newScriptElement.src = url.href
-    if (oldScriptElement.hasAttribute('data-client-token')) {
-      const dataClientToken = oldScriptElement.getAttribute('data-client-token')
-      newScriptElement.setAttribute('data-client-token', dataClientToken)
-    }
+
+    const idToken = await getIdToken()
+    newScriptElement.setAttribute('data-user-id-token', idToken)
 
     const BNCode = options['bn-code']
     newScriptElement.setAttribute('data-partner-attribution-id', BNCode)
-    newScriptElement.onload = onload
 
+    newScriptElement.onload = onload
     oldScriptElement.replaceWith(newScriptElement)
   }
   async function resetCheckoutContainer() {
@@ -132,9 +171,6 @@
     oldContainer.replaceWith(newContainer)
   }
 </script>
-{% endblock %}
-
-{% block foot %}
 <script id="script-initial-api-calls">
   const formattedCalls = {{ formatted_calls|default('null')| safe }}
   if (formattedCalls !== null) {
@@ -171,12 +207,13 @@
 
 {% block left_col %}
 <form id="options-form" class="space-y-4">
+  <input class="hidden" id="auth-header"></input>
   <fieldset class="space-y-2">
     <legend class="block font-semibold">
       SDK Options
     </legend>
-    <div class="ml-2 space-y-2">
-      <div class="
+    <fieldset class="ml-2 space-y-2">
+      <fieldset class="
       flex
       flex-row
       flex-wrap
@@ -209,8 +246,8 @@
           <option value="CAPTURE" selected>Capture</option>
           <option value="AUTHORIZE">Authorize</option>
         </select>
-      </div>
-      <div class="
+      </fieldset>
+      <fieldset class="
       flex
       flex-row
       flex-wrap
@@ -242,8 +279,8 @@
         ">
           <option value="USD" selected>USD</option>
         </select>
-      </div>
-    </div>
+      </fieldset>
+    </fieldset>
   </fieldset>
   <fieldset class="space-y-2">
     <legend class="block font-semibold">Partner/merchant info</legend>
@@ -350,6 +387,7 @@
         </button>
       </div>
       <div class="
+      mb-2
       flex
       flex-row
       flex-wrap
@@ -380,7 +418,7 @@
         border-zinc-300 dark:border-zinc-600
         focus:border-blue-500
         ">
-        <button type="button" onclick="copyToClipboard('bn-code')" class="
+        <button type="button" onclick="copyToClipboard('merchant-id')" class="
         px-2
         py-1
         ml-1
@@ -453,6 +491,116 @@
   </fieldset>
   {% block checkout_options %}
   {% endblock %}
+  <fieldset class="space-y-2">
+    <legend class="block font-semibold">
+      Vault v3 Info
+    </legend>
+    <div class="ml-2 space-y-2">
+      <fieldset class="
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="vault-v3" class="
+        grow
+        shrink-0
+        basis-1/3
+        whitespace-nowrap
+        mr-auto
+        ">
+          Vault level
+        </label>
+        <select name="vault-v3" id="vault-v3" class="
+        leading-none
+        px-2
+        py-1
+        basis-2/3
+        grow
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+          <option value="" selected>None</option>
+          <option value="merchant">Merchant-level</option>
+          <option value="platform">Partner-level</option>
+        </select>
+      </fieldset>
+      <fieldset class="
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="customer-id" type="text" class="
+        grow
+        shrink-0
+        basis-1/3
+        whitespace-nowrap
+        mr-auto
+        ">
+          Customer ID
+        </label>
+        <input id="customer-id" name="customer-id" type="text" class="
+        appearance-none
+        leading-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/3
+        font-mono
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+      </fieldset>
+      <fieldset class="
+      flex
+      flex-row
+      flex-wrap
+      items-center
+      justify-between
+      ">
+        <label for="vault-id" class="
+        grow
+        shrink-0
+        basis-1/3
+        whitespace-nowrap
+        mr-auto
+        ">
+          Vault v3 ID
+        </label>
+        <input id="vault-id" name="vault-id" class="
+        appearance-none
+        leading-none
+        px-2
+        py-1
+        min-w-0
+        flex-auto
+        basis-2/3
+        font-mono
+        rounded
+        border
+        focus:outline-none
+        bg-zinc-100 dark:bg-zinc-700
+        border-zinc-300 dark:border-zinc-600
+        focus:bg-white dark:focus:bg-zinc-900
+        focus:border-blue-500 dark:focus:border-blue-500
+        ">
+      </fieldset>
+    </div>
+  </fieldset>
   <fieldset class="space-y-2">
     <legend class="block font-semibold">
       Billing Agreement (BA) Info
@@ -532,8 +680,8 @@
     <legend class="block font-semibold">
       Order options
     </legend>
-    <div class="ml-2 space-y-2">
-      <div class="
+    <fieldset class="ml-2 space-y-2">
+      <fieldset class="
       flex
       flex-row
       flex-wrap
@@ -566,9 +714,10 @@
           <option value="" selected>Unspecified</option>
           <option value="NO_SHIPPING">No shipping</option>
           <option value="GET_FROM_FILE">Get from file</option>
+          <option value="SET_PROVIDED_ADDRESS">Set provided address</option>
         </select>
-      </div>
-    </div>
+      </fieldset>
+    </fieldset>
   </fieldset>
   <fieldset class="space-y-2">
     <legend class="block font-semibold">
