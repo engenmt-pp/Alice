@@ -1,0 +1,101 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+:root {
+  --white: rgb(255 255 255);
+
+  --zinc-950: rgb(9 9 11);
+  --zinc-900: rgb(24 24 27);
+  --zinc-800: rgb(39 39 42);
+  --zinc-700: rgb(63 63 70);
+  --zinc-600: rgb(82 82 27);
+  --zinc-500: rgb(113 113 122);
+  --zinc-400: rgb(161 161 170);
+  --zinc-300: rgb(212 212 216);
+  --zinc-200: rgb(228 228 231);
+  --zinc-100: rgb(244 244 245);
+  --zinc-50: rgb(250 250 250);
+
+  --blue-600: rgb(37 99 235);
+
+  --light-bg-0: var(--zinc-50);
+  --light-bg-1: var(--zinc-100);
+  --light-bg-2: var(--zinc-200);
+  --light-bg-3: var(--zinc-300);
+  --light-bg-4: var(--zinc-400);
+
+  --light-text-0: var(--zinc-950);
+  --dark-text-0: var(--zinc-50);
+
+  --dark-bg-0: var(--zinc-900);
+  --dark-bg-1: var(--zinc-800);
+  --dark-bg-2: var(--zinc-700);
+  --dark-bg-3: var(--zinc-600);
+  --dark-bg-4: var(--zinc-500);
+}
+
+
+html {
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
+    font-weight: 500;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+body {
+    margin: 0;
+    height: max-content;
+    min-height: 100vh;
+    background-color: var(--light-bg-0);
+    color: var(--light-text-0);
+}
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: var(--dark-bg-0);
+        color: var(--dark-text-0);
+    }
+}
+
+body > header {
+    background-color: var(--blue-600);
+    text-align: center;
+    color: var(--white);
+}
+body > header a {
+    color: var(--white);
+}
+
+body > main {
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
+    height: 100%;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+
+.col-6 {
+    grid-column: span 6 / span 6;
+}
+
+main > div {
+    background-color: var(--light-bg-1);
+}
+@media (prefers-color-scheme: dark) {
+    main > div {
+        background-color: var(--dark-bg-1);
+    }
+}
+
+a {
+    /* Places underlines below the descenders */
+    text-underline-position: under;
+
+    /* Sets the thickness as a percentage of the font size */
+    text-decoration-thickness: 8;
+}

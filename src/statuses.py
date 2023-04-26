@@ -7,7 +7,8 @@ bp = Blueprint("statuses", __name__, url_prefix="/statuses")
 
 @bp.route("/")
 def statuses():
-    template = "statuses.html"
+    # template = "statuses.html"
+    template = "statuses-new.html"
 
     partner_id = request.args.get("partner-id", current_app.config["PARTNER_ID"])
     partner_client_id = request.args.get(
