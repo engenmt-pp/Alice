@@ -18,7 +18,42 @@
     </header>
     <main>
       <div class="col-6">
-        I am a dog.
+        <h1 class="title">
+          Alice - A PPCP Testing Tool
+        </h1>
+        <nav>
+          <ul>
+            <li>
+              <a href="{{ url_for('partner_form.onboarding') }}">
+                Onboarding
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('store_form.checkout_branded') }}">
+                Checkout - Branded
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('statuses.statuses') }}">
+                Statuses
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <form>
+          <legend>
+            Partner/merchant info
+          </legend>
+          <fieldset id="partner-merchant-credentials">
+            <label for="partner-id">Partner ID</label>
+            <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced"></input>
+            <button type="button" onclick="console.log('ribbit')">Button</button>
+            <div class="break"></div>
+            <label for="merchant-id">merchant ID</label>
+            <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced"></input>
+            <button type="button" onclick="console.log('croak')">Button</button>
+          </fieldset>
+        <form>
       </div>
       <div class="col-6">
         Woof woof, fool.
