@@ -42,43 +42,63 @@
           </ul>
         </nav>
         <form>
-          <legend>
-            Partner/merchant info
-          </legend>
           <fieldset id="partner-merchant-credentials">
-            <!-- Partner ID -->
-            <label for="partner-id">
-              Partner ID
-            </label>
-            <span>
-              <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced"/>
-              <button type="button" onclick="copyToClipboard('partner-id')">
-                Copy
-              </button>
-            </span>
-            <div class="break"></div>
-            <!-- Partner client ID -->
-            <label for="partner-client-id">
-              Client ID
-            </label>
-            <span>
-              <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced"></input>
-              <button type="button" onclick="copyToClipboard('partner-client-id')">
-                Copy
-              </button>
-            </span>
-            <!-- Merchant ID -->
-            <div class="break">
-            </div>
-            <label for="merchant-id">
-              Merchant ID
-            </label>
-            <span>
-              <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced"></input>
-              <button type="button" onclick="copyToClipboard('merchant-id')">
-                Copy
-              </button>
-            </span>
+            <legend>
+              Partner/merchant info
+            </legend>
+            <fieldset>
+              <!-- Partner ID -->
+              <label for="partner-id">
+                Partner ID
+              </label>
+              <span>
+                <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced"/>
+                <button type="button" onclick="copyToClipboard('partner-id')">
+                  Copy
+                </button>
+              </span>
+              <div class="break"></div>
+              <!-- Partner client ID -->
+              <label for="partner-client-id">
+                Client ID
+              </label>
+              <span>
+                <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced"></input>
+                <button type="button" onclick="copyToClipboard('partner-client-id')">
+                  Copy
+                </button>
+              </span>
+              <!-- Merchant ID -->
+              <div class="break">
+              </div>
+              <label for="merchant-id">
+                Merchant ID
+              </label>
+              <span>
+                <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced"></input>
+                <button type="button" onclick="copyToClipboard('merchant-id')">
+                  Copy
+                </button>
+              </span>
+            </fieldset>
+          </fieldset>
+          <fieldset id="action-time">
+            <legend>
+              Action Time
+            </legend>
+            <fieldset>
+              <!-- order ID -->
+              <label for="Order-id">
+                Order ID
+              </label>
+              <span>
+                <input name="order-id" id="order-id" value="{{ order_id }}" class="monospaced"/>
+                <button type="button" onclick="copyToClipboard('order-id')">
+                  Copy
+                </button>
+              </span>
+              <div class="break"></div>
+            </fieldset>
           </fieldset>
         <form>
       </div>
