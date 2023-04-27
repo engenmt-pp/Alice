@@ -98,8 +98,13 @@ nav ul {
     margin-left: 0.5em;
 }
 
-nav a, nav li {
+nav li:not(:first-child) {
+    margin-top: 0.25rem;
+}
+
+nav a {
     color: var(--blue-600) !important;
+    font-weight: 600;
 }
 
 form > legend {
@@ -113,20 +118,35 @@ form > fieldset {
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.25rem 0.5rem;
+    border: 0;
 }
 fieldset > label {
-    flex-basis: 30%;
-    flex: 1 1 auto;
+    flex: 1 1 10ch;
     margin-right: auto;
+    min-width: max-content;
 }
-fieldset > input {
-    flex-basis: 60%;
-    flex: 1 1 auto;
+fieldset > span {
+    flex: 1 1 50%;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5em;
 }
-fieldset > button {
-    flex-basis: 8%;
-    flex: 0 1 auto;
-    margin-left: auto;
+fieldset > span > input {
+    min-width: 15ch;
+    flex: 1 0 auto;
+    background-color: var(--light-bg-1);
+    border-color: var(--light-bg-3);
+}
+@media (prefers-color-scheme: dark) {
+    fieldset > span > input {
+        background-color: var(--dark-bg-2);
+        border-color: var(--dark-bg-3);
+        color: var(--dark-text-0);
+    }
+}
+fieldset > span > button {
+    min-width: max-content;
+    flex: none;
 }
 
 .break {

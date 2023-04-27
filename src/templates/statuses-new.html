@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='statuses.css') }}"/>
+    <script src="{{url_for('static', filename='utils.js')}}"></script>
     {% block head %}
     {% endblock %}
   </head>
@@ -45,13 +46,39 @@
             Partner/merchant info
           </legend>
           <fieldset id="partner-merchant-credentials">
-            <label for="partner-id">Partner ID</label>
-            <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced"></input>
-            <button type="button" onclick="console.log('ribbit')">Button</button>
+            <!-- Partner ID -->
+            <label for="partner-id">
+              Partner ID
+            </label>
+            <span>
+              <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced"/>
+              <button type="button" onclick="copyToClipboard('partner-id')">
+                Copy
+              </button>
+            </span>
             <div class="break"></div>
-            <label for="merchant-id">merchant ID</label>
-            <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced"></input>
-            <button type="button" onclick="console.log('croak')">Button</button>
+            <!-- Partner client ID -->
+            <label for="partner-client-id">
+              Client ID
+            </label>
+            <span>
+              <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced"></input>
+              <button type="button" onclick="copyToClipboard('partner-client-id')">
+                Copy
+              </button>
+            </span>
+            <!-- Merchant ID -->
+            <div class="break">
+            </div>
+            <label for="merchant-id">
+              Merchant ID
+            </label>
+            <span>
+              <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced"></input>
+              <button type="button" onclick="copyToClipboard('merchant-id')">
+                Copy
+              </button>
+            </span>
           </fieldset>
         <form>
       </div>
