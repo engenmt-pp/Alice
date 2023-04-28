@@ -8,7 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='statuses.css') }}"/>
-    <script src="{{url_for('static', filename='utils.js')}}"></script>
+    <script src="{{ url_for('static', filename='utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='statuses.js') }}"></script>
     {% block head %}
     {% endblock %}
   </head>
@@ -18,7 +19,7 @@
       To request features or support, go to <a href="https://paypal.slack.com/archives/C04TWRUMG5Q" class="underline">#help-alice</a>.
     </header>
     <main>
-      <div class="col-6">
+      <div class="col-5">
         <h1 class="title">
           Alice - A PPCP Testing Tool
         </h1>
@@ -53,7 +54,7 @@
               </label>
               <span>
                 <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced"/>
-                <button type="button" onclick="copyToClipboard('partner-id')">
+                <button type="button" onclick="copyToClipboard('partner-id')" class="action">
                   Copy
                 </button>
               </span>
@@ -64,7 +65,7 @@
               </label>
               <span>
                 <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced"></input>
-                <button type="button" onclick="copyToClipboard('partner-client-id')">
+                <button type="button" onclick="copyToClipboard('partner-client-id')" class="action">
                   Copy
                 </button>
               </span>
@@ -76,7 +77,7 @@
               </label>
               <span>
                 <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced"></input>
-                <button type="button" onclick="copyToClipboard('merchant-id')">
+                <button type="button" onclick="copyToClipboard('merchant-id')" class="action">
                   Copy
                 </button>
               </span>
@@ -93,8 +94,8 @@
               </label>
               <span>
                 <input name="order-id" id="order-id" value="{{ order_id }}" class="monospaced"/>
-                <button type="button" onclick="copyToClipboard('order-id')">
-                  Copy
+                <button type="button" onclick="getOrderStatus()" class="action">
+                  Get
                 </button>
               </span>
               <div class="break"></div>
@@ -102,8 +103,25 @@
           </fieldset>
         <form>
       </div>
-      <div class="col-6">
-        Woof woof, fool.
+      <div class="col-7">
+        <nav role="tabset">
+          <ol>
+            <li>
+              <button id="button-api-calls" type="button" class="inactive">API Calls</button>
+            </li>
+          </ol>
+        </nav>
+        <div id="api-calls">
+          <nav role="tabset">
+            <ol>
+              <li>
+                <button id="button-order-status" type="button" class="inactive">Order Status</button>
+              </li>
+            </ol>
+          </nav>
+          <div id="order-status" class="api-response monospaced">
+          </div>
+        </div>
       </div>
     </main>
   </body>

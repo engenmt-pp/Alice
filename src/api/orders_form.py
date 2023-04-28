@@ -391,6 +391,6 @@ def get_order_status(order_id):
     headers = build_headers(auth_header=auth_header)
 
     response = log_and_request("GET", endpoint, headers=headers)
-    formatted = {"get-order": format_request_and_response(response)}
+    formatted = {"order-status": format_request_and_response(response)}
     response_dict = {"formatted": formatted}
     return jsonify(response_dict)
