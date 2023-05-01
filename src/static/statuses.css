@@ -9,6 +9,7 @@
 
   --zinc-950: rgb(9 9 11);
   --zinc-900: rgb(24 24 27);
+  --zinc-900: rgb(31 31 35);
   --zinc-800: rgb(39 39 42);
   --zinc-700: rgb(63 63 70);
   --zinc-600: rgb(82 82 27);
@@ -16,6 +17,7 @@
   --zinc-400: rgb(161 161 170);
   --zinc-300: rgb(212 212 216);
   --zinc-200: rgb(228 228 231);
+  --zinc-150: rgb(236 236 238);
   --zinc-100: rgb(244 244 245);
   --zinc-50: rgb(250 250 250);
 
@@ -24,18 +26,27 @@
 
   --light-bg-0: var(--zinc-50);
   --light-bg-1: var(--zinc-100);
-  --light-bg-2: var(--zinc-200);
-  --light-bg-3: var(--zinc-300);
-  --light-bg-4: var(--zinc-400);
+  --light-bg-2: var(--zinc-150);
+  --light-bg-3: var(--zinc-200);
+  /* --light-bg-4: var(--zinc-250); */
 
   --light-text-0: var(--zinc-950);
-  --dark-text-0: var(--zinc-50);
+  --light-text-1: var(--zinc-900);
+  --light-text-2: var(--zinc-800);
+  --light-text-3: var(--zinc-700);
+  --light-text-4: var(--zinc-600);
 
-  --dark-bg-0: var(--zinc-900);
-  --dark-bg-1: var(--zinc-800);
-  --dark-bg-2: var(--zinc-700);
-  --dark-bg-3: var(--zinc-600);
-  --dark-bg-4: var(--zinc-500);
+  --dark-text-0: var(--zinc-50);
+  --dark-text-1: var(--zinc-100);
+  --dark-text-2: var(--zinc-200);
+  --dark-text-3: var(--zinc-300);
+  --dark-text-4: var(--zinc-400);
+
+  --dark-bg-0: var(--zinc-950);
+  --dark-bg-1: var(--zinc-900);
+  --dark-bg-2: var(--zinc-850);
+  --dark-bg-3: var(--zinc-800);
+  /* --dark-bg-4: var(--zinc-750); */
 }
 
 
@@ -51,12 +62,12 @@ body {
     height: max-content;
     min-height: 100vh;
     background-color: var(--white);
-    color: var(--light-text-0);
+    color: var(--light-text-1);
 }
 @media (prefers-color-scheme: dark) {
     body {
         background-color: var(--dark-bg-0);
-        color: var(--dark-text-0);
+        color: var(--dark-text-1);
     }
 }
 
@@ -161,16 +172,17 @@ fieldset > span > input {
 @media (prefers-color-scheme: dark) {
     fieldset > span > input {
         background-color: var(--dark-bg-2);
-        border-color: var(--dark-bg-3);
-        color: var(--dark-text-0);
+        border-color: var(--dark-bg-4);
     }
 }
 fieldset > span > button {
     min-width: max-content;
     flex: none;
 }
-.action {
+button {
     cursor: pointer;
+}
+.action {
     border-radius: 0.25rem;
     padding: 3px 6px;
     background-color: var(--blue-600);
@@ -213,7 +225,7 @@ main > div {
 nav > ol {
     padding: 0;
     border-bottom: 1px solid;
-    margin: 0 0 0.5rem 0;
+    margin: 0;
     list-style: none;
 }
 nav > ol > li > button {
@@ -226,16 +238,16 @@ button.inactive {
     background-color: var(--light-bg-0);
 }
 button.inactive:hover {
-    color: var(--zinc-700);
+    color: var(--light-text-2);
     background-color: var(--light-bg-1);
 }
 button.active {
     color: var(--zinc-600);
-    background-color: var(--light-bg-4);
+    background-color: var(--light-bg-2);
 }
 button.active:hover {
     color: var(--zinc-600);
-    background-color: var(--light-bg-3);
+    background-color: var(--light-bg-1);
 }
 @media (prefers-color-scheme: dark) {
     button.inactive {
@@ -247,11 +259,11 @@ button.active:hover {
     }
     button.active {
         color: var(--zinc-600);
-        background-color: var(--dark-bg-4);
+        background-color: var(--dark-bg-2);
     }
     button.active:hover {
         color: var(--zinc-600);
-        background-color: var(--dark-bg-3);
+        background-color: var(--dark-bg-1);
     }
 }
 
@@ -262,9 +274,27 @@ button.active:hover {
     white-space: pre-wrap;
     overflow-wrap: break-word;
     background-color: var(--light-bg-1);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
+
 @media (prefers-color-scheme: dark) {
     .api-response {
         background-color: var(--dark-bg-1);
     }
+}
+
+#api-calls-buttons,
+#buttons-api-calls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+#api-calls-buttons li,
+#buttons-api-calls li {
+    margin: 10px 10px 0 0;
+}
+
+div.inactive {
+    display: none;
 }

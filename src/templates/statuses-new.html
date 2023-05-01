@@ -16,7 +16,8 @@
   <body>
     <header>
       This is the sandbox environment.
-      To request features or support, go to <a href="https://paypal.slack.com/archives/C04TWRUMG5Q" class="underline">#help-alice</a>.
+      To request features or support, go to
+      <a href="https://paypal.slack.com/archives/C04TWRUMG5Q">#help-alice</a>.
     </header>
     <main>
       <div class="col-5">
@@ -103,23 +104,19 @@
           </fieldset>
         <form>
       </div>
+
       <div class="col-7">
         <nav role="tabset">
-          <ol>
+          <ol id="api-calls-buttons">
             <li>
-              <button id="button-api-calls" type="button" class="inactive">API Calls</button>
+              <button id="button-api-calls" type="button" class="active">API Calls</button>
             </li>
           </ol>
         </nav>
         <div id="api-calls">
           <nav role="tabset">
-            <ol>
-              <li>
-                <button id="button-order-status" type="button" class="inactive">Order Status</button>
-              </li>
-            </ol>
+            <ol id="buttons-api-calls"></ol>
           </nav>
-          <div id="order-status" class="api-response monospaced">
           </div>
         </div>
       </div>
