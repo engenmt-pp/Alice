@@ -30,9 +30,8 @@ def get_client_token(auth_header=None):
     auth_header = auth_header or headers["Authorization"]
     return_val = {"authHeader": auth_header}
 
-    # The `headers` response may not have any formatted calls, so default to the empty dict.
-    formatted = headers.get("formatted", dict())
-    headers.pop("formatted", None)
+    # `headers` may not contained formatted calls, so default to the empty dict.
+    formatted = headers.pop("formatted", dict())
 
     response = requests.post(endpoint, headers=headers)
 
