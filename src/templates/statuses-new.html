@@ -43,7 +43,7 @@
             </li>
           </ul>
         </nav>
-        <form>
+        <form id="options-form">
           <fieldset id="partner-merchant-credentials">
             <legend>
               Partner/merchant info
@@ -84,18 +84,47 @@
               </span>
             </fieldset>
           </fieldset>
+          <fieldset id="api-options">
+            <legend>
+              API Options
+            </legend>
+            <fieldset>
+              <!-- order ID -->
+              <label for="auth-assertion">
+                PayPal Auth Assertion
+              </label>
+              <span>
+                <select name="auth-assertion" id="auth-assertion" class="monospaced">
+                  <option value="exclude" selected>Exclude</option>
+                  <option value="include">Include</option>
+                </select>
+              </span>
+              <div class="break"></div>
+            </fieldset>
+          </fieldset>
           <fieldset id="action-time">
             <legend>
               Action Time
             </legend>
             <fieldset>
-              <!-- order ID -->
-              <label for="Order-id">
+              <label for="status-order-id">
                 Order ID
               </label>
               <span>
-                <input name="order-id" id="order-id" value="{{ order_id }}" class="monospaced"/>
+                <input name="status-order-id" id="status-order-id" class="monospaced"/>
                 <button type="button" onclick="getOrderStatus()" class="action">
+                  Get
+                </button>
+              </span>
+              <div class="break"></div>
+            </fieldset>
+            <fieldset>
+              <label for="status-merchant-id">
+                Merchant ID
+              </label>
+              <span>
+                <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
+                <button type="button" onclick="getSellerStatus()" class="action">
                   Get
                 </button>
               </span>

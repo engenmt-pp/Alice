@@ -2,6 +2,16 @@ function copyToClipboard(id) {
   navigator.clipboard.writeText(document.getElementById(id).value)
 }
 
+function getOptions() {
+  const formData = new FormData(document.getElementById('options-form'))
+  const formOptions = Object.fromEntries(formData)
+  formOptions['partner-id'] = document.getElementById('partner-id').value
+  // formOptions['client-id'] = document.getElementById('partner-client-id').value
+  // formOptions['merchant-id'] = document.getElementById('merchant-id').value
+  // formOptions['bn-code'] = document.getElementById('bn-code').value
+  return formOptions
+}
+
 function updateAPICalls(formattedCalls, click=true) {
   const apiCallsButton = document.getElementById('api-calls')
   if (click) {

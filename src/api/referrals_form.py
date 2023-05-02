@@ -108,3 +108,23 @@ def generate_partner_referral():
 
     response_dict["referralUrl"] = referral_url
     return response_dict
+
+
+@bp.route("/status/<merchant_id>", methods=("POST",))
+def get_seller_status(merchant_id):
+    """Get the seller's status with the /v2/checkout/orders API.
+
+    Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_get
+    """
+    form_options = request.get_json()
+    partner_id = form_options["partner-id"]
+
+    endpoint = build_endpoint(
+        f"/v1/customer/partners/{partner_id}/merchant-integrations/{merchant_id}"
+    )
+    headers = build_headers()
+
+    response = log_and_request("GET", endpoint, headers=headers)
+    formatted = {"seller-status": format_request_and_response(response)}
+    response_dict = {"formatted": formatted}
+    return jsonify(response_dict)
