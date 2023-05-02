@@ -41,13 +41,12 @@ def get_client_token(auth_header=None):
 
     try:
         client_token = response.json()["client_token"]
-        response_dict["clientToken"] = client_token
-    except Exception as exc:
-        current_app.logger.error(
-            f"Exception encountered when getting client_token: {exc}"
-        )
+        return_val["client_token"] = client_token
+    except KeyError as exc:
+        current_app.logger.error(f"Encountered KeyError({exc})!")
+        current_app.logger.error(f"Response: {response.text}")
 
-    return jsonify(response_dict)
+    return return_val
 
 
 @bp.route("/id-token/", defaults={"customer_id": None}, methods=("GET",))
