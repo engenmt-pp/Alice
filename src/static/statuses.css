@@ -25,6 +25,7 @@
   --zinc-50: rgb(250 250 250);
 
   --blue-600: rgb(37 99 235);
+  --blue-500: rgb(67 132 243);
   --blue-400: rgb(96 165 250);
 
   --light-bg-0: var(--zinc-50);
@@ -42,15 +43,18 @@
 
   --dark-text-0: var(--zinc-50);
   --dark-text-1: var(--zinc-100);
-  --dark-text-2: var(--zinc-200);
-  --dark-text-3: var(--zinc-300);
-  --dark-text-4: var(--zinc-400);
+  --dark-text-2: var(--zinc-150);
+  --dark-text-3: var(--zinc-200);
+  --dark-text-4: var(--zinc-250);
 
   --dark-bg-0: var(--zinc-950);
   --dark-bg-1: var(--zinc-900);
   --dark-bg-2: var(--zinc-850);
   --dark-bg-3: var(--zinc-800);
-  /* --dark-bg-4: var(--zinc-750); */
+  --dark-bg-4: var(--zinc-750);
+  --dark-bg-5: var(--zinc-700);
+  /* --dark-bg-6: var(--zinc-650); */
+  --dark-bg-7: var(--zinc-600);
 }
 
 
@@ -128,6 +132,11 @@ nav a {
     color: var(--blue-600) !important;
     font-weight: 600;
 }
+@media (prefers-color-scheme: dark) {
+    nav a {
+        color: var(--blue-500) !important;
+    }
+}
 
 input, button {
     all: unset;
@@ -187,14 +196,16 @@ fieldset > select {
     padding: 0.125rem 0.25rem;
     border-radius: 0.25rem;
     border: solid 1px;
-    background-color: var(--light-bg-1);
-    border-color: var(--light-bg-5);
+    background-color: var(--light-bg-2);
+    border-color: var(--light-bg-4);
+    color: var(--light-text-5);
 }
 @media (prefers-color-scheme: dark) {
     fieldset > span > input,
     fieldset > select {
-        background-color: var(--dark-bg-2);
-        border-color: var(--dark-bg-4);
+        background-color: var(--dark-bg-5);
+        border-color: var(--dark-bg-7);
+        color: var(--dark-text-5);
     }
 }
 fieldset > span > button {
