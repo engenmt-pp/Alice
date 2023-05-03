@@ -385,16 +385,11 @@ def get_order_status(order_id):
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_get
     """
-    form_options = request.get_json()
-    current_app.logger.debug(f"form_options = {json.dumps(form_options, indent=2)}")
-    try:
-        option = form_options.get("auth-assertion", "exclude")
-        if option == "include":
-            include_auth_assertion = True
-        else:
-            include_auth_assertion = False
-    except AttributeError:
-        include_auth_assertion = False
+    current_app.logger.debug(
+        f"Called get_order_status({order_id}) with form_options:{json.dumps(form_options, indent=2)}"
+    )
+    form_options = request.get_json() or dict()
+    include_auth_assertion = form_options.get("auth-assertion") == "include"
 
     endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}")
     headers = build_headers(include_auth_assertion=include_auth_assertion)

@@ -12,8 +12,8 @@ async function getOrderStatus() {
 
 async function getSellerStatus() {
   const options = getOptions()
-  const orderId = document.getElementById('status-merchant-id').value
-  const statusResp = await fetch(`/api/referrals-form/status/${orderId}`, {
+  const merchantId = document.getElementById('status-merchant-id').value
+  const statusResp = await fetch(`/api/referrals-form/status/${merchantId}`, {
     headers: {'Content-Type': 'application/json'},
     method: 'POST',
     body: JSON.stringify(options)

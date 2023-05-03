@@ -83,8 +83,8 @@ def create_billing_agreement():
 
 
 @bp.route("/status/<baid>", methods=("POST",))
-def billing_agreement_status(baid):
-    current_app.logger.error(f"Called billing_agreement_status with {baid=}")
+def get_ba_status(baid):
+    current_app.logger.error(f"Called get_ba_status with {baid=}")
     endpoint = build_endpoint(f"/v1/billing-agreements/agreements/{baid}")
 
     headers = build_headers(
