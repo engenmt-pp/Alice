@@ -105,6 +105,16 @@
               Action Time
             </legend>
             <fieldset>
+              <label for="status-merchant-id">
+                Merchant ID
+              </label>
+              <span>
+                <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
+                <button type="button" onclick="getSellerStatus()" class="action">
+                  Get Seller Status
+                </button>
+              </span>
+              <div class="break"></div>
               <label for="status-order-id">
                 Order ID
               </label>
@@ -115,13 +125,13 @@
                 </button>
               </span>
               <div class="break"></div>
-              <label for="status-merchant-id">
-                Merchant ID
+              <label for="status-ba-id">
+                BA ID
               </label>
               <span>
-                <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
-                <button type="button" onclick="getSellerStatus()" class="action">
-                  Get Seller Status
+                <input name="status-ba-id" id="status-ba-id" class="monospaced"/>
+                <button type="button" onclick="getBaStatus()" class="action">
+                  Get BA Status
                 </button>
               </span>
               <div class="break"></div>
