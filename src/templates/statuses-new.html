@@ -93,12 +93,10 @@
               <label for="auth-assertion">
                 PayPal Auth Assertion
               </label>
-              <span>
-                <select name="auth-assertion" id="auth-assertion" class="monospaced">
-                  <option value="exclude" selected>Exclude</option>
-                  <option value="include">Include</option>
-                </select>
-              </span>
+              <select name="auth-assertion" id="auth-assertion" class="monospaced">
+                <option value="exclude" selected>Exclude</option>
+                <option value="include">Include</option>
+              </select>
               <div class="break"></div>
             </fieldset>
           </fieldset>
@@ -113,19 +111,17 @@
               <span>
                 <input name="status-order-id" id="status-order-id" class="monospaced"/>
                 <button type="button" onclick="getOrderStatus()" class="action">
-                  Get
+                  Get Order Status
                 </button>
               </span>
               <div class="break"></div>
-            </fieldset>
-            <fieldset>
               <label for="status-merchant-id">
                 Merchant ID
               </label>
               <span>
                 <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
                 <button type="button" onclick="getSellerStatus()" class="action">
-                  Get
+                  Get Seller Status
                 </button>
               </span>
               <div class="break"></div>
