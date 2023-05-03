@@ -333,7 +333,6 @@ def update_shipping(order_id):
     return response_dict
 
 
-@bp.route("/status/<order_id>", methods=("GET",))
 def get_order_details(order_id):
     """Get the details of the order with the /v2/checkout/orders API.
 
