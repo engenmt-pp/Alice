@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <title>
+    Alice - A PPCP Testing Tool
+  </title>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='statuses.css') }}"/>
+    <script src="{{ url_for('static', filename='utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='statuses.js') }}"></script>
+    {% block head %}
+    {% endblock %}
+  </head>
+  <body>
+    <header>
+      This is the sandbox environment.
+      To request features or support, go to
+      <a href="https://paypal.slack.com/archives/C04TWRUMG5Q">#help-alice</a>.
+    </header>
+    <main>
+      <div class="col-5">
+        <h1 class="title">
+          Alice - A PPCP Testing Tool
+        </h1>
+        <nav>
+          <ul>
+            <li>
+              <a href="{{ url_for('partner_form.onboarding') }}">
+                Onboarding
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('store_form.checkout_branded') }}">
+                Checkout - Branded
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('statuses.statuses') }}">
+                Statuses
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <form id="options-form">
+          <fieldset id="partner-merchant-credentials">
+            <legend>
+              Partner/merchant info
+            </legend>
+            <fieldset>
+              <!-- Partner ID -->
+              <label for="partner-id">
+                Partner ID
+              </label>
+              <span>
+                <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced"/>
+                <button type="button" onclick="copyToClipboard('partner-id')" class="action">
+                  Copy
+                </button>
+              </span>
+              <div class="break"></div>
+              <!-- Partner client ID -->
+              <label for="partner-client-id">
+                Client ID
+              </label>
+              <span>
+                <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced"></input>
+                <button type="button" onclick="copyToClipboard('partner-client-id')" class="action">
+                  Copy
+                </button>
+              </span>
+              <!-- Merchant ID -->
+              <div class="break">
+              </div>
+              <label for="merchant-id">
+                Merchant ID
+              </label>
+              <span>
+                <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced"></input>
+                <button type="button" onclick="copyToClipboard('merchant-id')" class="action">
+                  Copy
+                </button>
+              </span>
+            </fieldset>
+          </fieldset>
+          <fieldset id="api-options">
+            <legend>
+              API Options
+            </legend>
+            <fieldset>
+              <!-- order ID -->
+              <label for="auth-assertion">
+                PayPal Auth Assertion
+              </label>
+              <select name="auth-assertion" id="auth-assertion" class="monospaced">
+                <option value="exclude" selected>Exclude</option>
+                <option value="include">Include</option>
+              </select>
+              <div class="break"></div>
+            </fieldset>
+          </fieldset>
+          <fieldset id="action-time">
+            <legend>
+              Action Time
+            </legend>
+            <fieldset>
+              <label for="status-merchant-id">
+                Merchant ID
+              </label>
+              <span>
+                <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
+                <button type="button" onclick="getSellerStatus()" class="action">
+                  Get Seller Status
+                </button>
+              </span>
+              <div class="break"></div>
+              <label for="status-order-id">
+                Order ID
+              </label>
+              <span>
+                <input name="status-order-id" id="status-order-id" class="monospaced"/>
+                <button type="button" onclick="getOrderStatus()" class="action">
+                  Get Order Status
+                </button>
+              </span>
+              <div class="break"></div>
+              <label for="status-ba-id">
+                BA ID
+              </label>
+              <span>
+                <input name="status-ba-id" id="status-ba-id" class="monospaced"/>
+                <button type="button" onclick="getBaStatus()" class="action">
+                  Get BA Status
+                </button>
+              </span>
+              <div class="break"></div>
+            </fieldset>
+          </fieldset>
+        <form>
+      </div>
+
+      <div class="col-7">
+        <nav role="tabset">
+          <ol id="api-calls-buttons">
+            <li>
+              <button id="button-api-calls" type="button" class="active">API Calls</button>
+            </li>
+          </ol>
+        </nav>
+        <div id="api-calls">
+          <nav role="tabset">
+            <ol id="buttons-api-calls"></ol>
+          </nav>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

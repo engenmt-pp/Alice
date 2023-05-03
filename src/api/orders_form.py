@@ -379,18 +379,22 @@ def capture_authorization(auth_id, form_options, headers):
     return response
 
 
-@bp.route("/status/<order_id>", methods=("GET",))
+@bp.route("/status/<order_id>", methods=("POST",))
 def get_order_status(order_id):
     """Get the status of the order with the /v2/checkout/orders API.
 
     Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_get
     """
-    endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}")
+    current_app.logger.debug(
+        f"Called get_order_status({order_id}) with form_options:{json.dumps(form_options, indent=2)}"
+    )
+    form_options = request.get_json() or dict()
+    include_auth_assertion = form_options.get("auth-assertion") == "include"
 
-    auth_header = request.args.get("auth-header")
-    headers = build_headers(auth_header=auth_header)
+    endpoint = build_endpoint(f"/v2/checkout/orders/{order_id}")
+    headers = build_headers(include_auth_assertion=include_auth_assertion)
 
     response = log_and_request("GET", endpoint, headers=headers)
-    formatted = {"get-order": format_request_and_response(response)}
+    formatted = {"order-status": format_request_and_response(response)}
     response_dict = {"formatted": formatted}
     return jsonify(response_dict)
