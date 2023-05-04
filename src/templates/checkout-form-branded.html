@@ -66,7 +66,7 @@
           const paymentSource = data.paymentSource
           console.log("paymentSource:", paymentSource)
 
-          const res = await fetch(`/api/orders-form/capture/${data.orderID}`, {
+          const res = await fetch(`/api/orders/capture/${data.orderID}`, {
             headers: {'Content-Type': 'application/json'},
             method: 'POST',
             body: JSON.stringify(options)

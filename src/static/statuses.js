@@ -1,7 +1,7 @@
 async function getOrderStatus() {
   const options = getOptions()
   const orderId = document.getElementById('status-order-id').value
-  const statusResp = await fetch(`/api/orders-form/status/${orderId}`, {
+  const statusResp = await fetch(`/api/orders/status/${orderId}`, {
     headers: {'Content-Type': 'application/json'},
     method: 'POST',
     body: JSON.stringify(options)

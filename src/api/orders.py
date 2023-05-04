@@ -11,14 +11,16 @@ bp = Blueprint("orders", __name__, url_prefix="/orders")
 
 class Order:
     def __init__(self, **kwargs):
-        self.order_id = kwargs.get("order-id")
+        self.auth_header = kwargs.get("auth-header") or None  # Coerce to None if empty
+
+        self.order_id = kwargs.get("order_id") or None  # Coerce to None if empty
         self.auth_id = kwargs.get("auth-id")
 
         self.auth_header = kwargs.get("authHeader")
 
         self.currency = kwargs.get("currency")
-        self.intent = kwargs["intent"]
-        self.disbursement_mode = kwargs["disbursement-mode"]
+        self.intent = kwargs.get("intent")
+        self.disbursement_mode = kwargs.get("disbursement-mode")
 
         self.reference_id = kwargs.get("reference-id")
         self.custom_id = kwargs.get("custom-id")
@@ -27,6 +29,7 @@ class Order:
 
         self.vault_v3 = kwargs.get("vault-v3")
         self.vault_id = kwargs.get("vault-id")
+        self.include_auth_assertion = kwargs.get("include_auth_assertion")
 
         self.ba_id = kwargs.get("ba-id")
 
@@ -37,9 +40,9 @@ class Order:
         self.shipping_cost = 9.99
         self.include_shipping_address = kwargs.get("include-shipping-address")
 
-        self.partner_fee = float(kwargs.get("partner-fee"))
-        self.item_price = kwargs["price"]
-        self.item_tax = float(kwargs.get("tax"))
+        self.partner_fee = float(kwargs.get("partner-fee", "0"))
+        self.item_price = kwargs.get("price")
+        self.item_tax = float(kwargs.get("tax", "0"))
         self.item_category = kwargs.get("category")
 
         self.formatted = dict()
@@ -55,40 +58,53 @@ class Order:
 
     def build_headers(self):
         """Wrapper for .utils.build_headers."""
+        if self.include_auth_assertion is None:
+            self.include_auth_assertion = self.vault_v3 == "MERCHANT"
+
+        self.include_payee = not self.include_auth_assertion
+        include_request_id = True
+
         headers = build_headers(
             auth_header=self.auth_header,
-            include_auth_assertion=self.include_auth_assertion(),
-            include_request_id=self.include_request_id(),
+            include_auth_assertion=self.include_auth_assertion,
+            include_request_id=include_request_id,
             return_formatted=True,
         )
-        self.formatted |= headers["formatted"]
-        del headers["formatted"]
+        if "formatted" in headers:
+            self.formatted |= headers["formatted"]
+            del headers["formatted"]
+
+        self.auth_header = headers["Authorization"]
         return headers
 
     def build_platform_fees(self):
+        platform_fees = []
         if self.partner_fee > 0:
-            return [
+            platform_fees.append(
                 {
                     "amount": self.to_amount_dict(self.partner_fee),
-                    "payee": self.partner_id,
+                    "payee": {
+                        "merchant_id": self.partner_id,
+                    },
                 }
-            ]
-        return []
+            )
+        return platform_fees
 
     def build_payment_instruction(self, for_call):
         """Return the payment instruction for the order."""
         payment_instruction = dict()
 
-        if self.disbursement_mode == "DELAYED":
-            if for_call != "capture":
-                return payment_instruction
+        match (self.intent, for_call):
+            case ("CAPTURE", "create") | ("AUTHORIZE", "capture"):
+                # current_app.logger.info(f"{(self.intent, for_call)}")
+                if self.disbursement_mode == "DELAYED":
+                    payment_instruction["disbursement_mode"] = self.disbursement_mode
 
-            payment_instruction["disbursement_mode"] = self.disbursement_mode
+                platform_fees = self.build_platform_fees()
+                if platform_fees:
+                    payment_instruction["platform_fees"] = platform_fees
 
-        platform_fees = self.build_platform_fees()
-        if platform_fees:
-            payment_instruction["platform_fees"] = platform_fees
-
+        # current_app.logger.info(f"{(self.intent, for_call)} -> {payment_instruction}")
         return payment_instruction
 
     def build_shipping_option(self):
@@ -105,16 +121,17 @@ class Order:
 
         if self.include_shipping_address:
             shipping |= {
-                "type": "SHIPPING",
-                "name": {"full_name": "Trogdor"},
+                "name": {"full_name": "Myfuhl Name"},
                 "address": {
-                    "address_line_1": "1324 Permutation Parkway",
+                    "address_line_1": "1324 Permutation Pattern Parkway",
                     "admin_area_2": "Gainesville",
                     "admin_area_1": "FL",
                     "postal_code": "32601",
                     "country_code": "US",
                 },
             }
+            if not self.include_shipping_options:
+                shipping["type"] = "SHIPPING"
 
         if self.include_shipping_options:
             shipping_options = [self.build_shipping_option()]
@@ -155,17 +172,9 @@ class Order:
 
         return item
 
-    def include_auth_assertion(self):
-        """Return whether or not a PayPal-Auth-Assertion header should be included for the order."""
-        return self.vault_v3 == "merchant"
-
-    def include_request_id(self):
-        """Return whether or not a PayPal-Request-ID header should be included for the order."""
-        return True
-
     def build_purchase_unit(self):
         purchase_unit = dict()
-        if not self.include_auth_assertion():
+        if self.include_payee:
             purchase_unit["payee"] = {"merchant_id": self.merchant_id}
 
         if self.reference_id:
@@ -256,19 +265,135 @@ class Order:
             return response_dict
 
         response_dict["orderId"] = order_id
-        response_dict["authHeader"] = headers["Authorization"]
+        response_dict["authHeader"] = self.auth_header
         return response_dict
+
+    def capture(self):
+        """Capture the order.
+
+        Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
+        """
+        if not self.order_id:
+            raise ValueError
+
+        if self.intent == "AUTHORIZE":
+            return self.auth_and_capture()
+
+        endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}/capture")
+        headers = self.build_headers()
+
+        data = {}
+
+        payment_instruction = self.build_payment_instruction(for_call="capture")
+        if payment_instruction:
+            data["payment_instruction"] = payment_instruction
+
+        response = requests.post(endpoint, headers=headers, json=data)
+        self.formatted["capture-order"] = format_request_and_response(response)
+        response_dict = {
+            "formatted": self.formatted,
+        }
+
+        response_dict["authHeader"] = self.auth_header
+        return response_dict
+
+    def authorize(self):
+        endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}/authorize")
+
+        headers = self.build_headers()
+
+        response = requests.post(endpoint, headers=headers)
+        self.formatted["authorize-order"] = format_request_and_response(response)
+
+        return response
+
+    def capture_authorization(self):
+        endpoint = build_endpoint(f"/v2/payments/authorizations/{self.auth_id}/capture")
+
+        headers = self.build_headers()
+
+        data = dict()
+        payment_instruction = self.build_payment_instruction(for_call="capture")
+        if payment_instruction:
+            data["payment_instruction"] = payment_instruction
+
+        response = requests.post(endpoint, headers=headers, json=data)
+        self.formatted["capture-order"] = format_request_and_response(response)
+        # TODO: Change to 'capture-authorization' when frontend is rewritten.
+
+        return response
+
+    def auth_and_capture(self):
+        auth_response = self.authorize()
+        response_dict = {"formatted": self.formatted, "authHeader": self.auth_header}
+        try:
+            self.auth_id = auth_response.json()["purchase_units"][0]["payments"][
+                "authorizations"
+            ][0]["id"]
+        except (TypeError, IndexError) as exc:
+            current_app.logger.error(
+                f"Error accessing authorization ID from response: {exc}"
+            )
+            return response_dict
+
+        self.capture_authorization()
+        response_dict["formatted"] = self.formatted
+
+        return response_dict
+
+    def status(self):
+        if self.order_id is None:
+            raise ValueError
+
+        endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}")
+        headers = self.build_headers()
+
+        response = requests.get(endpoint, headers=headers)
+        self.formatted["order-status"] = format_request_and_response(response)
+
+        return {"formatted": self.formatted}
 
 
 @bp.route("/create", methods=("POST",))
 def create_order():
     data = request.get_json()
+    data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
-        f"Creating an order with data = {json.dumps(data, indent=2)}"
+        f"Creating an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
     order = Order(**data)
 
     resp = order.create()
 
     current_app.logger.debug(f"Create order response: {json.dumps(resp, indent=2)}")
+    return jsonify(resp)
+
+
+@bp.route("/capture/<order_id>", methods=("POST",))
+def capture_order(order_id):
+    data = request.get_json()
+    data_filtered = {key: value for key, value in data.items() if value}
+    current_app.logger.debug(
+        f"Capturing an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+    )
+    order = Order(order_id=order_id, **data)
+
+    resp = order.capture()
+
+    current_app.logger.debug(f"Capture order response: {json.dumps(resp, indent=2)}")
+    return jsonify(resp)
+
+
+@bp.route("/status/<order_id>", methods=("POST",))
+def order_status(order_id):
+    data = request.get_json()
+    data_filtered = {key: value for key, value in data.items() if value}
+    current_app.logger.debug(
+        f"Capturing an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+    )
+    order = Order(order_id=order_id, **data)
+
+    resp = order.status()
+
+    current_app.logger.debug(f"Get order status response: {json.dumps(resp, indent=2)}")
     return jsonify(resp)
