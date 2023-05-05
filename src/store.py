@@ -2,7 +2,7 @@ import json
 
 from flask import Blueprint, current_app, render_template, url_for
 from .api.identity import generate_client_token
-from .api.orders import (
+from .api.orders_deprecated import (
     get_order_details,
     get_payment_tokens,
     get_transactions,

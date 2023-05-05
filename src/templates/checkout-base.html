@@ -95,7 +95,7 @@
     const vaultV3 = document.getElementById('vault-v3').value
     const customerId = document.getElementById('customer-id').value
     let endpoint
-    if (vaultV3 === 'merchant') {
+    if (vaultV3 === 'MERCHANT') {
       endpoint = `/api/identity/id-token-with-auth/${customerId}`
     } else {
       endpoint = `/api/identity/id-token/${customerId}`
@@ -527,8 +527,8 @@
         focus:border-blue-500 dark:focus:border-blue-500
         ">
           <option value="" selected>None</option>
-          <option value="merchant">Merchant-level</option>
-          <option value="platform">Partner-level</option>
+          <option value="MERCHANT">Merchant-level</option>
+          <option value="PLATFORM">Partner-level</option>
         </select>
       </fieldset>
       <fieldset class="
