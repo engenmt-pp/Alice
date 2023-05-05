@@ -108,6 +108,12 @@ body > main {
     gap: 0.5rem;
 }
 
+.col-3 {
+    grid-column: span 3 / span 3;
+}
+.col-4 {
+    grid-column: span 4 / span 4;
+}
 .col-5 {
     grid-column: span 5 / span 5;
 }
@@ -116,6 +122,12 @@ body > main {
 }
 .col-7 {
     grid-column: span 7 / span 7;
+}
+.col-8 {
+    grid-column: span 8 / span 8;
+}
+.col-9 {
+    grid-column: span 9 / span 9;
 }
 
 nav ul {
@@ -163,19 +175,21 @@ form > fieldset > fieldset {
     gap: 0.25rem 0.5rem;
 }
 fieldset > label {
-    flex: 1 1 10ch;
+    flex: 1 1 9ch;
     margin-right: auto;
     min-width: max-content;
 }
-fieldset > span,
 fieldset > select {
     flex: 1 1 50%;
+}
+fieldset > span {
+    flex: 1 1 67%;
     display: flex;
     flex-wrap: nowrap;
-    gap: 0.5em;
+    gap: 0.25em;
 }
 fieldset > span > input {
-    min-width: 13ch;
+    min-width: 10ch;
     flex: 1 0 auto;
 }
 

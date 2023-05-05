@@ -3,7 +3,6 @@ from flask import Blueprint
 bp = Blueprint("api", __name__, url_prefix="/api")
 
 from . import (
-    # orders_deprecated,
     orders,
     orders_form,
     billing_form,

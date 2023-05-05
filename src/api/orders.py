@@ -29,7 +29,7 @@ class Order:
 
         self.vault_v3 = kwargs.get("vault-v3")
         self.vault_id = kwargs.get("vault-id")
-        self.include_auth_assertion = kwargs.get("include_auth_assertion")
+        self.include_auth_assertion = kwargs.get("auth-assertion") == "include"
 
         self.ba_id = kwargs.get("ba-id")
 
@@ -43,7 +43,7 @@ class Order:
         self.partner_fee = float(kwargs.get("partner-fee", "0"))
         self.item_price = kwargs.get("price")
         self.item_tax = float(kwargs.get("tax", "0"))
-        self.item_category = kwargs.get("category")
+        self.item_category = kwargs.get("item-category")
 
         self.formatted = dict()
         self.breakdown = dict()
@@ -389,7 +389,7 @@ def order_status(order_id):
     data = request.get_json()
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
-        f"Capturing an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+        f"Getting the status of an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
     order = Order(order_id=order_id, **data)
 

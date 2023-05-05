@@ -28,7 +28,7 @@
 </div>
 
 <script id="script-pp-checkout">
-  let orderID
+  let orderId
   let options
   function checkoutClosure() {
     let buttons
@@ -57,7 +57,7 @@
           console.log('authHeader:', createData.authHeader)
           options['auth-header'] = createData.authHeader
           orderId = createData.orderId
-          console.log("orderID:", orderId)
+          console.log("orderId:", orderId)
           console.groupEnd()
           return orderId
         },
