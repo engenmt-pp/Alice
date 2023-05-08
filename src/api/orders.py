@@ -29,9 +29,10 @@ class Order:
 
         self.vault_v3 = kwargs.get("vault-v3")
         self.vault_id = kwargs.get("vault-id")
-        self.include_auth_assertion = bool(
-            kwargs.get("include-auth-assertion", self.vault_v3 == "MERCHANT")
-        )
+        try:
+            self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
+        except KeyError:
+            self.include_auth_assertion = self.vault_v3 == "MERCHANT"
         self.include_payee = not self.include_auth_assertion
         self.include_request_id = True
 
