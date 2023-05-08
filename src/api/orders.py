@@ -29,7 +29,12 @@ class Order:
 
         self.vault_v3 = kwargs.get("vault-v3")
         self.vault_id = kwargs.get("vault-id")
-        self.include_auth_assertion = kwargs.get("auth-assertion") == "include"
+        try:
+            self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
+        except KeyError:
+            self.include_auth_assertion = self.vault_v3 == "MERCHANT"
+        self.include_payee = not self.include_auth_assertion
+        self.include_request_id = True
 
         self.ba_id = kwargs.get("ba-id")
 
@@ -58,16 +63,10 @@ class Order:
 
     def build_headers(self):
         """Wrapper for .utils.build_headers."""
-        if self.include_auth_assertion is None:
-            self.include_auth_assertion = self.vault_v3 == "MERCHANT"
-
-        self.include_payee = not self.include_auth_assertion
-        include_request_id = True
-
         headers = build_headers(
             auth_header=self.auth_header,
             include_auth_assertion=self.include_auth_assertion,
-            include_request_id=include_request_id,
+            include_request_id=self.include_request_id,
             return_formatted=True,
         )
         if "formatted" in headers:
@@ -149,8 +148,9 @@ class Order:
                 name = "A digital good."
             case "DONATION":
                 name = "A donation."
-            case None:
+            case None | "None":
                 name = "A good of unspecified category."
+                self.item_category = None
             case _:
                 raise ValueError
 
