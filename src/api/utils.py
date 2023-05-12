@@ -108,9 +108,6 @@ def format_request(request):
 
 
 def format_response(response):
-    current_app.logger.error(
-        f"Response headers: {json.dumps(dict(response.headers), indent=2)}"
-    )
     headers_received_whitelist = [
         "Content-Type",
         "Date",
