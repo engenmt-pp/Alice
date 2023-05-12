@@ -84,25 +84,9 @@
               </span>
             </fieldset>
           </fieldset>
-          <fieldset id="api-options">
+          <fieldset id="onboarding">
             <legend>
-              API Options
-            </legend>
-            <fieldset>
-              <!-- order ID -->
-              <label for="include-auth-assertion">
-                PayPal Auth Assertion
-              </label>
-              <select name="include-auth-assertion" id="include-auth-assertion" class="monospaced">
-                <option value="" selected>Exclude</option>
-                <option value="True">Include</option>
-              </select>
-              <div class="break"></div>
-            </fieldset>
-          </fieldset>
-          <fieldset id="action-time">
-            <legend>
-              Action Time
+              Onboarding
             </legend>
             <fieldset>
               <label for="status-tracking-id">
@@ -134,6 +118,21 @@
                   Get
                 </button>
               </span>
+            </fieldset>
+          </fieldset>
+
+          <fieldset id="checkout">
+            <legend>
+              Checkout
+            </legend>
+            <fieldset>
+              <label for="include-auth-assertion">
+                PayPal Auth Assertion
+              </label>
+              <select name="include-auth-assertion" id="include-auth-assertion" class="monospaced">
+                <option value="" selected>Exclude</option>
+                <option value="True">Include</option>
+              </select>
               <div class="break"></div>
               <label for="status-order-id">
                 Order ID

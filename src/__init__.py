@@ -7,7 +7,7 @@ from logging.config import dictConfig
 
 
 def create_app():
-    dictConfig({"version": 1, "root": {"level": "ERROR"}})
+    dictConfig({"version": 1, "root": {"level": "DEBUG"}})
 
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(SECRET_KEY="dev")
