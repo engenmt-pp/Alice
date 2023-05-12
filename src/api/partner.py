@@ -294,10 +294,8 @@ def get_seller_status(merchant_id):
 
 @bp.route("/sellers", methods=("POST",))
 def get_seller_status_by_tracking_id():
-    tracking_id = request.args.get("tracking-id")
-
     data = request.get_json()
-    data["tracking-id"] = tracking_id
+    data.update(request.args)
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
         f"Getting seller status with (filtered) data = {json.dumps(data_filtered, indent=2)}"
