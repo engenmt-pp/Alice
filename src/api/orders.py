@@ -1,9 +1,10 @@
-import requests
 import json
-from .utils import build_endpoint, format_request_and_response
-from .identity import build_headers
+import requests
 
 from flask import Blueprint, request, current_app, jsonify
+
+from .identity import build_headers
+from .utils import build_endpoint, format_request_and_response
 
 
 bp = Blueprint("orders", __name__, url_prefix="/orders")
@@ -13,7 +14,7 @@ class Order:
     def __init__(self, **kwargs):
         self.auth_header = kwargs.get("auth-header") or None  # Coerce to None if empty
 
-        self.order_id = kwargs.get("order_id") or None  # Coerce to None if empty
+        self.order_id = kwargs.get("order-id") or None  # Coerce to None if empty
         self.auth_id = kwargs.get("auth-id")
 
         self.auth_header = kwargs.get("authHeader")
@@ -210,7 +211,6 @@ class Order:
         return context
 
     def build_payment_source(self):
-
         if self.ba_id:
             payment_source = {"token": {"id": self.ba_id, "type": "BILLING_AGREEMENT"}}
             return payment_source
@@ -257,6 +257,7 @@ class Order:
         self.formatted["create-order"] = format_request_and_response(response)
         response_dict = {
             "formatted": self.formatted,
+            "authHeader": self.auth_header,
         }
         try:
             order_id = response.json()["id"]
@@ -265,7 +266,6 @@ class Order:
             return response_dict
 
         response_dict["orderId"] = order_id
-        response_dict["authHeader"] = self.auth_header
         return response_dict
 
     def capture(self):
@@ -361,8 +361,8 @@ def create_order():
     current_app.logger.debug(
         f"Creating an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
-    order = Order(**data)
 
+    order = Order(**data)
     resp = order.create()
 
     current_app.logger.debug(f"Create order response: {json.dumps(resp, indent=2)}")
@@ -372,12 +372,13 @@ def create_order():
 @bp.route("/capture/<order_id>", methods=("POST",))
 def capture_order(order_id):
     data = request.get_json()
+    data["order-id"] = order_id
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
         f"Capturing an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
-    order = Order(order_id=order_id, **data)
 
+    order = Order(**data)
     resp = order.capture()
 
     current_app.logger.debug(f"Capture order response: {json.dumps(resp, indent=2)}")
@@ -387,12 +388,13 @@ def capture_order(order_id):
 @bp.route("/status/<order_id>", methods=("POST",))
 def order_status(order_id):
     data = request.get_json()
+    data["order-id"] = order_id
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
         f"Getting the status of an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
-    order = Order(order_id=order_id, **data)
 
+    order = Order(**data)
     resp = order.status()
 
     current_app.logger.debug(f"Get order status response: {json.dumps(resp, indent=2)}")

@@ -52,9 +52,9 @@
   }
 </script>
 <script id="script-referrals">
-  function populateReferralLink(referralUrl) {
+  function populateReferralLink(actionUrl) {
     const anchor = document.getElementById('anchor-referral')
-    anchor.href = `${referralUrl}&displayMode=minibrowser`
+    anchor.href = `${actionUrl}&displayMode=minibrowser`
     anchor.classList.remove('hidden')
   }
   function hideGenerateButton() {
@@ -63,7 +63,7 @@
   }
   async function generateReferralLink() {
     const options = getOptions()
-    const response = await fetch('/api/referrals-form/generate', {
+    const response = await fetch('/api/partner/referrals', {
       headers: {'Content-Type': 'application/json'},
       method: 'POST',
       body: JSON.stringify(options)
@@ -71,10 +71,10 @@
     const responseJson = await response.json()
 
     updateAPICalls(responseJson.formatted)
-    if (responseJson.hasOwnProperty('referralUrl')) {
-      const referralUrl = responseJson.referralUrl
+    if (responseJson.hasOwnProperty('actionUrl')) {
+      const actionUrl = responseJson.actionUrl
       hideGenerateButton()
-      populateReferralLink(referralUrl)
+      populateReferralLink(actionUrl)
     }
   }
 </script>
@@ -587,7 +587,7 @@
         focus:border-blue-500 dark:focus:border-blue-500
         ">
           <option value="" selected>None</option>
-          <option value="merchant-level">Merchant-level</option>
+          <option value="MERCHANT">Merchant-level</option>
         </select>
       </div>
     </fieldset>
@@ -765,7 +765,7 @@
               ">Access Token</a>
             </li>
             <li>
-              <a id="generate-referral" href="#" class="
+              <a id="create-referral" href="#" class="
               button
               inline-block
               p-4
@@ -788,8 +788,8 @@
             bg-zinc-100 dark:bg-zinc-700
             "></div>
           </div>
-          <div id="tab-generate-referral" class="tab center hidden">
-            <div id="api-calls-generate-referral" class="
+          <div id="tab-create-referral" class="tab center hidden">
+            <div id="api-calls-create-referral" class="
             w-full
             top-0
             p-2

@@ -105,12 +105,32 @@
               Action Time
             </legend>
             <fieldset>
+              <label for="status-tracking-id">
+                Tracking ID
+              </label>
+              <span>
+                <input name="status-tracking-id" id="status-tracking-id" class="monospaced"/>
+                <button type="button" onclick="getSellerStatusByTrackingId()" class="action">
+                  Get
+                </button>
+              </span>
+              <div class="break"></div>
               <label for="status-merchant-id">
                 Merchant ID
               </label>
               <span>
                 <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
                 <button type="button" onclick="getSellerStatus()" class="action">
+                  Get
+                </button>
+              </span>
+              <div class="break"></div>
+              <label for="status-referral-token">
+                Referral Token
+              </label>
+              <span>
+                <input name="status-referral-token" id="status-referral-token" class="monospaced"/>
+                <button type="button" onclick="getReferralStatus()" class="action">
                   Get
                 </button>
               </span>
