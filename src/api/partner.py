@@ -241,7 +241,7 @@ class Referral:
         return {"formatted": self.formatted}
 
 
-@bp.route("/referrals/", methods=("POST",))
+@bp.route("/referrals", methods=("POST",))
 def create_referral():
     data = request.get_json()
     data_filtered = {key: value for key, value in data.items() if value}

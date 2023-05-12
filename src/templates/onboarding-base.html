@@ -63,7 +63,7 @@
   }
   async function generateReferralLink() {
     const options = getOptions()
-    const response = await fetch('/api/referrals/create', {
+    const response = await fetch('/api/referrals', {
       headers: {'Content-Type': 'application/json'},
       method: 'POST',
       body: JSON.stringify(options)
