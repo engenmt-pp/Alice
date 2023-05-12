@@ -8,6 +8,7 @@ from . import (
     billing_form,
     identity,
     referrals,
+    # referrals_deprecated,
     referrals_form,
     webhooks,
 )
@@ -17,6 +18,7 @@ from . import orders_merchant
 bp.register_blueprint(identity.bp)
 bp.register_blueprint(orders.bp)
 bp.register_blueprint(referrals.bp)
+# bp.register_blueprint(referrals_deprecated.bp)
 bp.register_blueprint(webhooks.bp)
 
 bp.register_blueprint(orders_merchant.bp)

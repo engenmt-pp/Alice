@@ -2,7 +2,7 @@ import json
 
 from flask import Blueprint, render_template, url_for
 from .api.utils import random_decimal_string
-from .api.referrals import (
+from .api.referrals_deprecated import (
     generate_onboarding_urls,
     get_merchant_id,
     get_onboarding_status,

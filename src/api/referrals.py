@@ -1,182 +1,281 @@
-from flask import Blueprint, current_app
-from .utils import build_endpoint, log_and_request
+import json
+import requests
+
+from flask import Blueprint, request, current_app, jsonify
 
 from .identity import build_headers
+from .utils import build_endpoint, format_request_and_response
 
 
 bp = Blueprint("referrals", __name__, url_prefix="/referrals")
 
 
-def generate_onboarding_urls(
-    tracking_id, version="v2", return_url="http://localhost:5000/"
-):
-    """Return the onboarding and referral URLs generated with the partner referrals API."""
-    if version == "v1":
-        response = create_partner_referral_v1(tracking_id, return_url=return_url)
-    else:
-        response = create_partner_referral_v2(tracking_id, return_url=return_url)
-
-    onboarding_url = None
-    referral_url = None
-    for link in response["links"]:
+def extract_action_url(links):
+    for link in links:
         match link["rel"]:
             case "action_url":
-                onboarding_url = link["href"]
-            case "self":
-                referral_url = link["href"]
-            case other:
-                raise Exception(f"Unknown onboarding URL relation: {other}")
-
-    if onboarding_url is None or referral_url is None:
-        raise Exception("Not all onboarding URLs found!")
-
-    return onboarding_url, referral_url
+                return link["href"]
+    raise Exception("No action URL found!")
 
 
-def create_partner_referral_v1(tracking_id, return_url):
-    """Return a partner-referral URL requested from the /v1/customer/partner-referrals API.
+class Referral:
+    def __init__(self, **kwargs):
+        self.auth_header = kwargs.get("auth-header") or None  # Coerce to None if empty
 
-    Docs: https://developer.paypal.com/docs/api/partner-referrals/v1/#partner-referrals_create
-    """
-    endpoint = build_endpoint("/v1/customer/partner-referrals")
-    headers = build_headers()
+        self.tracking_id = kwargs.get("tracking-id")
+        self.partner_id = kwargs.get("partner-id")
+        self.merchant_id = kwargs.get("merchant-id")
 
-    partner_id = current_app.config["PARTNER_ID"]
-    partner_client_id = current_app.config["PARTNER_CLIENT_ID"]
+        self.product = kwargs.get("product")
+        self.vault_v3 = kwargs.get("vault-v3")
+        self.tracking_id = kwargs.get("tracking-id")
+        self.country_code = kwargs.get("country-code")
+        self.email = kwargs.get("email")
 
-    data = {
-        "customer_data": {
-            "customer_type": "MERCHANT",
-            "preferred_language_code": "en_US",
-            "primary_currency_code": "USD",
-            "partner_specific_identifiers": [
-                {"type": "TRACKING_ID", "value": tracking_id}
-            ],
-        },
-        "requested_capabilities": [
-            {
-                "capability": "API_INTEGRATION",
-                "api_integration_preference": {
-                    "partner_id": partner_id,
-                    "rest_api_integration": {
-                        "integration_method": "PAYPAL",
-                        "integration_type": "THIRD_PARTY",
-                    },
-                    "rest_third_party_details": {
-                        "partner_client_id": partner_client_id,
-                        "feature_list": ["PAYMENT", "REFUND", "READ_SELLER_DISPUTE"],
-                    },
-                },
+        self.partner_logo_url = kwargs.get("partner-logo-url")
+        self.partner_return_url = kwargs.get("partner-return-url")
+
+        self.include_legal_consents = kwargs.get("include-legal-consents")
+
+        self.features = [
+            value for option, value in kwargs.items() if option.startswith("feature-")
+        ]
+
+        self.formatted = dict()
+
+    def build_headers(self):
+        """Wrapper for .utils.build_headers."""
+        headers = build_headers(
+            auth_header=self.auth_header,
+            return_formatted=True,
+        )
+        if "formatted" in headers:
+            self.formatted |= headers["formatted"]
+            del headers["formatted"]
+
+        self.auth_header = headers["Authorization"]
+        return headers
+
+    def build_features(self):
+        features = self.features
+        if self.vault_v3 == "MERCHANT":
+            additional_features = ["VAULT", "BILLING_AGREEMENT"]
+            for feature in additional_features:
+                if feature not in features:
+                    features.append(feature)
+        return features
+
+    def build_products(self):
+        products = [self.product]
+        if self.vault_v3 == "MERCHANT":
+            products.append("ADVANCED_VAULTING")
+        return products
+
+    def build_capabilities(self):
+        capabilities = []
+        if self.vault_v3 == "MERCHANT":
+            capabilities.append("PAYPAL_WALLET_VAULTING_ADVANCED")
+        return capabilities
+
+    def build_partner_config_override(self):
+        partner_config_override = dict()
+
+        if self.partner_logo_url:
+            partner_config_override["partner_logo_url"] = self.partner_logo_url
+
+        if self.partner_return_url:
+            partner_config_override |= {
+                "return_url": self.partner_return_url,
+                "return_url_description": "A description of the return URL",
             }
-        ],
-        "web_experience_preference": {
-            "partner_logo_url": "https://www.paypalobjects.com/digitalassets/c/website/marketing/na/us/logo-center/Badge_1.png",
-            "return_url": return_url,
-            "action_renewal_url": "www.url.com",
-        },
-        "collected_consents": [{"type": "SHARE_DATA_CONSENT", "granted": True}],
-        "products": ["EXPRESS_CHECKOUT"],
-    }
 
-    response = log_and_request("POST", endpoint, headers=headers, data=data)
-    return response.json()
-
-
-def create_partner_referral_v2(tracking_id, return_url):
-    """Call the /v2/customer/partner-referrals API to generate a sign-up link.
-
-    Docs: https://developer.paypal.com/docs/api/partner-referrals/v2/#partner-referrals_create
-    """
-    endpoint = build_endpoint("/v2/customer/partner-referrals")
-    headers = build_headers()
-
-    ACDC = False
-    product = "PPCP" if ACDC else "EXPRESS_CHECKOUT"
-
-    data = {
-        "tracking_id": tracking_id,
-        "operations": [
+    def build_operations(self):
+        features = self.build_features()
+        operations = [
             {
                 "operation": "API_INTEGRATION",
                 "api_integration_preference": {
                     "rest_api_integration": {
                         "integration_method": "PAYPAL",
                         "integration_type": "THIRD_PARTY",
-                        "third_party_details": {
-                            "features": [
-                                "PAYMENT",
-                                "REFUND",
-                                "PARTNER_FEE",
-                                "FUTURE_PAYMENT",
-                                # "DELAY_FUNDS_DISBURSEMENT",
-                                # "VAULT",
-                                # "ADVANCED_TRANSACTIONS_SEARCH",
-                            ]
-                        },
+                        "third_party_details": {"features": features},
                     }
                 },
             }
-        ],
-        "products": [product],
-        "legal_consents": [{"type": "SHARE_DATA_CONSENT", "granted": True}],
-        "partner_config_override": {
-            "return_url": return_url,
-            "return_url_description": "A description of the return URL.",
-        },
-    }
+        ]
+        return operations
 
-    response = log_and_request("POST", endpoint, headers=headers, data=data)
-    response_dict = response.json()
-    return response_dict
+    def build_legal_consents(self):
+        legal_consents = []
+        if self.include_legal_consents:
+            legal_consents.append(
+                {
+                    "type": "SHARE_DATA_CONSENT",
+                    "granted": True,
+                }
+            )
+        return legal_consents
+
+    def build_business_entity(self):
+        business_entity = dict()
+        if self.country_code:
+            business_entity["addresses"] = [
+                {
+                    "country_code": self.country_code,
+                    "type": "WORK",
+                }
+            ]
+        return business_entity
+
+    def create(self):
+        endpoint = build_endpoint("/v2/customer/partner-referrals")
+        headers = self.build_headers()
+
+        operations = self.build_operations()
+        products = self.build_products()
+        data = {"operations": operations, "products": products}
+
+        capabilities = self.build_capabilities()
+        if capabilities:
+            data["capabilities"] = capabilities
+
+        partner_config_override = self.build_partner_config_override()
+        if partner_config_override:
+            data["partner_config_override"] = partner_config_override
+
+        capabilities = self.build_capabilities()
+        if capabilities:
+            data["capabilities"] = capabilities
+
+        legal_consents = self.build_legal_consents()
+        if legal_consents:
+            data["legal_consents"] = legal_consents
+
+        business_entity = self.build_business_entity()
+        if business_entity:
+            data["business_entity"] = business_entity
+
+        if self.email:
+            data["email"] = self.email
+        if self.tracking_id:
+            data["tracking_id"] = self.tracking_id
+
+        response = requests.post(
+            endpoint,
+            headers=headers,
+            json=data,
+        )
+        self.formatted["create-referral"] = format_request_and_response(response)
+        response_dict = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+        try:
+            links = response.json()["links"]
+            action_url = extract_action_url(links)
+        except Exception as exc:
+            current_app.logger.error(
+                f"Encountered exception unpacking action URL: {exc}"
+            )
+            return response_dict
+
+        response_dict["actionUrl"] = action_url
+        return response_dict
+
+    def get_merchant_id(self):
+        """Return a merchant's ID given the tracking ID used during onboarding with the /v1/customer/partners API.
+
+        Docs: https://developer.paypal.com/docs/platforms/seller-onboarding/before-payment/#5-track-seller-onboarding-status
+        """
+        if self.partner_id is None or self.tracking_id is None:
+            raise ValueError
+
+        endpoint = build_endpoint(
+            f"/v1/customer/partners/{self.partner_id}/merchant-integrations",
+            query={"tracking_id": self.tracking_id},
+        )
+        headers = self.build_headers()
+
+        resp = requests.get(endpoint, headers=headers)
+        self.formatted["get-merchant-id"] = format_request_and_response(resp)
+
+        merchant_id = resp.json()["merchant_id"]
+        return merchant_id
+
+    def status(self):
+        if self.partner_id is None:
+            raise ValueError
+
+        if self.merchant_id is None:
+            if self.tracking_id is None:
+                raise ValueError
+            try:
+                self.merchant_id = self.get_merchant_id()
+            except KeyError as exc:
+                current_app.logger.error(
+                    f"Encountered error getting merchant ID: {exc}"
+                )
+                return {"formatted": self.formatted}
+
+        endpoint = build_endpoint(
+            f"/v1/customer/partners/{self.partner_id}/merchant-integrations/{self.merchant_id}"
+        )
+        headers = self.build_headers()
+
+        response = requests.get(endpoint, headers=headers)
+        self.formatted["order-status"] = format_request_and_response(response)
+
+        return {"formatted": self.formatted}
 
 
-def get_merchant_id(tracking_id):
-    """Return a merchant's ID given the tracking ID used during onboarding with the /v1/customer/partners API.
-
-    Docs: https://developer.paypal.com/docs/platforms/seller-onboarding/before-payment/#5-track-seller-onboarding-status
-    """
-    partner_id = current_app.config["PARTNER_ID"]
-
-    endpoint = build_endpoint(
-        f"/v1/customer/partners/{partner_id}/merchant-integrations",
-        query={"tracking_id": tracking_id},
+@bp.route("/create", methods=("POST",))
+def create_referral():
+    data = request.get_json()
+    data_filtered = {key: value for key, value in data.items() if value}
+    current_app.logger.debug(
+        f"Creating a partner referral with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
-    headers = build_headers()
 
-    response = log_and_request("GET", endpoint, headers=headers)
-    response_dict = response.json()
-    return response_dict["merchant_id"]
+    referral = Referral(**data)
+    resp = referral.create()
+
+    current_app.logger.debug(f"Create referral response: {json.dumps(resp, indent=2)}")
+    return jsonify(resp)
 
 
-def get_onboarding_status(merchant_id):
-    """Get the status of a merchant's onboarding with the /v1/customer/partners API.
-
-    Docs: https://developer.paypal.com/docs/platforms/seller-onboarding/before-payment/#5-track-seller-onboarding-status
-    """
-    partner_id = current_app.config["PARTNER_ID"]
-
-    endpoint = build_endpoint(
-        f"/v1/customer/partners/{partner_id}/merchant-integrations/{merchant_id}"
+@bp.route("/status/<merchant_id>", methods=("POST",))
+def get_seller_status(merchant_id):
+    data = request.get_json()
+    data["merchant-id"] = merchant_id
+    data_filtered = {key: value for key, value in data.items() if value}
+    current_app.logger.debug(
+        f"Getting the status of a seller with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
-    headers = build_headers()
 
-    response = log_and_request("GET", endpoint, headers=headers)
-    response_dict = response.json()
-    return response_dict
+    referral = Referral(**data)
+    resp = referral.status()
+
+    current_app.logger.debug(
+        f"Get seller status response: {json.dumps(resp, indent=2)}"
+    )
+    return jsonify(resp)
 
 
-def get_partner_referral_id(referral_url):
-    return referral_url.split("/")[-1]
+@bp.route("/status", methods=("POST",))
+def get_seller_status_by_tracking_id():
+    tracking_id = request.args.get("tracking-id")
 
+    data = request.get_json()
+    data["tracking-id"] = tracking_id
+    data_filtered = {key: value for key, value in data.items() if value}
+    current_app.logger.debug(
+        f"Getting seller status using tracking ID = {tracking_id} and (filtered) data = {json.dumps(data_filtered, indent=2)}"
+    )
 
-def get_referral_status(partner_referral_id):
-    """Get the status of a partner referral with the /v2/customer/partner-referrals API.
+    referral = Referral(**data)
+    resp = referral.status()
 
-    Docs: https://developer.paypal.com/api/partner-referrals/v2/#partner-referrals_read
-    """
-    endpoint = build_endpoint(f"/v2/customer/partner-referrals/{partner_referral_id}")
-    headers = build_headers()
-
-    response = log_and_request("GET", endpoint, headers=headers)
-    response_dict = response.json()
-    return response_dict
+    current_app.logger.debug(
+        f"Get seller status response: {json.dumps(resp, indent=2)}"
+    )
+    return jsonify(resp)
