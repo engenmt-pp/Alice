@@ -372,12 +372,13 @@ def create_order():
 @bp.route("/capture/<order_id>", methods=("POST",))
 def capture_order(order_id):
     data = request.get_json()
+    data["order-id"] = order_id
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
         f"Capturing an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
 
-    order = Order(order_id=order_id, **data)
+    order = Order(**data)
     resp = order.capture()
 
     current_app.logger.debug(f"Capture order response: {json.dumps(resp, indent=2)}")
