@@ -7,7 +7,7 @@ from .identity import build_headers
 from .utils import build_endpoint, format_request_and_response
 
 
-bp = Blueprint("referrals", __name__, url_prefix="/referrals")
+bp = Blueprint("partner", __name__, url_prefix="/partner")
 
 
 def extract_action_url(links):
@@ -21,6 +21,8 @@ def extract_action_url(links):
 class Referral:
     def __init__(self, **kwargs):
         self.auth_header = kwargs.get("auth-header") or None  # Coerce to None if empty
+
+        self.referral_token = kwargs.get("referral-token")
 
         self.tracking_id = kwargs.get("tracking-id")
         self.partner_id = kwargs.get("partner-id")
@@ -202,7 +204,7 @@ class Referral:
         merchant_id = resp.json()["merchant_id"]
         return merchant_id
 
-    def status(self):
+    def seller_status(self):
         if self.partner_id is None:
             raise ValueError
 
@@ -223,17 +225,28 @@ class Referral:
         headers = self.build_headers()
 
         response = requests.get(endpoint, headers=headers)
-        self.formatted["order-status"] = format_request_and_response(response)
+        self.formatted["seller-status"] = format_request_and_response(response)
+
+        return {"formatted": self.formatted}
+
+    def referral_status(self):
+        endpoint = build_endpoint(
+            f"/v2/customer/partner-referrals/{self.referral_token}"
+        )
+        headers = self.build_headers()
+
+        response = requests.get(endpoint, headers=headers)
+        self.formatted["referral-status"] = format_request_and_response(response)
 
         return {"formatted": self.formatted}
 
 
-@bp.route("/create", methods=("POST",))
+@bp.route("/referrals/", methods=("POST",))
 def create_referral():
     data = request.get_json()
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
-        f"Creating a partner referral with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+        f"Creating partner referral with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
 
     referral = Referral(**data)
@@ -243,17 +256,35 @@ def create_referral():
     return jsonify(resp)
 
 
-@bp.route("/status/<merchant_id>", methods=("POST",))
+@bp.route("/referrals/<referral_token>", methods=("POST",))
+def get_referral_status(referral_token):
+    data = request.get_json()
+    data["referral-token"] = referral_token
+    data_filtered = {key: value for key, value in data.items() if value}
+    current_app.logger.debug(
+        f"Getting referral status with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+    )
+
+    referral = Referral(**data)
+    resp = referral.referral_status()
+
+    current_app.logger.debug(
+        f"Get referral status response: {json.dumps(resp, indent=2)}"
+    )
+    return jsonify(resp)
+
+
+@bp.route("/sellers/<merchant_id>", methods=("POST",))
 def get_seller_status(merchant_id):
     data = request.get_json()
     data["merchant-id"] = merchant_id
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
-        f"Getting the status of a seller with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+        f"Getting seller status with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
 
     referral = Referral(**data)
-    resp = referral.status()
+    resp = referral.seller_status()
 
     current_app.logger.debug(
         f"Get seller status response: {json.dumps(resp, indent=2)}"
@@ -261,7 +292,7 @@ def get_seller_status(merchant_id):
     return jsonify(resp)
 
 
-@bp.route("/status", methods=("POST",))
+@bp.route("/sellers", methods=("POST",))
 def get_seller_status_by_tracking_id():
     tracking_id = request.args.get("tracking-id")
 
@@ -269,11 +300,11 @@ def get_seller_status_by_tracking_id():
     data["tracking-id"] = tracking_id
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
-        f"Getting seller status using tracking ID = {tracking_id} and (filtered) data = {json.dumps(data_filtered, indent=2)}"
+        f"Getting seller status with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
 
     referral = Referral(**data)
-    resp = referral.status()
+    resp = referral.seller_status()
 
     current_app.logger.debug(
         f"Get seller status response: {json.dumps(resp, indent=2)}"
