@@ -1,57 +1,52 @@
-<!doctype html>
-<html>
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<script src="https://cdn.tailwindcss.com"></script>
-	</head>
-	<body class="bg-gray-300">
-		<div class="max-w-7xl mx-auto">
-			<div class="grid grid-cols-4 gap-2">
-				<div class="col-span-1 h-screen bg-gray-100"> 
-					<div id="menu" class="mt-2 mx-2"> 
-						<h1 class="text-xl font-bold text-left my-2">
-							PPCP Checkout
-						</h1>
-						<div class="space-y-1">
-							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/branded">Branded</a><br/>
-							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/branded-auth-capture">Branded + Auth-Capture</a><br/>
-							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/branded-vaulting">Branded + vaulting</a><br/>
-							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/hosted">Hosted fields</a><br/>
-							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/hosted-vaulting">Hosted fields + vaulting</a><br/>
-							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/orders">Orders API</a><br/>
-							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/orders-vaulting">Orders API + vaulting</a><br/>
-						</div>
-					</div>
-				</div>
-				<div class="col-span-1 bg-gray-100">
-					<div id="info" class="mt-2 mx-2">
-						{% block info %}
-						<!-- Information about the product -->
+<!DOCTYPE html>
+<html lang="en">
+  <title>
+    Alice - A PPCP Testing Tool
+  </title>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='statuses.css') }}"/>
+    <script src="{{ url_for('static', filename='utils.js') }}"></script>
 
-						Product:
-						<ul class="list-disc list-inside">
-						<li>Name: {{ product['name'] }}</li>
-						<li>Price: ${{ product['price'] }}</li>
-						<li>Description: {{ product['description'] }}</li>
-						</ul>
-						{% endblock %}
-						
-					</div>
-					<div id="controls" class="mt-2 mx-2">
-						{% block controls %}
-						<!-- Order controls -->
-
-						{% endblock %}
-					</div>
-				</div>
-				<div class="col-span-2 bg-gray-100">
-					<div id="checkout" class="mt-2 mx-2">
-						{% block checkout %}
-						{% endblock %}
-					</div>
-				</div>
-			</div>
-		</div>
-	</body>
+    {% block head %}
+    {% endblock %}
+  </head>
+  <body>
+    <header>
+      This is the sandbox environment.
+      To request features or support, go to
+      <a href="https://paypal.slack.com/archives/C04TWRUMG5Q">#help-alice</a>.
+    </header>
+    <main>
+    {% block main %}
+      <div class="col-4">
+        {% block nav %}
+        <h1 class="title">
+          Alice - A PPCP Testing Tool
+        </h1>
+        <nav>
+          <ul>
+            <li>
+              <a href="{{ url_for('partner_form.onboarding') }}">
+                Onboarding
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('store_form.checkout_branded') }}">
+                Checkout - Branded
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('statuses.statuses') }}">
+                Statuses
+              </a>
+            </li>
+          </ul>
+        </nav>
+        {% endblock %}
+      </main>
+    {% endblock %}
+  </body>
 </html>
