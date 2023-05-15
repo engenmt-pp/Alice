@@ -44,6 +44,16 @@ def checkout_hosted_fields():
     )
 
 
+@bp.route("/card")
+def checkout_card_fields():
+    template = "checkout-form-cardfields.html"
+    additional_query = {"components": "card-fields", "commit": "true"}
+    return checkout(
+        template,
+        additional_query=additional_query,
+    )
+
+
 def checkout(
     template,
     additional_query=None,
@@ -67,6 +77,14 @@ def checkout(
             bn_code,
             additional_query,
             client_token=client_token,
+        )
+    elif additional_query and additional_query.get("components") == "card-fields":
+        script_tag = build_script_tag(
+            partner_client_id,
+            merchant_id,
+            intent,
+            bn_code,
+            additional_query,
         )
     else:
         # For branded integrations that don't use the client_token,

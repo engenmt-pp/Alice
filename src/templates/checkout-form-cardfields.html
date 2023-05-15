@@ -1,0 +1,123 @@
+{% extends "checkout-base.html" %}
+
+{% block checkout %}
+
+<!-- Advanced credit and debit card payments form-->
+<div class="max-w-sm">
+  <form id="card-form" class="mb-4 space-y-2">
+    <div class="space-y-1">
+      <label for="card-number">Card Number</label>
+      <div id="card-number"></div>
+    </div>
+    <div class="space-y-1">
+      <label for="expiration-date">Expiration Date</label>
+      <div id="expiration-date"></div>
+    </div>
+    <div class="space-y-1">
+      <label for="cvv">CVV</label>
+      <div id="cvv"></div>
+    </div>
+    <div class="space-y-1">
+      <label for="card-holder-name">Name on Card</label>
+      <div id="card-holder-name"></div>
+    </div>
+    <button value="submit" id="submit" class="
+    bg-blue-700
+    hover:bg-blue-900
+    text-white
+    font-bold
+    px-4 py-2
+    rounded
+    ">Pay</button>
+  </form>
+</div>
+
+<script>
+  let options
+  // let authHeader
+  function loadCheckout() {
+    const cardField = paypal.CardFields({
+      styles: {
+        '.valid': {'color': 'green'},
+        '.invalid': {'color': 'red'}
+      },
+      createOrder: async function() {
+        console.group("Creating the order...")
+
+        console.log("Getting form info...")
+        options = getOptions()
+        const res = await fetch('/api/orders/create', {
+          headers: {'Content-Type': 'application/json'},
+          method: 'POST',
+          body: JSON.stringify(options)
+        })
+        const createData = await res.json()
+        updateAPICalls(createData.formatted)
+        let orderId = createData.orderId
+        options['auth-header'] = createData['auth-header']
+
+        console.groupEnd()
+        return orderId
+      },
+      onApprove: async function (data, actions) {
+        console.group("Order approved!")
+        const { orderID } = data;
+        console.log(`Getting status of order ${orderID}...`)
+
+        const statusResp = await fetch(`/api/orders/status/${orderID}`, {
+          headers: {'Content-Type': 'application/json'},
+          method: 'POST',
+          body: JSON.stringify(options)
+        })
+        const status = await statusResp.json()
+        updateAPICalls(status.formatted)
+        console.groupEnd()
+
+        console.group('Capturing order...')
+        const captureResp = await fetch(`/api/orders/capture/${orderID}`, {
+          headers: {'Content-Type': 'application/json'},
+          method: 'POST',
+          body: JSON.stringify(options)
+        })
+        let { details, formatted } = await captureResp.json()
+        updateAPICalls(formatted)
+        console.groupEnd()
+        let errorDetail = Array.isArray(details) && details[0]
+        if (errorDetail && errorDetail.issue === 'INSTRUMENT_DECLINED') {
+          return actions.restart(); // Recoverable state, per:
+          // https://developer.paypal.com/docs/checkout/integration-features/funding-failure/
+        }
+        if (errorDetail) {
+            var msg = 'Sorry, your transaction could not be processed.'
+            if (errorDetail.description) msg += '\n\n' + errorDetail.description
+            if (captureData.debug_id) msg += ' (' + captureData.debug_id + ')'
+            return alert(msg); // Show a failure message
+        }
+      }
+    })
+    if (cardField.isEligible()) {
+      const nameField = cardField.NameField()
+      nameField.render('#card-holder-name')
+
+      const numberField = cardField.NumberField()
+      numberField.render('#card-number')
+
+      const cvvField = cardField.CVVField()
+      cvvField.render('#cvv')
+
+      const expiryField = cardField.ExpiryField()
+      expiryField.render('#expiration-date')
+
+      document.querySelector("#card-form").addEventListener('submit', (event) => {
+        event.preventDefault()
+        cardField.submit()
+      })
+    } else {
+      console.log("Not eligible!")
+    }
+  }
+  window.onload = function() {
+    buildScriptElement(loadCheckout)
+  }
+</script>
+{% endblock %}
