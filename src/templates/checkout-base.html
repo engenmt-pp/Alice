@@ -152,8 +152,8 @@
     newScriptElement.id = 'paypal-js-sdk'
     newScriptElement.src = url.href
 
-    // const idToken = await getIdToken()
-    // newScriptElement.setAttribute('data-user-id-token', idToken)
+    const idToken = await getIdToken()
+    newScriptElement.setAttribute('data-user-id-token', idToken)
 
     const BNCode = options['bn-code']
     newScriptElement.setAttribute('data-partner-attribution-id', BNCode)

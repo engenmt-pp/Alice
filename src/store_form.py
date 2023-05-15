@@ -47,19 +47,10 @@ def checkout_hosted_fields():
 @bp.route("/card")
 def checkout_card_fields():
     template = "checkout-form-cardfields.html"
-    # client_token_response = generate_client_token(return_formatted=True)
-
-    # client_token = client_token_response["client-token"]
-    # formatted_calls = client_token_response["formatted"]
-    # auth_header = client_token_response["auth-header"]
-
     additional_query = {"components": "card-fields", "commit": "true"}
     return checkout(
         template,
-        # client_token=client_token,
-        # formatted_calls=formatted_calls,
         additional_query=additional_query,
-        # auth_header=auth_header,
     )
 
 

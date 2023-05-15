@@ -52,106 +52,24 @@
 
 {% block checkout %}
 
-<!-- Sample CSS styles for demo purposes. You can override these styles to match your web page's branding. -->
-<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cardfields.css') }}"/> -->
-
 <!-- Advanced credit and debit card payments form-->
 <div class="max-w-sm">
   <form id="card-form" class="mb-4 space-y-2">
     <div class="space-y-1">
       <label for="card-number">Card Number</label>
-      <div id="card-number" class="
-      border
-      rounded
-      bg-white
-      h-8
-      p-2
-      border-zinc-300 dark:border-zinc-600
-      "></div>
+      <div id="card-number"></div>
     </div>
     <div class="space-y-1">
       <label for="expiration-date">Expiration Date</label>
-      <div id="expiration-date" class="
-      border
-      rounded
-      bg-white
-      h-8
-      p-2
-      border-zinc-300 dark:border-zinc-600
-      "></div>
+      <div id="expiration-date"></div>
     </div>
     <div class="space-y-1">
       <label for="cvv">CVV</label>
-      <div id="cvv" class="
-      border
-      rounded
-      bg-white
-      h-8
-      p-2
-      border-zinc-300 dark:border-zinc-600
-      "></div>
+      <div id="cvv"></div>
     </div>
     <div class="space-y-1">
-      <label for="card-holder-name">Name on Card</label><br/>
-      <input type="text" id="card-holder-name" name="card-holder-name" placeholder="card holder name" class="
-      border
-      rounded
-      bg-white
-      h-6
-      p-2
-      border-zinc-300 dark:border-zinc-600
-      "/>
-    </div>
-    <div class="space-y-1">
-      <label>Billing Address</label><br/>
-      <input type="text" id="card-billing-address-street" name="card-billing-address-street" placeholder="street address" class="
-      border
-      rounded
-      bg-white
-      h-6
-      p-2
-      border-zinc-300 dark:border-zinc-600
-      "/>
-      <input type="text" id="card-billing-address-unit" name="card-billing-address-unit" placeholder="unit" class="
-      border
-      rounded
-      bg-white
-      h-6
-      p-2
-      border-zinc-300 dark:border-zinc-600
-      "/>
-      <input type="text" id="card-billing-address-city" name="card-billing-address-city" placeholder="city" class="
-      border
-      rounded
-      bg-white
-      h-6
-      p-2
-      border-zinc-300 dark:border-zinc-600
-      "/>
-      <input type="text" id="card-billing-address-state" name="card-billing-address-state" placeholder="state" class="
-      border
-      rounded
-      bg-white
-      h-6
-      p-2
-      border-zinc-300 dark:border-zinc-600
-      "/>
-      <input type="text" id="card-billing-address-zip" name="card-billing-address-zip" placeholder="zip / postal code" class="
-      border
-      rounded
-      bg-white
-      h-6
-      p-2
-      border-zinc-300 dark:border-zinc-600
-      "/>
-      <input type="text" id="card-billing-address-country" name="card-billing-address-country" placeholder="country code" class="
-      border
-      rounded
-      bg-white
-      h-6
-      p-2
-      border-zinc-300 dark:border-zinc-600
-      "/>
+      <label for="card-holder-name">Name on Card</label>
+      <div id="card-holder-name"></div>
     </div>
     <button value="submit" id="submit" class="
     bg-blue-700
