@@ -152,8 +152,8 @@
     newScriptElement.id = 'paypal-js-sdk'
     newScriptElement.src = url.href
 
-    const idToken = await getIdToken()
-    newScriptElement.setAttribute('data-user-id-token', idToken)
+    // const idToken = await getIdToken()
+    // newScriptElement.setAttribute('data-user-id-token', idToken)
 
     const BNCode = options['bn-code']
     newScriptElement.setAttribute('data-partner-attribution-id', BNCode)
@@ -1165,7 +1165,7 @@
               ">Create Order</a>
             </li>
             <li>
-              <a id="get-order" href="#" class="
+              <a id="order-status" href="#" class="
               button
               inline-block
               p-4
@@ -1257,8 +1257,8 @@
             bg-zinc-100 dark:bg-zinc-700
             "></div>
           </div>
-          <div id="tab-get-order" class="tab center hidden">
-            <div id="api-calls-get-order" class="
+          <div id="tab-order-status" class="tab center hidden">
+            <div id="api-calls-order-status" class="
             w-full
             top-0
             p-2

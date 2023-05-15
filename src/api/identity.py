@@ -17,6 +17,7 @@ bp = Blueprint("identity", __name__, url_prefix="/identity")
 def generate_client_token(customer_id=None, return_formatted=False):
     endpoint = build_endpoint("/v1/identity/generate-token")
     headers = build_headers(return_formatted=return_formatted)
+    response_dict = {"auth-header": headers["Authorization"]}
     if return_formatted:
         formatted = headers["formatted"]
         del headers["formatted"]
@@ -27,14 +28,19 @@ def generate_client_token(customer_id=None, return_formatted=False):
     else:
         response = requests.post(endpoint, headers=headers)
 
-    client_token = response.json()["client_token"]
-    response_dict = {"client-token": client_token}
-
     if return_formatted:
         formatted["client-token"] = format_request_and_response(response)
         response_dict["formatted"] = formatted
 
-    return jsonify(response_dict)
+    try:
+        client_token = response.json()["client_token"]
+        response_dict["client-token"] = client_token
+    except Exception as exc:
+        current_app.logger.error(
+            f"Exception encountered when getting client_token: {exc}"
+        )
+
+    return response_dict
 
 
 @bp.route("/id-token/", defaults={"customer_id": None}, methods=("GET",))
@@ -151,7 +157,7 @@ def build_headers(
         "Content-Type": "application/json",
     }
 
-    if auth_header is None:
+    if not auth_header:
         client_id = client_id or current_app.config["PARTNER_CLIENT_ID"]
         secret = secret or current_app.config["PARTNER_SECRET"]
 
