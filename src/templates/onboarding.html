@@ -1,21 +1,108 @@
-<div>
-  <script>
-    (function(d, s, id) {
-      var js, ref = d.getElementsByTagName(s)[0];
-      if (!d.getElementById(id)) {
-        js = d.createElement(s);
-        js.id = id;
-        js.async = true;
-        js.src = "https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js";
-        ref.parentNode.insertBefore(js, ref);
-      }
-    }(document, "script", "paypal-js"));
-  </script>
-  <a data-paypal-button="true" href="{{ onboarding_url }}&displayMode=minibrowser" target="PPFrame">Sign up for PayPal</a>
+{% extends 'base.html' %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='referrals.js') }}"></script>
+{% endblock %}
+
+
+{% block other_options %}
+<fieldset id="onboarding">
+  <legend>
+    Referral options
+  </legend>
+  <fieldset>
+    <label for="features">
+      Features
+    </label>
+    <div class="break"></div>
+    <ul>
+      <li>
+        <input name="feature-auth-capture" id="feature-auth-capture" type="checkbox" value="AUTH_CAPTURE" checked/>
+        <label for="feature-auth-capture">Auth/capture</label>
+      </li>
+      <li>
+        <input name="feature-payment" id="feature-payment" type="checkbox" value="PAYMENT" checked/>
+        <label for="feature-payment">Payment</label>
+      </li>
+      <li>
+        <input name="feature-partner-fee" id="feature-partner-fee" type="checkbox" value="PARTNER_FEE" checked/>
+        <label for="feature-partner-fee">Partner fee</label>
+      </li>
+      <li>
+        <input name="feature-refund" id="feature-refund" type="checkbox" value="REFUND" checked/>
+        <label for="feature-refund">Refund</label>
+      </li>
+    </ul>
+    <div class="break"></div>
+  </fieldset>
+  <fieldset>
+    <label for="tracking-id">
+      Tracking ID
+    </label>
+    <span>
+      <input name="tracking-id" id="tracking-id" class="monospaced"/>
+    </span>
+    <div class="break"></div>
+    <legend for="product">
+      Product
+    </legend>
+    <select name="product" id="product">
+      <option value="EXPRESS_CHECKOUT" selected>Branded only</option>
+      <option value="PPCP">Branded + ACDC</option>
+    </select>
+    <div class="break"></div>
+    <label for="email">
+      Email
+    </label>
+    <span>
+      <input name="email" id="email" class="monospaced"/>
+    </span>
+    <div class="break"></div>
+    <legend for="country-code">
+      Country
+    </legend>
+    <select name="country-code" id="country-code">
+      <option value='' selected>None</option>
+      <option value="BE">Belgium</option>
+      <option value="CA">Canada</option>
+      <option value="GB">Great Britain</option>
+      <option value="IE">Ireland</option>
+      <option value="MX">Mexico</option>
+      <option value="US">United States</option>
+    </select>
+    <div class="break"></div>
+    <legend for="include-legal-consents">
+      Legal consents
+    </legend>
+    <select name="include-legal-consents" id="include-legal-consents">
+      <option value="include" selected>Include</option>
+      <option value="">Exclude</option>
+    </select>
+    <div class="break"></div>
+    <legend for="vault-v3">
+      Vault v3
+    </legend>
+    <select name="vault-v3" id="vault-v3">
+      <option value="" selected>None</option>
+      <option value="MERCHANT">Merchant-level</option>
+    </select>
+    <div class="break"></div>
+  </fieldset>
+</fieldset>
+{% endblock %}
+
+
+{% block right_col %}
+<nav role="tabset">
+  <ol id="api-calls-buttons">
+    <li>
+      <button id="button-api-calls" type="button" class="active">API Calls</button>
+    </li>
+  </ol>
+</nav>
+<div id="api-calls">
+  <nav role="tabset">
+    <ol id="buttons-api-calls"></ol>
+  </nav>
 </div>
-
-<br/>
-<a href={{ referral_status_url }}>Referral Status Page</a>
-
-<br/>
-<a href={{ onboarding_status_url }}>Onboarding Status Page</a>
+{% endblock %}

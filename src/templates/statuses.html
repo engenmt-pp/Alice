@@ -5,141 +5,92 @@
 {% endblock %}
 
 
+{% block other_options %}
+<fieldset id="onboarding">
+  <legend>
+    Onboarding
+  </legend>
+  <fieldset>
+    <label for="status-tracking-id">
+      Tracking ID
+    </label>
+    <span>
+      <input name="status-tracking-id" id="status-tracking-id" class="monospaced"/>
+      <button type="button" onclick="getSellerStatusByTrackingId()" class="action">
+        Get
+      </button>
+    </span>
+    <div class="break"></div>
+    <label for="status-merchant-id">
+      Merchant ID
+    </label>
+    <span>
+      <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
+      <button type="button" onclick="getSellerStatus()" class="action">
+        Get
+      </button>
+    </span>
+    <div class="break"></div>
+    <label for="status-referral-token">
+      Referral Token
+    </label>
+    <span>
+      <input name="status-referral-token" id="status-referral-token" class="monospaced"/>
+      <button type="button" onclick="getReferralStatus()" class="action">
+        Get
+      </button>
+    </span>
+  </fieldset>
+</fieldset>
 
-  {% block main %}
-  <div class="col-4">
-    {% block nav %}
-      {{ super() }}
-    {% endblock %}
-    <form id="options-form">
-      <fieldset id="partner-merchant-credentials">
-        <legend>
-          Partner/merchant info
-        </legend>
-        <fieldset>
-          <!-- Partner ID -->
-          <label for="partner-id">
-            Partner ID
-          </label>
-          <span>
-            <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced"/>
-            <button type="button" onclick="copyToClipboard('partner-id')" class="action">
-              Copy
-            </button>
-          </span>
-          <div class="break"></div>
-          <!-- Partner client ID -->
-          <label for="partner-client-id">
-            Client ID
-          </label>
-          <span>
-            <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced"></input>
-            <button type="button" onclick="copyToClipboard('partner-client-id')" class="action">
-              Copy
-            </button>
-          </span>
-          <!-- Merchant ID -->
-          <div class="break">
-          </div>
-          <label for="merchant-id">
-            Merchant ID
-          </label>
-          <span>
-            <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced"></input>
-            <button type="button" onclick="copyToClipboard('merchant-id')" class="action">
-              Copy
-            </button>
-          </span>
-        </fieldset>
-      </fieldset>
-      <fieldset id="onboarding">
-        <legend>
-          Onboarding
-        </legend>
-        <fieldset>
-          <label for="status-tracking-id">
-            Tracking ID
-          </label>
-          <span>
-            <input name="status-tracking-id" id="status-tracking-id" class="monospaced"/>
-            <button type="button" onclick="getSellerStatusByTrackingId()" class="action">
-              Get
-            </button>
-          </span>
-          <div class="break"></div>
-          <label for="status-merchant-id">
-            Merchant ID
-          </label>
-          <span>
-            <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
-            <button type="button" onclick="getSellerStatus()" class="action">
-              Get
-            </button>
-          </span>
-          <div class="break"></div>
-          <label for="status-referral-token">
-            Referral Token
-          </label>
-          <span>
-            <input name="status-referral-token" id="status-referral-token" class="monospaced"/>
-            <button type="button" onclick="getReferralStatus()" class="action">
-              Get
-            </button>
-          </span>
-        </fieldset>
-      </fieldset>
+<fieldset id="checkout">
+  <legend>
+    Checkout
+  </legend>
+  <fieldset>
+    <label for="include-auth-assertion">
+      PayPal Auth Assertion
+    </label>
+    <select name="include-auth-assertion" id="include-auth-assertion" class="monospaced">
+      <option value="" selected>Exclude</option>
+      <option value="True">Include</option>
+    </select>
+    <div class="break"></div>
+    <label for="status-order-id">
+      Order ID
+    </label>
+    <span>
+      <input name="status-order-id" id="status-order-id" class="monospaced"/>
+      <button type="button" onclick="getOrderStatus()" class="action">
+        Get
+      </button>
+    </span>
+    <div class="break"></div>
+    <label for="status-ba-id">
+      BA ID
+    </label>
+    <span>
+      <input name="status-ba-id" id="status-ba-id" class="monospaced"/>
+      <button type="button" onclick="getBaStatus()" class="action">
+        Get
+      </button>
+    </span>
+    <div class="break"></div>
+  </fieldset>
+</fieldset>
+{% endblock %}
 
-      <fieldset id="checkout">
-        <legend>
-          Checkout
-        </legend>
-        <fieldset>
-          <label for="include-auth-assertion">
-            PayPal Auth Assertion
-          </label>
-          <select name="include-auth-assertion" id="include-auth-assertion" class="monospaced">
-            <option value="" selected>Exclude</option>
-            <option value="True">Include</option>
-          </select>
-          <div class="break"></div>
-          <label for="status-order-id">
-            Order ID
-          </label>
-          <span>
-            <input name="status-order-id" id="status-order-id" class="monospaced"/>
-            <button type="button" onclick="getOrderStatus()" class="action">
-              Get
-            </button>
-          </span>
-          <div class="break"></div>
-          <label for="status-ba-id">
-            BA ID
-          </label>
-          <span>
-            <input name="status-ba-id" id="status-ba-id" class="monospaced"/>
-            <button type="button" onclick="getBaStatus()" class="action">
-              Get
-            </button>
-          </span>
-          <div class="break"></div>
-        </fieldset>
-      </fieldset>
-    <form>
-  </div>
-
-  <div class="col-8">
-    <nav role="tabset">
-      <ol id="api-calls-buttons">
-        <li>
-          <button id="button-api-calls" type="button" class="active">API Calls</button>
-        </li>
-      </ol>
-    </nav>
-    <div id="api-calls">
-      <nav role="tabset">
-        <ol id="buttons-api-calls"></ol>
-      </nav>
-      </div>
-    </div>
-  </div>
+{% block right_col %}
+<nav role="tabset">
+  <ol id="api-calls-buttons">
+    <li>
+      <button id="button-api-calls" type="button" class="active">API Calls</button>
+    </li>
+  </ol>
+</nav>
+<div id="api-calls">
+  <nav role="tabset">
+    <ol id="buttons-api-calls"></ol>
+  </nav>
+</div>
 {% endblock %}

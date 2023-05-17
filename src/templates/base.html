@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='statuses.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
     <script src="{{ url_for('static', filename='utils.js') }}"></script>
 
     {% block head %}
@@ -19,8 +19,8 @@
       To request features or support, go to
       <a href="https://paypal.slack.com/archives/C04TWRUMG5Q">#help-alice</a>.
     </header>
-    <main>
     {% block main %}
+    <main>
       <div class="col-4">
         {% block nav %}
         <h1 class="title">
@@ -46,7 +46,61 @@
           </ul>
         </nav>
         {% endblock %}
-      </main>
+        {% block options_form %}
+        <form id="options-form">
+          {% block creds %}
+          <fieldset id="partner-merchant-credentials">
+            <legend>
+              Partner/merchant info
+            </legend>
+            <fieldset>
+              <!-- Partner ID -->
+              <label for="partner-id">
+                Partner ID
+              </label>
+              <span>
+                <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced"/>
+                <button type="button" onclick="copyToClipboard('partner-id')" class="action">
+                  Copy
+                </button>
+              </span>
+              <div class="break"></div>
+              <!-- Partner client ID -->
+              <label for="partner-client-id">
+                Client ID
+              </label>
+              <span>
+                <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced"></input>
+                <button type="button" onclick="copyToClipboard('partner-client-id')" class="action">
+                  Copy
+                </button>
+              </span>
+              <!-- Merchant ID -->
+              <div class="break">
+              </div>
+              <label for="merchant-id">
+                Merchant ID
+              </label>
+              <span>
+                <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced"></input>
+                <button type="button" onclick="copyToClipboard('merchant-id')" class="action">
+                  Copy
+                </button>
+              </span>
+            </fieldset>
+          </fieldset>
+          {% endblock %}
+
+          {% block other_options %}
+          {% endblock %}
+        </form>
+        {% endblock %}
+      </div>
+      <div class="col-8">
+        {% block right_col %}
+        {% endblock %}
+      </div>
+    </main>
     {% endblock %}
   </body>
 </html>

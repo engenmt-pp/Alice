@@ -14,3 +14,16 @@ def onboarding():
         partner_client_id=partner_client_id,
         bn_code=partner_bn_code,
     )
+
+
+@bp.route("/onboarding-new")
+def onboarding_new():
+    partner_id = current_app.config["PARTNER_ID"]
+    partner_client_id = current_app.config["PARTNER_CLIENT_ID"]
+    partner_bn_code = current_app.config["PARTNER_BN_CODE"]
+    return render_template(
+        "onboarding.html",
+        partner_id=partner_id,
+        partner_client_id=partner_client_id,
+        bn_code=partner_bn_code,
+    )
