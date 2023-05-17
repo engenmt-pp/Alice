@@ -30,9 +30,9 @@ def checkout_branded_ba():
 def checkout_hosted_fields():
     template = "checkout-form-hosted.html"
     client_token_response = generate_client_token(return_formatted=True)
-    client_token = client_token_response["client_token"]
+    client_token = client_token_response["client-token"]
     formatted_calls = client_token_response["formatted"]
-    auth_header = client_token_response["auth_header"]
+    auth_header = client_token_response["auth-header"]
 
     additional_query = {"components": "hosted-fields", "commit": "true"}
     return checkout(
