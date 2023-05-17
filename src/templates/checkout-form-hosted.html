@@ -246,10 +246,6 @@
         console.groupEnd()
 
         let errorDetail = Array.isArray(data.details) && data.details[0]
-        if (errorDetail && errorDetail.issue === 'INSTRUMENT_DECLINED') {
-          return actions.restart(); // Recoverable state, per:
-          // https://developer.paypal.com/docs/checkout/integration-features/funding-failure/
-        }
         if (errorDetail) {
             var msg = 'Sorry, your transaction could not be processed.'
             if (errorDetail.description) msg += '\n\n' + errorDetail.description
