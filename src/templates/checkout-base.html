@@ -151,7 +151,7 @@
     newScriptElement.src = url.href
 
     const idToken = await getIdToken()
-    // newScriptElement.setAttribute('data-user-id-token', idToken)
+    newScriptElement.setAttribute('data-user-id-token', idToken)
 
     if (oldScriptElement.hasAttribute('data-client-token')) {
         const dataClientToken = oldScriptElement.getAttribute('data-client-token')
