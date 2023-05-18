@@ -25,25 +25,36 @@ function getPartnerMerchantInfo() {
 }
 
 
-function selectTab(event) {
-  document.querySelectorAll('#top-level-buttons button').forEach(each => {
+function activate(elt) {
+  elt.classList.remove('inactive')
+  elt.classList.add('active')
+}
+
+
+function deactivate(selector) {
+  document.querySelectorAll(selector).forEach(each => {
     each.classList.remove('active')
     each.classList.add('inactive')
   })
+}
+
+
+function selectTab(event) {
+  /**
+   * Deactivate all top-level buttons except for the target, and
+   * deactivate all top-level divs except the div corresponding to the target.
+   */
   const target = event.target
-  target.classList.remove('inactive')
-  target.classList.add('active')
+  deactivate('#top-level-buttons button')
+  activate(target)
+
   const divId = target.id.replace('button-', 'tab-')
   const div = document.getElementById(divId)
-
-  const divList = document.querySelectorAll('#top-level-nav ~ div')
-  divList.forEach(each => {
-    each.classList.remove('active')
-    each.classList.add('inactive')
-  })
-  div.classList.remove('inactive')
-  div.classList.add('active')
+  deactivate('#top-level-nav ~ div')
+  activate(div)
 }
+
+
 
 
 function createApiCallButton(id, divId) {
@@ -67,20 +78,16 @@ function createApiCallButton(id, divId) {
   button.innerHTML = title
   button.classList.add('inactive')
   button.addEventListener('click', (event) => {
-    document.querySelectorAll('#api-calls-buttons button').forEach(each => {
-      each.classList.remove('active')
-      each.classList.add('inactive')
-    })
-    event.target.classList.add('active')
+    /**
+     * Deactivate all api-call-level buttons except for the target, and
+     * deactivate all api-call-level divs except the div corresponding to the target.
+     */
+    deactivate('#api-calls-buttons button')
+    activate(event.target)
 
-    const divList = document.querySelectorAll('#tab-api-calls div')
-    divList.forEach(each => {
-      each.classList.remove('active')
-      each.classList.add('inactive')
-    })
     const div = document.getElementById(divId)
-    div.classList.remove('inactive')
-    div.classList.add('active')
+    deactivate('#tab-api-calls div')
+    activate(div)
   })
   return button
 }

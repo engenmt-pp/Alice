@@ -29,17 +29,3 @@ async function createReferral() {
     console.error('No actionUrl found:', createData)
   }
 }
-
-
-async function getSellerStatus() {
-  const options = getPartnerMerchantInfo()
-  const merchantId = document.getElementById('status-merchant-id').value
-  const statusResp = await fetch(`/api/partner/sellers/${merchantId}`, {
-    headers: {'Content-Type': 'application/json'},
-    method: 'POST',
-    body: JSON.stringify(options)
-  })
-  const { formatted } = await statusResp.json()
-  addApiCalls(formatted)
-}
-
