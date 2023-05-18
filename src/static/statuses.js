@@ -6,9 +6,11 @@ async function getSellerStatus() {
     method: 'POST',
     body: JSON.stringify(options)
   })
-  const resp = await statusResp.json()
-  addApiCalls(resp.formatted)
+  const { formatted } = await statusResp.json()
+  addApiCalls(formatted)
 }
+
+
 async function getSellerStatusByTrackingId() {
   const options = getPartnerMerchantInfo()
   delete options['merchant-id']
@@ -18,9 +20,11 @@ async function getSellerStatusByTrackingId() {
     method: 'POST',
     body: JSON.stringify(options)
   })
-  const resp = await statusResp.json()
-  addApiCalls(resp.formatted)
+  const { formatted } = await statusResp.json()
+  addApiCalls(formatted)
 }
+
+
 async function getReferralStatus() {
   const options = getPartnerMerchantInfo()
   const referralToken = document.getElementById('status-referral-token').value
@@ -29,8 +33,8 @@ async function getReferralStatus() {
     method: 'POST',
     body: JSON.stringify(options)
   })
-  const resp = await statusResp.json()
-  addApiCalls(resp.formatted)
+  const { formatted } = await statusResp.json()
+  addApiCalls(formatted)
 }
 
 
@@ -45,9 +49,11 @@ async function getOrderStatus() {
     method: 'POST',
     body: JSON.stringify(options)
   })
-  const resp = await statusResp.json()
-  addApiCalls(resp.formatted)
+  const { formatted } = await statusResp.json()
+  addApiCalls(formatted)
 }
+
+
 async function getBaStatus() {
   const options = getPartnerMerchantInfo()
   const id = 'include-auth-assertion'
@@ -59,7 +65,7 @@ async function getBaStatus() {
     method: 'POST',
     body: JSON.stringify(options)
   })
-  const resp = await statusResp.json()
-  addApiCalls(resp.formatted)
+  const { formatted } = await statusResp.json()
+  addApiCalls(formatted)
 }
 

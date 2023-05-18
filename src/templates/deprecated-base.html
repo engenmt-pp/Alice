@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="https://cdn.tailwindcss.com"></script>
+	</head>
+	<body class="bg-gray-300">
+		<div class="max-w-7xl mx-auto">
+			<div class="grid grid-cols-4 gap-2">
+				<div class="col-span-1 h-screen bg-gray-100"> 
+					<div id="menu" class="mt-2 mx-2"> 
+						<h1 class="text-xl font-bold text-left my-2">
+							PPCP Checkout
+						</h1>
+						<div class="space-y-1">
+							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/branded">Branded</a><br/>
+							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/branded-auth-capture">Branded + Auth-Capture</a><br/>
+							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/branded-vaulting">Branded + vaulting</a><br/>
+							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/hosted">Hosted fields</a><br/>
+							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/hosted-vaulting">Hosted fields + vaulting</a><br/>
+							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/orders">Orders API</a><br/>
+							<a class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline inline-block" href="/store/orders-vaulting">Orders API + vaulting</a><br/>
+						</div>
+					</div>
+				</div>
+				<div class="col-span-1 bg-gray-100">
+					<div id="info" class="mt-2 mx-2">
+						{% block info %}
+						<!-- Information about the product -->
+
+						Product:
+						<ul class="list-disc list-inside">
+						<li>Name: {{ product['name'] }}</li>
+						<li>Price: ${{ product['price'] }}</li>
+						<li>Description: {{ product['description'] }}</li>
+						</ul>
+						{% endblock %}
+						
+					</div>
+					<div id="controls" class="mt-2 mx-2">
+						{% block controls %}
+						<!-- Order controls -->
+
+						{% endblock %}
+					</div>
+				</div>
+				<div class="col-span-2 bg-gray-100">
+					<div id="checkout" class="mt-2 mx-2">
+						{% block checkout %}
+						{% endblock %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

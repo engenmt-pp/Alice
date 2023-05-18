@@ -1,8 +1,7 @@
-{% extends "base.html" %}
-
+{% extends "deprecated-base.html" %}
 {% block controls %}
-<a href="/" 
-  id="a-details" 
+<a href="/"
+  id="a-details"
   target="_blank"
   class="px-2 py-1 bg-blue-700 rounded-lg text-white hover:underline"
   style="display: none">
@@ -19,9 +18,9 @@
 </div>
 
 <!-- Import PayPal Javascript SDK with Partner's credentials -->
-<script 
-  src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&commit=true&vault=true" 
-  data-partner-attribution-id="{{ bn_code }}" 
+<script
+  src="https://www.paypal.com/sdk/js?client-id={{ partner_client_id }}&merchant-id={{ payee_id }}&currency=USD&intent=capture&commit=true&vault=true"
+  data-partner-attribution-id="{{ bn_code }}"
   data-client-token="{{ client_token }}">
 </script>
 
@@ -34,9 +33,9 @@
           headers: {'Content-Type': 'application/json'},
           method: 'POST',
           body: JSON.stringify({
-            price: "{{ product['price'] }}", 
-            payee_id: "{{ payee_id }}", 
-            customer_id: "{{ customer_id }}", 
+            price: "{{ product['price'] }}",
+            payee_id: "{{ payee_id }}",
+            customer_id: "{{ customer_id }}",
           })
         }).then(function(res) {
           return res.json();

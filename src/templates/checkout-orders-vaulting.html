@@ -1,5 +1,4 @@
-{% extends "base.html" %}
-
+{% extends "deprecated-base.html" %}
 {% block checkout %}
 <script>
   var orderId;
@@ -9,7 +8,7 @@
       method: 'POST',
       body: JSON.stringify({
         customer_id: "{{ customer_id }}",
-        price: "{{ product['price'] }}", 
+        price: "{{ product['price'] }}",
         payee_id: "{{ payee_id }}"
       })
     }).then(function(res) {
