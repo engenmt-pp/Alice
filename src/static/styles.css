@@ -144,12 +144,12 @@ nav li:not(:first-child) {
     margin-top: 0.25rem;
 }
 
-nav a {
+a {
     color: var(--blue-600) !important;
     font-weight: 600;
 }
 @media (prefers-color-scheme: dark) {
-    nav a {
+    a {
         color: var(--blue-500) !important;
     }
 }
@@ -305,11 +305,10 @@ button.inactive:hover {
     background-color: var(--light-bg-2);
 }
 button.active {
-    color: var(--light-text-3);
+    color: var(--blue-600);
     background-color: var(--light-bg-3);
 }
 button.active:hover {
-    color: var(--light-text-4);
     background-color: var(--light-bg-4);
 }
 @media (prefers-color-scheme: dark) {
@@ -321,11 +320,9 @@ button.active:hover {
         background-color: var(--dark-bg-2);
     }
     button.active {
-        color: var(--dark-text-3);
         background-color: var(--dark-bg-3);
     }
     button.active:hover {
-        color: var(--dark-text-4);
         background-color: var(--dark-bg-4);
     }
 }
