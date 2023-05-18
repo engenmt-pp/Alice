@@ -75,9 +75,9 @@
                   Copy
                 </button>
               </span>
+              <div class="break"></div>
+              {% block merchant_id %}
               <!-- Merchant ID -->
-              <div class="break">
-              </div>
               <label for="merchant-id">
                 Merchant ID
               </label>
@@ -87,6 +87,7 @@
                   Copy
                 </button>
               </span>
+              {% endblock %}
             </fieldset>
           </fieldset>
           {% endblock %}
@@ -96,7 +97,7 @@
         </form>
         {% endblock %}
       </div>
-      <div class="col-8">
+      <div id="right-col" class="col-8">
         {% block right_col %}
         {% endblock %}
       </div>

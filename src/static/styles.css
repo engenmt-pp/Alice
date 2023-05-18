@@ -157,15 +157,17 @@ nav a {
 fieldset {
     border: 0;
     padding: 0;
+    font-weight: 550;
 }
 form > fieldset {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 form > fieldset > legend {
     font-weight: 600;
     margin-bottom: 0.5rem;
 }
 form > fieldset > fieldset {
+    margin-bottom: 0.5rem;
     margin-left: 0.5rem;
     display: flex;
     flex-direction: row;
@@ -180,7 +182,7 @@ fieldset > label {
     min-width: max-content;
 }
 fieldset > select {
-    flex: 1 1 50%;
+    flex: 1 1 67%;
 }
 fieldset > span {
     flex: 1 1 67%;
@@ -254,6 +256,7 @@ button {
 }
 
 fieldset > ul {
+    flex-basis: 100%;
     margin: 0 0.5rem 0 0;
     padding: 0 0.5rem 0 0;
     list-style-type: none;
@@ -285,11 +288,10 @@ main > div {
 nav > ol {
     padding: 0;
     border-bottom: 1px solid;
-    margin: 0;
+    margin: 0 0 10px;
     list-style: none;
 }
 nav > ol > li > button {
-    margin-left: 0.5rem;
     padding: 1rem;
     border-top-left-radius: 0.5rem;
     border-top-right-radius: 0.5rem;
@@ -343,18 +345,22 @@ button.active:hover {
     }
 }
 
-#api-calls-buttons,
-#buttons-api-calls {
+#top-level-buttons,
+#api-calls-buttons {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: stretch;
 }
-#api-calls-buttons li,
-#buttons-api-calls li {
-    margin: 10px 10px 0 0;
+#top-level-buttons li,
+#api-calls-buttons li {
+    margin: 0 5px 0 0;
 }
 
 div.inactive {
+    display: none;
+}
+
+.hidden {
     display: none;
 }

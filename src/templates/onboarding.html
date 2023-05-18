@@ -1,12 +1,19 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<script src="{{ url_for('static', filename='referrals.js') }}"></script>
+<script src="{{ url_for('static', filename='onboarding.js') }}"></script>
+<script src="https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js" async></script>
 {% endblock %}
 
+{% block merchant_id %}
+<!--
+  This overwrites the block in 'base.html' with this block's empty contents,
+  removing the "Merchant ID" creds from the left column.
+-->
+{% endblock %}
 
 {% block other_options %}
-<fieldset id="onboarding">
+<fieldset id="onboarding-options">
   <legend>
     Referral options
   </legend>
@@ -14,12 +21,7 @@
     <label for="features">
       Features
     </label>
-    <div class="break"></div>
     <ul>
-      <li>
-        <input name="feature-auth-capture" id="feature-auth-capture" type="checkbox" value="AUTH_CAPTURE" checked/>
-        <label for="feature-auth-capture">Auth/capture</label>
-      </li>
       <li>
         <input name="feature-payment" id="feature-payment" type="checkbox" value="PAYMENT" checked/>
         <label for="feature-payment">Payment</label>
@@ -32,35 +34,25 @@
         <input name="feature-refund" id="feature-refund" type="checkbox" value="REFUND" checked/>
         <label for="feature-refund">Refund</label>
       </li>
+      <li>
+        <input name="feature-access-merchant-information" id="feature-access-merchant-information" type="checkbox" value="ACCESS_MERCHANT_INFORMATION"/>
+        <label for="feature-access-merchant-information">Access merchant information</label>
+      </li>
     </ul>
     <div class="break"></div>
   </fieldset>
   <fieldset>
-    <label for="tracking-id">
-      Tracking ID
-    </label>
-    <span>
-      <input name="tracking-id" id="tracking-id" class="monospaced"/>
-    </span>
-    <div class="break"></div>
-    <legend for="product">
+    <label for="product">
       Product
-    </legend>
+    </label>
     <select name="product" id="product">
       <option value="EXPRESS_CHECKOUT" selected>Branded only</option>
       <option value="PPCP">Branded + ACDC</option>
     </select>
     <div class="break"></div>
-    <label for="email">
-      Email
-    </label>
-    <span>
-      <input name="email" id="email" class="monospaced"/>
-    </span>
-    <div class="break"></div>
-    <legend for="country-code">
+    <label for="country-code">
       Country
-    </legend>
+    </label>
     <select name="country-code" id="country-code">
       <option value='' selected>None</option>
       <option value="BE">Belgium</option>
@@ -71,21 +63,35 @@
       <option value="US">United States</option>
     </select>
     <div class="break"></div>
-    <legend for="include-legal-consents">
+    <label for="include-legal-consents">
       Legal consents
-    </legend>
+    </label>
     <select name="include-legal-consents" id="include-legal-consents">
       <option value="include" selected>Include</option>
       <option value="">Exclude</option>
     </select>
     <div class="break"></div>
-    <legend for="vault-v3">
+    <label for="vault-v3">
       Vault v3
-    </legend>
+    </label>
     <select name="vault-v3" id="vault-v3">
       <option value="" selected>None</option>
       <option value="MERCHANT">Merchant-level</option>
     </select>
+    <div class="break"></div>
+    <label for="tracking-id">
+      Tracking ID
+    </label>
+    <span>
+      <input name="tracking-id" id="tracking-id" class="monospaced"/>
+    </span>
+    <div class="break"></div>
+    <label for="email">
+      Email
+    </label>
+    <span>
+      <input name="email" id="email" class="monospaced"/>
+    </span>
     <div class="break"></div>
   </fieldset>
 </fieldset>
@@ -93,16 +99,28 @@
 
 
 {% block right_col %}
-<nav role="tabset">
-  <ol id="api-calls-buttons">
+<nav id='top-level-nav' role="tabset">
+  <ol id="top-level-buttons">
     <li>
-      <button id="button-api-calls" type="button" class="active">API Calls</button>
+      <button id="button-onboarding" type="button" class="active" onclick="selectTab(event)">Onboarding</button>
+    </li>
+    <li>
+      <button id="button-api-calls" type="button" class="inactive" onclick="selectTab(event)">API Calls</button>
     </li>
   </ol>
 </nav>
-<div id="api-calls">
+<div id="tab-onboarding" class="active">
+  <button id="create-referral" onclick="createReferral()" class="action">Create Referral</button>
+  <a
+    id="partner-referral"
+    class="hidden"
+    data-paypal-button="true"
+    target="PPFrame"
+  >Begin Onboarding</a>
+</div>
+<div id="tab-api-calls" class="inactive">
   <nav role="tabset">
-    <ol id="buttons-api-calls"></ol>
+    <ol id="api-calls-buttons"></ol>
   </nav>
 </div>
 {% endblock %}

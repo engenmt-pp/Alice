@@ -1,94 +1,112 @@
 function copyToClipboard(id) {
+  // As written, this fails in "production" as the site isn't HTTPS.
   navigator.clipboard.writeText(document.getElementById(id).value)
 }
 
+
+function getOptions() {
+  const formData = new FormData(document.getElementById('options-form'))
+  const formOptions = Object.fromEntries(formData)
+  const partnerMerchantInfo = getPartnerMerchantInfo()
+  return {...formOptions, ...partnerMerchantInfo}
+}
+
+
 function getPartnerMerchantInfo() {
-  const info = {
-    'partner-id': document.getElementById('partner-id').value,
-    'client-id': document.getElementById('partner-client-id').value,
-    'merchant-id': document.getElementById('merchant-id').value
+  const ids = ['partner-id', 'client-id', 'merchant-id']
+  const info = {}
+  for (const id of ids) {
+    const elt = document.getElementById(id);
+    if (elt !== null) {
+      info[id] = elt.value
+    }
   }
   return info
 }
 
-function updateAPICalls(formattedCalls, click=true) {
-  const apiCallsButton = document.getElementById('api-calls')
-  if (click) {
-    apiCallsButton.click()
+
+function selectTab(event) {
+  document.querySelectorAll('#top-level-buttons button').forEach(each => {
+    each.classList.remove('active')
+    each.classList.add('inactive')
+  })
+  const target = event.target
+  target.classList.remove('inactive')
+  target.classList.add('active')
+  const divId = target.id.replace('button-', 'tab-')
+  const div = document.getElementById(divId)
+
+  const divList = document.querySelectorAll('#top-level-nav ~ div')
+  divList.forEach(each => {
+    each.classList.remove('active')
+    each.classList.add('inactive')
+  })
+  div.classList.remove('inactive')
+  div.classList.add('active')
+}
+
+
+function createApiCallButton(id, divId) {
+  const button = document.createElement('button')
+  button.type = 'button'
+
+  let n = 1
+  let buttonId = `button-${id}-${n}`
+  while (document.getElementById(buttonId)) {
+    n++
+    buttonId = `button-${id}-${n}`
   }
-  for (const id in formattedCalls) {
-    if (formattedCalls.hasOwnProperty(id)) {
-      const contents = formattedCalls[id]
-      const apiResponseDiv = document.getElementById(id)
-      apiResponseDiv.innerHTML = contents
-      const apiResponseButton = document.getElementById(`button-${id}`)
-      enableButton(apiResponseButton)
-      if (click) {
-        apiResponseButton.click()
-      }
-    }
+  button.id = buttonId
+
+  let title
+  if (n === 1) {
+    title = id
+  } else {
+    title = `${id} (${n})`
   }
+  button.innerHTML = title
+  button.classList.add('inactive')
+  button.addEventListener('click', (event) => {
+    document.querySelectorAll('#api-calls-buttons button').forEach(each => {
+      each.classList.remove('active')
+      each.classList.add('inactive')
+    })
+    event.target.classList.add('active')
+
+    const divList = document.querySelectorAll('#tab-api-calls div')
+    divList.forEach(each => {
+      each.classList.remove('active')
+      each.classList.add('inactive')
+    })
+    const div = document.getElementById(divId)
+    div.classList.remove('inactive')
+    div.classList.add('active')
+  })
+  return button
+}
+
+
+function createApiCallDiv(id, contents) {
+  const div = document.createElement('div')
+
+  let n = 1
+  let divId = `${id}-${n}`
+  while (document.getElementById(divId)) {
+    n++
+    divId = `${id}-${n}`
+  }
+  div.id = divId
+
+  div.innerHTML = contents
+  div.classList.add('api-response')
+  return div
 }
 
 function addApiCalls(formattedCalls, click=true) {
-  function createApiCallDiv(id, contents) {
-    const div = document.createElement('div')
-
-    let n = 1
-    let divId = `${id}-${n}`
-    while (document.getElementById(divId)) {
-      n++
-      divId = `${id}-${n}`
-    }
-    div.id = divId
-
-    div.innerHTML = contents
-    div.classList.add('api-response')
-    return div
-  }
-
-  function createApiCallButton(id, divId) {
-    const button = document.createElement('button')
-    button.type = 'button'
-
-    let n = 1
-    let buttonId = `button-${id}-${n}`
-    while (document.getElementById(buttonId)) {
-      n++
-      buttonId = `button-${id}-${n}`
-    }
-    button.id = buttonId
-
-    let title
-    if (n === 1) {
-      title = id
-    } else {
-      title = `${id} (${n})`
-    }
-    button.innerHTML = title
-    button.classList.add('inactive')
-    button.addEventListener('click', (event) => {
-      document.querySelectorAll('#api-calls button').forEach(each => {
-        each.classList.remove('active')
-        each.classList.add('inactive')
-      })
-      event.target.classList.add('active')
-
-      const divList = document.querySelectorAll('#api-calls div')
-      divList.forEach(each => {
-        each.classList.remove('active')
-        each.classList.add('inactive')
-      })
-      document.getElementById(divId).classList.remove('inactive')
-      document.getElementById(divId).classList.add('active')
-    })
-
-    return button
-  }
-
-  const apiCallsButtons = document.getElementById('buttons-api-calls')
+  const apiCallsButtons = document.getElementById('api-calls-buttons')
   for (const id in formattedCalls) {
     if (formattedCalls.hasOwnProperty(id)) {
+      // `id` is something like 'create-order'.
       let contents = formattedCalls[id]
       const div = createApiCallDiv(id, contents)
 
@@ -98,10 +116,11 @@ function addApiCalls(formattedCalls, click=true) {
       li.appendChild(button)
       apiCallsButtons.appendChild(li)
 
-      const apiCalls = document.getElementById('api-calls')
+      const apiCalls = document.getElementById('tab-api-calls')
       apiCalls.appendChild(div)
 
       if (click) {
+        document.getElementById('button-api-calls').click()
         document.getElementById(buttonId).click()
       }
     }
