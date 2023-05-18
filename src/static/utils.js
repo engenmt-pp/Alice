@@ -55,8 +55,6 @@ function selectTab(event) {
 }
 
 
-
-
 function createApiCallButton(id, divId) {
   const button = document.createElement('button')
   button.type = 'button'
