@@ -29,7 +29,7 @@ def create_app():
     app.register_blueprint(store_form.bp)
     app.register_blueprint(onboarding.bp)
     app.register_blueprint(statuses.bp)
-    app.add_url_rule("/", endpoint="store_form.checkout_branded")
+    app.add_url_rule("/", endpoint="checkout.checkout_branded")
 
     app.register_blueprint(store_merchant.bp)
 

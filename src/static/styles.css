@@ -89,7 +89,7 @@ body > header {
     color: var(--white);
 }
 body > header a {
-    color: var(--white);
+    color: var(--white) !important;
 }
 
 .title {
@@ -183,10 +183,10 @@ fieldset > label {
     min-width: max-content;
 }
 fieldset > select {
-    flex: 1 1 67%;
+    flex: 1 1 50%;
 }
 fieldset > span {
-    flex: 1 1 67%;
+    flex: 1 1 50%;
     display: flex;
     flex-wrap: nowrap;
     gap: 0.25em;
