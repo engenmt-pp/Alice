@@ -12,8 +12,6 @@ bp = Blueprint("orders", __name__, url_prefix="/orders")
 
 class Order:
     def __init__(self, **kwargs):
-        self.auth_header = kwargs.get("auth-header") or None  # Coerce to None if empty
-
         self.order_id = kwargs.get("order-id") or None  # Coerce to None if empty
         self.auth_id = kwargs.get("auth-id")
 
@@ -39,8 +37,8 @@ class Order:
 
         self.ba_id = kwargs.get("ba-id")
 
-        self.partner_id = kwargs.get("partner-id")
-        self.merchant_id = kwargs.get("merchant-id")
+        self.partner_id = kwargs.get("partnerId")
+        self.merchant_id = kwargs.get("merchantId")
 
         self.include_shipping_options = kwargs.get("include-shipping-options")
         self.shipping_cost = 9.99

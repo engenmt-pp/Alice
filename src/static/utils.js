@@ -8,7 +8,7 @@ function getOptions() {
   const formData = new FormData(document.getElementById('options-form'))
   const formOptions = Object.fromEntries(formData)
   const partnerMerchantInfo = getPartnerMerchantInfo()
-  if (authHeader) {
+  if (typeof authHeader !== 'undefined') {
     partnerMerchantInfo['authHeader'] = authHeader
   }
   return { ...formOptions, ...partnerMerchantInfo }
@@ -16,13 +16,22 @@ function getOptions() {
 
 
 function getPartnerMerchantInfo() {
-  const partnerId = document.getElementById('partner-id').value
-  const merchantId = document.getElementById('merchant-id').value
-  const partnerClientId = document.getElementById('partner-client-id').value
-  const info = {
-    partnerId: partnerId,
-    merchantId: merchantId,
-    partnerClientId: partnerClientId,
+
+  const info = {}
+
+  const partnerId = document.getElementById('partner-id')
+  if (partnerId !== null) {
+    info.partnerId = partnerId.value
+  }
+
+  const merchantId = document.getElementById('merchant-id')
+  if (merchantId !== null) {
+    info.merchantId = merchantId.value
+  }
+
+  const partnerClientId = document.getElementById('partner-client-id')
+  if (partnerClientId !== null) {
+    info.partnerClientId = partnerClientId.value
   }
   return info
 }

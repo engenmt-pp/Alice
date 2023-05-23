@@ -20,13 +20,13 @@ def extract_action_url(links):
 
 class Referral:
     def __init__(self, **kwargs):
-        self.auth_header = kwargs.get("auth-header") or None  # Coerce to None if empty
+        self.auth_header = kwargs.get("authHeader") or None  # Coerce to None if empty
 
         self.referral_token = kwargs.get("referral-token")
 
         self.tracking_id = kwargs.get("tracking-id")
-        self.partner_id = kwargs.get("partner-id")
-        self.merchant_id = kwargs.get("merchant-id")
+        self.partner_id = kwargs.get("partnerId")
+        self.merchant_id = kwargs.get("merchantId")
 
         self.product = kwargs.get("product")
         self.vault_v3 = kwargs.get("vault-v3")
