@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, render_template  # , url_for
+from flask import Blueprint, current_app, render_template
 
 bp = Blueprint("checkout", __name__, url_prefix="/checkout")
 

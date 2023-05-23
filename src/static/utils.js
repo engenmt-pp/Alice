@@ -16,13 +16,13 @@ function getOptions() {
 
 
 function getPartnerMerchantInfo() {
-  const ids = ['partner-id', 'partner-client-id', 'merchant-id']
-  const info = {}
-  for (const id of ids) {
-    const elt = document.getElementById(id)
-    if (elt !== null) {
-      info[id] = elt.value
-    }
+  const partnerId = document.getElementById('partner-id').value
+  const merchantId = document.getElementById('merchant-id').value
+  const partnerClientId = document.getElementById('partner-client-id').value
+  const info = {
+    partnerId: partnerId,
+    merchantId: merchantId,
+    partnerClientId: partnerClientId,
   }
   return info
 }

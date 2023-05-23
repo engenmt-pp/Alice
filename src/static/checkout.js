@@ -11,42 +11,41 @@ async function getIdToken() {
     endpoint = `/api/identity/id-token/${customerId}`
   }
   const idTokenResponse = await fetch(endpoint)
-  const responseJson = await idTokenResponse.json()
-  console.log("Response JSON:", JSON.stringify(responseJson, null, 2))
+  const tokenData = await idTokenResponse.json()
+  const { formatted, idToken, authHeader: myAuthHeader } = tokenData
+  authHeader = myAuthHeader
 
-  const formatted = responseJson['formatted']
   addApiCalls(formatted, click = false)
 
-  let idToken
-  if (responseJson.hasOwnProperty('id-token')) {
-    idToken = responseJson['id-token']
-    console.log(`ID token: ${idToken}`)
-  }
-  if (responseJson.hasOwnProperty('auth-header')) {
-    authHeader = responseJson['auth-header']
-  }
-
+  console.log(`ID token: ${idToken}`)
   console.groupEnd()
+
   return idToken
 }
 
 
 async function buildScriptElement(onload) {
-  const options = getOptions()
+  const {
+    partnerClientId,
+    merchantId,
+    intent,
+    currency,
+    ...options
+  } = getOptions()
   const url = new URL('https://www.paypal.com/sdk/js')
-  url.searchParams.append("client-id", options['partner-client-id'])
-  url.searchParams.append("merchant-id", options['merchant-id'])
-  url.searchParams.append("intent", options['intent'].toLowerCase())
-  url.searchParams.append("currency", options['currency'])
-  url.searchParams.append("commit", true)
+  const query = url.searchParams
+  query.set("client-id", partnerClientId)
+  query.set("merchant-id", merchantId)
+  query.set("intent", intent.toLowerCase())
+  query.set("currency", currency)
+  query.set("commit", true)
+  query.set("vault", Boolean(options['vault-v3']))
 
-  url.searchParams.append("vault", Boolean(options['vault-v3']))
+  console.log(`url: ${url}`)
 
-  console.log('url:', url)
-
-  // url.searchParams.append('components', components)
-  // url.searchParams.append('enable-funding', enableFunding)
-  // url.searchParams.append('disable-funding', disableFunding)
+  // query.set('components', components)
+  // query.set('enable-funding', enableFunding)
+  // query.set('disable-funding', disableFunding)
 
   const scriptElement = document.createElement('script')
   scriptElement.id = 'paypal-js-sdk'
@@ -84,16 +83,13 @@ function brandedClosure() {
   /*
    * This is a closure.
   **/
-  let onClick = function (data) {
+  let onClick = function ({ fundingSource }) {
     console.group("Button clicked!")
-    const fundingSource = data.fundingSource
     console.log(`fundingSource: ${fundingSource}`)
     console.groupEnd()
   }
-  let createOrder = async function (data, actions) {
+  let createOrder = async function ({ paymentSource }, actions) {
     console.group("Creating the order...")
-
-    const paymentSource = data.paymentSource
     console.log(`paymentSource: ${paymentSource}`)
 
     options = getOptions()
@@ -114,7 +110,6 @@ function brandedClosure() {
   }
   let onApprove = async function (data, actions) {
     console.group("Order approved!")
-    // const paymentSource = data.paymentSource
     const { paymentSource, orderID } = data
     console.log(`paymentSource: ${paymentSource}`)
 
@@ -124,11 +119,11 @@ function brandedClosure() {
       body: JSON.stringify(options),
     })
     const captureData = await res.json()
-
-    addApiCalls(captureData.formatted)
+    const { formatted, error } = captureData
+    addApiCalls(formatted)
     console.groupEnd()
-    // Your server response structure and key names are what you choose
-    if (captureData.error === "INSTRUMENT_DECLINED") {
+
+    if (error === "INSTRUMENT_DECLINED") {
       return actions.restart()
     }
   }
