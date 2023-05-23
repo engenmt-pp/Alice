@@ -81,16 +81,16 @@
 {% endblock %}
 
 {% block right_col %}
-<nav role="tabset">
-  <ol id="api-calls-buttons">
+<nav id='top-level-nav' role="tabset">
+  <ol id="top-level-buttons">
     <li>
       <button id="button-api-calls" type="button" class="active">API Calls</button>
     </li>
   </ol>
 </nav>
-<div id="api-calls">
+<div id="tab-api-calls" class="active">
   <nav role="tabset">
-    <ol id="buttons-api-calls"></ol>
+    <ol id="api-calls-buttons"></ol>
   </nav>
 </div>
 {% endblock %}

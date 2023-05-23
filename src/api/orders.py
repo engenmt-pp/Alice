@@ -55,6 +55,7 @@ class Order:
         self.breakdown = dict()
 
     def to_amount_dict(self, amount):
+        current_app.logger.debug(f"to_amount_dict({self}, {amount})")
         if isinstance(amount, str):
             amount = float(amount)
         return {
@@ -169,6 +170,7 @@ class Order:
             item["tax"] = tax_amount
             self.breakdown["tax_total"] = tax_amount
 
+        current_app.logger.info(f"Line item: {json.dumps(item, indent=2)}")
         return item
 
     def build_purchase_unit(self):
@@ -316,8 +318,7 @@ class Order:
             data["payment_instruction"] = payment_instruction
 
         response = requests.post(endpoint, headers=headers, json=data)
-        self.formatted["capture-order"] = format_request_and_response(response)
-        # TODO: Change to 'capture-authorization' when frontend is rewritten.
+        self.formatted["capture-authorization"] = format_request_and_response(response)
 
         return response
 
