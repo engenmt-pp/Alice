@@ -8,15 +8,18 @@ function getOptions() {
   const formData = new FormData(document.getElementById('options-form'))
   const formOptions = Object.fromEntries(formData)
   const partnerMerchantInfo = getPartnerMerchantInfo()
-  return {...formOptions, ...partnerMerchantInfo}
+  if (authHeader) {
+    partnerMerchantInfo['authHeader'] = authHeader
+  }
+  return { ...formOptions, ...partnerMerchantInfo }
 }
 
 
 function getPartnerMerchantInfo() {
-  const ids = ['partner-id', 'client-id', 'merchant-id']
+  const ids = ['partner-id', 'partner-client-id', 'merchant-id']
   const info = {}
   for (const id of ids) {
-    const elt = document.getElementById(id);
+    const elt = document.getElementById(id)
     if (elt !== null) {
       info[id] = elt.value
     }
@@ -40,9 +43,9 @@ function deactivate(selector) {
 
 
 function selectTab(event) {
-  /**
-   * Deactivate all top-level buttons except for the target, and
-   * deactivate all top-level divs except the div corresponding to the target.
+  /** This is attached to the top-level nav buttons.
+   * It deactivates all top-level nav buttons except for the target and
+   * deactivates all top-level divs except the div corresponding to the target.
    */
   const target = event.target
   deactivate('#top-level-buttons button')
@@ -76,13 +79,11 @@ function createApiCallButton(id, divId) {
   button.innerHTML = title
   button.classList.add('inactive')
   button.addEventListener('click', (event) => {
-    /**
-     * Deactivate all api-call-level buttons except for the target, and
-     * deactivate all api-call-level divs except the div corresponding to the target.
-     */
+    // Deactivate all api-call-level buttons except for the target.
     deactivate('#api-calls-buttons button')
     activate(event.target)
 
+    // Also deactivate all api-call-level divs except the div corresponding to the target.
     const div = document.getElementById(divId)
     deactivate('#tab-api-calls div')
     activate(div)
@@ -107,7 +108,7 @@ function createApiCallDiv(id, contents) {
   return div
 }
 
-function addApiCalls(formattedCalls, click=true) {
+function addApiCalls(formattedCalls, click = true) {
   const apiCallsButtons = document.getElementById('api-calls-buttons')
   for (const id in formattedCalls) {
     if (formattedCalls.hasOwnProperty(id)) {
@@ -126,8 +127,9 @@ function addApiCalls(formattedCalls, click=true) {
 
       if (click) {
         document.getElementById('button-api-calls').click()
-        document.getElementById(buttonId).click()
       }
+      // Always illuminate the button!
+      document.getElementById(buttonId).click()
     }
   }
 }

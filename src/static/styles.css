@@ -177,6 +177,7 @@ form > fieldset > fieldset {
     gap: 0.25rem 0.5rem;
 }
 fieldset > label {
+    font-weight: 450;
     flex: 1 1 9ch;
     margin-right: auto;
     min-width: max-content;
@@ -196,7 +197,7 @@ fieldset > span > input {
 }
 
 fieldset > select {
-    height: calc(1.5em + 0.25rem + 2px);
+    height: calc(1.25em + 0.25rem + 2px);
     /*
     The line-height property doesn't work for select elements,
     so instead we set the height manually, adding the line height
@@ -208,7 +209,7 @@ fieldset > select {
 fieldset > span > input,
 fieldset > select {
     font-size: 0.875rem;
-    line-height: 1.5em;
+    line-height: 1.25em;
     padding: 0.125rem 0.25rem;
     border-radius: 0.25rem;
     border: solid 1px;
@@ -355,10 +356,21 @@ button.active:hover {
     margin: 0 5px 0 0;
 }
 
+/* #top-level-buttons > li:only-child > button,
+#api-calls-buttons > li:only-child > button {
+    # C
+} */
+
 div.inactive {
     display: none;
 }
 
 .hidden {
     display: none;
+}
+
+#paypal-button-container {
+    margin: 0 auto;
+    padding: 0 auto;
+    max-width: 40rem;
 }

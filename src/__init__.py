@@ -17,13 +17,14 @@ def create_app():
 
     os.makedirs(app.instance_path, exist_ok=True)
 
-    from . import api, onboarding, store, store_form, reports
+    from . import api, store, store_form, reports
     from . import store_merchant
-    from . import statuses
+    from . import statuses, onboarding, checkout
 
     app.register_blueprint(api.bp)
     app.register_blueprint(reports.bp)
 
+    app.register_blueprint(checkout.bp)
     app.register_blueprint(store.bp)
     app.register_blueprint(store_form.bp)
     app.register_blueprint(onboarding.bp)

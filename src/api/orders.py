@@ -47,8 +47,8 @@ class Order:
         self.include_shipping_address = kwargs.get("include-shipping-address")
 
         self.partner_fee = float(kwargs.get("partner-fee", "0"))
-        self.item_price = kwargs.get("price")
-        self.item_tax = float(kwargs.get("tax", "0"))
+        self.item_price = kwargs.get("item-price")
+        self.item_tax = float(kwargs.get("item-tax", "0"))
         self.item_category = kwargs.get("item-category")
 
         self.formatted = dict()
@@ -96,7 +96,6 @@ class Order:
 
         match (self.intent, for_call):
             case ("CAPTURE", "create") | ("AUTHORIZE", "capture"):
-                # current_app.logger.info(f"{(self.intent, for_call)}")
                 if self.disbursement_mode == "DELAYED":
                     payment_instruction["disbursement_mode"] = self.disbursement_mode
 
@@ -104,7 +103,6 @@ class Order:
                 if platform_fees:
                     payment_instruction["platform_fees"] = platform_fees
 
-        # current_app.logger.info(f"{(self.intent, for_call)} -> {payment_instruction}")
         return payment_instruction
 
     def build_shipping_option(self):
