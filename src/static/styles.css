@@ -201,7 +201,7 @@ fieldset > select {
     /*
     The line-height property doesn't work for select elements,
     so instead we set the height manually, adding the line height
-    we want (1.5em), the vertical padding we want (0.125rem twice),
+    we want (1.25em), the vertical padding we want (0.125rem twice),
     and the border (1px twice).
     */
 }
@@ -356,11 +356,6 @@ button.active:hover {
     margin: 0 5px 0 0;
 }
 
-/* #top-level-buttons > li:only-child > button,
-#api-calls-buttons > li:only-child > button {
-    # C
-} */
-
 div.inactive {
     display: none;
 }
@@ -371,6 +366,5 @@ div.inactive {
 
 #paypal-button-container {
     margin: 0 auto;
-    padding: 0 auto;
     max-width: 40rem;
 }

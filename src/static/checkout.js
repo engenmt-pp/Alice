@@ -84,11 +84,10 @@ function brandedClosure() {
   /*
    * This is a closure.
   **/
-  let orderId
   let onClick = function (data) {
     console.group("Button clicked!")
     const fundingSource = data.fundingSource
-    console.log("fundingSource:", fundingSource)
+    console.log(`fundingSource: ${fundingSource}`)
     console.groupEnd()
   }
   let createOrder = async function (data, actions) {
@@ -104,24 +103,22 @@ function brandedClosure() {
       body: JSON.stringify(options),
     })
     const createData = await res.json()
-
-    addApiCalls(createData.formatted)
-
+    const { formatted, orderId: orderID } = createData
     authHeader = createData.authHeader
 
-    orderId = createData.orderId
-    console.log(`Order ${orderId} created!`
-    )
+    addApiCalls(formatted)
+    console.log(`Order ${orderID} created!`)
+
     console.groupEnd()
-    return orderId
+    return orderID
   }
   let onApprove = async function (data, actions) {
     console.group("Order approved!")
-    const paymentSource = data.paymentSource
+    // const paymentSource = data.paymentSource
+    const { paymentSource, orderID } = data
     console.log(`paymentSource: ${paymentSource}`)
-    // TODO: Replace with const { paymentSource, orderID } = data
 
-    const res = await fetch(`/api/orders/capture/${data.orderID}`, {
+    const res = await fetch(`/api/orders/capture/${orderID}`, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),
