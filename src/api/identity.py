@@ -85,8 +85,8 @@ def get_id_token(customer_id):
         return return_val
 
     auth_header = f"Bearer {access_token}"
-    return_val["auth-header"] = auth_header
-    return_val["id-token"] = id_token
+    return_val["authHeader"] = auth_header
+    return_val["idToken"] = id_token
 
     return jsonify(return_val)
 
