@@ -14,7 +14,7 @@ function hideCreateReferral() {
 async function createReferral() {
   const options = getOptions()
   const response = await fetch('/api/partner/referrals', {
-    headers: {'Content-Type': 'application/json'},
+    headers: { 'Content-Type': 'application/json' },
     method: 'POST',
     body: JSON.stringify(options)
   })
@@ -26,6 +26,6 @@ async function createReferral() {
     hideCreateReferral()
     populateReferralLink(actionUrl)
   } else {
-    console.error('No actionUrl found:', createData)
+    console.error(`No actionUrl found: ${createData}`)
   }
 }
