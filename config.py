@@ -4,22 +4,11 @@ import os
 flask.cli.load_dotenv()
 
 
-class Config(object):
-    pass
-
-
-class SandboxConfig(Config):
+class SandboxConfig:
     ENV = "development"
     ENDPOINT_PREFIX = "https://api-m.sandbox.paypal.com"
 
     SFTP_HOSTNAME = "reports.sandbox.paypal.com"
-
-
-class ProductionConfig(Config):
-    ENV = "production"
-    ENDPOINT_PREFIX = "https://api-m.paypal.com"
-
-    SFTP_HOSTNAME = "reports.paypal.com"
 
 
 class TestingConfig(SandboxConfig):

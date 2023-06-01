@@ -71,7 +71,7 @@ function loadOptions() {
 }
 
 
-function tabHostedClosure() {
+function selectHostedTab() {
   let loadedHosted = false
   function selectHosted(event) {
     /** This is attached to the top-level "Checkout - Hosted" button.
@@ -101,7 +101,7 @@ function tabHostedClosure() {
   }
   return selectHosted
 }
-let selectHosted = tabHostedClosure()
+let selectHosted = selectHostedTab()
 
 
 function selectTab(event) {
