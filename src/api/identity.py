@@ -37,16 +37,17 @@ def get_client_token(auth_header=None):
     response = requests.post(endpoint, headers=headers)
 
     formatted["client-token"] = format_request_and_response(response)
-    return_val = {"formatted": formatted}
+    return_val["formatted"] = formatted
 
     try:
         client_token = response.json()["client_token"]
-        return_val["client_token"] = client_token
-    except KeyError as exc:
-        current_app.logger.error(f"Encountered KeyError({exc})!")
-        current_app.logger.error(f"Response: {response.text}")
+        return_val["clientToken"] = client_token
+    except Exception as exc:
+        current_app.logger.error(
+            f"Exception encountered when getting client_token: {exc}"
+        )
 
-    return return_val
+    return jsonify(return_val)
 
 
 @bp.route("/id-token/", defaults={"customer_id": None}, methods=("GET",))

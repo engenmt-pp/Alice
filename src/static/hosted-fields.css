@@ -1,0 +1,6 @@
+#form-hosted-fields {
+    font-size: 1em;
+}
+#form-hosted-fields div[id^='card-'] {
+    flex-basis: 1 1 100%;
+}

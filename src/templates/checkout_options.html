@@ -1,0 +1,174 @@
+<fieldset id="checkout-options">
+  <legend>
+    SDK options
+  </legend>
+  <fieldset>
+    <label for="intent">
+      Intent
+    </label>
+    <select name="intent" id="intent">
+      <option value="CAPTURE" selected>Capture</option>
+      <option value="AUTHORIZE">Authorize</option>
+    </select>
+    <div class="break"></div>
+    <label for="currency">
+      Currency
+    </label>
+    <select name="currency" id="currency">
+      <option value="USD" selected>USD</option>
+    </select>
+  </fieldset>
+</fieldset>
+<fieldset id="branded-options">
+  <legend>
+    Branded Checkout Options
+  </legend>
+  <fieldset>
+    <label for="vault-v3">
+      Vault level
+    </label>
+    <select name="vault-v3" id="vault-v3">
+      <option value="" selected>None</option>
+      <option value="MERCHANT">Merchant-level</option>
+      <option value="PLATFORM">Partner-level</option>
+    </select>
+    <div class="break"></div>
+    <label for="customer-id">
+      Customer ID
+    </label>
+    <span>
+      <input name="customer-id" id="customer-id" class="monospaced"/>
+    </span>
+    <div class="break"></div>
+    <label for="vault-id">
+      Vault v3 ID
+    </label>
+    <span>
+      <input name="vault-id" id="vault-id" class="monospaced"/>
+    </span>
+  </fieldset>
+</fieldset>
+<fieldset id="ACDC-options">
+  <legend>
+    ACDC Options
+  </legend>
+  <fieldset>
+    <label for="3ds-preference">
+      3D-Secure (3DS)
+    </label>
+    <select name="3ds-preference" id="3ds-preference">
+      <option value="SCA_WHEN_REQUIRED" selected>When required</option>
+      <option value="SCA_ALWAYS">Always</option>
+    </select>
+  </fieldset>
+</fieldset>
+<fieldset id="order-options">
+  <legend>
+    Order options
+  </legend>
+  <fieldset>
+    <label for="shipping-preference">
+      Shipping pref.
+    </label>
+    <select name="shipping-preference" id="shipping-preference">
+      <option value="" selected>Unspecified</option>
+      <option value="NO_SHIPPING">No shipping</option>
+      <option value="GET_FROM_FILE">Get from file</option>
+      <option value="SET_PROVIDED_ADDRESS">Set provided address</option>
+    </select>
+    <div class="break"></div>
+    <label for="ba-id">
+      BA ID
+    </label>
+    <span>
+      <input name="ba-id" id="ba-id" class="monospaced"/>
+    </span>
+  </fieldset>
+</fieldset>
+<fieldset id="purchase-unit-options">
+  <legend>
+    Purchase unit options
+  </legend>
+  <fieldset>
+    <label for="reference-id">
+      Reference ID
+    </label>
+    <span>
+      <input name="reference-id" id="reference-id" class="monospaced" placeholder="default" type="text"/>
+    </span>
+    <div class="break"></div>
+    <label for="custom-id">
+      Custom ID
+    </label>
+    <span>
+      <input name="custom-id" id="custom-id" class="monospaced" type="text"/>
+    </span>
+    <div class="break"></div>
+    <label for="soft-descriptor">
+      Soft descriptor
+    </label>
+    <span>
+      <input name="soft-descriptor" id="soft-descriptor" class="monospaced" type="text"/>
+    </span>
+    <div class="break"></div>
+    <label for="partner-fee">
+      Partner fee
+    </label>
+    <span>
+      <input name="partner-fee" id="partner-fee" class="monospaced" type="number" value="0"/>
+    </span>
+  </fieldset>
+  <fieldset>
+    <label>
+      Include:
+    </label>
+    <ul>
+      <li>
+        <input name="include-shipping-address" id="include-shipping-address" type="checkbox" value="YES"/>
+        <label for="include-shipping-address">Shipping address</label>
+      </li>
+      <li>
+        <input name="include-shipping-option" id="include-shipping-option" type="checkbox" value="YES"/>
+        <label for="include-shipping-option">Shipping option</label>
+      </li>
+    </ul>
+  </fieldset>
+</fieldset>
+<fieldset id="item-options">
+  <legend>
+    Item options
+  </legend>
+  <fieldset>
+    <label for="item-price">
+      Price
+    </label>
+    <span>
+      <input name="item-price" id="item-price" class="monospaced" type="number" value="3.14"/>
+    </span>
+    <div class="break"></div>
+    <label for="item-tax">
+      Tax
+    </label>
+    <span>
+      <input name="item-tax" id="item-tax" class="monospaced" type="number" value="0"/>
+    </span>
+    <div class="break"></div>
+    <label for="item-category">
+      Category
+    </label>
+    <select name="item-category" id="item-category">
+      <option value="None" selected>Unspecified</option>
+      <option value="PHYSICAL_GOODS">Physical goods</option>
+      <option value="DIGITAL_GOODS">Digital goods</option>
+      <option value="DONATION">Donation</option>
+    </select>
+    <div class="break"></div>
+    <label for="disbursement-mode">
+      Disbursement
+    </label>
+    <select name="disbursement-mode" id="disbursement-mode">
+      <option value="INSTANT" selected>Instant</option>
+      <option value="DELAYED">Delayed</option>
+    </select>
+  </fieldset>
+</fieldset>

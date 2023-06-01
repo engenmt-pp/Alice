@@ -73,6 +73,8 @@ async function buildScriptElement(onload, hosted = false) {
 
   console.log('PayPal JS SDK URL:', url)
 
+  console.log(`PayPal JS SDK URL: ${url}`)
+
   const scriptElement = document.createElement('script')
   scriptElement.id = 'paypal-js-sdk'
   scriptElement.src = url.href
