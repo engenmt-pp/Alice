@@ -33,8 +33,8 @@ async function getClientToken() {
     body: JSON.stringify({ authHeader: authHeader }),
   })
   const clientTokenData = await clientTokenResponse.json()
-  const { formatted, clientToken, authHeader: myAuthHeader } = clientTokenData
-  authHeader = myAuthHeader
+  const { formatted, clientToken } = clientTokenData;
+  ({ authHeader } = clientTokenData)
 
   addApiCalls(formatted, click = false)
 
