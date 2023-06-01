@@ -17,17 +17,17 @@
 <nav id='top-level-nav' role="tabset">
   <ol id="top-level-buttons">
     <li>
-      <button id="button-checkout-branded" type="button" class="active" onclick="selectTab(event)">Checkout - Branded</button>
+      <button id="button-checkout-branded" type="button" onclick="selectTab(event)">Checkout - Branded</button>
     </li>
     <li>
-      <button id="button-checkout-hosted" type="button" class="inactive" onclick="selectHosted(event)">Checkout - Hosted</button>
+      <button id="button-checkout-hosted" type="button" onclick="selectHosted(event)">Checkout - ACDC</button>
     </li>
     <li>
-      <button id="button-api-calls" type="button" class="inactive" onclick="selectTab(event)">API Calls</button>
+      <button id="button-api-calls" type="button" onclick="selectTab(event)">API Calls</button>
     </li>
   </ol>
 </nav>
-<div id="tab-checkout-branded" class="active">
+<div id="tab-checkout-branded" class="inactive">
   <div id="paypal-button-container"></div>
   <script id="paypal-js-sdk"></script>
   <script>
