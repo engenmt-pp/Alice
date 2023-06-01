@@ -33,7 +33,7 @@
   <script>
     window.addEventListener('DOMContentLoaded', async function() {
       const options = loadOptions()
-      console.log(options)
+      console.log('options:', options)
       window.sessionStorage.clear()
       if (options.loadHosted) {
         document.getElementById('button-checkout-hosted').click()
@@ -57,8 +57,8 @@
     <label for="card-holder-name">Name on Card</label>
     <input type="text" id="card-holder-name" name="card-holder-name" placeholder="card holder name"/>
 
-    <input type="text" id="card-billing-address-street" name="card-billing-address-street" placeholder="street address"/>
     <label>Billing Address</label>
+    <input type="text" id="card-billing-address-street" name="card-billing-address-street" placeholder="street address"/>
     <div class="break"></div>
     <input type="text" id="card-billing-address-unit" name="card-billing-address-unit" placeholder="unit"/>
     <div class="break"></div>
