@@ -160,7 +160,7 @@ fieldset {
     font-weight: 550;
 }
 form > fieldset {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 form > fieldset > legend {
     font-weight: 600;
@@ -367,4 +367,57 @@ div.inactive {
 #paypal-button-container {
     margin: 0 auto;
     max-width: 40rem;
+}
+
+#form-hosted-fields {
+    max-width: 12rem;
+    font-size: 1rem;
+}
+#form-hosted-fields > label {
+    display: block;
+    width: 100%;
+    padding: 1px 2px;
+    margin: 5px 0;
+}
+#form-hosted-fields > input {
+    background-color: var(--light-bg-1);
+    color: var(--light-text-1);
+    display: block;
+    width: 100%;
+    margin: 2.5px 0;
+    padding: 2px 4px;
+    border: 1px solid;
+    border-radius: 0.25rem;
+}
+
+#card-number,
+#expiration-date,
+#cvv {
+    background-color: var(--light-bg-1);
+    color: var(--light-text-1);
+    display: block;
+    height: 1.2rem;
+    width: 100%;
+    margin: 2.5px 0;
+    padding: 2px 4px;
+    border: 1px solid;
+    border-radius: 0.25rem;
+}
+@media (prefers-color-scheme: dark) {
+    #form-hosted-fields > input,
+    #card-number,
+    #expiration-date,
+    #cvv {
+        background-color: var(--dark-bg-1);
+        color: var(--dark-text-1);
+    }
+}
+
+#pay {
+    background-color: green;
+    color: white;
+    padding: 4px 8px;
+    text-transform: capitalize;
+    border-radius: 4px;
+    margin: 0.5rem 0;
 }

@@ -23,8 +23,29 @@ async function getIdToken() {
   return idToken
 }
 
+async function getClientToken() {
+  console.groupCollapsed("Requesting Client token...")
 
-async function buildScriptElement(onload) {
+  const endpoint = "/api/identity/client-token"
+  const clientTokenResponse = await fetch(endpoint, {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify({ authHeader: authHeader }),
+  })
+  const tokenData = await clientTokenResponse.json()
+  const { formatted, clientToken, authHeader: myAuthHeader } = tokenData
+  authHeader = myAuthHeader
+
+  addApiCalls(formatted, click = false)
+
+  console.log(`Client token: ${clientToken}`)
+  console.groupEnd()
+
+  return clientToken
+}
+
+
+async function buildScriptElement(onload, hosted = false) {
   const {
     partnerClientId,
     merchantId,
@@ -40,21 +61,25 @@ async function buildScriptElement(onload) {
   query.set("currency", currency)
   query.set("commit", true)
   query.set("vault", Boolean(options['vault-v3']))
-
-  console.log(`url: ${url}`)
-
-  // query.set('components', components)
-  // query.set('enable-funding', enableFunding)
+  query.set('components', hosted ? 'hosted-fields' : 'buttons')
+  query.set('enable-funding', 'card,venmo')
   // query.set('disable-funding', disableFunding)
+
+  console.log(`PayPal JS SDK URL: ${url}`)
 
   const scriptElement = document.createElement('script')
   scriptElement.id = 'paypal-js-sdk'
   scriptElement.src = url.href
 
-  const idToken = await getIdToken()
-  scriptElement.setAttribute('data-user-id-token', idToken)
+  if (document.getElementById('vault-v3').value !== '') {
+    const idToken = await getIdToken()
+    scriptElement.setAttribute('data-user-id-token', idToken)
+  }
 
-  // scriptElement.setAttribute('data-client-token', dataClientToken)
+  if (hosted) {
+    const clientToken = await getClientToken()
+    scriptElement.setAttribute('data-client-token', clientToken)
+  }
 
   const BNCode = options['bn-code']
   scriptElement.setAttribute('data-partner-attribution-id', BNCode)
@@ -92,13 +117,15 @@ function brandedClosure() {
     console.group("Creating the order...")
     console.log(`paymentSource: ${paymentSource}`)
 
+    console.log("Getting order options...")
     options = getOptions()
-    const res = await fetch("/api/orders/create", {
+    options.authHeader = authHeader
+    const createResp = await fetch("/api/orders/create", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),
     })
-    const createData = await res.json()
+    const createData = await createResp.json()
     const { formatted, orderId: orderID } = createData
     authHeader = createData.authHeader
 
@@ -113,12 +140,12 @@ function brandedClosure() {
     const { paymentSource, orderID } = data
     console.log(`paymentSource: ${paymentSource}`)
 
-    const res = await fetch(`/api/orders/capture/${orderID}`, {
+    const captureResp = await fetch(`/api/orders/capture/${orderID}`, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),
     })
-    const captureData = await res.json()
+    const captureData = await captureResp.json()
     const { formatted, error } = captureData
     addApiCalls(formatted)
     console.groupEnd()
@@ -129,6 +156,7 @@ function brandedClosure() {
   }
   let buttons
   async function loadButtons() {
+    if (typeof buttons !== 'undefined') await buttons.close()
     buttons = await paypal.Buttons({
       onClick: onClick,
       createOrder: createOrder,
@@ -140,28 +168,130 @@ function brandedClosure() {
         console.log(`Caught an error while rendering checkout: ${err}`)
       })
   }
-
-  async function reloadButtons() {
-    await buttons.close()
-    await buildScriptElement(() => {
-      resetButtonContainer()
-      loadButtons()
-    })
-  }
-  buildScriptElement(loadButtons)
-  return reloadButtons
+  return loadButtons
 }
 
-function addOnChange(reloadButtons) {
-  const elementIDs = [
+function getContingencies() {
+  return [document.getElementById('3ds-preference').value]
+}
+
+function hostedFieldsClosure() {
+  /*
+   * This is a closure.
+  **/
+  let orderID
+  let createOrder = async function () {
+    console.group("Creating the order...")
+    console.log("Getting order options...")
+    options = getOptions()
+    options.authHeader = authHeader
+    const createResp = await fetch('/api/orders/create', {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify(options)
+    })
+    const createData = await createResp.json()
+    const { formatted } = createData
+    orderID = createData.orderId
+    authHeader = createData.authHeader
+
+    console.log(`Order ${orderID} created!`)
+    addApiCalls(formatted)
+
+    console.groupEnd()
+    return orderID
+  }
+  let fields = {
+    number: {
+      selector: "#card-number",
+      placeholder: "4111 1111 1111 1111"
+    },
+    cvv: {
+      selector: "#cvv",
+      placeholder: "123"
+    },
+    expirationDate: {
+      selector: "#expiration-date",
+      placeholder: "MM/YY"
+    }
+  }
+
+  let hostedFields
+  let onSubmit = async function (event) {
+    event.preventDefault()
+    await hostedFields.submit({
+      // Cardholder's first and last name
+      cardholderName: document.getElementById('card-holder-name').value,
+      // Billing Address
+      billingAddress: {
+        streetAddress: document.getElementById('card-billing-address-street').value,
+        extendedAddress: document.getElementById('card-billing-address-unit').value,
+        region: document.getElementById('card-billing-address-state').value,
+        locality: document.getElementById('card-billing-address-city').value,
+        postalCode: document.getElementById('card-billing-address-zip').value,
+        countryCodeAlpha2: document.getElementById('card-billing-address-country').value.toUpperCase()
+      },
+      // Trigger 3D Secure authentication
+      contingencies: getContingencies()
+    })
+
+    console.group("Order approved!")
+    console.log(`Getting status of order ${orderID}...`)
+    const statusResp = await fetch(`/api/orders/status/${orderID}`, {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify(options)
+    })
+    const status = await statusResp.json()
+    addApiCalls(status.formatted)
+    console.groupEnd()
+
+    console.group('Capturing order...')
+    const captureResp = await fetch(`/api/orders/capture/${orderID}`, {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify(options)
+    })
+    console.log(`Captured order ${orderID}!`)
+    const { details, formatted, debug_id: debugID } = await captureResp.json()
+    addApiCalls(formatted)
+    console.groupEnd()
+
+    let errorDetail = Array.isArray(details) && details[0]
+    if (errorDetail) {
+      let msg = 'Sorry, your transaction could not be processed.'
+      if (errorDetail.description) msg += `\n\n${errorDetail.description}`
+      if (debugID) msg += ` (${debugID})`
+      return alert(msg) // Show a failure message
+    }
+  }
+  async function loadHostedFields() {
+    if (paypal.HostedFields.isEligible()) {
+      hostedFields = await paypal.HostedFields.render({
+        createOrder: createOrder,
+        fields: fields,
+      })
+      document.querySelector('#form-hosted-fields').onsubmit = onSubmit
+    } else {
+      alert("Not eligible for hosted fields. Sorry!")
+      document.querySelector("#form-hosted-fields").style = 'display: none'
+    }
+  }
+  return loadHostedFields
+}
+
+function addOnChange(loadCheckout) {
+  console.groupCollapsed("Adding onChange...")
+  const elementIds = [
     'intent',
     'customer-id',
     'vault-v3',
   ]
-  for (const elementID of elementIDs) {
-    const element = document.getElementById(elementID)
-    element.addEventListener('change', (event) => {
-      reloadButtons()
-    })
+  for (const elementId of elementIds) {
+    const element = document.getElementById(elementId)
+    console.log(`Adding 'change' event listener to ${element}: ${loadCheckout}`)
+    element.addEventListener('change', loadCheckout)
   }
+  console.groupEnd()
 }
+

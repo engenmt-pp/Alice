@@ -33,7 +33,9 @@ class Order:
         except KeyError:
             self.include_auth_assertion = self.vault_v3 == "MERCHANT"
         self.include_payee = not self.include_auth_assertion
-        self.include_request_id = True
+        self.include_request_id = (
+            True  # This is required to specify `experience_context`.
+        )
 
         self.ba_id = kwargs.get("ba-id")
 

@@ -11,7 +11,7 @@
     <script src="{{ url_for('static', filename='utils.js') }}"></script>
 
     {% block head %}
-    {% endblock %}
+    {% endblock head %}
   </head>
   <body>
     <header>
@@ -45,7 +45,7 @@
             </li>
           </ul>
         </nav>
-        {% endblock %}
+        {% endblock nav %}
         {% block options_form %}
         <form id="options-form">
           {% block creds %}
@@ -87,21 +87,21 @@
                   Copy
                 </button>
               </span>
-              {% endblock %}
+              {% endblock merchant_id %}
             </fieldset>
           </fieldset>
-          {% endblock %}
+          {% endblock creds %}
 
           {% block other_options %}
-          {% endblock %}
+          {% endblock other_options %}
         </form>
-        {% endblock %}
+        {% endblock options_form %}
       </div>
       <div id="right-col" class="col-8">
         {% block right_col %}
-        {% endblock %}
+        {% endblock right_col %}
       </div>
     </main>
-    {% endblock %}
+    {% endblock main %}
   </body>
 </html>

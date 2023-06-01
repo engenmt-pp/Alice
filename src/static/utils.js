@@ -16,7 +16,6 @@ function getOptions() {
 
 
 function getPartnerMerchantInfo() {
-
   const info = {}
 
   const partnerId = document.getElementById('partner-id')
@@ -51,14 +50,76 @@ function deactivate(selector) {
 }
 
 
+function saveOptions(loadHosted = false) {
+  const formData = new FormData(document.getElementById('options-form'))
+  for (const pair of formData.entries()) {
+    window.sessionStorage.setItem(pair[0], pair[1])
+  }
+  window.sessionStorage.setItem('loadHosted', loadHosted)
+}
+function loadOptions() {
+  const keys = Object.keys(window.sessionStorage)
+  const options = {}
+  for (const key of keys) {
+    const val = window.sessionStorage.getItem(key)
+    if (key !== 'loadHosted') {
+      document.getElementById(key).value = val
+    }
+    options[key] = val
+  }
+  return options
+}
+
+
+function tabHostedClosure() {
+  let loadedHosted = false
+  function selectHosted(event) {
+    /** This is attached to the top-level "Checkout - Hosted" button.
+     * It deactivates all top-level nav buttons except for the target and
+     * deactivates all top-level divs except the div corresponding to the target.
+     */
+    const target = event.target
+    deactivate('#top-level-buttons button')
+    activate(target)
+
+    if (loadedHosted) {
+      // Hosted fields can't be reloaded, so we just save the options from the sidebar and reload the page.
+      saveOptions(loadHosted = true)
+      location.reload()
+    } else {
+      const loadHostedFields = hostedFieldsClosure()
+      buildScriptElement(loadHostedFields, hosted = true)
+      addOnChange(loadHostedFields)
+      loadHostedFields()
+      loadedHosted = true
+    }
+
+    const divId = target.id.replace('button-', 'tab-')
+    const div = document.getElementById(divId)
+    deactivate('#top-level-nav ~ div')
+    activate(div)
+  }
+  return selectHosted
+}
+let selectHosted = tabHostedClosure()
+
+
 function selectTab(event) {
-  /** This is attached to the top-level nav buttons.
+  /** This is attached to the top-level "Checkout - Branded" and "API Calls" buttons.
    * It deactivates all top-level nav buttons except for the target and
    * deactivates all top-level divs except the div corresponding to the target.
    */
   const target = event.target
   deactivate('#top-level-buttons button')
   activate(target)
+
+  if (target.id.includes('branded')) {
+    const loadButtons = brandedClosure()
+    buildScriptElement(loadButtons, hosted = false)
+    addOnChange(() => {
+      buildScriptElement(loadButtons, hosted = false)
+    })
+  }
 
   const divId = target.id.replace('button-', 'tab-')
   const div = document.getElementById(divId)
