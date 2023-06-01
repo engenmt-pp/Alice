@@ -5,7 +5,6 @@ import requests
 from flask import Blueprint, current_app, jsonify, request
 from .utils import (
     build_endpoint,
-    log_and_request,
     format_request_and_response,
     random_decimal_string,
 )
