@@ -225,6 +225,7 @@ class Order:
                 "vault": {
                     "store_in_vault": "ON_SUCCESS",
                     "usage_type": self.vault_v3,
+                    "permit_multiple_payment_tokens": True,
                 }
             }
 

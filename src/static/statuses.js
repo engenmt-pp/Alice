@@ -69,3 +69,35 @@ async function getBaStatus() {
   addApiCalls(formatted)
 }
 
+
+async function getVaultStatus() {
+  const options = getPartnerMerchantInfo()
+  const id = 'include-auth-assertion'
+  options[id] = document.getElementById(id).value
+
+  const vaultId = document.getElementById('status-vault-id').value
+  const statusResp = await fetch(`/api/vault/${vaultId}`, {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify(options)
+  })
+  const { formatted } = await statusResp.json()
+  addApiCalls(formatted)
+}
+
+
+async function getVaultTokens() {
+  const options = getPartnerMerchantInfo()
+  const id = 'include-auth-assertion'
+  options[id] = document.getElementById(id).value
+
+  const customerId = document.getElementById('status-customer-id').value
+  const statusResp = await fetch(`/api/vault/customers/${customerId}`, {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify(options)
+  })
+  const { formatted } = await statusResp.json()
+  addApiCalls(formatted)
+}
+

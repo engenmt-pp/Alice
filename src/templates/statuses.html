@@ -76,6 +76,25 @@
       </button>
     </span>
     <div class="break"></div>
+    <label for="status-vault-id">
+      Vault v3 ID
+    </label>
+    <span>
+      <input name="status-vault-id" id="status-vault-id" class="monospaced"/>
+      <button type="button" onclick="getVaultStatus()" class="action">
+        Get
+      </button>
+    </span>
+    <div class="break"></div>
+    <label for="status-customer-id">
+      Customer ID
+    </label>
+    <span>
+      <input name="status-customer-id" id="status-customer-id" class="monospaced"/>
+      <button type="button" onclick="getVaultTokens()" class="action">
+        Get
+      </button>
+    </span>
   </fieldset>
 </fieldset>
 {% endblock %}
