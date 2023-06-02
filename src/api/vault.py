@@ -14,7 +14,6 @@ bp = Blueprint("vault", __name__, url_prefix="/vault")
 @bp.route("/<vault_id>", methods=("POST",))
 def get_vault_id_status(vault_id):
     data = request.get_json()
-    # data['vault-id'] = vault_id
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
         f"Getting the status of a vault ID with (filtered) data = {json.dumps(data_filtered, indent=2)}"
