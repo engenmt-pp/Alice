@@ -48,8 +48,6 @@ def generate_client_token(auth_header=None):
 
 @bp.route("/id-token/", defaults={"customer_id": None}, methods=("GET",))
 @bp.route("/id-token/<customer_id>", methods=("GET",))
-@bp.route("/id-token-with-auth/", defaults={"customer_id": None}, methods=("GET",))
-@bp.route("/id-token-with-auth/<customer_id>", methods=("GET",))
 def get_id_token(customer_id):
     """Request access and ID tokens using the /v1/oauth2/token API.
 
@@ -58,7 +56,10 @@ def get_id_token(customer_id):
     endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
 
-    if "id-token-with-auth/" in request.path:
+    current_app.logger.info(
+        f"Getting ID token! request.args={json.dumps(request.args, indent=2)}"
+    )
+    if request.args.get("include-auth-assertion"):
         auth_assertion = build_auth_assertion()
         headers["PayPal-Auth-Assertion"] = auth_assertion
 

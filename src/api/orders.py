@@ -10,6 +10,19 @@ from .utils import build_endpoint, format_request_and_response
 bp = Blueprint("orders", __name__, url_prefix="/orders")
 
 
+def default_shipping_address():
+    return {
+        "name": {"full_name": "Myfuhl Name"},
+        "address": {
+            "address_line_1": "1324 Permutation Pattern Parkway",
+            "admin_area_2": "Gainesville",
+            "admin_area_1": "FL",
+            "postal_code": "32601",
+            "country_code": "US",
+        },
+    }
+
+
 class Order:
     def __init__(self, **kwargs):
         self.order_id = kwargs.get("order-id") or None  # Coerce to None if empty
@@ -26,12 +39,13 @@ class Order:
         self.soft_descriptor = kwargs.get("soft-descriptor")
         self.shipping_preference = kwargs.get("shipping-preference")
 
-        self.vault_v3 = kwargs.get("vault-v3")
+        self.vault_level = kwargs.get("vault-level")
+        self.vault_preference = kwargs.get("vault-preference")
         self.vault_id = kwargs.get("vault-id")
         try:
             self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
         except KeyError:
-            self.include_auth_assertion = self.vault_v3 == "MERCHANT"
+            self.include_auth_assertion = self.vault_preference == "MERCHANT"
         self.include_payee = not self.include_auth_assertion
         self.include_request_id = (
             True  # This is required to specify `experience_context`.
@@ -118,16 +132,7 @@ class Order:
         shipping = dict()
 
         if self.include_shipping_address:
-            shipping |= {
-                "name": {"full_name": "Myfuhl Name"},
-                "address": {
-                    "address_line_1": "1324 Permutation Pattern Parkway",
-                    "admin_area_2": "Gainesville",
-                    "admin_area_1": "FL",
-                    "postal_code": "32601",
-                    "country_code": "US",
-                },
-            }
+            shipping |= default_shipping_address()
             if not self.include_shipping_options:
                 shipping["type"] = "SHIPPING"
 
@@ -218,13 +223,13 @@ class Order:
             "experience_context": context,
         }
 
-        if self.vault_id:
+        if self.vault_preference == "use-vault-id" and self.vault_id:
             paypal["vault_id"] = self.vault_id
-        elif self.vault_v3:
+        elif self.vault_preference == "on-success":
             paypal["attributes"] = {
                 "vault": {
                     "store_in_vault": "ON_SUCCESS",
-                    "usage_type": self.vault_v3,
+                    "usage_type": self.vault_level,
                     "permit_multiple_payment_tokens": True,
                 }
             }
@@ -356,7 +361,7 @@ class Order:
 def create_order():
     data = request.get_json()
     data_filtered = {key: value for key, value in data.items() if value}
-    current_app.logger.debug(
+    current_app.logger.info(
         f"Creating an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
 
@@ -372,7 +377,7 @@ def capture_order(order_id):
     data = request.get_json()
     data["order-id"] = order_id
     data_filtered = {key: value for key, value in data.items() if value}
-    current_app.logger.debug(
+    current_app.logger.info(
         f"Capturing an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
 
@@ -388,7 +393,7 @@ def order_status(order_id):
     data = request.get_json()
     data["order-id"] = order_id
     data_filtered = {key: value for key, value in data.items() if value}
-    current_app.logger.debug(
+    current_app.logger.info(
         f"Getting the status of an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
 

@@ -1,18 +1,23 @@
+let authHeader
 async function getSellerStatus() {
   const options = getPartnerMerchantInfo()
+  if (typeof authHeader !== 'undefined') options.authHeader = authHeader
   const merchantId = document.getElementById('status-merchant-id').value
   const statusResp = await fetch(`/api/partner/sellers/${merchantId}`, {
     headers: { 'Content-Type': 'application/json' },
     method: 'POST',
     body: JSON.stringify(options)
   })
-  const { formatted } = await statusResp.json()
-  addApiCalls(formatted)
+  const statusData = await statusResp.json()
+  const { formatted } = statusData
+  addApiCalls(formatted);
+  ({ authHeader } = statusData)
 }
 
 
 async function getSellerStatusByTrackingId() {
   const options = getPartnerMerchantInfo()
+  if (typeof authHeader !== 'undefined') options.authHeader = authHeader
   delete options['merchantId']
   const trackingId = document.getElementById('status-tracking-id').value
   const statusResp = await fetch(`/api/partner/sellers?tracking-id=${trackingId}`, {
@@ -20,26 +25,32 @@ async function getSellerStatusByTrackingId() {
     method: 'POST',
     body: JSON.stringify(options)
   })
-  const { formatted } = await statusResp.json()
-  addApiCalls(formatted)
+  const statusData = await statusResp.json()
+  const { formatted } = statusData
+  addApiCalls(formatted);
+  ({ authHeader } = statusData)
 }
 
 
 async function getReferralStatus() {
   const options = getPartnerMerchantInfo()
+  if (typeof authHeader !== 'undefined') options.authHeader = authHeader
   const referralToken = document.getElementById('status-referral-token').value
   const statusResp = await fetch(`/api/partner/referrals/${referralToken}`, {
     headers: { 'Content-Type': 'application/json' },
     method: 'POST',
     body: JSON.stringify(options)
   })
-  const { formatted } = await statusResp.json()
-  addApiCalls(formatted)
+  const statusData = await statusResp.json()
+  const { formatted } = statusData
+  addApiCalls(formatted);
+  ({ authHeader } = statusData)
 }
 
 
 async function getOrderStatus() {
   const options = getPartnerMerchantInfo()
+  if (typeof authHeader !== 'undefined') options.authHeader = authHeader
   const id = 'include-auth-assertion'
   options[id] = document.getElementById(id).value
 
@@ -49,13 +60,16 @@ async function getOrderStatus() {
     method: 'POST',
     body: JSON.stringify(options)
   })
-  const { formatted } = await statusResp.json()
-  addApiCalls(formatted)
+  const statusData = await statusResp.json()
+  const { formatted } = statusData
+  addApiCalls(formatted);
+  ({ authHeader } = statusData)
 }
 
 
 async function getBaStatus() {
   const options = getPartnerMerchantInfo()
+  if (typeof authHeader !== 'undefined') options.authHeader = authHeader
   const id = 'include-auth-assertion'
   options[id] = document.getElementById(id).value
 
@@ -65,29 +79,35 @@ async function getBaStatus() {
     method: 'POST',
     body: JSON.stringify(options)
   })
-  const { formatted } = await statusResp.json()
-  addApiCalls(formatted)
+  const statusData = await statusResp.json()
+  const { formatted } = statusData
+  addApiCalls(formatted);
+  ({ authHeader } = statusData)
 }
 
 
-async function getVaultStatus() {
+async function getPaymentTokenStatus() {
   const options = getPartnerMerchantInfo()
+  if (typeof authHeader !== 'undefined') options.authHeader = authHeader
   const id = 'include-auth-assertion'
   options[id] = document.getElementById(id).value
 
-  const vaultId = document.getElementById('status-vault-id').value
-  const statusResp = await fetch(`/api/vault/${vaultId}`, {
+  const paymentTokenId = document.getElementById('status-payment-token-id').value
+  const statusResp = await fetch(`/api/vault/payment-tokenches/${paymentTokenId}`, {
     headers: { 'Content-Type': 'application/json' },
     method: 'POST',
     body: JSON.stringify(options)
   })
-  const { formatted } = await statusResp.json()
-  addApiCalls(formatted)
+  const statusData = await statusResp.json()
+  const { formatted } = statusData
+  addApiCalls(formatted);
+  ({ authHeader } = statusData)
 }
 
 
-async function getVaultTokens() {
+async function getPaymentTokens() {
   const options = getPartnerMerchantInfo()
+  if (typeof authHeader !== 'undefined') options.authHeader = authHeader
   const id = 'include-auth-assertion'
   options[id] = document.getElementById(id).value
 
@@ -97,7 +117,9 @@ async function getVaultTokens() {
     method: 'POST',
     body: JSON.stringify(options)
   })
-  const { formatted } = await statusResp.json()
-  addApiCalls(formatted)
+  const statusData = await statusResp.json()
+  const { formatted } = statusData
+  addApiCalls(formatted);
+  ({ authHeader } = statusData)
 }
 
