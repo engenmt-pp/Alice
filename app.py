@@ -9,9 +9,6 @@ from config import PartnerOneConfig, MerchantOneConfig
 app.config.from_object(PartnerOneConfig)
 app.config.from_object(MerchantOneConfig)
 
-# from partner_specific_config import VaultV3Config
-# app.config.from_object(VaultV3Config)
-
 if __name__ == "__main__":
     from logging.config import dictConfig
 

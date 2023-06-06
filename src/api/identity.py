@@ -56,9 +56,6 @@ def get_id_token(customer_id):
     endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
 
-    current_app.logger.info(
-        f"Getting ID token! request.args={json.dumps(request.args, indent=2)}"
-    )
     if request.args.get("include-auth-assertion"):
         auth_assertion = build_auth_assertion()
         headers["PayPal-Auth-Assertion"] = auth_assertion
