@@ -29,7 +29,7 @@ class Referral:
         self.merchant_id = kwargs.get("merchantId")
 
         self.product = kwargs.get("product")
-        self.vault_v3 = kwargs.get("vault-v3")
+        self.vault_level = kwargs.get("vault-level")
         self.tracking_id = kwargs.get("tracking-id")
         self.country_code = kwargs.get("country-code")
         self.email = kwargs.get("email")
@@ -60,7 +60,7 @@ class Referral:
 
     def build_features(self):
         features = self.features
-        if self.vault_v3 == "MERCHANT":
+        if self.vault_level == "MERCHANT":
             additional_features = ["VAULT", "BILLING_AGREEMENT"]
             for feature in additional_features:
                 if feature not in features:
@@ -69,13 +69,13 @@ class Referral:
 
     def build_products(self):
         products = [self.product]
-        if self.vault_v3 == "MERCHANT":
+        if self.vault_level == "MERCHANT":
             products.append("ADVANCED_VAULTING")
         return products
 
     def build_capabilities(self):
         capabilities = []
-        if self.vault_v3 == "MERCHANT":
+        if self.vault_level == "MERCHANT":
             capabilities.append("PAYPAL_WALLET_VAULTING_ADVANCED")
         return capabilities
 

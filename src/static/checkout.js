@@ -2,18 +2,19 @@ let authHeader
 async function getIdToken() {
   console.groupCollapsed("Requesting ID token...")
 
-  const vaultV3 = document.getElementById('vault-v3').value
+  const vaultLevel = document.getElementById('vault-level').value
   const customerId = document.getElementById('customer-id').value
-  let endpoint
-  if (vaultV3 === 'MERCHANT') {
-    endpoint = `/api/identity/id-token-with-auth/${customerId}`
-  } else {
-    endpoint = `/api/identity/id-token/${customerId}`
+  console.log("vaultLevel:", vaultLevel)
+  console.log("customerId:", customerId)
+  let endpoint = `/api/identity/id-token/${customerId}`
+  if (vaultLevel === 'MERCHANT') {
+    endpoint += `?include-auth-assertion=true`
   }
+  console.log('endpoint:', endpoint)
   const idTokenResponse = await fetch(endpoint)
   const idTokenData = await idTokenResponse.json()
-  const { formatted, idToken, authHeader: myAuthHeader } = idTokenData
-  authHeader = myAuthHeader
+  const { formatted, idToken } = idTokenData;
+  ({ authHeader } = idTokenData)
 
   addApiCalls(formatted, click = false)
 
@@ -60,9 +61,10 @@ async function buildScriptElement(onload, hosted = false) {
   query.set("intent", intent.toLowerCase())
   query.set("currency", currency)
   query.set("commit", true)
-  query.set("vault", Boolean(options['vault-v3']))
-  query.set('components', hosted ? 'hosted-fields' : 'buttons')
+  query.set('components', hosted ? 'hosted-fields' : 'buttons,card-fields')
   query.set('enable-funding', 'card,venmo')
+  const vault = Boolean(options['vault-level'])
+  query.set("vault", vault)
 
   console.log(`PayPal JS SDK URL: ${url}`)
 
@@ -73,10 +75,13 @@ async function buildScriptElement(onload, hosted = false) {
   if (hosted) {
     const clientToken = await getClientToken()
     scriptElement.setAttribute('data-client-token', clientToken)
-  } else if (document.getElementById('vault-v3').value !== '') {
+  }
+  if (vault) {
     const idToken = await getIdToken()
     scriptElement.setAttribute('data-user-id-token', idToken)
   }
+
+  scriptElement.setAttribute('onerror', (event) => { console.log(event) })
 
   const BNCode = options['bn-code']
   scriptElement.setAttribute('data-partner-attribution-id', BNCode)
@@ -108,13 +113,32 @@ function brandedClosure() {
     console.log('fundingSource:', fundingSource)
     console.groupEnd()
   }
-  let createOrder = async function ({ paymentSource }, actions) {
+  let createVaultSetupToken = async function ({ paymentSource }) {
+    console.group("Creating the vault setup token...")
+    console.log('paymentSource:', paymentSource)
+
+    console.log("Getting order options...")
+    options = getOptions()
+    const createResp = await fetch("/api/vault/setup-tokens", {
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify(options),
+    })
+    const createData = await createResp.json()
+    const { formatted, setupToken } = createData;
+    ({ authHeader } = createData)
+
+    addApiCalls(formatted)
+    console.log(`Vault setup token ${setupToken} created!`)
+    console.groupEnd()
+    return setupToken
+  }
+  let createOrder = async function ({ paymentSource }) {
     console.group("Creating the order...")
     console.log('paymentSource:', paymentSource)
 
     console.log("Getting order options...")
-    options = getOptions();
-    ({ authHeader } = options)
+    options = getOptions()
     const createResp = await fetch("/api/orders/create", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
@@ -141,7 +165,8 @@ function brandedClosure() {
       body: JSON.stringify(options),
     })
     const captureData = await captureResp.json()
-    const { formatted, error } = captureData
+    const { formatted, error } = captureData;
+    ({ authHeader } = captureData)
     addApiCalls(formatted)
     console.groupEnd()
 
@@ -149,14 +174,43 @@ function brandedClosure() {
       return actions.restart()
     }
   }
+  let createVaultPaymentToken = async function ({ vaultSetupToken }) {
+    console.group(`Vault setup token ${vaultSetupToken} was approved!`)
+    console.log('Creating vault token...')
+    options['setup-token'] = vaultSetupToken
+    const createResp = await fetch(`/api/vault/setup-tokens/${vaultSetupToken}`, {
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify(options),
+    })
+    const createData = await createResp.json()
+    const { formatted, vaultToken } = createData;
+    ({ authHeader } = createData)
+
+    addApiCalls(formatted)
+    console.log(`Vault token ${vaultToken} created!`)
+    console.groupEnd()
+    return orderId
+  }
   let buttons
   async function loadButtons() {
     if (typeof buttons !== 'undefined') await buttons.close()
-    buttons = await paypal.Buttons({
-      onClick: onClick,
-      createOrder: createOrder,
-      onApprove: onApprove,
-    })
+    let methods
+    const vaultPref = document.getElementById('vault-preference').value
+    if (vaultPref === 'without-purchase') {
+      methods = {
+        onClick: onClick,
+        createVaultSetupToken: createVaultSetupToken,
+        onApprove: createVaultPaymentToken,
+      }
+    } else {
+      methods = {
+        onClick: onClick,
+        createOrder: createOrder,
+        onApprove: onApprove,
+      }
+    }
+    buttons = await paypal.Buttons(methods)
     return buttons
       .render("#paypal-button-container")
       .catch((err) => {
@@ -285,7 +339,8 @@ function addOnChange(loadCheckout) {
   const elementIds = [
     'intent',
     'customer-id',
-    'vault-v3',
+    'vault-level',
+    'vault-preference',
   ]
   for (const elementId of elementIds) {
     const element = document.getElementById(elementId)

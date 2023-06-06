@@ -1,10 +1,10 @@
 #!/usr/bin/env python3.10
 
-from config import PartnerOneConfig, MerchantOneConfig
-
 from src import create_app
 
 app = create_app()
+
+from config import PartnerOneConfig, MerchantOneConfig
 
 app.config.from_object(PartnerOneConfig)
 app.config.from_object(MerchantOneConfig)
