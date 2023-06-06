@@ -125,13 +125,13 @@ function brandedClosure() {
       body: JSON.stringify(options),
     })
     const createData = await createResp.json()
-    const { formatted, setupToken } = createData;
+    const { formatted, setupTokenId } = createData;
     ({ authHeader } = createData)
 
     addApiCalls(formatted)
-    console.log(`Vault setup token ${setupToken} created!`)
+    console.log(`Vault setup token ${setupTokenId} created!`)
     console.groupEnd()
-    return setupToken
+    return setupTokenId
   }
   let createOrder = async function ({ paymentSource }) {
     console.group("Creating the order...")
@@ -184,13 +184,13 @@ function brandedClosure() {
       body: JSON.stringify(options),
     })
     const createData = await createResp.json()
-    const { formatted, vaultToken } = createData;
+    const { formatted, paymentTokenId } = createData;
     ({ authHeader } = createData)
 
     addApiCalls(formatted)
-    console.log(`Vault token ${vaultToken} created!`)
+    console.log(`Vault payment token ${paymentTokenId} created!`)
     console.groupEnd()
-    return orderId
+    return paymentTokenId
   }
   let buttons
   async function loadButtons() {
