@@ -107,14 +107,14 @@ class Vault:
         }
 
         try:
-            setup_token = response.json()["id"]
+            setup_token_id = response.json()["id"]
         except Exception as exc:
             current_app.logger.error(
                 f"Encountered exception unpacking setup token: {exc}"
             )
             return response_dict
 
-        response_dict["setupToken"] = setup_token
+        response_dict["setupTokenId"] = setup_token_id
         return response_dict
 
     def create_payment_token(self):
@@ -136,14 +136,14 @@ class Vault:
         }
 
         try:
-            setup_token = response.json()["id"]
+            payment_token_id = response.json()["id"]
         except Exception as exc:
             current_app.logger.error(
                 f"Encountered exception unpacking setup token: {exc}"
             )
             return response_dict
 
-        response_dict["setupToken"] = setup_token
+        response_dict["paymentTokenId"] = payment_token_id
         return response_dict
 
     def get_payment_token_status(self):
