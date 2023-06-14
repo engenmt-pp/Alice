@@ -3,6 +3,7 @@ async function getSellerStatus() {
   const options = getPartnerMerchantInfo()
   if (typeof authHeader !== 'undefined') options.authHeader = authHeader
   const merchantId = document.getElementById('status-merchant-id').value
+  options['merchantId'] = merchantId
   const statusResp = await fetch(`/api/partner/sellers/${merchantId}`, {
     headers: { 'Content-Type': 'application/json' },
     method: 'POST',
