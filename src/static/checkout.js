@@ -45,7 +45,6 @@ async function getClientToken() {
   return clientToken
 }
 
-
 async function buildScriptElement(onload, hosted = false) {
   const {
     partnerClientId,
@@ -62,7 +61,7 @@ async function buildScriptElement(onload, hosted = false) {
   query.set("currency", currency)
   query.set("commit", true)
   query.set('components', hosted ? 'hosted-fields' : 'buttons,card-fields')
-  query.set('enable-funding', 'card,venmo')
+  query.set('enable-funding', 'card,paylater,venmo')
   const vault = Boolean(options['vault-level'])
   query.set("vault", vault)
 
@@ -91,7 +90,6 @@ async function buildScriptElement(onload, hosted = false) {
   oldScriptElement.replaceWith(scriptElement)
 }
 
-
 async function resetButtonContainer() {
   /*
    * Replace the button container with an empty div.
@@ -104,7 +102,6 @@ async function resetButtonContainer() {
   const oldContainer = document.getElementById(containerId)
   oldContainer.replaceWith(newContainer)
 }
-
 
 function brandedClosure() {
   let options
@@ -153,9 +150,7 @@ function brandedClosure() {
     console.groupEnd()
     return orderId
   }
-  let onApprove = async function (data, actions) {
-    console.log('data:', data)
-    const { paymentSource, orderID: orderId } = data
+  let onApprove = async function ({ paymentSource, orderID: orderId }, actions) {
     console.group(`Order ${orderId} was approved!`)
     console.log('paymentSource:', paymentSource)
 
@@ -217,7 +212,96 @@ function brandedClosure() {
         console.log('Caught an error while rendering checkout:', err)
       })
   }
+  loadButtons.buttons = buttons
   return loadButtons
+}
+
+function cardFieldsClosure() {
+  let options
+  let createOrder = async function ({ paymentSource } = {}) {
+    console.group("Creating the order...")
+    console.log('paymentSource:', paymentSource)
+
+    console.log("Getting order options...")
+    options = getOptions()
+    const createResp = await fetch('/api/orders/create', {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify(options)
+    })
+    const createData = await createResp.json()
+    const { formatted, orderId } = createData;
+    ({ authHeader } = createData)
+    addApiCalls(formatted)
+
+    console.log(`Order ${orderId} created!`)
+    console.groupEnd()
+    return orderId
+  }
+  let onApprove = async function ({ paymentSource, orderID: orderId }) {
+    console.group(`Order ${orderId} was approved!`)
+    console.log('paymentSource:', paymentSource)
+
+    console.log(`Getting status of order ${orderId}...`)
+    const statusResp = await fetch(`/api/orders/status/${orderId}`, {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify(options)
+    })
+    const statusData = await statusResp.json()
+    const { formatted: statusFormatted } = statusData
+    addApiCalls(statusFormatted)
+    console.groupEnd()
+
+    console.group(`Capturing order ${orderId}...`)
+    const captureResp = await fetch(`/api/orders/capture/${orderId}`, {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify(options)
+    })
+    const captureData = await captureResp.json()
+    const { formatted: captureFormatted } = captureData
+
+    addApiCalls(captureFormatted)
+    console.groupEnd()
+  }
+  let cardFields
+  async function loadCardFields() {
+    if (typeof cardFields !== 'undefined') await buttons.close()
+    let methods = {
+      createOrder: createOrder,
+      onApprove: onApprove,
+    }
+    cardFields = paypal.CardFields({
+      styles: {
+        '.valid': { 'color': 'green' },
+        '.invalid': { 'color': 'red' }
+      },
+      ...methods
+    })
+    if (cardFields.isEligible()) {
+      const nameField = cardFields.NameField()
+      await nameField.render('#cf-card-holder-name')
+
+      const numberField = cardFields.NumberField()
+      await numberField.render('#cf-card-number')
+
+      const cvvField = cardFields.CVVField()
+      await cvvField.render('#cf-cvv')
+
+      const expiryField = cardFields.ExpiryField()
+      await expiryField.render('#cf-expiration-date')
+
+      document.querySelector("#form-cf-card").addEventListener('submit', (event) => {
+        event.preventDefault()
+        cardFields.submit()
+      })
+    } else {
+      alert("Not eligible for CardFields!")
+    }
+  }
+  loadCardFields.cardFields = cardFields
+  return loadCardFields
 }
 
 function getContingencies() {
@@ -229,6 +313,7 @@ function hostedFieldsClosure() {
   let options
   let createOrder = async function () {
     console.group("Creating the order...")
+
     console.log("Getting order options...")
     options = getOptions();
     ({ authHeader } = options)
@@ -249,15 +334,15 @@ function hostedFieldsClosure() {
   }
   let fields = {
     number: {
-      selector: "#card-number",
+      selector: "#hf-card-number",
       placeholder: "4111 1111 1111 1111"
     },
     cvv: {
-      selector: "#cvv",
+      selector: "#hf-cvv",
       placeholder: "123"
     },
     expirationDate: {
-      selector: "#expiration-date",
+      selector: "#hf-expiration-date",
       placeholder: "MM/YY"
     }
   }
@@ -301,15 +386,15 @@ function hostedFieldsClosure() {
     event.preventDefault()
     await hostedFields.submit({
       // Cardholder's first and last name
-      cardholderName: document.getElementById('card-holder-name').value,
+      cardholderName: document.getElementById('hf-card-holder-name').value,
       // Billing Address
       billingAddress: {
-        streetAddress: document.getElementById('card-billing-address-street').value,
-        extendedAddress: document.getElementById('card-billing-address-unit').value,
-        region: document.getElementById('card-billing-address-state').value,
-        locality: document.getElementById('card-billing-address-city').value,
-        postalCode: document.getElementById('card-billing-address-zip').value,
-        countryCodeAlpha2: document.getElementById('card-billing-address-country').value.toUpperCase()
+        streetAddress: document.getElementById('hf-billing-address-street').value,
+        extendedAddress: document.getElementById('hf-billing-address-unit').value,
+        region: document.getElementById('hf-billing-address-state').value,
+        locality: document.getElementById('hf-billing-address-city').value,
+        postalCode: document.getElementById('hf-billing-address-zip').value,
+        countryCodeAlpha2: document.getElementById('hf-billing-address-country').value.toUpperCase()
       },
       // Trigger 3D Secure authentication
       contingencies: getContingencies()
@@ -325,10 +410,10 @@ function hostedFieldsClosure() {
         createOrder: createOrder,
         fields: fields,
       })
-      document.querySelector('#form-hosted-fields').onsubmit = onSubmit
+      document.getElementById('form-hf-card').onsubmit = onSubmit
     } else {
       alert("Not eligible for hosted fields. Sorry!")
-      document.querySelector("#form-hosted-fields").style = 'display: none'
+      document.getElementById("form-hf-card").style = 'display: none'
     }
   }
   return loadHostedFields

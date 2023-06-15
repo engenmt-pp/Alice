@@ -115,9 +115,17 @@ function selectTab(event) {
 
   if (target.id.includes('branded')) {
     const loadButtons = brandedClosure()
+    console.log('buttons:', loadButtons.buttons)
     buildScriptElement(loadButtons, hosted = false)
     addOnChange(() => {
       buildScriptElement(loadButtons, hosted = false)
+    })
+  } else if (target.id.includes('card')) {
+    const loadCardFields = cardFieldsClosure()
+    console.log('cardFields:', loadCardFields.cardFields)
+    buildScriptElement(loadCardFields, hosted = false)
+    addOnChange(() => {
+      buildScriptElement(loadCardFields, hosted = false)
     })
   }
 
