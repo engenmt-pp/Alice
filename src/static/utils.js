@@ -32,6 +32,11 @@ function getPartnerMerchantInfo() {
   if (partnerClientId !== null) {
     info.partnerClientId = partnerClientId.value
   }
+
+  const BNCode = document.getElementById('bn-code')
+  if (BNCode !== null) {
+    info.BNCode = BNCode.value
+  }
   return info
 }
 
@@ -109,27 +114,29 @@ function selectTab(event) {
    * It deactivates all top-level nav buttons except for the target and
    * deactivates all top-level divs except the div corresponding to the target.
    */
+
   const target = event.target
+  const target_id = target.id
+  const curr = document.querySelector('#top-level-buttons .active')
+  let curr_id
+  if (curr != null) {
+    curr_id = curr.id
+  }
+
   deactivate('#top-level-buttons button')
   activate(target)
 
-  if (target.id.includes('branded')) {
-    const loadButtons = brandedClosure()
-    console.log('buttons:', loadButtons.buttons)
-    buildScriptElement(loadButtons, hosted = false)
-    addOnChange(() => {
-      buildScriptElement(loadButtons, hosted = false)
-    })
-  } else if (target.id.includes('card')) {
-    const loadCardFields = cardFieldsClosure()
-    console.log('cardFields:', loadCardFields.cardFields)
-    buildScriptElement(loadCardFields, hosted = false)
-    addOnChange(() => {
-      buildScriptElement(loadCardFields, hosted = false)
-    })
+  if (target_id.includes('branded') || target_id.includes('card')) {
+    if (curr_id == null || curr_id.includes('hosted') || curr_id == target_id) {
+      const loadCheckout = brandedAndCardFieldsClosure()
+      buildScriptElement(loadCheckout, hosted = false)
+      addOnChange(() => {
+        buildScriptElement(loadCheckout, hosted = false)
+      })
+    }
   }
 
-  const divId = target.id.replace('button-', 'tab-')
+  const divId = target_id.replace('button-', 'tab-')
   const div = document.getElementById(divId)
   deactivate('#top-level-nav ~ div')
   activate(div)

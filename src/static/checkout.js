@@ -62,8 +62,9 @@ async function buildScriptElement(onload, hosted = false) {
   query.set("commit", true)
   query.set('components', hosted ? 'hosted-fields' : 'buttons,card-fields')
   query.set('enable-funding', 'card,paylater,venmo')
+  query.set("debug", true)
   const vault = Boolean(options['vault-level'])
-  query.set("vault", vault)
+  // query.set("vault", vault)
 
   console.log(`PayPal JS SDK URL: ${url}`)
 
@@ -103,14 +104,14 @@ async function resetButtonContainer() {
   oldContainer.replaceWith(newContainer)
 }
 
-function brandedClosure() {
+function brandedAndCardFieldsClosure() {
   let options
   let onClick = function ({ fundingSource }) {
     console.group("Button clicked!")
     console.log('fundingSource:', fundingSource)
     console.groupEnd()
   }
-  let createVaultSetupToken = async function ({ paymentSource }) {
+  let createVaultSetupToken = async function ({ paymentSource } = {}) {
     console.group("Creating the vault setup token...")
     console.log('paymentSource:', paymentSource)
 
@@ -130,7 +131,7 @@ function brandedClosure() {
     console.groupEnd()
     return setupTokenId
   }
-  let createOrder = async function ({ paymentSource }) {
+  let createOrder = async function ({ paymentSource } = {}) {
     console.group("Creating the order...")
     console.log('paymentSource:', paymentSource)
 
@@ -169,10 +170,9 @@ function brandedClosure() {
       return actions.restart()
     }
   }
-  let createVaultPaymentToken = async function ({ vaultSetupToken }) {
+  let createVaultPaymentToken = async function ({ vaultSetupToken } = {}) {
     console.group(`Vault setup token ${vaultSetupToken} was approved!`)
     console.log('Creating vault token...')
-    options['setup-token'] = vaultSetupToken
     const createResp = await fetch(`/api/vault/setup-tokens/${vaultSetupToken}`, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
@@ -187,7 +187,14 @@ function brandedClosure() {
     console.groupEnd()
     return paymentTokenId
   }
+  let onError = function (data) {
+    console.group('Error!')
+    console.log('data:', data)
+    alert("An error with the JS SDK occurred! Check the console for more information.")
+    console.groupEnd()
+  }
   let buttons
+  let cardFields
   async function loadButtons() {
     if (typeof buttons !== 'undefined') await buttons.close()
     let methods
@@ -197,12 +204,14 @@ function brandedClosure() {
         onClick: onClick,
         createVaultSetupToken: createVaultSetupToken,
         onApprove: createVaultPaymentToken,
+        onError: onError
       }
     } else {
       methods = {
         onClick: onClick,
         createOrder: createOrder,
         onApprove: onApprove,
+        onError: onError
       }
     }
     buttons = await paypal.Buttons(methods)
@@ -212,65 +221,22 @@ function brandedClosure() {
         console.log('Caught an error while rendering checkout:', err)
       })
   }
-  loadButtons.buttons = buttons
-  return loadButtons
-}
-
-function cardFieldsClosure() {
-  let options
-  let createOrder = async function ({ paymentSource } = {}) {
-    console.group("Creating the order...")
-    console.log('paymentSource:', paymentSource)
-
-    console.log("Getting order options...")
-    options = getOptions()
-    const createResp = await fetch('/api/orders/create', {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify(options)
-    })
-    const createData = await createResp.json()
-    const { formatted, orderId } = createData;
-    ({ authHeader } = createData)
-    addApiCalls(formatted)
-
-    console.log(`Order ${orderId} created!`)
-    console.groupEnd()
-    return orderId
-  }
-  let onApprove = async function ({ paymentSource, orderID: orderId }) {
-    console.group(`Order ${orderId} was approved!`)
-    console.log('paymentSource:', paymentSource)
-
-    console.log(`Getting status of order ${orderId}...`)
-    const statusResp = await fetch(`/api/orders/status/${orderId}`, {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify(options)
-    })
-    const statusData = await statusResp.json()
-    const { formatted: statusFormatted } = statusData
-    addApiCalls(statusFormatted)
-    console.groupEnd()
-
-    console.group(`Capturing order ${orderId}...`)
-    const captureResp = await fetch(`/api/orders/capture/${orderId}`, {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify(options)
-    })
-    const captureData = await captureResp.json()
-    const { formatted: captureFormatted } = captureData
-
-    addApiCalls(captureFormatted)
-    console.groupEnd()
-  }
-  let cardFields
   async function loadCardFields() {
-    if (typeof cardFields !== 'undefined') await buttons.close()
-    let methods = {
-      createOrder: createOrder,
-      onApprove: onApprove,
+    // if (typeof cardFields !== 'undefined') await buttons.close()
+    let methods
+    const vaultPref = document.getElementById('vault-preference').value
+    if (vaultPref === 'without-purchase') {
+      methods = {
+        createVaultSetupToken: createVaultSetupToken,
+        onApprove: createVaultPaymentToken,
+        // onError: onError
+      }
+    } else {
+      methods = {
+        createOrder: createOrder,
+        onApprove: onApprove,
+        onError: onError
+      }
     }
     cardFields = paypal.CardFields({
       styles: {
@@ -300,9 +266,100 @@ function cardFieldsClosure() {
       alert("Not eligible for CardFields!")
     }
   }
-  loadCardFields.cardFields = cardFields
-  return loadCardFields
+  async function loadBoth() {
+    await loadButtons()
+    await loadCardFields()
+  }
+  return loadBoth
 }
+
+// function cardFieldsClosure() {
+//   let options
+//   let createOrder = async function ({ paymentSource } = {}) {
+//     console.group("Creating the order...")
+//     console.log('paymentSource:', paymentSource)
+
+//     console.log("Getting order options...")
+//     options = getOptions()
+//     const createResp = await fetch('/api/orders/create', {
+//       headers: { 'Content-Type': 'application/json' },
+//       method: 'POST',
+//       body: JSON.stringify(options)
+//     })
+//     const createData = await createResp.json()
+//     const { formatted, orderId } = createData;
+//     ({ authHeader } = createData)
+//     addApiCalls(formatted)
+
+//     console.log(`Order ${orderId} created!`)
+//     console.groupEnd()
+//     return orderId
+//   }
+//   let onApprove = async function ({ paymentSource, orderID: orderId }) {
+//     console.group(`Order ${orderId} was approved!`)
+//     console.log('paymentSource:', paymentSource)
+
+//     console.log(`Getting status of order ${orderId}...`)
+//     const statusResp = await fetch(`/api/orders/status/${orderId}`, {
+//       headers: { 'Content-Type': 'application/json' },
+//       method: 'POST',
+//       body: JSON.stringify(options)
+//     })
+//     const statusData = await statusResp.json()
+//     const { formatted: statusFormatted } = statusData
+//     addApiCalls(statusFormatted)
+//     console.groupEnd()
+
+//     console.group(`Capturing order ${orderId}...`)
+//     const captureResp = await fetch(`/api/orders/capture/${orderId}`, {
+//       headers: { 'Content-Type': 'application/json' },
+//       method: 'POST',
+//       body: JSON.stringify(options)
+//     })
+//     const captureData = await captureResp.json()
+//     const { formatted: captureFormatted } = captureData
+
+//     addApiCalls(captureFormatted)
+//     console.groupEnd()
+//   }
+//   let cardFields
+//   async function loadCardFields() {
+//     if (typeof cardFields !== 'undefined') await buttons.close()
+//     let methods = {
+//       createOrder: createOrder,
+//       onApprove: onApprove,
+//     }
+//     cardFields = paypal.CardFields({
+//       styles: {
+//         '.valid': { 'color': 'green' },
+//         '.invalid': { 'color': 'red' }
+//       },
+//       ...methods
+//     })
+//     if (cardFields.isEligible()) {
+//       const nameField = cardFields.NameField()
+//       await nameField.render('#cf-card-holder-name')
+
+//       const numberField = cardFields.NumberField()
+//       await numberField.render('#cf-card-number')
+
+//       const cvvField = cardFields.CVVField()
+//       await cvvField.render('#cf-cvv')
+
+//       const expiryField = cardFields.ExpiryField()
+//       await expiryField.render('#cf-expiration-date')
+
+//       document.querySelector("#form-cf-card").addEventListener('submit', (event) => {
+//         event.preventDefault()
+//         cardFields.submit()
+//       })
+//     } else {
+//       alert("Not eligible for CardFields!")
+//     }
+//   }
+//   loadCardFields.cardFields = cardFields
+//   return loadCardFields
+// }
 
 function getContingencies() {
   return [document.getElementById('3ds-preference').value]

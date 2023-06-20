@@ -178,7 +178,11 @@ class Vault:
 @bp.route("/setup-tokens", methods=("POST",))
 def create_setup_token():
     data = request.get_json()
+    if data is None:
+        data = {"vault-level": "MERCHANT"}
+
     data_filtered = {key: value for key, value in data.items() if value}
+
     current_app.logger.debug(
         f"Creating a vault setup token with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
@@ -195,7 +199,9 @@ def create_setup_token():
 @bp.route("/setup-tokens/<setup_token_id>", methods=("POST",))
 def create_payment_token(setup_token_id):
     data = request.get_json()
-    data["setup-token-id"] = setup_token_id
+    if data is None:
+        data = {"vault-level": "MERCHANT"}
+
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
         f"Creating a vault payment token with (filtered) data = {json.dumps(data_filtered, indent=2)}"

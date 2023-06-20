@@ -76,6 +76,17 @@
                 </button>
               </span>
               <div class="break"></div>
+              <!-- Partner BN code -->
+              <label for="partner-bn-code">
+                BN Code
+              </label>
+              <span>
+                <input name="partner-bn-code" id="partner-bn-code" value="{{ partner_bn_code }}" class="monospaced"></input>
+                <button type="button" onclick="copyToClipboard('partner-bn-code')" class="action">
+                  Copy
+                </button>
+              </span>
+              <div class="break"></div>
               {% block merchant_id %}
               <!-- Merchant ID -->
               <label for="merchant-id">
