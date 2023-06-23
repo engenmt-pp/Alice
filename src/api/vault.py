@@ -104,7 +104,7 @@ class Vault:
             headers=headers,
             json=data,
         )
-        self.formatted["get-setup-token"] = format_request_and_response(response)
+        self.formatted["create-setup-token"] = format_request_and_response(response)
         response_dict = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
@@ -133,7 +133,7 @@ class Vault:
             headers=headers,
             json=data,
         )
-        self.formatted["get-payment-token"] = format_request_and_response(response)
+        self.formatted["create-payment-token"] = format_request_and_response(response)
         response_dict = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
@@ -182,8 +182,6 @@ class Vault:
 @bp.route("/setup-tokens", methods=("POST",))
 def create_setup_token():
     data = request.get_json()
-    if data is None:
-        data = {"vault-level": "MERCHANT"}
 
     data_filtered = {key: value for key, value in data.items() if value}
 

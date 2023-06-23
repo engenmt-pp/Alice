@@ -19,22 +19,22 @@ function getPartnerMerchantInfo() {
   const info = {}
 
   const partnerId = document.getElementById('partner-id')
-  if (partnerId !== null) {
+  if (partnerId != null) {
     info.partnerId = partnerId.value
   }
 
   const merchantId = document.getElementById('merchant-id')
-  if (merchantId !== null) {
+  if (merchantId != null) {
     info.merchantId = merchantId.value
   }
 
   const partnerClientId = document.getElementById('partner-client-id')
-  if (partnerClientId !== null) {
+  if (partnerClientId != null) {
     info.partnerClientId = partnerClientId.value
   }
 
   const BNCode = document.getElementById('bn-code')
-  if (BNCode !== null) {
+  if (BNCode != null) {
     info.BNCode = BNCode.value
   }
   return info

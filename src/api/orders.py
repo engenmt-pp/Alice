@@ -313,11 +313,11 @@ class Order:
         endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}/capture")
         headers = self.build_headers()
 
-        data = {}
-
         payment_instruction = self.build_payment_instruction(for_call="capture")
         if payment_instruction:
-            data["payment_instruction"] = payment_instruction
+            data = {"payment_instruction": payment_instruction}
+        else:
+            data = None
 
         response = requests.post(endpoint, headers=headers, json=data)
         self.formatted["capture-order"] = format_request_and_response(response)
@@ -333,10 +333,11 @@ class Order:
 
         headers = self.build_headers()
 
-        data = None
         payment_source = self.build_payment_source(for_call="authorize")
         if payment_source:
             data = {"payment_source": payment_source}
+        else:
+            data = None
 
         response = requests.post(endpoint, headers=headers, json=data)
         self.formatted["authorize-order"] = format_request_and_response(response)

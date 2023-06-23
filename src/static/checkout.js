@@ -60,13 +60,15 @@ async function buildScriptElement(onload, hosted = false) {
   query.set("intent", intent.toLowerCase())
   query.set("currency", currency)
   query.set("commit", true)
-  query.set('components', hosted ? 'hosted-fields' : 'buttons,card-fields')
-  query.set('enable-funding', 'card,paylater,venmo')
+  if (hosted) {
+    query.set('components', 'hosted-fields')
+  } else {
+    query.set('components', 'buttons,card-fields')
+    query.set('enable-funding', 'card,paylater,venmo')
+  }
   query.set("debug", true)
-  const vault = Boolean(options['vault-level'])
-  // query.set("vault", vault)
 
-  console.log(`PayPal JS SDK URL: ${url}`)
+  console.log('PayPal JS SDK URL:', url)
 
   const scriptElement = document.createElement('script')
   scriptElement.id = 'paypal-js-sdk'
@@ -232,7 +234,6 @@ function brandedAndCardFieldsClosure() {
       methods = {
         createVaultSetupToken: createVaultSetupToken,
         onApprove: createVaultPaymentToken,
-        // onError: onError
       }
     } else {
       methods = {
@@ -355,9 +356,9 @@ function hostedFieldsClosure() {
     '.number': {
       'font-family': 'monospace',
     },
-    '.valid': {
-      'color': 'green'
-    }
+    '.valid': { 'color': 'green' },
+    '.invalid': { 'color': 'red' }
+
   }
   let hostedFields
   async function onSubmit(event) {
