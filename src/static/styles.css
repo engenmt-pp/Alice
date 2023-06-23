@@ -405,11 +405,14 @@ div.inactive {
         background-color: var(--dark-bg-0);
     }
 }
+#form-cf-card > button,
 #form-hf-card > button {
     background-color: green;
     color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
+    padding: 4px 8px;
+    text-transform: capitalize;
+    border-radius: 4px;
+    display: block;
 }
 
 
@@ -434,13 +437,4 @@ div.inactive {
         background-color: var(--dark-bg-1);
         color: var(--dark-text-1);
     }
-}
-
-#pay {
-    background-color: green;
-    color: white;
-    padding: 4px 8px;
-    text-transform: capitalize;
-    border-radius: 4px;
-    margin: 0.5rem 0;
 }
