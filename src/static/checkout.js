@@ -78,6 +78,7 @@ async function buildScriptElement(onload, hosted = false) {
     const clientToken = await getClientToken()
     scriptElement.setAttribute('data-client-token', clientToken)
   }
+  const vault = Boolean(options['vault-preference'])
   if (vault) {
     const idToken = await getIdToken()
     scriptElement.setAttribute('data-user-id-token', idToken)
