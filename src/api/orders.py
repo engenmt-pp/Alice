@@ -29,6 +29,10 @@ class Order:
         self.auth_id = kwargs.get("auth-id")
 
         self.auth_header = kwargs.get("authHeader")
+        self.payment_source_type = kwargs.get(
+            "payment-source",
+            "card",  # If 'payment-source' is undefined, it must be a card transaction!
+        )
 
         self.currency = kwargs.get("currency")
         self.intent = kwargs.get("intent")
@@ -42,10 +46,11 @@ class Order:
         self.vault_level = kwargs.get("vault-level")
         self.vault_preference = kwargs.get("vault-preference")
         self.vault_id = kwargs.get("vault-id")
+        self.customer_id = kwargs.get("customer-id")
         try:
             self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
         except KeyError:
-            self.include_auth_assertion = self.vault_preference == "MERCHANT"
+            self.include_auth_assertion = self.vault_level == "MERCHANT"
         self.include_payee = not self.include_auth_assertion
         self.include_request_id = (
             True  # This is required to specify `experience_context`.
@@ -213,28 +218,49 @@ class Order:
             context["shipping_preference"] = self.shipping_preference
         return context
 
-    def build_payment_source(self):
+    def build_payment_source(self, for_call):
+        context = self.build_context()
+        payment_source_body = {
+            "experience_context": context,
+        }
+
+        match (self.intent, for_call):
+            case ("CAPTURE", "create"):
+                pass
+            case ("AUTHORIZE", "authorize"):
+                del payment_source_body["experience_context"]
+            case _:
+                # If we're trying to do anything other than
+                # • 'create an intent=capture order' or
+                # • 'authorize an intent=authorize order',
+                # then just return without an FI attached.
+                return {self.payment_source_type: payment_source_body}
+
         if self.ba_id:
             payment_source = {"token": {"id": self.ba_id, "type": "BILLING_AGREEMENT"}}
             return payment_source
 
         context = self.build_context()
-        paypal = {
+        payment_source_body = {
             "experience_context": context,
         }
 
         if self.vault_preference == "use-vault-id" and self.vault_id:
-            paypal["vault_id"] = self.vault_id
+            payment_source_body["vault_id"] = self.vault_id
         elif self.vault_preference == "on-success":
-            paypal["attributes"] = {
+            attributes = {
                 "vault": {
                     "store_in_vault": "ON_SUCCESS",
                     "usage_type": self.vault_level,
                     "permit_multiple_payment_tokens": True,
                 }
             }
+            if self.customer_id:
+                attributes["customer"] = {"id": self.customer_id}
 
-        payment_source = {"paypal": paypal}
+            payment_source_body["attributes"] = attributes
+
+        payment_source = {self.payment_source_type: payment_source_body}
         return payment_source
 
     def create(self):
@@ -246,12 +272,13 @@ class Order:
         headers = self.build_headers()
 
         purchase_units = [self.build_purchase_unit()]
-        payment_source = self.build_payment_source()
         data = {
             "intent": self.intent,
             "purchase_units": purchase_units,
-            "payment_source": payment_source,
         }
+        payment_source = self.build_payment_source(for_call="create")
+        if payment_source:
+            data["payment_source"] = payment_source
 
         response = requests.post(
             endpoint,
@@ -286,11 +313,11 @@ class Order:
         endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}/capture")
         headers = self.build_headers()
 
-        data = {}
-
         payment_instruction = self.build_payment_instruction(for_call="capture")
         if payment_instruction:
-            data["payment_instruction"] = payment_instruction
+            data = {"payment_instruction": payment_instruction}
+        else:
+            data = None
 
         response = requests.post(endpoint, headers=headers, json=data)
         self.formatted["capture-order"] = format_request_and_response(response)
@@ -306,7 +333,13 @@ class Order:
 
         headers = self.build_headers()
 
-        response = requests.post(endpoint, headers=headers)
+        payment_source = self.build_payment_source(for_call="authorize")
+        if payment_source:
+            data = {"payment_source": payment_source}
+        else:
+            data = None
+
+        response = requests.post(endpoint, headers=headers, json=data)
         self.formatted["authorize-order"] = format_request_and_response(response)
 
         return response

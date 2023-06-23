@@ -17,13 +17,11 @@ def create_app():
 
     os.makedirs(app.instance_path, exist_ok=True)
 
-    from . import store_form
     from . import api, statuses, onboarding, checkout
 
     app.register_blueprint(api.bp)
 
     app.register_blueprint(checkout.bp)
-    app.register_blueprint(store_form.bp)
     app.register_blueprint(onboarding.bp)
     app.register_blueprint(statuses.bp)
     app.add_url_rule("/", endpoint="checkout.checkout")

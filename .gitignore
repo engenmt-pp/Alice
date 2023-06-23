@@ -2,10 +2,9 @@
 **/.DS_Store
 .env
 .vscode/
-src/my_secrets.py
-test.py
+instance/
+Confluence/
 partner_specific_config.py
 utils.py
-todo.yml
 notes.md
-Confluence/
+test.html

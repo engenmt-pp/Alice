@@ -15,6 +15,10 @@ bp = Blueprint("vault", __name__, url_prefix="/vault")
 class Vault:
     def __init__(self, **kwargs):
         self.auth_header = kwargs.get("authHeader", None)
+        self.payment_source_type = kwargs.get(
+            "payment-source",
+            "card",  # If 'payment-source' is undefined, it must be a card transaction!
+        )
 
         self.vault_level = kwargs.get("vault-level")
         self.vault_id = kwargs.get("vault-id")
@@ -64,18 +68,18 @@ class Vault:
                 if self.shipping_preference:
                     experience_context["shipping_preference"] = self.shipping_preference
 
-                payment_source = {
-                    "paypal": {
-                        "description": "A description of a PayPal payment source.",
-                        "permit_multiple_payment_tokens": True,
-                        "usage_pattern": "IMMEDIATE",
-                        "customer_type": "CONSUMER",
-                        "usage_type": self.vault_level,
-                        "experience_context": experience_context,
-                    }
+                payment_source_body = {
+                    "description": "A description of a PayPal payment source.",
+                    "permit_multiple_payment_tokens": True,
+                    "usage_pattern": "IMMEDIATE",
+                    "customer_type": "CONSUMER",
+                    "usage_type": self.vault_level,
+                    "experience_context": experience_context,
                 }
                 if self.include_shipping_address:
-                    payment_source["paypal"]["shipping"] = default_shipping_address()
+                    payment_source_body["shipping"] = default_shipping_address()
+
+                payment_source = {self.payment_source_type: payment_source_body}
 
             case "payment":
                 payment_source = {
@@ -100,7 +104,7 @@ class Vault:
             headers=headers,
             json=data,
         )
-        self.formatted["get-setup-token"] = format_request_and_response(response)
+        self.formatted["create-setup-token"] = format_request_and_response(response)
         response_dict = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
@@ -129,7 +133,7 @@ class Vault:
             headers=headers,
             json=data,
         )
-        self.formatted["get-payment-token"] = format_request_and_response(response)
+        self.formatted["create-payment-token"] = format_request_and_response(response)
         response_dict = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
@@ -178,7 +182,9 @@ class Vault:
 @bp.route("/setup-tokens", methods=("POST",))
 def create_setup_token():
     data = request.get_json()
+
     data_filtered = {key: value for key, value in data.items() if value}
+
     current_app.logger.debug(
         f"Creating a vault setup token with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
@@ -196,6 +202,7 @@ def create_setup_token():
 def create_payment_token(setup_token_id):
     data = request.get_json()
     data["setup-token-id"] = setup_token_id
+
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
         f"Creating a vault payment token with (filtered) data = {json.dumps(data_filtered, indent=2)}"

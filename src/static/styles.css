@@ -229,6 +229,15 @@ fieldset > span > button {
     min-width: max-content;
     flex: none;
 }
+fieldset > button {
+    flex: 1 0 100%;
+    text-align: center;
+    background-color: var(--blue-600);
+    border-radius: 0.25rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    color: var(--white);
+}
 button {
     cursor: pointer;
 }
@@ -369,26 +378,40 @@ div.inactive {
     max-width: 40rem;
 }
 
-#form-hosted-fields {
-    max-width: 12rem;
+#form-hf-card {
+    max-width: 20ch;
     font-size: 1rem;
 }
-#form-hosted-fields > label {
+#form-hf-card > label {
     display: block;
     width: 100%;
     padding: 1px 2px;
     margin: 5px 0;
 }
-#form-hosted-fields > input {
+#form-hf-card > div,
+#form-hf-card > input {
     background-color: var(--light-bg-1);
-    color: var(--light-text-1);
     display: block;
+    height: 2rem;
     width: 100%;
-    margin: 2.5px 0;
+    margin: 0.5ch 0;
     padding: 2px 4px;
     border: 1px solid;
     border-radius: 0.25rem;
 }
+@media (prefers-color-scheme: dark) {
+    #form-hf-card > div,
+    #form-hf-card > input {
+        background-color: var(--dark-bg-0);
+    }
+}
+#form-hf-card > button {
+    background-color: green;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
 
 #card-number,
 #expiration-date,
