@@ -23,28 +23,28 @@
       <button id="button-checkout-card" type="button" onclick="selectTab(event)">Checkout - Card Fields</button>
     </li>
     <li>
-      <button id="button-checkout-hosted" type="button" onclick="selectHosted(event)">Checkout - Hosted Fields</button>
+      <button id="button-checkout-hosted" type="button" onclick="selectTabHostedClosure()(event)">Checkout - Hosted Fields</button>
     </li>
     <li>
       <button id="button-api-calls" type="button" onclick="selectTab(event)">API Calls</button>
     </li>
   </ol>
 </nav>
+<script>
+  window.addEventListener('DOMContentLoaded', async function() {
+    const options = loadOptions()
+    console.log('options:', options)
+    window.sessionStorage.clear()
+    if (options.loadHosted) {
+      document.getElementById('button-checkout-hosted').click()
+    } else {
+      document.getElementById('button-checkout-branded').click()
+    }
+  })
+</script>
 <div id="tab-checkout-branded">
   <div id="paypal-button-container"></div>
   <script id="paypal-js-sdk"></script>
-  <script>
-    window.addEventListener('DOMContentLoaded', async function() {
-      const options = loadOptions()
-      console.log('options:', options)
-      window.sessionStorage.clear()
-      if (options.loadHosted) {
-        document.getElementById('button-checkout-hosted').click()
-      } else {
-        document.getElementById('button-checkout-branded').click()
-      }
-    })
-  </script>
 </div>
 <div id="tab-checkout-card">
   <form id="form-cf-card">
@@ -66,30 +66,25 @@
 <div id="tab-checkout-hosted">
   <form id="form-hf-card">
     <label for="hf-card-number">Card Number</label>
-    <div id="hf-card-number"></div>
+    <div id="hf-card-number" class='input'></div>
 
     <label for="hf-expiration-date">Expiration Date</label>
-    <div id="hf-expiration-date"></div>
+    <div id="hf-expiration-date" class='input'></div>
 
     <label for="hf-cvv">CVV</label>
-    <div id="hf-cvv"></div>
+    <div id="hf-cvv" class='input'></div>
 
     <label for="hf-card-holder-name">Name on Card</label>
-    <input type="text" id="hf-card-holder-name" name="hf-card-holder-name" placeholder="card holder name"/>
+    <input type="text" id="hf-card-holder-name" name="hf-card-holder-name" placeholder="Card holder name"/>
 
+    <br/>
     <label>Billing Address</label>
-    <input type="text" id="hf-billing-address-street" name="hf-billing-address-street" placeholder="street address"/>
-    <div class="break"></div>
-    <input type="text" id="hf-billing-address-unit" name="hf-billing-address-unit" placeholder="unit"/>
-    <div class="break"></div>
-    <input type="text" id="hf-billing-address-city" name="hf-billing-address-city" placeholder="city""/>
-    <div class="break"></div>
-    <input type="text" id="hf-billing-address-state" name="hf-billing-address-state" placeholder="state"/>
-    <div class="break"></div>
-    <input type="text" id="hf-billing-address-zip" name="hf-billing-address-zip" placeholder="zip / postal code"/>
-    <div class="break"></div>
-    <input type="text" id="hf-billing-address-country" name="hf-billing-address-country" placeholder="country code"/>
-    <div class="break"></div>
+    <input type="text" id="hf-billing-address-street" name="hf-billing-address-street" placeholder="Street address"/>
+    <input type="text" id="hf-billing-address-unit" name="hf-billing-address-unit" placeholder="Unit"/>
+    <input type="text" id="hf-billing-address-city" name="hf-billing-address-city" placeholder="City""/>
+    <input type="text" id="hf-billing-address-state" name="hf-billing-address-state" placeholder="State"/>
+    <input type="text" id="hf-billing-address-zip" name="hf-billing-address-zip" placeholder="Zip / postal code"/>
+    <input type="text" id="hf-billing-address-country" name="hf-billing-address-country" placeholder="Country code"/>
 
     <button value="submit" id="hf-pay">Pay</button>
   </form>

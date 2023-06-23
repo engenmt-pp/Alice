@@ -29,6 +29,10 @@ class Order:
         self.auth_id = kwargs.get("auth-id")
 
         self.auth_header = kwargs.get("authHeader")
+        self.payment_source_type = kwargs.get(
+            "payment-source",
+            "card",  # If 'payment-source' is undefined, it must be a card transaction!
+        )
 
         self.currency = kwargs.get("currency")
         self.intent = kwargs.get("intent")
@@ -42,10 +46,11 @@ class Order:
         self.vault_level = kwargs.get("vault-level")
         self.vault_preference = kwargs.get("vault-preference")
         self.vault_id = kwargs.get("vault-id")
+        self.customer_id = kwargs.get("customer-id")
         try:
             self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
         except KeyError:
-            self.include_auth_assertion = self.vault_preference == "MERCHANT"
+            self.include_auth_assertion = self.vault_level == "MERCHANT"
         self.include_payee = not self.include_auth_assertion
         self.include_request_id = (
             True  # This is required to specify `experience_context`.
@@ -219,22 +224,26 @@ class Order:
             return payment_source
 
         context = self.build_context()
-        paypal = {
+        payment_source_body = {
             "experience_context": context,
         }
 
         if self.vault_preference == "use-vault-id" and self.vault_id:
-            paypal["vault_id"] = self.vault_id
+            payment_source_body["vault_id"] = self.vault_id
         elif self.vault_preference == "on-success":
-            paypal["attributes"] = {
+            attributes = {
                 "vault": {
                     "store_in_vault": "ON_SUCCESS",
                     "usage_type": self.vault_level,
                     "permit_multiple_payment_tokens": True,
                 }
             }
+            if self.customer_id:
+                attributes["customer"] = {"id": self.customer_id}
 
-        payment_source = {"paypal": paypal}
+            payment_source_body["attributes"] = attributes
+
+        payment_source = {self.payment_source_type: payment_source_body}
         return payment_source
 
     def create(self):

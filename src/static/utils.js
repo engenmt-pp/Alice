@@ -76,38 +76,42 @@ function loadOptions() {
 }
 
 
-function selectHostedTab() {
-  let loadedHosted = false
-  function selectHosted(event) {
-    /** This is attached to the top-level "Checkout - Hosted" button.
+function selectTabHostedClosure() {
+  function saveAndReload() {
+    saveOptions(loadHosted = true)
+    location.reload()
+  }
+  function activateAndRenderHostedFields() {
+    /** This is attached to the top-level "Checkout - Hosted Fields" button.
      * It deactivates all top-level nav buttons except for the target and
      * deactivates all top-level divs except the div corresponding to the target.
      */
-    const target = event.target
+    const buttonHostedFields = document.getElementById('button-checkout-hosted')
     deactivate('#top-level-buttons button')
-    activate(target)
+    activate(buttonHostedFields)
 
-    if (loadedHosted) {
-      // Hosted fields can't be reloaded, so we just save the options from the sidebar and reload the page.
-      saveOptions(loadHosted = true)
-      location.reload()
-    } else {
-      const loadHostedFields = hostedFieldsClosure()
-      buildScriptElement(loadHostedFields, hosted = true)
-      addOnChange(loadHostedFields)
-      loadHostedFields()
-      loadedHosted = true
-    }
+    const renderHostedFields = hostedFieldsClosure()
+    buildScriptElement(renderHostedFields, hosted = true)
+    addOnChange(saveAndReload)
 
-    const divId = target.id.replace('button-', 'tab-')
-    const div = document.getElementById(divId)
+    const divIdHostedFields = buttonHostedFields.id.replace('button-', 'tab-')
+    const divHostedFields = document.getElementById(divIdHostedFields)
     deactivate('#top-level-nav ~ div')
-    activate(div)
+    activate(divHostedFields)
   }
-  return selectHosted
+  function loadHostedFields(event) {
+    const hostedFieldCardNumber = document.getElementById('braintree-hosted-field-number')
+    if (hostedFieldCardNumber != null) {
+      /** The 'braintree-hosted-field-number' iframe exists in the DOM,
+       * so we'll have to reload the page to re-render the hosted fields.
+       */
+      saveAndReload()
+    } else {
+      activateAndRenderHostedFields()
+    }
+  }
+  return loadHostedFields
 }
-let selectHosted = selectHostedTab()
-
 
 function selectTab(event) {
   /** This is attached to the top-level "Checkout - Branded" and "API Calls" buttons.
@@ -127,11 +131,11 @@ function selectTab(event) {
   activate(target)
 
   if (target_id.includes('branded') || target_id.includes('card')) {
-    if (curr_id == null || curr_id.includes('hosted') || curr_id == target_id) {
+    if (curr_id == null || curr_id.includes('hosted')) {
       const loadCheckout = brandedAndCardFieldsClosure()
-      buildScriptElement(loadCheckout, hosted = false)
+      buildScriptElement(loadCheckout)
       addOnChange(() => {
-        buildScriptElement(loadCheckout, hosted = false)
+        buildScriptElement(loadCheckout)
       })
     }
   }
@@ -178,6 +182,12 @@ function createApiCallButton(id, divId) {
 
 
 function createApiCallDiv(id, contents) {
+  if (id === 'access-token') {
+    const prevElt = document.getElementById(id)
+    if (prevElt != null) {
+      prevElt.remove()
+    }
+  }
   const div = document.createElement('div')
 
   let n = 1
