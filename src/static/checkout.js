@@ -426,3 +426,58 @@ let addOnChange = (function () {
   }
   return innerAddOnChange
 })()
+
+async function payWithVaultedCard() {
+  let options
+  let authHeader
+  async function createOrder({ paymentSource } = {}) {
+    console.group("Creating the order...")
+    console.log('paymentSource:', paymentSource)
+
+    console.log("Getting order options...")
+    options = getOptions()
+    options['payment-source'] = "card"
+    options['vault-preference'] = "use-vault-id"
+    if (paymentSource != null) {
+      options['payment-source'] = paymentSource
+    }
+    const createResp = await fetch("/api/orders/create", {
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify(options),
+    })
+    const createData = await createResp.json()
+    const { formatted, orderId } = createData;
+    ({ authHeader } = createData)
+
+    addApiCalls(formatted)
+    console.log(`Order ${orderId} created!`)
+    console.groupEnd()
+    return orderId
+  }
+  async function authorizeAndOrCapture({ paymentSource, orderId }, actions) {
+    console.group(`Authorizing and/or capturing order ${orderId}!`)
+    console.log('paymentSource:', paymentSource)
+
+    options['authHeader'] = authHeader
+    const captureResp = await fetch(`/api/orders/capture/${orderId}`, {
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify(options),
+    })
+    const captureData = await captureResp.json()
+    const { formatted, error } = captureData
+
+    addApiCalls(formatted)
+    console.groupEnd()
+
+    if (error === "INSTRUMENT_DECLINED") {
+      return actions.restart()
+    }
+  }
+  console.group("Paying with vaulted card...")
+  const orderId = await createOrder({ paymentSource: 'card' })
+  await authorizeAndOrCapture({ orderId: orderId, paymentSource: 'card' })
+  console.groupEnd()
+
+}

@@ -218,7 +218,24 @@ class Order:
             context["shipping_preference"] = self.shipping_preference
         return context
 
-    def build_payment_source(self):
+    def build_payment_source(self, for_call):
+        context = self.build_context()
+        payment_source_body = {
+            "experience_context": context,
+        }
+
+        match (self.intent, for_call):
+            case ("CAPTURE", "create"):
+                pass
+            case ("AUTHORIZE", "authorize"):
+                del payment_source_body["experience_context"]
+            case _:
+                # If we're trying to do anything other than
+                # • 'create an intent=capture order' or
+                # • 'authorize an intent=authorize order',
+                # then just return without an FI attached.
+                return {self.payment_source_type: payment_source_body}
+
         if self.ba_id:
             payment_source = {"token": {"id": self.ba_id, "type": "BILLING_AGREEMENT"}}
             return payment_source
@@ -255,12 +272,13 @@ class Order:
         headers = self.build_headers()
 
         purchase_units = [self.build_purchase_unit()]
-        payment_source = self.build_payment_source()
         data = {
             "intent": self.intent,
             "purchase_units": purchase_units,
-            "payment_source": payment_source,
         }
+        payment_source = self.build_payment_source(for_call="create")
+        if payment_source:
+            data["payment_source"] = payment_source
 
         response = requests.post(
             endpoint,
@@ -315,7 +333,12 @@ class Order:
 
         headers = self.build_headers()
 
-        response = requests.post(endpoint, headers=headers)
+        data = None
+        payment_source = self.build_payment_source(for_call="authorize")
+        if payment_source:
+            data = {"payment_source": payment_source}
+
+        response = requests.post(endpoint, headers=headers, json=data)
         self.formatted["authorize-order"] = format_request_and_response(response)
 
         return response
