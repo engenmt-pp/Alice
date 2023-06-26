@@ -1,4 +1,3 @@
-let authHeader
 async function getIdToken() {
   console.groupCollapsed("Requesting ID token...")
 
@@ -109,6 +108,7 @@ async function resetButtonContainer() {
 
 function brandedAndCardFieldsClosure() {
   let options
+  let authHeader
   function onClick({ fundingSource }) {
     console.group("Button clicked!")
     console.log('fundingSource:', fundingSource)
@@ -122,6 +122,9 @@ function brandedAndCardFieldsClosure() {
     options = getOptions()
     if (paymentSource != null) {
       options['payment-source'] = paymentSource
+    }
+    if (authHeader != null) {
+      options.authHeader = authHeader
     }
     const createResp = await fetch("/api/orders/create", {
       headers: { "Content-Type": "application/json" },
@@ -141,6 +144,9 @@ function brandedAndCardFieldsClosure() {
     console.group(`Order ${orderId} was approved!`)
     console.log('paymentSource:', paymentSource)
 
+    if (authHeader != null) {
+      options.authHeader = authHeader
+    }
     const captureResp = await fetch(`/api/orders/capture/${orderId}`, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
@@ -165,6 +171,9 @@ function brandedAndCardFieldsClosure() {
     if (paymentSource != null) {
       options['payment-source'] = paymentSource
     }
+    if (authHeader != null) {
+      options.authHeader = authHeader
+    }
     const createResp = await fetch("/api/vault/setup-tokens", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
@@ -182,6 +191,10 @@ function brandedAndCardFieldsClosure() {
   async function createVaultPaymentToken({ vaultSetupToken: setupTokenId } = {}) {
     console.log(`Vault setup token ${setupTokenId} was approved!`)
     console.group('Creating vault payment token...')
+
+    if (authHeader != null) {
+      options.authHeader = authHeader
+    }
     const createResp = await fetch(`/api/vault/setup-tokens/${setupTokenId}`, {
       headers: { "Content-Type": "application/json" },
       method: "POST",

@@ -28,6 +28,8 @@ button {
   --zinc-100: rgb(244 244 245);
   --zinc-50: rgb(250 250 250);
 
+  --hcf-border: rgb(144 150 151);
+
   --blue-600: rgb(37 99 235);
   --blue-500: rgb(67 132 243);
   --blue-400: rgb(96 165 250);
@@ -241,6 +243,10 @@ fieldset > button {
 button {
     cursor: pointer;
 }
+button:disabled {
+    background-color: grey;
+    cursor: not-allowed;
+}
 .action {
     border-radius: 0.25rem;
     padding: 3px 6px;
@@ -378,11 +384,13 @@ div.inactive {
     max-width: 40rem;
 }
 
-#form-hf-card {
+#form-hf-card,
+#form-cf-card {
     max-width: 20ch;
     font-size: 1rem;
 }
-#form-hf-card > label {
+#form-hf-card > label,
+#form-cf-card > label {
     display: block;
     width: 100%;
     padding: 1px 2px;
@@ -399,6 +407,16 @@ div.inactive {
     border: 1px solid;
     border-radius: 0.25rem;
 }
+#cf-card-holder-name {
+    background-color: var(--white);
+    display: block;
+    height: 2rem;
+    width: calc(100% - 12px);
+    margin: 12px 6px;
+    padding: 2px 4px;
+    border: 1px solid var(--hcf-border);
+    border-radius: 0.25rem;
+}
 @media (prefers-color-scheme: dark) {
     #form-hf-card > div,
     #form-hf-card > input {
@@ -409,12 +427,12 @@ div.inactive {
 #form-hf-card > button {
     background-color: green;
     color: white;
+    margin: 12px 6px;
     padding: 4px 8px;
     text-transform: capitalize;
     border-radius: 4px;
     display: block;
 }
-
 
 #card-number,
 #expiration-date,
