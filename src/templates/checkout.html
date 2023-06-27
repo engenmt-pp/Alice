@@ -40,6 +40,13 @@
     } else {
       document.getElementById('button-checkout-branded').click()
     }
+    const oneClick = oneClickCheckout()
+    document.getElementById('one-click-paypal').onclick = () => {
+      oneClick('paypal')
+    }
+    document.getElementById('one-click-card').onclick = () => {
+      oneClick('card')
+    }
   })
 </script>
 <div id="tab-checkout-branded">

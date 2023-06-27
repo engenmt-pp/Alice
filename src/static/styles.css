@@ -243,6 +243,9 @@ fieldset > button {
 button {
     cursor: pointer;
 }
+button.half {
+    flex: 1 1 48%;
+}
 button:disabled {
     background-color: grey;
     cursor: not-allowed;

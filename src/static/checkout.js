@@ -298,12 +298,15 @@ function getContingencies() {
 function hostedFieldsClosure() {
   let orderId
   let options
+  let authHeader
   async function createOrder() {
     console.group("Creating the order...")
 
     console.log("Getting order options...")
     options = getOptions()
-
+    if (authHeader != null) {
+      options.authHeader = authHeader
+    }
     const createResp = await fetch('/api/orders/create', {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
@@ -312,6 +315,9 @@ function hostedFieldsClosure() {
     const createData = await createResp.json()
     const { formatted } = createData;
     ({ orderId, authHeader } = createData)
+    if (authHeader != null) {
+      options.authHeader = authHeader
+    }
 
     console.log(`Created order ${orderId}!`)
     addApiCalls(formatted)
@@ -321,6 +327,7 @@ function hostedFieldsClosure() {
   }
   async function getStatus() {
     console.log(`Getting status of order ${orderId}...`)
+
     const statusResp = await fetch(`/api/orders/status/${orderId}`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
@@ -328,8 +335,8 @@ function hostedFieldsClosure() {
     })
     const statusData = await statusResp.json()
     const { formatted } = statusData
+
     addApiCalls(formatted)
-    console.groupEnd()
   }
   async function captureOrder() {
     console.group(`Capturing order ${orderId}...`)
@@ -340,7 +347,8 @@ function hostedFieldsClosure() {
     })
     console.log(`Captured order ${orderId}!`)
     const captureData = await captureResp.json()
-    const { details, formatted, debug_id: debugId } = captureData
+    const { details, formatted } = captureData
+
     addApiCalls(formatted)
     console.groupEnd()
 
@@ -348,7 +356,6 @@ function hostedFieldsClosure() {
     if (errorDetail) {
       let msg = 'Sorry, your transaction could not be processed.'
       if (errorDetail.description) msg += `\n\n${errorDetail.description}`
-      if (debugId) msg += ` (${debugId})`
       return alert(msg) // Show a failure message
     }
   }
@@ -404,6 +411,8 @@ function hostedFieldsClosure() {
         fields: fields,
         styles: styles
       })
+      const payButton = await document.getElementById('hf-pay')
+      payButton.disabled = false
       document.getElementById('form-hf-card').onsubmit = onSubmit
     } else {
       alert("Not eligible for hosted fields. Sorry!")
@@ -442,19 +451,19 @@ let addOnChange = (function () {
   return innerAddOnChange
 })()
 
-async function payWithVaultedCard() {
+function oneClickCheckout() {
   let options
   let authHeader
-  async function createOrder({ paymentSource } = {}) {
+  async function createOrder({ paymentSource }) {
     console.group("Creating the order...")
     console.log('paymentSource:', paymentSource)
 
     console.log("Getting order options...")
     options = getOptions()
-    options['payment-source'] = "card"
-    options['vault-preference'] = "use-vault-id"
-    if (paymentSource != null) {
-      options['payment-source'] = paymentSource
+    options['vault-preference'] = "use-vault-token"
+    options['payment-source'] = paymentSource
+    if (options['vault-id'] === '') {
+      return alert('No vault ID provided!')
     }
     const createResp = await fetch("/api/orders/create", {
       headers: { "Content-Type": "application/json" },
@@ -465,16 +474,20 @@ async function payWithVaultedCard() {
     const { formatted, orderId } = createData;
     ({ authHeader } = createData)
 
+    if (orderId == null) {
+      throw new Error('Order creation failed!')
+    }
+
     addApiCalls(formatted)
     console.log(`Order ${orderId} created!`)
     console.groupEnd()
     return orderId
   }
-  async function authorizeAndOrCapture({ paymentSource, orderId }, actions) {
+  async function authorizeAndOrCaptureOrder({ paymentSource, orderId }) {
     console.group(`Authorizing and/or capturing order ${orderId}!`)
     console.log('paymentSource:', paymentSource)
 
-    options['authHeader'] = authHeader
+    options.authHeader = authHeader
     const captureResp = await fetch(`/api/orders/capture/${orderId}`, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
@@ -490,9 +503,22 @@ async function payWithVaultedCard() {
       return actions.restart()
     }
   }
-  console.group("Paying with vaulted card...")
-  const orderId = await createOrder({ paymentSource: 'card' })
-  await authorizeAndOrCapture({ orderId: orderId, paymentSource: 'card' })
-  console.groupEnd()
+  async function payWithVaultedPaymentToken(paymentSource) {
+    console.group("Initiating one-click checkout...")
+    console.log('paymentSource:', paymentSource)
 
+    const myOptions = { paymentSource: paymentSource }
+
+    const orderId = await createOrder(myOptions)
+    myOptions.orderId = orderId
+
+    if (options.intent === 'AUTHORIZE') {
+      await authorizeAndOrCaptureOrder(myOptions)
+    } else {
+      console.log('Order should be complete!')
+    }
+
+    console.groupEnd()
+  }
+  return payWithVaultedPaymentToken
 }
