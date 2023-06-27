@@ -140,7 +140,7 @@ function brandedAndCardFieldsClosure() {
     console.groupEnd()
     return orderId
   }
-  async function onApprove({ paymentSource, orderID: orderId }, actions) {
+  async function captureOrder({ paymentSource, orderID: orderId }, actions) {
     console.group(`Order ${orderId} was approved!`)
     console.log('paymentSource:', paymentSource)
 
@@ -231,7 +231,7 @@ function brandedAndCardFieldsClosure() {
       methods = {
         onClick: onClick,
         createOrder: createOrder,
-        onApprove: onApprove
+        onApprove: captureOrder
       }
     }
     buttons = await paypal.Buttons(methods)
@@ -252,7 +252,7 @@ function brandedAndCardFieldsClosure() {
     } else {
       methods = {
         createOrder: createOrder,
-        onApprove: onApprove,
+        onApprove: captureOrder,
         onError: onError
       }
     }
