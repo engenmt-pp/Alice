@@ -240,10 +240,13 @@ fieldset > button {
 }
 button {
     cursor: pointer;
+    text-align: center;
 }
 .action {
     border-radius: 0.25rem;
-    padding: 3px 6px;
+    min-width: 5ch;
+    padding-top: 3px;
+    padding-bottom: 3px;
     background-color: var(--blue-600);
     color: var(--white);
     text-transform: uppercase;
