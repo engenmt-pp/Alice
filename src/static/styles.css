@@ -32,6 +32,8 @@ button {
   --blue-500: rgb(67 132 243);
   --blue-400: rgb(96 165 250);
 
+  --red-600: rgb(220 38 38);
+
   --light-bg-0: var(--zinc-50);
   --light-bg-1: var(--zinc-100);
   --light-bg-2: var(--zinc-150);
@@ -191,9 +193,8 @@ fieldset > span {
     flex-wrap: nowrap;
     gap: 0.25em;
 }
-fieldset > span > input {
-    min-width: 10ch;
-    flex: 1 0 auto;
+fieldset input {
+    flex: 1 1 50%;
 }
 
 fieldset > select {
@@ -206,7 +207,7 @@ fieldset > select {
     */
 }
 
-fieldset > span > input,
+fieldset input,
 fieldset > select {
     font-size: 0.875rem;
     line-height: 1.25em;
@@ -218,7 +219,7 @@ fieldset > select {
     color: var(--light-text-5);
 }
 @media (prefers-color-scheme: dark) {
-    fieldset > span > input,
+    fieldset input,
     fieldset > select {
         background-color: var(--dark-bg-5);
         border-color: var(--dark-bg-7);
@@ -242,6 +243,9 @@ button {
     cursor: pointer;
     text-align: center;
 }
+button.half {
+    flex: 1 1 48%;
+}
 .action {
     border-radius: 0.25rem;
     min-width: 5ch;
@@ -261,6 +265,13 @@ button {
 .action:focus {
     outline: none;
     box-shadow: 0 0 0 3px var(--blue-400);
+}
+
+.action-get {
+    background-color: var(--blue-600);
+}
+.action-delete {
+    background-color: var(--red-600);
 }
 
 .break {
