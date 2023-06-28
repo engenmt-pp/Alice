@@ -245,7 +245,7 @@ class Order:
             "experience_context": context,
         }
 
-        if self.vault_preference == "use-vault-id" and self.vault_id:
+        if self.vault_preference == "use-vault-token" and self.vault_id:
             payment_source_body["vault_id"] = self.vault_id
         elif self.vault_preference == "on-success":
             attributes = {

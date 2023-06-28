@@ -20,7 +20,7 @@
       <button id="button-checkout-branded" type="button" onclick="selectTab(event)">Checkout - Branded</button>
     </li>
     <li>
-      <button id="button-checkout-card" type="button" onclick="selectTab(event)">Checkout - Card Fields</button>
+      <button id="button-checkout-card" type="button" onclick="selectTab(event)">Checkout - Hosted Card Fields</button>
     </li>
     <li>
       <button id="button-checkout-hosted" type="button" onclick="selectTabHostedClosure()(event)">Checkout - Hosted Fields</button>
@@ -40,6 +40,13 @@
     } else {
       document.getElementById('button-checkout-branded').click()
     }
+    const oneClick = oneClickCheckout()
+    document.getElementById('one-click-paypal').onclick = () => {
+      oneClick('paypal')
+    }
+    document.getElementById('one-click-card').onclick = () => {
+      oneClick('card')
+    }
   })
 </script>
 <div id="tab-checkout-branded">
@@ -58,7 +65,7 @@
     <div id="cf-cvv"></div>
 
     <label for="cf-card-holder-name">Name on Card</label>
-    <input type="text" id="cf-card-holder-name" name="cf-card-holder-name" placeholder="card holder name"/>
+    <input type="text" id="cf-card-holder-name" name="cf-card-holder-name" placeholder="Card holder name"/>
 
     <button value="submit" id="cf-pay">Pay</button>
   </form>
@@ -86,7 +93,7 @@
     <input type="text" id="hf-billing-address-zip" name="hf-billing-address-zip" placeholder="Zip / postal code"/>
     <input type="text" id="hf-billing-address-country" name="hf-billing-address-country" placeholder="Country code"/>
 
-    <button value="submit" id="hf-pay">Pay</button>
+    <button value="submit" id="hf-pay" disabled>Pay</button>
   </form>
 </div>
 <div id="tab-api-calls">

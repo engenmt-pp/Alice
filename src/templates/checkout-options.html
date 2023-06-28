@@ -9,7 +9,7 @@
     <select name="intent" id="intent">
       <option value="CAPTURE" selected>Capture</option>
       <option value="AUTHORIZE">Authorize</option>
-      <option value="TOKENIZE">Tokenize</option>
+      <!-- <option value="TOKENIZE">Tokenize</option> -->
     </select>
     <div class="break"></div>
     <label for="currency">
@@ -22,7 +22,7 @@
 </fieldset>
 <fieldset id="vault-options">
   <legend>
-    Vault v3 Options
+    Vault v3 options
   </legend>
   <fieldset>
     <label for="vault-preference">
@@ -30,7 +30,7 @@
     </label>
     <select name="vault-preference" id="vault-preference">
       <option value="">No vaulting</option>
-      <option value="use-vault-id">Pay with Vault ID</option>
+      <option value="use-customer-id">Pay with Customer ID</option>
       <option value="on-success">On success</option>
       <option value="without-purchase">Without purchase</option>
     </select>
@@ -58,14 +58,17 @@
       <input name="vault-id" id="vault-id" class="monospaced"/>
     </span>
     <div class="break"></div>
-    <button type="button" onclick="payWithVaultedCard()">
+    <button type="button" id='one-click-paypal' class="half">
+      Pay with vaulted PP Wallet
+    </button>
+    <button type="button" id='one-click-card' class="half">
       Pay with vaulted card
     </button>
   </fieldset>
 </fieldset>
 <fieldset id="ACDC-options">
   <legend>
-    ACDC Checkout Options
+    ACDC checkout options
   </legend>
   <fieldset>
     <label for="3ds-preference">

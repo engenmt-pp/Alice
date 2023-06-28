@@ -1,3 +1,4 @@
+let authHeader
 function copyToClipboard(id) {
   // As written, this fails in "production" as the site isn't HTTPS.
   navigator.clipboard.writeText(document.getElementById(id).value)
@@ -8,8 +9,8 @@ function getOptions() {
   const formData = new FormData(document.getElementById('options-form'))
   const formOptions = Object.fromEntries(formData)
   const partnerMerchantInfo = getPartnerMerchantInfo()
-  if (typeof authHeader !== 'undefined') {
-    partnerMerchantInfo['authHeader'] = authHeader
+  if (authHeader != null) {
+    partnerMerchantInfo.authHeader = authHeader
   }
   return { ...formOptions, ...partnerMerchantInfo }
 }
