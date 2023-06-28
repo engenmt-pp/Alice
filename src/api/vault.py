@@ -150,6 +150,19 @@ class Vault:
         response_dict["paymentTokenId"] = payment_token_id
         return response_dict
 
+    def delete_payment_token(self):
+        endpoint = build_endpoint(f"/v3/vault/payment-tokens/{self.payment_token}")
+        headers = self.build_headers()
+
+        response = requests.delete(endpoint, headers=headers)
+        self.formatted["delete-payment-token"] = format_request_and_response(response)
+        response_dict = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+
+        return response_dict
+
     def get_payment_token_status(self):
         endpoint = build_endpoint(f"/v3/vault/payment-tokens/{self.payment_token}")
         headers = self.build_headers()
@@ -170,7 +183,7 @@ class Vault:
         headers = self.build_headers()
 
         response = requests.get(endpoint, headers=headers)
-        self.formatted["list-payment-tokens"] = format_request_and_response(response)
+        self.formatted["get-payment-tokens"] = format_request_and_response(response)
         response_dict = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
@@ -218,7 +231,7 @@ def create_payment_token(setup_token_id):
 
 
 @bp.route("/payment-tokens/<payment_token_id>", methods=("POST",))
-def payment_token_status(payment_token_id):
+def get_payment_token_status(payment_token_id):
     data = request.get_json()
     data["payment-token-id"] = payment_token_id
     data_filtered = {key: value for key, value in data.items() if value}
@@ -235,8 +248,26 @@ def payment_token_status(payment_token_id):
     return jsonify(resp)
 
 
+@bp.route("/payment-tokens/<payment_token_id>", methods=("DELETE",))
+def delete_payment_token(payment_token_id):
+    data = request.get_json()
+    data["payment-token-id"] = payment_token_id
+    data_filtered = {key: value for key, value in data.items() if value}
+    current_app.logger.info(
+        f"Deleting payment token with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+    )
+
+    vault = Vault(**data)
+    resp = vault.delete_payment_token()
+
+    current_app.logger.debug(
+        f"Payment token deletion response: {json.dumps(resp, indent=2)}"
+    )
+    return jsonify(resp)
+
+
 @bp.route("/customers/<customer_id>", methods=("POST",))
-def get_vault_tokens(customer_id):
+def get_payment_tokens(customer_id):
     data = request.get_json()
     data["customer-id"] = customer_id
     data_filtered = {key: value for key, value in data.items() if value}

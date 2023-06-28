@@ -76,16 +76,6 @@
       </button>
     </span>
     <div class="break"></div>
-    <label for="status-payment-token-id">
-      Vault v3 ID
-    </label>
-    <span>
-      <input name="status-payment-token-id" id="status-payment-token-id" class="monospaced"/>
-      <button type="button" onclick="getPaymentTokenStatus()" class="action">
-        Get
-      </button>
-    </span>
-    <div class="break"></div>
     <label for="status-customer-id">
       Customer ID
     </label>
@@ -95,6 +85,17 @@
         Get
       </button>
     </span>
+    <div class="break"></div>
+    <label for="status-payment-token-id">
+      Vault v3 ID
+    </label>
+    <input name="status-payment-token-id" id="status-payment-token-id" class="monospaced"/>
+    <button type="button" onclick="deletePaymentToken()" class="action action-delete half">
+      Delete
+    </button>
+    <button type="button" onclick="getPaymentTokenStatus()" class="action action-get half">
+      Get
+    </button>
   </fieldset>
 </fieldset>
 {% endblock %}
