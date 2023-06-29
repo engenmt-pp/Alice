@@ -477,14 +477,16 @@ function buyerNotPresentCheckout() {
     const { formatted, orderId } = createData;
     ({ authHeader } = createData)
 
-    if (orderId == null) {
-      throw new Error('Order creation failed!')
-    }
-
     addApiCalls(formatted)
-    console.log(`Order ${orderId} created!`)
+
+    if (orderId == null) {
+      console.log('Order creation failed!')
+      alert('Order creation failed!')
+      // throw new Error('Order creation failed!')
+    } else {
+      console.log(`Order ${orderId} created!`)
+    }
     console.groupEnd()
-    return orderId
   }
   async function authorizeAndOrCaptureOrder({ paymentSource, orderId }) {
     console.group(`Authorizing and/or capturing order ${orderId}!`)
