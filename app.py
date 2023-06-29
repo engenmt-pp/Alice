@@ -13,4 +13,4 @@ if __name__ == "__main__":
     from logging.config import dictConfig
 
     dictConfig({"version": 1, "root": {"level": "INFO"}})
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    app.run(host="127.0.0.1", port=5000, debug=True)

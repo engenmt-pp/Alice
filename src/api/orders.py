@@ -43,8 +43,8 @@ class Order:
         self.soft_descriptor = kwargs.get("soft-descriptor")
         self.shipping_preference = kwargs.get("shipping-preference")
 
+        self.vault_flow = kwargs.get("vault-flow")
         self.vault_level = kwargs.get("vault-level")
-        self.vault_preference = kwargs.get("vault-preference")
         self.vault_id = kwargs.get("vault-id")
         self.customer_id = kwargs.get("customer-id")
         try:
@@ -245,19 +245,24 @@ class Order:
             "experience_context": context,
         }
 
-        if self.vault_preference == "use-vault-token" and self.vault_id:
-            payment_source_body["vault_id"] = self.vault_id
-        elif self.vault_preference == "on-success":
-            attributes = {
-                "vault": {
-                    "store_in_vault": "ON_SUCCESS",
-                    "usage_type": self.vault_level,
-                    "permit_multiple_payment_tokens": True,
+        attributes = None
+        match self.vault_flow:
+            case "buyer-not-present":
+                if self.vault_id:
+                    payment_source_body["vault_id"] = self.vault_id
+            case "first-time-buyer":
+                attributes = {
+                    "vault": {
+                        "store_in_vault": "ON_SUCCESS",
+                        "usage_type": self.vault_level,
+                        "permit_multiple_payment_tokens": True,
+                    }
                 }
-            }
-            if self.customer_id:
-                attributes["customer"] = {"id": self.customer_id}
+            case "return-buyer":
+                if self.customer_id:
+                    attributes = {"customer": {"id": self.customer_id}}
 
+        if attributes:
             payment_source_body["attributes"] = attributes
 
         payment_source = {self.payment_source_type: payment_source_body}
