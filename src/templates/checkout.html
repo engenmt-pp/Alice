@@ -5,6 +5,8 @@
 {{ super() }}
 
 <script src="{{ url_for('static', filename='checkout.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cards.css') }}"/>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vault.css') }}"/>
 
 {% endblock %}
 
@@ -40,13 +42,8 @@
     } else {
       document.getElementById('button-checkout-branded').click()
     }
-    const oneClick = oneClickCheckout()
-    document.getElementById('one-click-paypal').onclick = () => {
-      oneClick('paypal')
-    }
-    document.getElementById('one-click-card').onclick = () => {
-      oneClick('card')
-    }
+    const BNPCheckout = buyerNotPresentCheckout()
+    document.getElementById('buyer-not-present-checkout').onclick = BNPCheckout
   })
 </script>
 <div id="tab-checkout-branded">
