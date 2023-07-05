@@ -11,9 +11,6 @@ def create_app():
 
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(SECRET_KEY="dev")
-    app.jinja_env.globals.update(
-        zip=zip
-    )  # Allows for the use of `zip` in Jinja2 formatting.
 
     os.makedirs(app.instance_path, exist_ok=True)
 
