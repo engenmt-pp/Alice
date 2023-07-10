@@ -1,10 +1,13 @@
+/** Get an ID token to be included in the JS SDK's script tag for vault purposes. */
 async function getIdToken() {
   console.groupCollapsed("Requesting ID token...")
 
   const vaultLevel = document.getElementById('vault-level').value
-  const customerId = document.getElementById('customer-id').value
   console.log("vaultLevel:", vaultLevel)
+
+  const customerId = document.getElementById('customer-id').value
   console.log("customerId:", customerId)
+
   let endpoint = `/api/identity/id-token/${customerId}`
   if (vaultLevel === 'MERCHANT') {
     endpoint += `?include-auth-assertion=true`
@@ -23,6 +26,7 @@ async function getIdToken() {
   return idToken
 }
 
+/** Get a client token to be included in the JS SDK's script tag for (old) hosted fields. */
 async function getClientToken() {
   console.groupCollapsed("Requesting Client token...")
 
