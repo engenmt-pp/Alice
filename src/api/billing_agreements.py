@@ -1,6 +1,6 @@
 import requests
 
-from flask import Blueprint, current_app, jsonify
+from flask import Blueprint, current_app, jsonify, request
 from .utils import (
     build_endpoint,
     format_request_and_response,
@@ -12,9 +12,9 @@ bp = Blueprint("billing_agreements", __name__, url_prefix="/billing-agreements")
 
 @bp.route("/<baid>", methods=("POST",))
 def get_ba_status(baid):
-    current_app.logger.info(f"Getting the status of a billing agreement with {baid=}")
-
+    current_app.logger.error(f"Called get_ba_status with {baid=}")
     endpoint = build_endpoint(f"/v1/billing-agreements/agreements/{baid}")
+
     headers = build_headers(
         include_auth_assertion=True, return_formatted=True, auth_header=None
     )

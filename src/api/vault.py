@@ -44,15 +44,12 @@ class Vault:
         self.formatted = dict()
 
     def build_headers(self):
-        """Build the commonly required headers for PayPal API calls."""
         headers = build_headers(
             auth_header=self.auth_header,
             include_auth_assertion=self.include_auth_assertion,
             include_request_id=self.include_request_id,
             return_formatted=True,
         )
-        # If an auth header was previously provided, no API call would have been made,
-        # so the `formatted` API calls wouldn't have been returned.
         if "formatted" in headers:
             self.formatted |= headers["formatted"]
             del headers["formatted"]
@@ -61,7 +58,6 @@ class Vault:
         return headers
 
     def build_payment_source(self, for_token):
-        """Return the payment source object appropriate for the type of token being created."""
         match for_token:
             case "setup":
                 experience_context = {
@@ -84,6 +80,7 @@ class Vault:
                     payment_source_body["shipping"] = default_shipping_address()
 
                 payment_source = {self.payment_source_type: payment_source_body}
+
             case "payment":
                 payment_source = {
                     "token": {
@@ -96,10 +93,6 @@ class Vault:
         return payment_source
 
     def create_setup_token(self):
-        """Create a setup token with the POST /v3/vault/setup-tokens endpoint.
-
-        Docs: https://developer.paypal.com/docs/api/payment-tokens/v3/#setup-tokens_create
-        """
         endpoint = build_endpoint("/v3/vault/setup-tokens")
         headers = self.build_headers()
 
@@ -129,10 +122,6 @@ class Vault:
         return response_dict
 
     def create_payment_token(self):
-        """Create a payment token using the POST /v3/vault/payment-tokens endpoint.
-
-        Docs: https://developer.paypal.com/docs/api/payment-tokens/v3/#payment-tokens_create
-        """
         endpoint = build_endpoint("/v3/vault/payment-tokens")
         headers = self.build_headers()
 
@@ -162,10 +151,6 @@ class Vault:
         return response_dict
 
     def delete_payment_token(self):
-        """Delete the payment token using the DELETE /v3/vault/payment-tokens/{payment_token_id} endpoint.
-
-        Docs: https://developer.paypal.com/docs/api/payment-tokens/v3/#payment-tokens_delete
-        """
         endpoint = build_endpoint(f"/v3/vault/payment-tokens/{self.payment_token}")
         headers = self.build_headers()
 
@@ -179,10 +164,6 @@ class Vault:
         return response_dict
 
     def get_payment_token_status(self):
-        """Retrieve the payment token status using the GET /v3/vault/payment-tokens/{payment_token_id} endpoint.
-
-        Docs: https://developer.paypal.com/docs/api/payment-tokens/v3/#payment-tokens_get
-        """
         endpoint = build_endpoint(f"/v3/vault/payment-tokens/{self.payment_token}")
         headers = self.build_headers()
 
@@ -196,10 +177,6 @@ class Vault:
         return response_dict
 
     def get_payment_tokens(self):
-        """Retrieve all payment tokens for a customer using the GET /v3/vault/payment-tokens endpoint.
-
-        Docs: https://developer.paypal.com/docs/api/payment-tokens/v3/#customer_payment-tokens_get
-        """
         endpoint = build_endpoint(
             f"/v3/vault/payment-tokens", query={"customer_id": self.customer_id}
         )
@@ -217,52 +194,46 @@ class Vault:
 
 @bp.route("/setup-tokens", methods=("POST",))
 def create_setup_token():
-    """Create a Vault v3 setup token.
-
-    Wrapper for Vault.create_setup_token.
-    """
     data = request.get_json()
 
     data_filtered = {key: value for key, value in data.items() if value}
-    current_app.logger.info(
+
+    current_app.logger.debug(
         f"Creating a vault setup token with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
 
     vault = Vault(**data)
     resp = vault.create_setup_token()
 
+    current_app.logger.debug(
+        f"Create setup token response: {json.dumps(resp, indent=2)}"
+    )
     return jsonify(resp)
 
 
 @bp.route("/setup-tokens/<setup_token_id>", methods=("POST",))
 def create_payment_token(setup_token_id):
-    """Create a Vault v3 payment token using the given setup token ID.
-
-    Wrapper for Vault.create_payment_token.
-    """
     data = request.get_json()
     data["setup-token-id"] = setup_token_id
 
     data_filtered = {key: value for key, value in data.items() if value}
-    current_app.logger.info(
+    current_app.logger.debug(
         f"Creating a vault payment token with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
 
     vault = Vault(**data)
     resp = vault.create_payment_token()
 
+    current_app.logger.debug(
+        f"Create setup token response: {json.dumps(resp, indent=2)}"
+    )
     return jsonify(resp)
 
 
 @bp.route("/payment-tokens/<payment_token_id>", methods=("POST",))
 def get_payment_token_status(payment_token_id):
-    """Retrieve the status of the payment token with the given ID.
-
-    Wrapper for Vault.get_payment_token_status.
-    """
     data = request.get_json()
     data["payment-token-id"] = payment_token_id
-
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.info(
         f"Getting the status of payment token with (filtered) data = {json.dumps(data_filtered, indent=2)}"
@@ -271,16 +242,14 @@ def get_payment_token_status(payment_token_id):
     vault = Vault(**data)
     resp = vault.get_payment_token_status()
 
+    current_app.logger.debug(
+        f"Payment token status response: {json.dumps(resp, indent=2)}"
+    )
     return jsonify(resp)
 
 
 @bp.route("/payment-tokens/<payment_token_id>", methods=("DELETE",))
 def delete_payment_token(payment_token_id):
-    """Delete the payment token with the given ID.
-
-    Wrapper for Vault.delete_payment_token.
-    """
-
     data = request.get_json()
     data["payment-token-id"] = payment_token_id
     data_filtered = {key: value for key, value in data.items() if value}
@@ -291,16 +260,14 @@ def delete_payment_token(payment_token_id):
     vault = Vault(**data)
     resp = vault.delete_payment_token()
 
+    current_app.logger.debug(
+        f"Payment token deletion response: {json.dumps(resp, indent=2)}"
+    )
     return jsonify(resp)
 
 
 @bp.route("/customers/<customer_id>", methods=("POST",))
 def get_payment_tokens(customer_id):
-    """Retrieve all payment tokens for the customer with the given ID.
-
-    Wrapper for Vault.get_payment_tokens.
-    """
-
     data = request.get_json()
     data["customer-id"] = customer_id
     data_filtered = {key: value for key, value in data.items() if value}
@@ -311,4 +278,7 @@ def get_payment_tokens(customer_id):
     vault = Vault(**data)
     resp = vault.get_payment_tokens()
 
+    current_app.logger.debug(
+        f"Payment token list response: {json.dumps(resp, indent=2)}"
+    )
     return jsonify(resp)
