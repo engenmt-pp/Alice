@@ -24,45 +24,53 @@
     Vault v3 options
   </legend>
   <fieldset>
-    <label for="vault-preference">
-      Preference
+    <label for="vault-flow">
+      Flow
     </label>
-    <select name="vault-preference" id="vault-preference">
-      <option value="">No vaulting</option>
-      <option value="use-customer-id">Pay with Customer ID</option>
-      <option value="on-success">On success</option>
-      <option value="without-purchase">Without purchase</option>
+    <select name="vault-flow" id="vault-flow">
+      <option value="" selected>None</option>
+      <option value="first-time-buyer">First-time buyer</option>
+      <option value="return-buyer">Return buyer</option>
+      <option value="buyer-not-present">Buyer not present</option>
     </select>
-    <div class="break"></div>
-    <label for="vault-level">
-      Owner
-    </label>
-    <select name="vault-level" id="vault-level">
-      <!-- <option value="" selected>None</option> -->
-      <option value="PLATFORM" selected>Partner-level</option>
-      <option value="MERCHANT">Merchant-level</option>
-    </select>
-    <div class="break"></div>
-    <label for="customer-id">
-      Customer ID
-    </label>
-    <span>
+    <fieldset class="first-time-buyer return-buyer buyer-not-present">
+      <label for="vault-level">
+        Vault level
+      </label>
+      <select name="vault-level" id="vault-level">
+        <option value="PLATFORM" selected>Partner-level</option>
+        <option value="MERCHANT">Merchant-level</option>
+      </select>
+    </fieldset>
+    <fieldset class="first-time-buyer">
+      <label for="vault-without-purchase">
+        Vault without purchase
+      </label>
+      <input type="checkbox" name="vault-without-purchase" id="vault-without-purchase"/>
+    </fieldset>
+    <fieldset class="return-buyer">
+      <label for="customer-id">
+        Customer ID
+      </label>
       <input name="customer-id" id="customer-id" class="monospaced"/>
-    </span>
-    <div class="break"></div>
-    <label for="vault-id">
-      Vault ID
-    </label>
-    <span>
+    </fieldset>
+    <fieldset class="buyer-not-present">
+      <label for="vault-id">
+        Vault ID
+      </label>
       <input name="vault-id" id="vault-id" class="monospaced"/>
-    </span>
-    <div class="break"></div>
-    <button type="button" id='one-click-paypal' class="half">
-      Pay with vaulted PP Wallet
-    </button>
-    <button type="button" id='one-click-card' class="half">
-      Pay with vaulted card
-    </button>
+      <div class="break"></div>
+      <label for="vault-payment-source" class="buyer-not-present">
+        Payment source
+      </label>
+      <span>
+        <select name="vault-payment-source" id="vault-payment-source">
+          <option value="paypal" selected>PayPal</option>
+          <option value="card">Card</option>
+        </select>
+        <button type="button" class="action" id="buyer-not-present-checkout">Pay</button>
+      </span>
+    </fieldset>
   </fieldset>
 </fieldset>
 <fieldset id="ACDC-options">
