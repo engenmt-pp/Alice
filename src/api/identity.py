@@ -20,7 +20,7 @@ def get_client_token(auth_header=None):
     Docs: https://developer.paypal.com/docs/multiparty/checkout/advanced/integrate/#link-generateclienttoken
     """
     data = request.get_json()
-    auth_header = data.get("authHeader")
+    auth_header = auth_header or data.get("authHeader")
 
     current_app.logger.info(f"Client token with {auth_header=}")
 
