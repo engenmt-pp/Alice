@@ -22,32 +22,31 @@ def get_client_token(auth_header=None):
     data = request.get_json()
     auth_header = auth_header or data.get("authHeader")
 
-    current_app.logger.info(f"Client token with {auth_header=}")
+    current_app.logger.info(f"Getting client token with {auth_header=}")
 
     endpoint = build_endpoint("/v1/identity/generate-token")
     headers = build_headers(return_formatted=True, auth_header=auth_header)
 
     auth_header = auth_header or headers["Authorization"]
-    response_dict = {"authHeader": auth_header}
+    return_val = {"authHeader": auth_header}
 
-    # The `headers` response may not have any formatted calls, so default to the empty dict.
-    formatted = headers.get("formatted", dict())
-    headers.pop("formatted", None)
+    # `headers` may not contained formatted calls, so default to the empty dict.
+    formatted = headers.pop("formatted", dict())
 
     response = requests.post(endpoint, headers=headers)
 
     formatted["client-token"] = format_request_and_response(response)
-    response_dict["formatted"] = formatted
+    return_val["formatted"] = formatted
 
     try:
         client_token = response.json()["client_token"]
-        response_dict["clientToken"] = client_token
+        return_val["clientToken"] = client_token
     except Exception as exc:
         current_app.logger.error(
             f"Exception encountered when getting client_token: {exc}"
         )
 
-    return jsonify(response_dict)
+    return jsonify(return_val)
 
 
 @bp.route("/id-token/", defaults={"customer_id": None}, methods=("GET",))

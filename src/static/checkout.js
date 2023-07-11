@@ -297,6 +297,7 @@ function brandedAndCardFieldsClosure() {
   return loadBoth
 }
 
+
 function getContingencies() {
   return [document.getElementById('3ds-preference').value]
 }

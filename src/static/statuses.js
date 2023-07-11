@@ -1,5 +1,3 @@
-let authHeader
-
 async function getSellerStatus() {
   const options = getPartnerMerchantInfo()
   if (authHeader != 'undefined') options.authHeader = authHeader
