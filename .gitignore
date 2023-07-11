@@ -1,5 +1,7 @@
 **/__pycache__/
 **/.DS_Store
+Confluence/
+**/test.html
 .env
 .vscode/
 instance/
