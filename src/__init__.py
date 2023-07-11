@@ -14,18 +14,9 @@ def create_app():
 
     os.makedirs(app.instance_path, exist_ok=True)
 
-    from . import api, statuses, onboarding, checkout
+    from . import api, routes
 
     app.register_blueprint(api.bp)
-
-    app.register_blueprint(checkout.bp)
-    app.register_blueprint(onboarding.bp)
-    app.register_blueprint(statuses.bp)
-    app.add_url_rule("/", endpoint="checkout.checkout")
+    app.register_blueprint(routes.bp)
 
     return app
-
-
-if __name__ == "__main__":
-    app = create_app()
-    app.run()

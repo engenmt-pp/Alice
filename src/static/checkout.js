@@ -1,10 +1,13 @@
+/** Get an ID token to be included in the JS SDK's script tag for vault purposes. */
 async function getIdToken() {
   console.groupCollapsed("Requesting ID token...")
 
   const vaultLevel = document.getElementById('vault-level').value
-  const customerId = document.getElementById('customer-id').value
   console.log("vaultLevel:", vaultLevel)
+
+  const customerId = document.getElementById('customer-id').value
   console.log("customerId:", customerId)
+
   let endpoint = `/api/identity/id-token/${customerId}`
   if (vaultLevel === 'MERCHANT') {
     endpoint += `?include-auth-assertion=true`
@@ -23,6 +26,7 @@ async function getIdToken() {
   return idToken
 }
 
+/** Get a client token to be included in the JS SDK's script tag for (old) hosted fields. */
 async function getClientToken() {
   console.groupCollapsed("Requesting Client token...")
 
@@ -77,7 +81,7 @@ async function buildScriptElement(onload, hosted = false) {
     const clientToken = await getClientToken()
     scriptElement.setAttribute('data-client-token', clientToken)
   }
-  const vault = Boolean(options['vault-preference'])
+  const vault = Boolean(options['vault-flow'])
   if (vault) {
     const idToken = await getIdToken()
     scriptElement.setAttribute('data-user-id-token', idToken)
@@ -220,8 +224,9 @@ function brandedAndCardFieldsClosure() {
   async function loadButtons() {
     if (buttons != null) await buttons.close()
     let methods
-    const vaultPreference = document.getElementById('vault-preference').value
-    if (vaultPreference === 'without-purchase') {
+    const vaultFlow = document.getElementById('vault-flow').value
+    const vaultWithoutPurchase = document.getElementById('vault-without-purchase')
+    if (vaultFlow === 'first-time-buyer' && vaultWithoutPurchase.checked) {
       methods = {
         onClick: onClick,
         createVaultSetupToken: createVaultSetupToken,
@@ -243,8 +248,9 @@ function brandedAndCardFieldsClosure() {
   }
   async function loadCardFields() {
     let methods
-    const vaultPreference = document.getElementById('vault-preference').value
-    if (vaultPreference === 'without-purchase') {
+    const vaultFlow = document.getElementById('vault-flow').value
+    const vaultWithoutPurchase = document.getElementById('vault-without-purchase')
+    if (vaultFlow === 'first-time-buyer' && vaultWithoutPurchase.checked) {
       methods = {
         createVaultSetupToken: createVaultSetupToken,
         onApprove: createVaultPaymentToken,
@@ -426,9 +432,9 @@ let addOnChange = (function () {
   let myFunc
   const elementIds = [
     'intent',
-    'customer-id',
+    'vault-flow',
     'vault-level',
-    'vault-preference',
+    'customer-id',
   ]
 
   function innerAddOnChange(loadCheckout) {
@@ -451,7 +457,7 @@ let addOnChange = (function () {
   return innerAddOnChange
 })()
 
-function oneClickCheckout() {
+function buyerNotPresentCheckout() {
   let options
   let authHeader
   async function createOrder({ paymentSource }) {
@@ -460,11 +466,8 @@ function oneClickCheckout() {
 
     console.log("Getting order options...")
     options = getOptions()
-    options['vault-preference'] = "use-vault-token"
+    options['vault-flow'] = "buyer-not-present"
     options['payment-source'] = paymentSource
-    if (options['vault-id'] === '') {
-      return alert('No vault ID provided!')
-    }
     const createResp = await fetch("/api/orders/create", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
@@ -503,8 +506,15 @@ function oneClickCheckout() {
       return actions.restart()
     }
   }
-  async function payWithVaultedPaymentToken(paymentSource) {
-    console.group("Initiating one-click checkout...")
+  async function payWithVaultedPaymentToken() {
+    console.group("Initiating buyer-not-present checkout...")
+
+    const paymentTokenId = document.getElementById('vault-id').value
+    if (paymentTokenId == null || paymentTokenId == '') {
+      return alert("A payment token must be provided for buyer-not-present orders!")
+    }
+
+    const paymentSource = document.getElementById('vault-payment-source').value
     console.log('paymentSource:', paymentSource)
 
     const myOptions = { paymentSource: paymentSource }
