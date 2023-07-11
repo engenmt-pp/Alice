@@ -448,7 +448,6 @@ def create_order():
     order = Order(**data)
     resp = order.create()
 
-    current_app.logger.debug(f"Create order response: {json.dumps(resp, indent=2)}")
     return jsonify(resp)
 
 
@@ -468,7 +467,6 @@ def capture_order(order_id):
     order = Order(**data)
     resp = order.capture()
 
-    current_app.logger.debug(f"Capture order response: {json.dumps(resp, indent=2)}")
     return jsonify(resp)
 
 
@@ -488,5 +486,4 @@ def get_order_status(order_id):
     order = Order(**data)
     resp = order.get_status()
 
-    current_app.logger.debug(f"Get order status response: {json.dumps(resp, indent=2)}")
     return jsonify(resp)
