@@ -3,13 +3,13 @@
   <title>
     Alice - A PPCP Testing Tool
   </title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>{{ favicon }}</text></svg>">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
     <script src="{{ url_for('static', filename='utils.js') }}"></script>
+
     {% block head %}
     {% endblock head %}
   </head>
@@ -24,22 +24,22 @@
       <div class="col-4">
         {% block nav %}
         <h1 class="title">
-          {{ favicon }} Alice - A PPCP Testing Tool
+          Alice - A PPCP Testing Tool
         </h1>
         <nav>
           <ul>
             <li>
-              <a href="{{ url_for('routes.onboarding') }}">
+              <a href="{{ url_for('onboarding.onboarding') }}">
                 Onboarding
               </a>
             </li>
             <li>
-              <a href="{{ url_for('routes.checkout') }}">
+              <a href="{{ url_for('checkout.checkout') }}">
                 Checkout (now with HCFs!)
               </a>
             </li>
             <li>
-              <a href="{{ url_for('routes.statuses') }}">
+              <a href="{{ url_for('statuses.statuses') }}">
                 Statuses
               </a>
             </li>

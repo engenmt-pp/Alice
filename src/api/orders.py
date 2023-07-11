@@ -97,10 +97,6 @@ class Order:
         return headers
 
     def build_platform_fees(self):
-        """Return the platform fee object for the order.
-
-        Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-platform_fee
-        """
         platform_fees = []
         if self.partner_fee > 0:
             platform_fees.append(
@@ -114,10 +110,7 @@ class Order:
         return platform_fees
 
     def build_payment_instruction(self, for_call):
-        """Return the payment instruction object for the order.
-
-        Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-payment_instruction
-        """
+        """Return the payment instruction for the order."""
         payment_instruction = dict()
 
         match (self.intent, for_call):
@@ -132,7 +125,6 @@ class Order:
         return payment_instruction
 
     def build_shipping_option(self):
-        """Return a default shipping option object."""
         return {
             "id": "shipping-default",
             "label": "A default shipping option",
@@ -141,10 +133,7 @@ class Order:
         }
 
     def build_shipping(self):
-        """Return the shipping object for the order.
-
-        Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-shipping_detail
-        """
+        """Return the shipping information for the order."""
         shipping = dict()
 
         if self.include_shipping_address:
@@ -160,10 +149,7 @@ class Order:
         return shipping
 
     def build_line_item(self):
-        """Return the line item object for the order.
-
-        Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-item
-        """
+        """Return the line item object."""
         match self.item_category:
             case "PHYSICAL_GOODS":
                 name = "A physical good."
@@ -196,10 +182,6 @@ class Order:
         return item
 
     def build_purchase_unit(self):
-        """Return the purchase unit object for the order.
-
-        Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-purchase_unit
-        """
         purchase_unit = dict()
         if self.include_payee:
             purchase_unit["payee"] = {"merchant_id": self.merchant_id}
@@ -228,11 +210,6 @@ class Order:
         return purchase_unit
 
     def build_context(self):
-        """Return the experience/application context object for the order.
-
-        Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-experience_context_base
-        Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-order_application_context
-        """
         context = {
             "return_url": "http://go/alice/return",
             "cancel_url": "http://go/alice/cancel",
@@ -242,7 +219,6 @@ class Order:
         return context
 
     def build_payment_source(self, for_call):
-        """Return the payment source object appropriate for the type of call being made."""
         context = self.build_context()
         payment_source_body = {
             "experience_context": context,
@@ -293,7 +269,7 @@ class Order:
         return payment_source
 
     def create(self):
-        """Create the order with the POST /v2/checkout/orders endpoint.
+        """Create the order with the /v2/checkout/orders API.
 
         Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
         """
@@ -329,7 +305,7 @@ class Order:
         return response_dict
 
     def capture(self):
-        """Capture the order using the the POST /v2/checkout/orders/{order_id}/capture endpoint.
+        """Capture the order.
 
         Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
         """
@@ -358,10 +334,6 @@ class Order:
         return response_dict
 
     def authorize(self):
-        """Authorize the order using the POST /v2/checkout/orders/{order_id}/authorize endpoint.
-
-        Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_authorize
-        """
         endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}/authorize")
 
         headers = self.build_headers()
@@ -378,11 +350,6 @@ class Order:
         return response
 
     def capture_authorization(self):
-        """Capture the authorization using the POST /v2/payments/authorizations/{auth_id}/capture endpoint.
-
-        Docs: https://developer.paypal.com/docs/api/payments/v2/#authorizations_capture
-        """
-
         endpoint = build_endpoint(f"/v2/payments/authorizations/{self.auth_id}/capture")
 
         headers = self.build_headers()
@@ -398,7 +365,6 @@ class Order:
         return response
 
     def auth_and_capture(self):
-        """Authorize the order and then capture the resulting authorization."""
         auth_response = self.authorize()
         response_dict = {"formatted": self.formatted, "authHeader": self.auth_header}
         try:
@@ -416,11 +382,7 @@ class Order:
 
         return response_dict
 
-    def get_status(self):
-        """Retrieve the order status using the GET /v2/checkout/orders/{order_id} endpoint.
-
-        Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_get
-        """
+    def status(self):
         if self.order_id is None:
             raise ValueError
 
@@ -435,10 +397,6 @@ class Order:
 
 @bp.route("/create", methods=("POST",))
 def create_order():
-    """Create an order.
-
-    Wrapper for Order.create.
-    """
     data = request.get_json()
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.info(
@@ -454,10 +412,6 @@ def create_order():
 
 @bp.route("/capture/<order_id>", methods=("POST",))
 def capture_order(order_id):
-    """Capture the order with the given ID.
-
-    Wrapper for Order.capture.
-    """
     data = request.get_json()
     data["order-id"] = order_id
     data_filtered = {key: value for key, value in data.items() if value}
@@ -473,11 +427,7 @@ def capture_order(order_id):
 
 
 @bp.route("/status/<order_id>", methods=("POST",))
-def get_order_status(order_id):
-    """Retrieve the status of the order with the given ID.
-
-    Wrapper for Order.get_status.
-    """
+def order_status(order_id):
     data = request.get_json()
     data["order-id"] = order_id
     data_filtered = {key: value for key, value in data.items() if value}
@@ -486,7 +436,7 @@ def get_order_status(order_id):
     )
 
     order = Order(**data)
-    resp = order.get_status()
+    resp = order.status()
 
     current_app.logger.debug(f"Get order status response: {json.dumps(resp, indent=2)}")
     return jsonify(resp)

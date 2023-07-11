@@ -1,12 +1,9 @@
 let authHeader
-
 async function getSellerStatus() {
   const options = getPartnerMerchantInfo()
   if (authHeader != 'undefined') options.authHeader = authHeader
-
   const merchantId = document.getElementById('status-merchant-id').value
   options['merchantId'] = merchantId
-
   const statusResp = await fetch(`/api/partner/sellers/${merchantId}`, {
     headers: { 'Content-Type': 'application/json' },
     method: 'POST',
@@ -22,9 +19,7 @@ async function getSellerStatus() {
 async function getSellerStatusByTrackingId() {
   const options = getPartnerMerchantInfo()
   if (authHeader != 'undefined') options.authHeader = authHeader
-
   delete options['merchantId']
-
   const trackingId = document.getElementById('status-tracking-id').value
   const statusResp = await fetch(`/api/partner/sellers?tracking-id=${trackingId}`, {
     headers: { 'Content-Type': 'application/json' },
@@ -41,7 +36,6 @@ async function getSellerStatusByTrackingId() {
 async function getReferralStatus() {
   const options = getPartnerMerchantInfo()
   if (authHeader != 'undefined') options.authHeader = authHeader
-
   const referralToken = document.getElementById('status-referral-token').value
   const statusResp = await fetch(`/api/partner/referrals/${referralToken}`, {
     headers: { 'Content-Type': 'application/json' },
@@ -58,7 +52,6 @@ async function getReferralStatus() {
 async function getOrderStatus() {
   const options = getPartnerMerchantInfo()
   if (authHeader != 'undefined') options.authHeader = authHeader
-
   const id = 'include-auth-assertion'
   options[id] = document.getElementById(id).value
 
@@ -78,7 +71,6 @@ async function getOrderStatus() {
 async function getBaStatus() {
   const options = getPartnerMerchantInfo()
   if (authHeader != 'undefined') options.authHeader = authHeader
-
   const id = 'include-auth-assertion'
   options[id] = document.getElementById(id).value
 
@@ -98,7 +90,6 @@ async function getBaStatus() {
 async function deletePaymentToken() {
   const options = getPartnerMerchantInfo()
   if (authHeader != 'undefined') options.authHeader = authHeader
-
   const id = 'include-auth-assertion'
   options[id] = document.getElementById(id).value
 
@@ -118,7 +109,6 @@ async function deletePaymentToken() {
 async function getPaymentTokenStatus() {
   const options = getPartnerMerchantInfo()
   if (authHeader != 'undefined') options.authHeader = authHeader
-
   const id = 'include-auth-assertion'
   options[id] = document.getElementById(id).value
 
@@ -138,7 +128,6 @@ async function getPaymentTokenStatus() {
 async function getPaymentTokens() {
   const options = getPartnerMerchantInfo()
   if (authHeader != 'undefined') options.authHeader = authHeader
-
   const id = 'include-auth-assertion'
   options[id] = document.getElementById(id).value
 

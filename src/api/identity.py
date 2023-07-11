@@ -14,11 +14,7 @@ bp = Blueprint("identity", __name__, url_prefix="/identity")
 
 
 @bp.route("/client-token", methods=("POST",))
-def get_client_token(auth_header=None):
-    """Retrieve a client token using the GET /v1/identity/generate-token endpoint.
-
-    Docs: https://developer.paypal.com/docs/multiparty/checkout/advanced/integrate/#link-generateclienttoken
-    """
+def generate_client_token(auth_header=None):
     data = request.get_json()
     auth_header = data.get("authHeader")
 
@@ -53,7 +49,7 @@ def get_client_token(auth_header=None):
 @bp.route("/id-token/", defaults={"customer_id": None}, methods=("GET",))
 @bp.route("/id-token/<customer_id>", methods=("GET",))
 def get_id_token(customer_id):
-    """Request access and ID tokens using the GET /v1/oauth2/token endpoint.
+    """Request access and ID tokens using the /v1/oauth2/token API.
 
     Docs: https://developer.paypal.com/docs/api/reference/get-an-access-token/
     """
@@ -96,7 +92,7 @@ def get_id_token(customer_id):
     return jsonify(return_val)
 
 
-def get_access_token(client_id, secret, return_formatted=False):
+def request_access_token(client_id, secret, return_formatted=False):
     """Request an access token using the /v1/oauth2/token API.
 
     Docs: https://developer.paypal.com/docs/api/reference/get-an-access-token/
@@ -166,7 +162,7 @@ def build_headers(
         client_id = client_id or current_app.config["PARTNER_CLIENT_ID"]
         secret = secret or current_app.config["PARTNER_SECRET"]
 
-        access_token_response = get_access_token(
+        access_token_response = request_access_token(
             client_id, secret, return_formatted=return_formatted
         )
         access_token = access_token_response["access_token"]
