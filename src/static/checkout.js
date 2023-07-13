@@ -435,6 +435,7 @@ let addOnChange = (function () {
     'intent',
     'vault-flow',
     'vault-level',
+    'vault-without-purchase',
     'customer-id',
   ]
 
