@@ -144,9 +144,6 @@ class Vault:
             "payment_source": self.build_payment_source(for_token="payment"),
         }
 
-        if self.customer_id:
-            data["customer"] = {"id": self.customer_id}
-
         response = requests.post(
             endpoint,
             headers=headers,
