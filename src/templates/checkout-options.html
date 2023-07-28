@@ -73,9 +73,9 @@
     </fieldset>
   </fieldset>
 </fieldset>
-<fieldset id="ACDC-options">
+<fieldset id="hosted-v1-options">
   <legend>
-    ACDC checkout options
+    Hosted Fields v1 options
   </legend>
   <fieldset>
     <label for="3ds-preference">
@@ -148,14 +148,28 @@
     </label>
     <ul>
       <li>
-        <input name="include-shipping-address" id="include-shipping-address" type="checkbox" value="YES"/>
+        <input type="checkbox" name="include-shipping-address" id="include-shipping-address"/>
         <label for="include-shipping-address">Default shipping address</label>
       </li>
       <li>
-        <input name="include-shipping-option" id="include-shipping-option" type="checkbox" value="YES"/>
+        <input type="checkbox" name="include-shipping-option" id="include-shipping-option"/>
         <label for="include-shipping-option">Default shipping option</label>
       </li>
+      <li>
+        <input type="checkbox" name="include-custom-purchase-unit-field" id="include-custom-purchase-unit-field"/>
+        <label for="include-custom-purchase-unit-field">Custom field</label>
+      </li>
     </ul>
+
+    <fieldset id="custom-purchase-unit-field">
+      <label for="custom-purchase-unit-key">Key</label>
+      <input name="custom-purchase-unit-key" id="custom-purchase-unit-key" class="monospaced" type="text"/>
+      <div class="break"></div>
+
+      <label for="custom-purchase-unit-value">JSON value</label>
+      <input name="custom-purchase-unit-value" id="custom-purchase-unit-value" class="monospaced full" type="text"/>
+      <div class="break"></div>
+    </fieldset>
   </fieldset>
 </fieldset>
 <fieldset id="item-options">
@@ -163,23 +177,15 @@
     Item options
   </legend>
   <fieldset>
-    <label for="item-price">
-      Price
-    </label>
-    <span>
-      <input name="item-price" id="item-price" class="monospaced" type="number" value="3.14"/>
-    </span>
+    <label for="item-price">Price</label>
+    <input name="item-price" id="item-price" class="monospaced" type="number" value="3.14"/>
     <div class="break"></div>
-    <label for="item-tax">
-      Tax
-    </label>
-    <span>
-      <input name="item-tax" id="item-tax" class="monospaced" type="number" value="0"/>
-    </span>
+
+    <label for="item-tax">Tax</label>
+    <input name="item-tax" id="item-tax" class="monospaced" type="number" value="0"/>
     <div class="break"></div>
-    <label for="item-category">
-      Category
-    </label>
+
+    <label for="item-category">Category</label>
     <select name="item-category" id="item-category">
       <option value="None" selected>Unspecified</option>
       <option value="PHYSICAL_GOODS">Physical goods</option>
@@ -187,9 +193,8 @@
       <option value="DONATION">Donation</option>
     </select>
     <div class="break"></div>
-    <label for="disbursement-mode">
-      Disbursement
-    </label>
+
+    <label for="disbursement-mode">Disbursement</label>
     <select name="disbursement-mode" id="disbursement-mode">
       <option value="INSTANT" selected>Instant</option>
       <option value="DELAYED">Delayed</option>
