@@ -2,7 +2,7 @@
 **/.DS_Store
 Confluence/
 **/test.html
-.env
+.env*
 .vscode/
 instance/
 Confluence/

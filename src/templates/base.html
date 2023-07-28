@@ -35,7 +35,7 @@
             </li>
             <li>
               <a href="{{ url_for('routes.checkout') }}">
-                Checkout (now with HCFs!)
+                Checkout
               </a>
             </li>
             <li>
@@ -58,46 +58,26 @@
               <label for="partner-id">
                 Partner ID
               </label>
-              <span>
-                <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced"/>
-                <button type="button" onclick="copyToClipboard('partner-id')" class="action">
-                  Copy
-                </button>
-              </span>
+              <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced"/>
               <div class="break"></div>
               <!-- Partner client ID -->
               <label for="partner-client-id">
                 Client ID
               </label>
-              <span>
-                <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced"></input>
-                <button type="button" onclick="copyToClipboard('partner-client-id')" class="action">
-                  Copy
-                </button>
-              </span>
+              <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced"></input>
               <div class="break"></div>
               <!-- Partner BN code -->
               <label for="partner-bn-code">
                 BN Code
               </label>
-              <span>
-                <input name="partner-bn-code" id="partner-bn-code" value="{{ partner_bn_code }}" class="monospaced"></input>
-                <button type="button" onclick="copyToClipboard('partner-bn-code')" class="action">
-                  Copy
-                </button>
-              </span>
+              <input name="partner-bn-code" id="partner-bn-code" value="{{ partner_bn_code }}" class="monospaced"></input>
               <div class="break"></div>
               {% block merchant_id %}
               <!-- Merchant ID -->
               <label for="merchant-id">
                 Merchant ID
               </label>
-              <span>
-                <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced"></input>
-                <button type="button" onclick="copyToClipboard('merchant-id')" class="action">
-                  Copy
-                </button>
-              </span>
+              <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced"></input>
               {% endblock merchant_id %}
             </fieldset>
           </fieldset>

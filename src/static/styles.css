@@ -274,8 +274,7 @@ button:disabled {
 .action {
     border-radius: 0.25rem;
     min-width: 5ch;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding: 3px;
     background-color: var(--blue-600);
     color: var(--white);
     text-transform: uppercase;
