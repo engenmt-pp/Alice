@@ -282,6 +282,7 @@ function brandedAndCardFieldsClosure() {
 
       document.querySelector("#form-cf-card").addEventListener('submit', (event) => {
         event.preventDefault()
+        event.stopImmediatePropagation()
         cardFields.submit()
       })
     } else {
