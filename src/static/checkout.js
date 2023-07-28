@@ -69,7 +69,7 @@ async function buildScriptElement(onload, hosted = false) {
     query.set('components', 'buttons,card-fields')
     query.set('enable-funding', 'card,paylater,venmo')
   }
-  query.set("debug", true)
+  query.set("debug", false)
 
   console.log('PayPal JS SDK URL:', url)
 
@@ -224,9 +224,8 @@ function brandedAndCardFieldsClosure() {
   async function loadButtons() {
     if (buttons != null) await buttons.close()
     let methods
-    const vaultFlow = document.getElementById('vault-flow').value
     const vaultWithoutPurchase = document.getElementById('vault-without-purchase')
-    if (vaultFlow === 'first-time-buyer' && vaultWithoutPurchase.checked) {
+    if (vaultWithoutPurchase.checked) {
       methods = {
         onClick: onClick,
         createVaultSetupToken: createVaultSetupToken,
@@ -248,9 +247,8 @@ function brandedAndCardFieldsClosure() {
   }
   async function loadCardFields() {
     let methods
-    const vaultFlow = document.getElementById('vault-flow').value
     const vaultWithoutPurchase = document.getElementById('vault-without-purchase')
-    if (vaultFlow === 'first-time-buyer' && vaultWithoutPurchase.checked) {
+    if (vaultWithoutPurchase.checked) {
       methods = {
         createVaultSetupToken: createVaultSetupToken,
         onApprove: createVaultPaymentToken,
@@ -435,6 +433,7 @@ let addOnChange = (function () {
     'intent',
     'vault-flow',
     'vault-level',
+    'vault-without-purchase',
     'customer-id',
   ]
 
