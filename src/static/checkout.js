@@ -224,7 +224,6 @@ function brandedAndCardFieldsClosure() {
   async function loadButtons() {
     if (buttons != null) await buttons.close()
     let methods
-    // const vaultFlow = document.getElementById('vault-flow').value
     const vaultWithoutPurchase = document.getElementById('vault-without-purchase')
     if (vaultWithoutPurchase.checked) {
       methods = {
@@ -248,7 +247,6 @@ function brandedAndCardFieldsClosure() {
   }
   async function loadCardFields() {
     let methods
-    // const vaultFlow = document.getElementById('vault-flow').value
     const vaultWithoutPurchase = document.getElementById('vault-without-purchase')
     if (vaultWithoutPurchase.checked) {
       methods = {
