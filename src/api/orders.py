@@ -70,6 +70,12 @@ class Order:
         self.item_tax = float(kwargs.get("item-tax", "0"))
         self.item_category = kwargs.get("item-category")
 
+        self.include_custom_purchase_unit_field = kwargs.get(
+            "include-custom-purchase-unit-field"
+        )
+        self.custom_purchase_unit_key = kwargs.get("custom-purchase-unit-key")
+        self.custom_purchase_unit_value = kwargs.get("custom-purchase-unit-value")
+
         self.formatted = dict()
         self.breakdown = dict()
 
@@ -210,6 +216,29 @@ class Order:
             purchase_unit["custom_id"] = self.custom_id
         if self.soft_descriptor:
             purchase_unit["soft_descriptor"] = self.soft_descriptor
+
+        if self.include_custom_purchase_unit_field:
+            value = self.custom_purchase_unit_value
+            try:
+                value = json.loads(value)
+            except json.decoder.JSONDecodeError:
+                current_app.logger.info(
+                    f"\n\nError JSON-parsing value:\n{repr(value)}\n\n"
+                )
+                # `value` may contain "\n" and "\r" characters that impede loading,
+                # so we replace them with whitespace.
+                value = value.replace("\\n", " ").replace("\\r", " ")
+                current_app.logger.info(
+                    f"\tTrying again with value:\n{repr(value)}\n\n"
+                )
+                try:
+                    value = json.loads(value)
+                except json.decoder.JSONDecodeError as exc:
+                    current_app.logger.error(
+                        f"\t\tUtterly failed to json.loads {repr(self.custom_purchase_unit_value)=}"
+                    )
+            finally:
+                purchase_unit[self.custom_purchase_unit_key] = value
 
         payment_instruction = self.build_payment_instruction(for_call="create")
         if payment_instruction:
