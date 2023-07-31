@@ -222,11 +222,13 @@ class Order:
             try:
                 value = json.loads(value)
             except json.decoder.JSONDecodeError:
-                current_app.logger.error(
+                current_app.logger.info(
                     f"\n\nError JSON-parsing value:\n{repr(value)}\n\n"
                 )
+                # `value` may contain "\n" and "\r" characters that impede loading,
+                # so we replace them with whitespace.
                 value = value.replace("\\n", " ").replace("\\r", " ")
-                current_app.logger.error(
+                current_app.logger.info(
                     f"\tTrying again with value:\n{repr(value)}\n\n"
                 )
                 try:
@@ -235,10 +237,8 @@ class Order:
                     current_app.logger.error(
                         f"\t\tUtterly failed to json.loads {repr(self.custom_purchase_unit_value)=}"
                     )
-            else:
-                current_app.logger.error(f"\tSuccess!")
-
-            purchase_unit[self.custom_purchase_unit_key] = value
+            finally:
+                purchase_unit[self.custom_purchase_unit_key] = value
 
         payment_instruction = self.build_payment_instruction(for_call="create")
         if payment_instruction:
