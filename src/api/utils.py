@@ -1,6 +1,5 @@
 import json
 import random
-import requests
 
 from flask import current_app
 from urllib.parse import urlencode
@@ -15,54 +14,6 @@ def build_endpoint(route, query=None):
 
     query_string = urlencode(query)
     return f"{endpoint}?{query_string}"
-
-
-def log_and_request(method, endpoint, **kwargs):
-    """Log and make the HTTP request, and then log and return the response."""
-    methods_dict = {
-        "GET": requests.get,
-        "PATCH": requests.patch,
-        "POST": requests.post,
-    }
-    if method not in methods_dict:
-        raise Exception(f"HTTP request method '{method}' not recognized!")
-
-    bar = f"\n{'='*80}\n"
-
-    current_app.logger.debug(f"{bar}Sending {method} request to {endpoint}:")
-    if "data" in kwargs:
-        data = kwargs["data"]
-        if isinstance(data, (dict, list)):
-            current_app.logger.debug(f"data = {json.dumps(data, indent=2)}")
-            kwargs["data"] = json.dumps(data)
-
-    response = methods_dict[method](endpoint, **kwargs)
-
-    headers_sent = dict(response.request.headers)
-    try:
-        current_app.logger.debug(f"Headers sent: {json.dumps(headers_sent, indent=2)}")
-    except TypeError:
-        headers_sent_copy = dict(headers_sent)
-        auth_assertion_str = str(headers_sent["PayPal-Auth-Assertion"], "utf-8")
-        headers_sent_copy["PayPal-Auth-Assertion"] = f"b'{auth_assertion_str}'"
-        current_app.logger.debug(
-            f"Headers* sent: {json.dumps(headers_sent_copy, indent=2)}"
-        )
-
-    try:
-        response_str = json.dumps(response.json(), indent=2)
-    except json.decoder.JSONDecodeError:
-        response_str = response.text
-
-    if not response.ok:
-        current_app.logger.error(f"{response.status_code} Error: {response_str}\n\n")
-    else:
-        debug_id = response.headers.get("PayPal-Debug-Id")
-        current_app.logger.debug(
-            f"({debug_id=}) {response.status_code} Response: {response_str}{bar}"
-        )
-
-    return response
 
 
 def format_request(request):
@@ -147,35 +98,3 @@ def random_decimal_string(length):
     """Return a decimal string of the given length chosen uniformly at random."""
     random_int = random.randrange(10**length, 10 ** (length + 1))
     return f"{random_int}"
-
-
-def build_src_val(client_id, merchant_id, intent, additional_query):
-    base = "https://www.paypal.com/sdk/js"
-    query = {
-        "client-id": client_id,
-        "merchant-id": merchant_id,
-        "intent": intent.lower(),
-        "currency": "USD",
-    }
-    if additional_query:
-        query |= additional_query
-    return f"{base}?{urlencode(query, safe='/,')}"
-
-
-def build_script_tag(
-    client_id,
-    merchant_id,
-    intent,
-    bn_code,
-    additional_query,
-    client_token=None,
-):
-    src_val = build_src_val(client_id, merchant_id, intent, additional_query)
-    attributes = [
-        f"id='paypal-js-sdk'",
-        f"src='{src_val}'",
-        f"data-partner-attribution-id='{bn_code}'",
-    ]
-    if client_token is not None:
-        attributes.append(f"data-client-token='{client_token}'")
-    return " ".join(["<script", *attributes, "></script>"])
