@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='onboarding.js') }}"></script>
+<script src="https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js" async></script>
+{% endblock %}
+
+{% block merchant_id %}
+<!--
+  This overwrites the block in 'base.html' with this block's empty contents,
+  removing the "Merchant ID" creds from the left column.
+-->
+{% endblock %}
+
+{% block other_options %}
+<fieldset id="onboarding-options">
+  <legend>
+    MAM Onboarding
+  </legend>
+  <fieldset>
+    <label for="region">
+      Region
+    </label>
+    <select name="region" id="region">
+      <option value="US" selected>United States</option>
+      <option value="CA">Canada</option>
+      <option value="EU">Europe</option>
+    </select>
+    <div class="break"></div>
+    <label for="business-type">
+      Business Type
+    </label>
+    <select name="business-type" id="business-type">
+      <option value="INDIVIDUAL" selected>Individual</option>
+      <option value="PROPRIETORSHIP">Sole Proprietorship</option>
+    </select>
+    <div class="break"></div>
+    <label for="external-id">
+      External ID
+    </label>
+    <span>
+      <input name="external-id" id="external-id" class="monospaced"/>
+    </span>
+    <div class="break"></div>
+    <label for="organization">
+      Organization
+    </label>
+    <span>
+      <input name="organization" id="organization" class="monospaced"/>
+    </span>
+    <div class="break"></div>
+    <label for="primary-currency">
+      Primary Currency Code
+    </label>
+    <span>
+      <input name="primary-currency" id="primary-currency" class="monospaced"/>
+    </span>
+    <div class="break"></div>
+    <label for="country-code">
+      Country Code
+    </label>
+    <span>
+      <input name="country-code" id="country-code" class="monospaced"/>
+    </span>
+    <div class="break"></div>
+    <label for="soft-descriptor">
+      Soft Descriptor
+    </label>
+    <span>
+      <input name="soft-descriptor" id="soft-descriptor" class="monospaced"/>
+    </span>
+    <div class="break"></div>
+    <label for="agreement-accepted">
+      Agreement Accepted Date
+    </label>
+    <span>
+      <input name="agreement-accepted" id="agreement-accepted" class="monospaced"/>
+    </span>
+    <div class="break"></div>
+  </fieldset>
+  <fieldset>
+    <legend>
+      Individual Owner
+    </legend>
+      <label for="owner-fname">
+        First Name
+      </label>
+      <span>
+        <input name="owner-fname" id="owner-fname" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="owner-lname">
+        Last Name
+      </label>
+      <span>
+        <input name="owner-lname" id="owner-lname" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="address-line1">
+        Address Line 1
+      </label>
+      <span>
+        <input name="address-line1" id="address-line1" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="address-line2">
+        Address Line 2
+      </label>
+      <span>
+        <input name="address-line2" id="address-line2" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="city">
+        City
+      </label>
+      <span>
+        <input name="city" id="city" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="state">
+        State
+      </label>
+      <span>
+        <input name="state" id="state" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="postal-code">
+        Postal Code
+      </label>
+      <span>
+        <input name="postal-code" id="postal-code" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="country">
+        Country
+      </label>
+      <span>
+        <input name="country" id="country" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="citizenship">
+        Citizenship
+      </label>
+      <span>
+        <input name="citizenship" id="citizenship" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="date-of-birth">
+        Date of Birth
+      </label>
+      <span>
+        <input name="date-of-birth" id="date-of-birth" class="monospaced">
+      </span>
+      <div class="break"></div>
+  </fieldset>
+  <fieldset>
+    <legend>
+      Business Info
+    </legend>
+      <label for="business-name">
+        Name
+      </label>
+      <span>
+        <input name="business-name" id="business-name" class="monospaced">
+      </span>
+      <select name="business-name-type" id="business-name-type">
+        <option value="LEGAL" selected>Legal</option>
+        <option value="DOING_BUSINESS_AS">DBA</option>
+      </select>
+      <div class="break"></div>
+      <label for="biz-address-line1">
+        Address Line 1
+      </label>
+      <span>
+        <input name="biz-address-line1" id="biz-address-line1" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="biz-address-line2">
+        Address Line 2
+      </label>
+      <span>
+        <input name="biz-address-line2" id="biz-address-line2" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="biz-city">
+        City
+      </label>
+      <span>
+        <input name="biz-city" id="biz-city" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="biz-state">
+        State
+      </label>
+      <span>
+        <input name="biz-state" id="biz-state" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="biz-postal-code">
+        Postal Code
+      </label>
+      <span>
+        <input name="biz-postal-code" id="biz-postal-code" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="biz-country">
+        Country
+      </label>
+      <span>
+        <input name="biz-country" id="biz-country" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="biz-mcc">
+        Merchant Category Code
+      </label>
+      <span>
+        <input name="biz-mcc" id="biz-mcc" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="biz-ein">
+        EIN
+      </label>
+      <span>
+        <input name="biz-ein" id="biz-ein" class="monospaced">
+      </span>
+      <div class="break"></div>
+      <label for="biz-cs-email">
+        CS Email
+      </label>
+      <span>
+        <input name="biz-cs-email" id="biz-cs-email" class="monospaced">
+      </span>
+      <div class="break"></div>
+  </fieldset>
+</fieldset>
+{% endblock %}
+
+
+{% block right_col %}
+<nav id='top-level-nav' role="tabset">
+  <ol id="top-level-buttons">
+    <li>
+      <button id="button-onboarding" type="button" class="active" onclick="selectTab(event)">Onboarding</button>
+    </li>
+    <li>
+      <button id="button-api-calls" type="button" class="inactive" onclick="selectTab(event)">API Calls</button>
+    </li>
+  </ol>
+</nav>
+<div id="tab-onboarding" class="active">
+  <button id="create-referral" onclick="createReferral()" class="action">Create Referral</button>
+  <a
+    id="partner-referral"
+    class="hidden"
+    data-paypal-button="true"
+    target="PPFrame"
+  >Begin Onboarding</a>
+</div>
+<div id="tab-api-calls" class="inactive">
+  <nav role="tabset">
+    <ol id="api-calls-buttons"></ol>
+  </nav>
+</div>
+{% endblock %}
