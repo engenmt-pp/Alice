@@ -31,6 +31,18 @@ def onboarding():
     )
 
 
+@bp.route("mam-onboarding/")
+def mam_onboarding():
+    """Return the rendered MAM-onboarding page from its template."""
+
+    partner_config = get_partner_and_merchant_config()
+    del partner_config["merchant_id"]
+
+    return render_template(
+        "onboarding-mam.html", **partner_config, favicon=current_app.config["favicon"]
+    )
+
+
 @bp.route("")
 @bp.route("checkout/", endpoint="checkout-canonical")
 @bp.route("checkout/branded/")
