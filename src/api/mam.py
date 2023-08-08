@@ -17,12 +17,12 @@ class MAMReferral:
         self.business_type = kwargs.get("business-type")
 
         self.external_id = kwargs.get("external-id")
-        self.legal_country_code = kwargs.get("region")
+        self.legal_region_code = kwargs.get("legal_region_code")
         self.organization = kwargs.get("organization")
         self.primary_currency_code = kwargs.get("primary-currency-code")
         self.soft_descriptor = kwargs.get("soft-descriptor")
 
-        self.agreement_accepted = kwargs.get("agreement-accepted")
+        self.agreement_accepted_datetime = kwargs.get("agreement-accepted-datetime")
 
         self.owner_given_name = kwargs.get("owner-given-name")
         self.owner_surname = kwargs.get("owner-surname")
@@ -147,7 +147,6 @@ class MAMReferral:
             }
         ]
         emails = [{"email": self.business_cs_email, "primary": "true"}]
-        office_bearers = self.build_office_bearers()
 
         business_entity = {
             "type": self.business_type,
@@ -156,17 +155,16 @@ class MAMReferral:
             "registered_business_address": address,
             "identification_documents": identification_documents,
             "emails": emails,
-            "office_bearers": office_bearers,
         }
 
         return business_entity
 
     def create(self):
-        individual_owners = [self.build_individual_owners()]
+        individual_owners = [self.build_individual_owner()]
         business_entity = self.build_business_entity()
 
         body = {
-            "legal_country_code": self.legal_country_code,
+            "legal_country_code": self.legal_region_code,
             "primary_currency_code": self.primary_currency_code,
             "organization": self.organization,
             "soft_descriptor": self.soft_descriptor,
@@ -183,3 +181,20 @@ class MAMReferral:
                 }
             ]
             body["agreements"] = agreements
+
+        self.formatted = {"mock-create": json.dumps(body, indent=2)}
+        return {"formatted": self.formatted}
+
+
+@bp.route("/referrals", methods=("POST",))
+def create_mam_referral():
+    data = request.get_json()
+    data_filtered = {key: value for key, value in data.items() if value}
+    current_app.logger.debug(
+        f"Creating MAM partner referral with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+    )
+
+    referral = MAMReferral(**data)
+    resp = referral.create()
+
+    return jsonify(resp)
