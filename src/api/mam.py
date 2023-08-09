@@ -17,7 +17,7 @@ class MAMReferral:
         self.business_type = kwargs.get("business-type")
 
         self.external_id = kwargs.get("external-id")
-        self.legal_region_code = kwargs.get("legal_region_code")
+        self.legal_region_code = kwargs.get("legal-region-code")
         self.organization = kwargs.get("organization")
         self.primary_currency_code = kwargs.get("primary-currency-code")
         self.soft_descriptor = kwargs.get("soft-descriptor")
