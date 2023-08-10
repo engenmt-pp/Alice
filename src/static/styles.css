@@ -122,6 +122,12 @@ body > main {
     gap: 0.5rem;
 }
 
+.col-1 {
+    grid-column: span 1 / span 1;
+}
+.col-2 {
+    grid-column: span 2 / span 2;
+}
 .col-3 {
     grid-column: span 3 / span 3;
 }

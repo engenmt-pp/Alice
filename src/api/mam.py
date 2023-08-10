@@ -4,13 +4,17 @@ import requests
 from flask import Blueprint, request, current_app, jsonify
 
 from .identity import build_headers
-from .utils import build_endpoint, format_request_and_response
+from .utils import (
+    build_endpoint,
+    format_request_and_response,
+    get_managed_partner_config,
+)
 
 
 bp = Blueprint("mam", __name__, url_prefix="/mam")
 
 
-class MAMReferral:
+class MAM:
     def __init__(self, **kwargs):
         self.auth_header = kwargs.get("authHeader") or None  # Coerce to None if empty
 
@@ -70,9 +74,13 @@ class MAMReferral:
 
     def build_headers(self):
         """Wrapper for .utils.build_headers."""
+
+        config = get_managed_partner_config(model=1)
+
         headers = build_headers(
+            client_id=config["partner_client_id"],
+            secret=config["partner_secret"],
             auth_header=self.auth_header,
-            return_formatted=True,
         )
         if "formatted" in headers:
             self.formatted |= headers["formatted"]
@@ -160,6 +168,10 @@ class MAMReferral:
         return business_entity
 
     def create(self):
+        endpoint = build_endpoint("/v3/customer/managed-accounts")
+        headers = self.build_headers()
+        headers["Prefer"] = "return=representation"
+
         individual_owners = [self.build_individual_owner()]
         business_entity = self.build_business_entity()
 
@@ -177,24 +189,30 @@ class MAMReferral:
             agreements = [
                 {
                     "type": "TERMS_ACCEPTED",
-                    "accepted_time": self.agreement_accepted_datetime,
+                    "accepted_time": f"{self.agreement_accepted_datetime}Z",
                 }
             ]
             body["agreements"] = agreements
 
-        self.formatted = {"mock-create": json.dumps(body, indent=2)}
-        return {"formatted": self.formatted}
+        response = requests.post(
+            endpoint,
+            headers=headers,
+            json=body,
+        )
+        self.formatted["create-nlm"] = format_request_and_response(response)
+        response_dict = {"formatted": self.formatted, "authHeader": self.auth_header}
+        return response_dict
 
 
-@bp.route("/referrals", methods=("POST",))
-def create_mam_referral():
+@bp.route("/", methods=("POST",))
+def create_managed_account():
     data = request.get_json()
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
         f"Creating MAM partner referral with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
 
-    referral = MAMReferral(**data)
-    resp = referral.create()
+    mam = MAM(**data)
+    resp = mam.create()
 
     return jsonify(resp)

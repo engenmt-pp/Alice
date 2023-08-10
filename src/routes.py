@@ -1,20 +1,18 @@
 from flask import Blueprint, current_app, render_template, request
 
+from datetime import datetime
+
+from .api.utils import get_managed_partner_config
+
 bp = Blueprint("routes", __name__, url_prefix="/")
 
 
 def get_partner_and_merchant_config():
     partner_and_merchant_config = {
-        "partner_id": request.args.get("partner-id", current_app.config["PARTNER_ID"]),
-        "partner_client_id": request.args.get(
-            "partner-client-id", current_app.config["PARTNER_CLIENT_ID"]
-        ),
-        "partner_bn_code": request.args.get(
-            "bn-code", current_app.config["PARTNER_BN_CODE"]
-        ),
-        "merchant_id": request.args.get(
-            "merchant-id", current_app.config["MERCHANT_ID"]
-        ),
+        "partner_id": current_app.config["PARTNER_ID"],
+        "partner_client_id": current_app.config["PARTNER_CLIENT_ID"],
+        "partner_bn_code": current_app.config["PARTNER_BN_CODE"],
+        "merchant_id": current_app.config["MERCHANT_ID"],
     }
     return partner_and_merchant_config
 
@@ -35,11 +33,15 @@ def onboarding():
 def mam_onboarding():
     """Return the rendered MAM-onboarding page from its template."""
 
-    partner_config = get_partner_and_merchant_config()
-    del partner_config["merchant_id"]
+    partner_config = get_managed_partner_config(model=1)
+
+    current_datetime = datetime.now().isoformat(timespec="seconds")
 
     return render_template(
-        "onboarding-mam.html", **partner_config, favicon=current_app.config["favicon"]
+        "onboarding-mam.html",
+        **partner_config,
+        current_datetime=current_datetime,
+        favicon=current_app.config["favicon"],
     )
 
 

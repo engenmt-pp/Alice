@@ -1,6 +1,6 @@
 async function createReferral() {
-    const options = getOptions()
-    const response = await fetch('/api/mam/referrals', {
+    const options = getOptions(additionalFormId = 'mam-onboarding')
+    const response = await fetch('/api/mam/', {
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
         body: JSON.stringify(options)

@@ -142,37 +142,37 @@ class Referral:
 
         operations = self.build_operations()
         products = self.build_products()
-        data = {"operations": operations, "products": products}
+        body = {"operations": operations, "products": products}
 
         capabilities = self.build_capabilities()
         if capabilities:
-            data["capabilities"] = capabilities
+            body["capabilities"] = capabilities
 
         partner_config_override = self.build_partner_config_override()
         if partner_config_override:
-            data["partner_config_override"] = partner_config_override
+            body["partner_config_override"] = partner_config_override
 
         capabilities = self.build_capabilities()
         if capabilities:
-            data["capabilities"] = capabilities
+            body["capabilities"] = capabilities
 
         legal_consents = self.build_legal_consents()
         if legal_consents:
-            data["legal_consents"] = legal_consents
+            body["legal_consents"] = legal_consents
 
         business_entity = self.build_business_entity()
         if business_entity:
-            data["business_entity"] = business_entity
+            body["business_entity"] = business_entity
 
         if self.email:
-            data["email"] = self.email
+            body["email"] = self.email
         if self.tracking_id:
-            data["tracking_id"] = self.tracking_id
+            body["tracking_id"] = self.tracking_id
 
         response = requests.post(
             endpoint,
             headers=headers,
-            json=data,
+            json=body,
         )
         self.formatted["create-referral"] = format_request_and_response(response)
         return_val = {

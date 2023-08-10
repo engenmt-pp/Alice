@@ -2,7 +2,7 @@
 
 {% block head %}
 <script src="{{ url_for('static', filename='mam-onboarding.js') }}"></script>
-<script src="https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js" async></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='mam.css') }}"/>
 {% endblock %}
 
 {% block merchant_id %}
@@ -13,183 +13,21 @@
 {% endblock %}
 
 {% block other_options %}
-<fieldset id="mam-onboarding-options">
-  <legend>
-    MAM Onboarding
-  </legend>
+<form>
   <fieldset>
-    <label for="legal-region-code">
-      Legal Region
-    </label>
-    <select name="legal-region-code" id="legal-region-code">
-      <option value="US" selected>United States</option>
-      <option value="CA">Canada</option>
-      <option value="EU">Europe</option>
-    </select>
-    <div class="break"></div>
-    <label for="business-type">
-      Business Type
-    </label>
-    <select name="business-type" id="business-type">
-      <option value="INDIVIDUAL" selected>Individual</option>
-      <option value="PROPRIETORSHIP">Sole Proprietorship</option>
-    </select>
-    <div class="break"></div>
-    <label for="external-id">
-      External ID
-    </label>
-    <input name="external-id" id="external-id" class="monospaced"/>
-    <div class="break"></div>
-    <label for="organization">
-      Organization
-    </label>
-    <input name="organization" id="organization" class="monospaced"/>
-    <div class="break"></div>
-    <label for="primary-currency-code">
-      Primary Currency
-    </label>
-    <select name="primary-currency-code" id="primary-currency-code">
-      <option value="USD" selected>US Dollars</option>
-      <option value="CAD">Canadian Dollars</option>
-      <option value="EUR">Euros</option>
-    </select>
-    <div class="break"></div>
-    <label for="legal-country-code">
-      Country Code
-    </label>
-    <input name="legal-country-code" id="legal-country-code" class="monospaced"/>
-    <div class="break"></div>
-    <label for="soft-descriptor">
-      Soft Descriptor
-    </label>
-    <input name="soft-descriptor" id="soft-descriptor" class="monospaced"/>
-    <div class="break"></div>
-    <label for="agreement-accepted-datetime">
-      Agreement Accepted Date/Time
-    </label>
-    <input name="agreement-accepted-datetime" id="agreement-accepted-datetime" class="monospaced"/>
+    <legend>
+      Account Config
+    </legend>
+    <div>
+      <label>
+        Partner Account
+      </label>
+      <select>
+        <option value="1" selected>Model 1</option>
+      </select>
+    </div>
   </fieldset>
-</fieldset>
-<fieldset>
-  <legend>
-    Individual Owner
-  </legend>
-  <fieldset>
-    <label for="owner-given-name">
-      Given Name
-    </label>
-    <input name="owner-given-name" id="owner-given-name" class="monospaced">
-    <div class="break"></div>
-    <label for="owner-surname">
-      Surname
-    </label>
-    <input name="owner-surname" id="owner-surname" class="monospaced">
-    <div class="break"></div>
-    <label for="owner-citizenship">
-      Citizenship
-    </label>
-    <input name="owner-citizenship" id="owner-citizenship" class="monospaced">
-    <div class="break"></div>
-    <label for="owner-date-of-birth">
-      Date of Birth
-    </label>
-    <input type="date" value='2000-01-01' name="owner-date-of-birth" id="owner-date-of-birth" class="monospaced">
-    <div class="break"></div>
-    <label for="owner-address-line-1">
-      Address Line 1
-    </label>
-    <input name="owner-address-line-1" id="owner-address-line-1" class="monospaced">
-    <div class="break"></div>
-    <label for="owner-address-line-2">
-      Address Line 2
-    </label>
-    <input name="owner-address-line-2" id="owner-address-line-2" class="monospaced">
-    <div class="break"></div>
-    <label for="owner-city">
-      City
-    </label>
-    <input name="owner-city" id="owner-city" class="monospaced">
-    <div class="break"></div>
-    <label for="owner-state-code">
-      State Code
-    </label>
-    <input name="owner-state-code" id="owner-state-code" class="monospaced">
-    <div class="break"></div>
-    <label for="owner-postal-code">
-      Postal Code
-    </label>
-    <input name="owner-postal-code" id="owner-postal-code" class="monospaced">
-    <div class="break"></div>
-    <label for="owner-country-code">
-      Country Code
-    </label>
-    <input name="owner-country-code" id="owner-country-code" class="monospaced">
-  </fieldset>
-</fieldset>
-<fieldset>
-  <legend>
-    Business Info
-  </legend>
-  <fieldset>
-    <label for="business-name">
-      Name
-    </label>
-    <input name="business-name" id="business-name" class="monospaced">
-    <div class="break"></div>
-    <label for="business-name-type">
-      Name Type
-    </label>
-    <select name="business-name-type" id="business-name-type">
-      <option value="LEGAL" selected>Legal</option>
-      <option value="DOING_BUSINESS_AS">DBA</option>
-    </select>
-    <div class="break"></div>
-    <label for="business-mcc">
-      Merchant Category Code
-    </label>
-    <input name="business-mcc" id="business-mcc" class="monospaced">
-    <div class="break"></div>
-    <label for="business-ein">
-      EIN
-    </label>
-    <input name="business-ein" id="business-ein" class="monospaced">
-    <div class="break"></div>
-    <label for="business-cs-email">
-      CS Email
-    </label>
-    <input name="business-cs-email" id="business-cs-email" class="monospaced">
-    <div class="break"></div>
-    <label for="business-address-line-1">
-      Address Line 1
-    </label>
-    <input name="business-address-line-1" id="business-address-line-1" class="monospaced">
-    <div class="break"></div>
-    <label for="business-address-line-2">
-      Address Line 2
-    </label>
-    <input name="business-address-line-2" id="business-address-line-2" class="monospaced">
-    <div class="break"></div>
-    <label for="business-city">
-      City
-    </label>
-    <input name="business-city" id="business-city" class="monospaced">
-    <div class="break"></div>
-    <label for="business-state-code">
-      State Code
-    </label>
-    <input name="business-state-code" id="business-state-code" class="monospaced">
-    <div class="break"></div>
-    <label for="business-postal-code">
-      Postal Code
-    </label>
-    <input name="business-postal-code" id="business-postal-code" class="monospaced">
-    <div class="break"></div>
-    <label for="business-country-code">
-      Country Code
-    </label>
-    <input name="business-country-code" id="business-country-code" class="monospaced">
-  </fieldset>
-</fieldset>
+</form>
 {% endblock %}
 
 
@@ -197,21 +35,222 @@
 <nav id='top-level-nav' role="tabset">
   <ol id="top-level-buttons">
     <li>
-      <button id="button-onboarding" type="button" class="active" onclick="selectTab(event)">Onboarding</button>
+      <button id="button-mam" type="button" class="active" onclick="selectTab(event)">MAM</button>
     </li>
     <li>
       <button id="button-api-calls" type="button" class="inactive" onclick="selectTab(event)">API Calls</button>
     </li>
   </ol>
 </nav>
-<div id="tab-onboarding" class="active">
+<div id="tab-mam" class="active">
+  <form id="mam-onboarding">
+    <fieldset id="mam-onboarding-options" class="col-1">
+      <legend>
+        Managed Account
+      </legend>
+      <div>
+        <label for="legal-region-code">
+          Legal Region
+        </label>
+        <select name="legal-region-code" id="legal-region-code">
+          <option value="US" selected>United States</option>
+          <option value="CA">Canada</option>
+          <option value="EU">Europe</option>
+        </select>
+      </div>
+      <div>
+        <label for="business-type">
+          Business Type
+        </label>
+        <select name="business-type" id="business-type">
+          <option value="INDIVIDUAL" selected>Individual</option>
+          <option value="PROPRIETORSHIP">Sole Proprietorship</option>
+        </select>
+      </div>
+      <div>
+        <label for="external-id">
+          External ID
+        </label>
+        <input name="external-id" id="external-id" class="monospaced"/>
+      </div>
+      <div>
+        <label for="organization">
+          Organization
+        </label>
+        <input name="organization" id="organization" class="monospaced"/>
+      </div>
+      <div>
+        <label for="primary-currency-code">
+          Primary Currency
+        </label>
+        <select name="primary-currency-code" id="primary-currency-code">
+          <option value="USD" selected>USD</option>
+          <option value="CAD">CAD</option>
+          <option value="EUR">EUR</option>
+        </select>
+      </div>
+      <div>
+        <label for="legal-country-code">
+          Country
+        </label>
+        <input name="legal-country-code" id="legal-country-code" class="monospaced" value="US" placehold/>
+      </div>
+      <div>
+        <label for="soft-descriptor">
+          Soft Descriptor
+        </label>
+        <input name="soft-descriptor" id="soft-descriptor" class="monospaced"/>
+      </div>
+      <div>
+        <label for="agreement-accepted-datetime">
+          Agreement Accepted Date/Time
+        </label>
+        <input type="datetime-local" name="agreement-accepted-datetime" id="agreement-accepted-datetime"
+        value="{{ current_datetime }}"
+        class="monospaced"/>
+      </div>
+    </fieldset>
+    <fieldset id="mam-owner-options" class="col-1">
+      <legend>
+        Individual Owner
+      </legend>
+      <div>
+        <label for="owner-given-name">
+          Given Name
+        </label>
+        <input name="owner-given-name" id="owner-given-name" class="monospaced" value="The" placeholder="Given Name">
+      </div>
+      <div>
+        <label for="owner-surname">
+          Surname
+        </label>
+        <input name="owner-surname" id="owner-surname" class="monospaced" value="Todd" placeholder="Surname">
+      </div>
+      <div>
+        <label for="owner-citizenship">
+          Citizenship
+        </label>
+        <input name="owner-citizenship" id="owner-citizenship" class="monospaced">
+      </div>
+      <div>
+        <label for="owner-date-of-birth">
+          Date of Birth
+        </label>
+        <input type="date" value='2000-01-01' name="owner-date-of-birth" id="owner-date-of-birth" class="monospaced">
+      </div>
+      <div>
+        <label for="owner-address-line-1">
+          Address Line 1
+        </label>
+        <input name="owner-address-line-1" id="owner-address-line-1" class="monospaced" value="1324 Permutation Pattern Parkway" placeholder="Address Line 1">
+      </div>
+      <div>
+        <label for="owner-address-line-2">
+          Address Line 2
+        </label>
+        <input name="owner-address-line-2" id="owner-address-line-2" class="monospaced" placeholder="Address Line 2">
+      </div>
+      <div>
+        <label for="owner-city">
+          City
+        </label>
+        <input name="owner-city" id="owner-city" class="monospaced" value="Stanford" placeholder="City">
+      </div>
+      <div>
+        <label for="owner-state-code">
+          State Code
+        </label>
+        <input name="owner-state-code" id="owner-state-code" class="monospaced" value="CA" placeholder="State code">
+      </div>
+      <div>
+        <label for="owner-postal-code">
+          Postal Code
+        </label>
+        <input name="owner-postal-code" id="owner-postal-code" class="monospaced" value="94305" placeholder="Postal Code">
+      </div>
+      <div>
+        <label for="owner-country-code">
+          Country Code
+        </label>
+        <input name="owner-country-code" id="owner-country-code" class="monospaced" value="US" placeholder="Country Code">
+      </div>
+    </fieldset>
+    <fieldset id="mam-business-options" class="col-1">
+      <legend>
+        Business Info
+      </legend>
+      <div>
+        <label for="business-name">
+          Name
+        </label>
+        <input name="business-name" id="business-name" class="monospaced" value="Stuff & Things" placeholder="Business Name">
+      </div>
+      <div>
+        <label for="business-name-type">
+          Name Type
+        </label>
+        <select name="business-name-type" id="business-name-type">
+          <option value="LEGAL" selected>Legal</option>
+          <option value="DOING_BUSINESS_AS">DBA</option>
+        </select>
+      </div>
+      <div>
+        <label for="business-mcc">
+          MCC
+        </label>
+        <input name="business-mcc" id="business-mcc" class="monospaced" value="7998" placeholder="Merchant Category Code">
+      </div>
+      <div>
+        <label for="business-ein">
+          EIN
+        </label>
+        <input name="business-ein" id="business-ein" class="monospaced" value="123456789">
+      </div>
+      <div>
+        <label for="business-cs-email">
+          CS Email
+        </label>
+        <input name="business-cs-email" id="business-cs-email" class="monospaced" value="cs@business.example.com" placeholder="Customer Support Email">
+      </div>
+      <div>
+        <label for="business-address-line-1">
+          Address Line 1
+        </label>
+        <input name="business-address-line-1" id="business-address-line-1" class="monospaced" value="2023 N First St" placeholder="Address Line 1">
+      </div>
+      <div>
+        <label for="business-address-line-2">
+          Address Line 2
+        </label>
+        <input name="business-address-line-2" id="business-address-line-2" class="monospaced" placeholder="Address Line 2">
+      </div>
+      <div>
+        <label for="business-city">
+          City
+        </label>
+        <input name="business-city" id="business-city" class="monospaced" value="San Jose" placeholder="City">
+      </div>
+      <div>
+        <label for="business-state-code">
+          State
+        </label>
+        <input name="business-state-code" id="business-state-code" class="monospaced" value="CA" placeholder="State code">
+      </div>
+      <div>
+        <label for="business-postal-code">
+          Postal Code
+        </label>
+        <input name="business-postal-code" id="business-postal-code" class="monospaced" value="95131" placeholder="Postal Code">
+      </div>
+      <div>
+        <label for="business-country-code">
+          Country
+        </label>
+        <input name="business-country-code" id="business-country-code" class="monospaced" value="US" placeholder="Country Code">
+      </div>
+    </fieldset>
+  </form>
   <button id="create-referral" onclick="createReferral()" class="action">Create Referral</button>
-  <a
-    id="partner-referral"
-    class="hidden"
-    data-paypal-button="true"
-    target="PPFrame"
-  >Begin Onboarding</a>
 </div>
 <div id="tab-api-calls" class="inactive">
   <nav role="tabset">
