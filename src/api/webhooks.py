@@ -1,7 +1,8 @@
 import json
+import requests
 
 from flask import Blueprint, current_app, request
-from .utils import build_endpoint, log_and_request
+from .utils import build_endpoint
 from .identity import build_headers
 
 bp = Blueprint("webhooks", __name__, url_prefix="/webhooks")
@@ -15,9 +16,7 @@ def verify_webhook_signature(verification_dict):
     endpoint = build_endpoint("/v1/notifications/verify-webhook-signature")
     headers = build_headers()
 
-    response = log_and_request(
-        "POST", endpoint, headers=headers, data=verification_dict
-    )
+    response = requests.post(endpoint, headers=headers, data=verification_dict)
     response_dict = response.json()
     return response_dict
 
