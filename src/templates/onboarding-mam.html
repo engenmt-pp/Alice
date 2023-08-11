@@ -7,9 +7,9 @@
 
 {% block options_form %}
 <form id="options-form">
-  <fieldset id="partner-merchant-credentials">
+  <fieldset id="partner-credentials">
     <legend>
-      Partner/merchant info
+      Partner Info
     </legend>
     <div>
       <label for="partner-account-model">
@@ -37,6 +37,21 @@
         BN Code
       </label>
       <input name="partner-bn-code" id="partner-bn-code" class="monospaced" disabled=true></input>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>
+      Managed Account Info
+    </legend>
+    <div>
+      <label for="managed-account-id">
+        ID
+      </label>
+      <div>
+        <input name="managed-account-id" id="managed-account-id" class="monospaced" size="1" onchange="updateManagedAccount()"></input>
+        <button type="button" id="managed-account-button" class="action action-get" disabled=true onclick="getManagedAccount()">Get</input>
+      </div>
     </div>
   </fieldset>
 </form>
@@ -111,7 +126,7 @@
         <label for="soft-descriptor">
           Soft Descriptor
         </label>
-        <input name="soft-descriptor" id="soft-descriptor" class="monospaced" placeholder="Random"/>
+        <input name="soft-descriptor" id="soft-descriptor" class="monospaced"/>
       </div>
       <div>
         <label for="agreement-accepted-datetime">
@@ -216,7 +231,7 @@
         <label for="business-ein">
           EIN
         </label>
-        <input name="business-ein" id="business-ein" class="monospaced" value="123456789">
+        <input name="business-ein" id="business-ein" class="monospaced" value="12-3456780">
       </div>
       <div>
         <label for="business-cs-email">

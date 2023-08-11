@@ -1,16 +1,3 @@
-async function createReferral() {
-    const options = getOptions(additionalFormId = 'mam-onboarding')
-    const response = await fetch('/api/mam/', {
-        headers: { 'Content-Type': 'application/json' },
-        method: 'POST',
-        body: JSON.stringify(options)
-    })
-    const createData = await response.json()
-    const { formatted } = createData
-
-    addApiCalls(formatted)
-}
-
 function setPartnerCredentials() {
     const model = document.getElementById('partner-account-model').value
 
@@ -24,12 +11,57 @@ function setPartnerCredentials() {
             eltPartnerBNCode.value = 'gms_mgd_mod1'
             break
         default:
-            console.log(`Model ${model} is not yet supported!`)
+            alert(`Model ${model} is not yet supported!`)
             eltPartnerId.value = ''
             eltPartnerClientId.value = ''
             eltPartnerBNCode.value = ''
             break
     }
 }
+
+function updateManagedAccount(accountId = null) {
+    const eltAccountId = document.getElementById('managed-account-id')
+    if (accountId != null) {
+        eltAccountId.value = accountId
+    } else {
+        accountId = eltAccountId.value
+    }
+
+    if (accountId != null) {
+        document.getElementById('managed-account-button').disabled = false
+    } else {
+        document.getElementById('managed-account-button').disabled = true
+    }
+}
+
+async function createReferral() {
+    const options = getOptions(additionalFormId = 'mam-onboarding')
+    const response = await fetch('/api/mam/accounts', {
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        body: JSON.stringify(options)
+    })
+    const createData = await response.json()
+    const { formatted, accountId } = createData
+
+    addApiCalls(formatted)
+    updateManagedAccount(accountId)
+}
+
+async function getManagedAccount() {
+    const accountId = document.getElementById('managed-account-id').value
+    const options = getOptions()
+    const response = await fetch(`/api/mam/accounts/${accountId}`, {
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        body: JSON.stringify(options)
+    })
+    const getData = await response.json()
+    const { formatted } = getData
+
+    addApiCalls(formatted)
+}
+
+
 
 window.addEventListener("load", setPartnerCredentials)

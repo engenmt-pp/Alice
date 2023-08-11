@@ -20,6 +20,8 @@ class MAM:
         self.partner_model = int(kwargs["partner-account-model"])
         self.auth_header = kwargs.get("authHeader") or None  # Coerce to None if empty
 
+        self.account_id = kwargs.get("account_id")
+
         self.business_type = kwargs.get("business-type")
 
         self.legal_region_code = kwargs.get("legal-region-code")
@@ -150,11 +152,11 @@ class MAM:
 
         identification_documents = [
             {
-                "type": "EMPLOYER_IDENTIFICATION_NUMBER",
-                "name": "Business Document",
+                "id": "123467890ABCDEF",
                 "identification_number": self.business_ein,
                 "issuing_country_code": "US",
-            }
+                "type": "EMPLOYER_IDENTIFICATION_NUMBER",
+            },
         ]
         emails = [{"email": self.business_cs_email, "primary": "true"}]
 
@@ -203,19 +205,70 @@ class MAM:
             json=body,
         )
         self.formatted["create-nlm"] = format_request_and_response(response)
-        response_dict = {"formatted": self.formatted, "authHeader": self.auth_header}
+        response_dict = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+
+        try:
+            account_id = response.json()["account_id"]
+        except Exception as exc:
+            current_app.logger.error(
+                f"Encountered exception unpacking account ID: {exc}"
+            )
+        else:
+            response_dict["accountId"] = account_id
+        finally:
+            return response_dict
+
+    def get_status(self):
+        if self.account_id is None:
+            return {"formatted": {"error": "No account ID found!"}}
+
+        endpoint = build_endpoint(
+            f"/v3/customer/managed-accounts/{self.account_id}",
+            query={"views": "process_view"},
+        )
+        headers = self.build_headers()
+        # headers["Prefer"] = "return=representation"
+
+        response = requests.get(
+            endpoint,
+            headers=headers,
+        )
+        self.formatted["get-nlm"] = format_request_and_response(response)
+        response_dict = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+
         return response_dict
 
 
-@bp.route("/", methods=("POST",))
+@bp.route("/accounts", methods=("POST",))
 def create_managed_account():
     data = request.get_json()
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
-        f"Creating MAM partner referral with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+        f"Creating managed account with (filtered) data = {json.dumps(data_filtered, indent=2)}"
     )
 
     mam = MAM(**data)
     resp = mam.create()
+
+    return jsonify(resp)
+
+
+@bp.route("/accounts/<account_id>", methods=("POST",))
+def get_managed_account(account_id):
+    data = request.get_json()
+    data["account_id"] = account_id
+    data_filtered = {key: value for key, value in data.items() if value}
+    current_app.logger.debug(
+        f"Getting managed account with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+    )
+
+    mam = MAM(**data)
+    resp = mam.get_status()
 
     return jsonify(resp)
