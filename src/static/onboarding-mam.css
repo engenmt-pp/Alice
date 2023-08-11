@@ -1,31 +1,42 @@
+form {
+    width: 100%;
+}
+form > fieldset > legend {
+    padding: 0;
+}
+
 #mam-onboarding {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
 }
-
-#mam-onboarding > fieldset > legend {
-    padding: 0;
-}
 #mam-onboarding > fieldset {
     flex: 1 1 32%;
+}
+
+fieldset {
     margin: 0;
 }
-#mam-onboarding div {
+fieldset > div {
+    margin-left: 8px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     width: 100%;
     margin-bottom: 6px;
 }
-#mam-onboarding label {
+
+form label {
     font-weight: 400;
-    flex: 1 0 45%;
+    flex: 1 0 40%;
     margin-right: auto;
     white-space: nowrap;
 }
-#mam-onboarding select,
-#mam-onboarding input {
+#options-form label {
+    font-weight: 450;
+}
+form select,
+form input {
     flex: 1 0 50%;
     min-width: 50%;
 }

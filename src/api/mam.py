@@ -8,6 +8,7 @@ from .utils import (
     build_endpoint,
     format_request_and_response,
     get_managed_partner_config,
+    random_decimal_string,
 )
 
 
@@ -16,14 +17,15 @@ bp = Blueprint("mam", __name__, url_prefix="/mam")
 
 class MAM:
     def __init__(self, **kwargs):
+        self.partner_model = int(kwargs["partner-account-model"])
         self.auth_header = kwargs.get("authHeader") or None  # Coerce to None if empty
 
         self.business_type = kwargs.get("business-type")
 
-        self.external_id = kwargs.get("external-id")
         self.legal_region_code = kwargs.get("legal-region-code")
         self.organization = kwargs.get("organization")
         self.primary_currency_code = kwargs.get("primary-currency-code")
+        self.external_id = kwargs.get("external-id") or random_decimal_string(10)
         self.soft_descriptor = kwargs.get("soft-descriptor")
 
         self.agreement_accepted_datetime = kwargs.get("agreement-accepted-datetime")
@@ -50,8 +52,8 @@ class MAM:
         address_line_1 = kwargs.get(f"{prefix}-address-line-1")
         address_line_2 = kwargs.get(f"{prefix}-address-line-2")
 
-        admin_area_1 = kwargs.get(f"{prefix}-city")
-        admin_area_2 = kwargs.get(f"{prefix}-state")
+        admin_area_1 = kwargs.get(f"{prefix}-state-code")
+        admin_area_2 = kwargs.get(f"{prefix}-city")
 
         postal_code = kwargs.get(f"{prefix}-postal-code")
         country_code = kwargs.get(f"{prefix}-country-code")
@@ -75,16 +77,16 @@ class MAM:
     def build_headers(self):
         """Wrapper for .utils.build_headers."""
 
-        config = get_managed_partner_config(model=1)
+        config = get_managed_partner_config(model=self.partner_model)
 
         headers = build_headers(
             client_id=config["partner_client_id"],
             secret=config["partner_secret"],
             auth_header=self.auth_header,
         )
-        if "formatted" in headers:
-            self.formatted |= headers["formatted"]
-            del headers["formatted"]
+
+        self.formatted |= headers["formatted"]
+        del headers["formatted"]
 
         self.auth_header = headers["Authorization"]
         return headers
@@ -160,7 +162,7 @@ class MAM:
             "type": self.business_type,
             "merchant_category_code": self.business_mcc,
             "names": names,
-            "registered_business_address": address,
+            "addresses": [address],
             "identification_documents": identification_documents,
             "emails": emails,
         }
@@ -179,11 +181,12 @@ class MAM:
             "legal_country_code": self.legal_region_code,
             "primary_currency_code": self.primary_currency_code,
             "organization": self.organization,
-            "soft_descriptor": self.soft_descriptor,
             "external_id": self.external_id,
             "individual_owners": individual_owners,
             "business_entity": business_entity,
         }
+        if self.soft_descriptor:
+            body["soft_descriptor"] = self.soft_descriptor
 
         if self.agreement_accepted_datetime:
             agreements = [

@@ -1,35 +1,46 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<script src="{{ url_for('static', filename='mam-onboarding.js') }}"></script>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='mam.css') }}"/>
+<script src="{{ url_for('static', filename='onboarding-mam.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='onboarding-mam.css') }}"/>
 {% endblock %}
 
-{% block merchant_id %}
-<!--
-  This overwrites the block in 'base.html' with this block's empty contents,
-  removing the "Merchant ID" creds from the left column.
--->
-{% endblock %}
-
-{% block other_options %}
-<form>
-  <fieldset>
+{% block options_form %}
+<form id="options-form">
+  <fieldset id="partner-merchant-credentials">
     <legend>
-      Account Config
+      Partner/merchant info
     </legend>
     <div>
-      <label>
+      <label for="partner-account-model">
         Partner Account
       </label>
-      <select>
+      <select name="partner-account-model" id="partner-account-model" onchange="setPartnerCredentials()">
         <option value="1" selected>Model 1</option>
+        <option value="2">Model 2</option>
       </select>
+    </div>
+    <div>
+      <label for="partner-id">
+        Partner ID
+      </label>
+      <input name="partner-id" id="partner-id" class="monospaced" disabled=true/>
+    </div>
+    <div>
+      <label for="partner-client-id">
+        Client ID
+      </label>
+      <input name="partner-client-id" id="partner-client-id" class="monospaced" disabled=true></input>
+    </div>
+    <div>
+      <label for="partner-bn-code">
+        BN Code
+      </label>
+      <input name="partner-bn-code" id="partner-bn-code" class="monospaced" disabled=true></input>
     </div>
   </fieldset>
 </form>
-{% endblock %}
-
+{% endblock options_form %}
 
 {% block right_col %}
 <nav id='top-level-nav' role="tabset">
@@ -65,19 +76,20 @@
         <select name="business-type" id="business-type">
           <option value="INDIVIDUAL" selected>Individual</option>
           <option value="PROPRIETORSHIP">Sole Proprietorship</option>
+          <option value="CORPORATION">Corporation</option>
         </select>
       </div>
       <div>
         <label for="external-id">
           External ID
         </label>
-        <input name="external-id" id="external-id" class="monospaced"/>
+        <input name="external-id" id="external-id" class="monospaced" placeholder="Random"/>
       </div>
       <div>
         <label for="organization">
           Organization
         </label>
-        <input name="organization" id="organization" class="monospaced"/>
+        <input name="organization" id="organization" class="monospaced" value="US" placholder="Organization"/>
       </div>
       <div>
         <label for="primary-currency-code">
@@ -93,13 +105,13 @@
         <label for="legal-country-code">
           Country
         </label>
-        <input name="legal-country-code" id="legal-country-code" class="monospaced" value="US" placehold/>
+        <input name="legal-country-code" id="legal-country-code" class="monospaced" value="US" placeholder="Country Code"/>
       </div>
       <div>
         <label for="soft-descriptor">
           Soft Descriptor
         </label>
-        <input name="soft-descriptor" id="soft-descriptor" class="monospaced"/>
+        <input name="soft-descriptor" id="soft-descriptor" class="monospaced" placeholder="Random"/>
       </div>
       <div>
         <label for="agreement-accepted-datetime">
@@ -130,7 +142,7 @@
         <label for="owner-citizenship">
           Citizenship
         </label>
-        <input name="owner-citizenship" id="owner-citizenship" class="monospaced">
+        <input name="owner-citizenship" id="owner-citizenship" class="monospaced" value="US" placholder="Citizenship">
       </div>
       <div>
         <label for="owner-date-of-birth">
