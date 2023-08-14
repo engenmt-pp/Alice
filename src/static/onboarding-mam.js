@@ -41,8 +41,10 @@ async function createReferral() {
         method: 'POST',
         body: JSON.stringify(options)
     })
+    document.body.style.cursor = 'wait !important'
     const createData = await response.json()
     const { formatted, accountId } = createData
+    document.body.style.cursor = 'default'
 
     addApiCalls(formatted)
     updateManagedAccount(accountId)
