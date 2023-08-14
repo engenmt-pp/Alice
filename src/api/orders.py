@@ -272,38 +272,28 @@ class Order:
 
     def build_payment_source(self, for_call):
         """Return the payment source object appropriate for the type of call being made."""
-        context = self.build_context()
-        payment_source_body = {
-            "experience_context": context,
-        }
-
-        match (self.intent, for_call):
-            case ("CAPTURE", "create"):
-                pass
-            case ("AUTHORIZE", "authorize"):
-                del payment_source_body["experience_context"]
-            case _:
-                # If we're trying to do anything other than
-                # • 'create an intent=capture order' or
-                # • 'authorize an intent=authorize order',
-                # then just return without an FI attached.
-                return {self.payment_source_type: payment_source_body}
 
         if self.ba_id:
             payment_source = {"token": {"id": self.ba_id, "type": "BILLING_AGREEMENT"}}
             return payment_source
 
-        context = self.build_context()
-        payment_source_body = {
-            "experience_context": context,
-        }
+        match for_call:
+            case "create":
+                context = self.build_context()
+                payment_source_body = {"experience_context": context}
+            case "authorize":
+                payment_source_body = {}
+            case _:
+                raise Exception(f"Unsupported value of {for_call=}")
 
         attributes = None
-        match self.vault_flow:
-            case "buyer-not-present":
-                if self.vault_id:
+        match (self.vault_flow, for_call):
+            case ("buyer-not-present", "create"):
+                if self.vault_id and self.intent != "AUTHORIZE":
                     payment_source_body["vault_id"] = self.vault_id
-            case "first-time-buyer":
+            case ("buyer-not-present", "authorize"):
+                payment_source_body["vault_id"] = self.vault_id
+            case ("first-time-buyer", "create"):
                 attributes = {
                     "vault": {
                         "store_in_vault": "ON_SUCCESS",
@@ -311,15 +301,17 @@ class Order:
                         "permit_multiple_payment_tokens": True,
                     }
                 }
-            case "return-buyer":
+            case ("return-buyer", "create"):
                 if self.customer_id:
                     attributes = {"customer": {"id": self.customer_id}}
 
         if attributes:
             payment_source_body["attributes"] = attributes
 
-        payment_source = {self.payment_source_type: payment_source_body}
-        return payment_source
+        if payment_source_body:
+            return {self.payment_source_type: payment_source_body}
+        else:
+            return {}
 
     def create(self):
         """Create the order with the POST /v2/checkout/orders endpoint.
@@ -434,7 +426,7 @@ class Order:
             self.auth_id = auth_response.json()["purchase_units"][0]["payments"][
                 "authorizations"
             ][0]["id"]
-        except (TypeError, IndexError) as exc:
+        except (TypeError, IndexError, KeyError) as exc:
             current_app.logger.error(
                 f"Error accessing authorization ID from response: {exc}"
             )

@@ -488,6 +488,7 @@ function buyerNotPresentCheckout() {
       console.log(`Order ${orderId} created!`)
     }
     console.groupEnd()
+    return orderId
   }
   async function authorizeAndOrCaptureOrder({ paymentSource, orderId }) {
     console.group(`Authorizing and/or capturing order ${orderId}!`)
@@ -526,6 +527,7 @@ function buyerNotPresentCheckout() {
     myOptions.orderId = orderId
 
     if (options.intent === 'AUTHORIZE') {
+      // console.log("Paying with myOptions", myOptions)
       await authorizeAndOrCaptureOrder(myOptions)
     } else {
       console.log('Order should be complete!')
