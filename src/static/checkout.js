@@ -60,16 +60,24 @@ async function buildScriptElement(onload, hosted = false) {
   const query = url.searchParams
   query.set("client-id", partnerClientId)
   query.set("merchant-id", merchantId)
-  query.set("intent", intent.toLowerCase())
   query.set("currency", currency)
   query.set("commit", true)
+  query.set("debug", false)
+
   if (hosted) {
     query.set('components', 'hosted-fields')
   } else {
     query.set('components', 'buttons,card-fields')
     query.set('enable-funding', 'card,paylater,venmo')
   }
-  query.set("debug", false)
+
+  if (document.getElementById('vault-without-purchase').checked) {
+    // When vaulting without purchase, the JS SDK will error out
+    // if anything other than 'intent=capture' is passed.
+    query.set("intent", "capture")
+  } else {
+    query.set("intent", intent.toLowerCase())
+  }
 
   console.log('PayPal JS SDK URL:', url)
 

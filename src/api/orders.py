@@ -277,14 +277,10 @@ class Order:
             payment_source = {"token": {"id": self.ba_id, "type": "BILLING_AGREEMENT"}}
             return payment_source
 
-        match for_call:
-            case "create":
-                context = self.build_context()
-                payment_source_body = {"experience_context": context}
-            case "authorize":
-                payment_source_body = {}
-            case _:
-                raise Exception(f"Unsupported value of {for_call=}")
+        payment_source_body = {}
+        if for_call == "create":
+            context = self.build_context()
+            payment_source_body["experience_context"] = context
 
         attributes = None
         match (self.vault_flow, for_call):
@@ -304,6 +300,8 @@ class Order:
             case ("return-buyer", "create"):
                 if self.customer_id:
                     attributes = {"customer": {"id": self.customer_id}}
+            case _:
+                pass
 
         if attributes:
             payment_source_body["attributes"] = attributes
