@@ -138,7 +138,7 @@ function brandedAndCardFieldsClosure() {
     if (authHeader != null) {
       options.authHeader = authHeader
     }
-    const createResp = await fetch("/api/orders/create", {
+    const createResp = await fetch("/api/orders/", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),
@@ -159,7 +159,7 @@ function brandedAndCardFieldsClosure() {
     if (authHeader != null) {
       options.authHeader = authHeader
     }
-    const captureResp = await fetch(`/api/orders/capture/${orderId}`, {
+    const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),
@@ -321,7 +321,7 @@ function hostedFieldsClosure() {
     if (authHeader != null) {
       options.authHeader = authHeader
     }
-    const createResp = await fetch('/api/orders/create', {
+    const createResp = await fetch('/api/orders/', {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       body: JSON.stringify(options)
@@ -342,7 +342,7 @@ function hostedFieldsClosure() {
   async function getStatus() {
     console.log(`Getting status of order ${orderId}...`)
 
-    const statusResp = await fetch(`/api/orders/status/${orderId}`, {
+    const statusResp = await fetch(`/api/orders/${orderId}`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       body: JSON.stringify(options)
@@ -354,7 +354,7 @@ function hostedFieldsClosure() {
   }
   async function captureOrder() {
     console.group(`Capturing order ${orderId}...`)
-    const captureResp = await fetch(`/api/orders/capture/${orderId}`, {
+    const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       body: JSON.stringify(options)
@@ -477,7 +477,7 @@ function buyerNotPresentCheckout() {
     options = getOptions()
     options['vault-flow'] = "buyer-not-present"
     options['payment-source'] = paymentSource
-    const createResp = await fetch("/api/orders/create", {
+    const createResp = await fetch("/api/orders/", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),
@@ -503,7 +503,7 @@ function buyerNotPresentCheckout() {
     console.log('paymentSource:', paymentSource)
 
     options.authHeader = authHeader
-    const captureResp = await fetch(`/api/orders/capture/${orderId}`, {
+    const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),
