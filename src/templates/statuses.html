@@ -10,36 +10,38 @@
   <legend>
     Onboarding
   </legend>
-  <fieldset>
+  <div>
     <label for="status-tracking-id">
       Tracking ID
     </label>
-    <span>
+    <div>
       <input name="status-tracking-id" id="status-tracking-id" class="monospaced"/>
       <button type="button" onclick="getSellerStatusByTrackingId()" class="action">
         Get
       </button>
-    </span>
-    <div class="break"></div>
+    </div>
+  </div>
+  <div>
     <label for="status-merchant-id">
       Merchant ID
     </label>
-    <span>
+    <div>
       <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
       <button type="button" onclick="getSellerStatus()" class="action">
         Get
       </button>
-    </span>
-    <div class="break"></div>
+    </div>
+  </div>
+  <div>
     <label for="status-referral-token">
       Referral Token
     </label>
-    <span>
+    <div>
       <input name="status-referral-token" id="status-referral-token" class="monospaced"/>
       <button type="button" onclick="getReferralStatus()" class="action">
         Get
       </button>
-    </span>
+    </div>
   </fieldset>
 </fieldset>
 
@@ -47,7 +49,7 @@
   <legend>
     Checkout
   </legend>
-  <fieldset>
+  <div>
     <label for="include-auth-assertion">
       Auth Assertion
     </label>
@@ -55,37 +57,41 @@
       <option value="" selected>Exclude</option>
       <option value="True">Include</option>
     </select>
-    <div class="break"></div>
+  </div>
+  <div>
     <label for="status-order-id">
       Order ID
     </label>
-    <span>
+    <div>
       <input name="status-order-id" id="status-order-id" class="monospaced"/>
       <button type="button" onclick="getOrderStatus()" class="action">
         Get
       </button>
-    </span>
-    <div class="break"></div>
+    </div>
+  </div>
+  <div>
     <label for="status-ba-id">
       BA ID
     </label>
-    <span>
+    <div>
       <input name="status-ba-id" id="status-ba-id" class="monospaced"/>
       <button type="button" onclick="getBaStatus()" class="action">
         Get
       </button>
-    </span>
-    <div class="break"></div>
+    </div>
+  </div>
+  <div>
     <label for="status-customer-id">
       Customer ID
     </label>
-    <span>
+    <div>
       <input name="status-customer-id" id="status-customer-id" class="monospaced"/>
       <button type="button" onclick="getPaymentTokens()" class="action">
         Get
       </button>
-    </span>
-    <div class="break"></div>
+    </div>
+  </div>
+  <div>
     <label for="status-payment-token-id">
       Vault v3 ID
     </label>
@@ -96,7 +102,7 @@
     <button type="button" onclick="getPaymentTokenStatus()" class="action action-get half">
       Get
     </button>
-  </fieldset>
+  </div>
 </fieldset>
 {% endblock %}
 

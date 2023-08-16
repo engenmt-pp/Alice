@@ -106,7 +106,7 @@ body > header a {
 
 
 body > main {
-    max-width: 80rem;
+    max-width: 135ch;
     margin-left: auto;
     margin-right: auto;
     height: 100%;
@@ -166,7 +166,7 @@ form legend {
 }
 
 form label {
-    font-weight: 450;
+    font-weight: 500;
     flex: 1 1 9ch;
     margin-right: auto;
     min-width: max-content;
@@ -198,6 +198,10 @@ fieldset > div {
     margin: 0 0 6px 8px;
 }
 
+.raised {
+    align-self: baseline;
+}
+
 fieldset > div > div,
 fieldset > div > ul,
 fieldset select,
@@ -218,7 +222,6 @@ fieldset > div > ul {
     padding: 0;
 }
 fieldset div ul > li > label {
-    font-weight: 400;
     vertical-align: baseline;
 }
 input[type=checkbox] {
@@ -228,22 +231,14 @@ input[type=checkbox] {
     height: 1rem;
 }
 
-fieldset > select {
-    height: calc(1.25em + 0.25rem + 2px);
-    /*
-    The line-height property doesn't work for select elements,
-    so instead we set the height manually, adding the line height
-    we want (1.25em), the vertical padding we want (0.125rem twice),
-    and the border (1px twice).
-    */
-}
+
 
 fieldset input,
 fieldset select {
     font-size: 0.875rem;
     line-height: 1.25em;
-    padding: 0.125rem 0.25rem;
-    border-radius: 0.25rem;
+    padding: 2px 4px;
+    border-radius: 4px;
     border: solid 1px;
     background-color: var(--light-bg-2);
     border-color: var(--light-bg-4);
@@ -262,14 +257,14 @@ button {
     text-align: center;
 }
 button.half {
-    flex: 1 1 48%;
+    flex: 1 1 45%;
 }
 button:disabled {
     background-color: grey;
     cursor: not-allowed;
 }
 .action {
-    border-radius: 0.25rem;
+    border-radius: 4px;
     min-width: 5ch;
     padding: 3px;
     background-color: var(--blue-600);
@@ -293,11 +288,6 @@ button:disabled {
 }
 .action-delete {
     background-color: var(--red-600);
-}
-
-.break {
-    flex-basis: 100%;
-    height: 0;
 }
 
 .monospaced {
