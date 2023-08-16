@@ -302,7 +302,9 @@ class Order:
             case "buyer-not-present":
                 if not self.vault_id:
                     return {}
-                payment_source_body = {"vault_id": self.vault_id}
+
+                del payment_source_body["experience_context"]
+                payment_source_body["vault_id"] = self.vault_id
 
             case "first-time-buyer":
                 payment_source_body["attributes"] = {
