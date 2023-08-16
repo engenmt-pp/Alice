@@ -1,47 +1,8 @@
-form {
-    width: 100%;
-}
-form > fieldset > legend {
-    padding: 0;
-}
-
 #mam-onboarding {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
 }
 #mam-onboarding > fieldset {
-    flex: 1 1 32%;
-}
-
-fieldset {
-    margin: 0;
-}
-fieldset > div {
-    margin: 0 0 6px 8px;
-    flex-wrap: wrap;
-}
-
-fieldset > div > select,
-fieldset > div > input,
-fieldset > div > div {
-    flex: 1 1 50%;
-    min-width: 35%;
-}
-
-fieldset div {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    gap: 4px;
-}
-
-form label {
-    font-weight: 400;
-    flex: 0 0 35%;
-    margin-right: auto;
-    white-space: nowrap;
-}
-#options-form label {
-    font-weight: 450;
+    flex: 1 1 30%;
 }
