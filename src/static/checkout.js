@@ -60,16 +60,24 @@ async function buildScriptElement(onload, hosted = false) {
   const query = url.searchParams
   query.set("client-id", partnerClientId)
   query.set("merchant-id", merchantId)
-  query.set("intent", intent.toLowerCase())
   query.set("currency", currency)
   query.set("commit", true)
+  query.set("debug", false)
+
   if (hosted) {
     query.set('components', 'hosted-fields')
   } else {
     query.set('components', 'buttons,card-fields')
     query.set('enable-funding', 'card,paylater,venmo')
   }
-  query.set("debug", false)
+
+  if (document.getElementById('vault-without-purchase').checked) {
+    // When vaulting without purchase, the JS SDK will error out
+    // if anything other than 'intent=capture' is passed.
+    query.set("intent", "capture")
+  } else {
+    query.set("intent", intent.toLowerCase())
+  }
 
   console.log('PayPal JS SDK URL:', url)
 
@@ -130,7 +138,7 @@ function brandedAndCardFieldsClosure() {
     if (authHeader != null) {
       options.authHeader = authHeader
     }
-    const createResp = await fetch("/api/orders/create", {
+    const createResp = await fetch("/api/orders/", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),
@@ -151,7 +159,7 @@ function brandedAndCardFieldsClosure() {
     if (authHeader != null) {
       options.authHeader = authHeader
     }
-    const captureResp = await fetch(`/api/orders/capture/${orderId}`, {
+    const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),
@@ -313,7 +321,7 @@ function hostedFieldsClosure() {
     if (authHeader != null) {
       options.authHeader = authHeader
     }
-    const createResp = await fetch('/api/orders/create', {
+    const createResp = await fetch('/api/orders/', {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       body: JSON.stringify(options)
@@ -334,7 +342,7 @@ function hostedFieldsClosure() {
   async function getStatus() {
     console.log(`Getting status of order ${orderId}...`)
 
-    const statusResp = await fetch(`/api/orders/status/${orderId}`, {
+    const statusResp = await fetch(`/api/orders/${orderId}`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       body: JSON.stringify(options)
@@ -346,7 +354,7 @@ function hostedFieldsClosure() {
   }
   async function captureOrder() {
     console.group(`Capturing order ${orderId}...`)
-    const captureResp = await fetch(`/api/orders/capture/${orderId}`, {
+    const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       body: JSON.stringify(options)
@@ -469,7 +477,7 @@ function buyerNotPresentCheckout() {
     options = getOptions()
     options['vault-flow'] = "buyer-not-present"
     options['payment-source'] = paymentSource
-    const createResp = await fetch("/api/orders/create", {
+    const createResp = await fetch("/api/orders/", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),
@@ -488,13 +496,14 @@ function buyerNotPresentCheckout() {
       console.log(`Order ${orderId} created!`)
     }
     console.groupEnd()
+    return orderId
   }
   async function authorizeAndOrCaptureOrder({ paymentSource, orderId }) {
     console.group(`Authorizing and/or capturing order ${orderId}!`)
     console.log('paymentSource:', paymentSource)
 
     options.authHeader = authHeader
-    const captureResp = await fetch(`/api/orders/capture/${orderId}`, {
+    const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),

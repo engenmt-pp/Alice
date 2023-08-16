@@ -270,56 +270,60 @@ class Order:
             context["shipping_preference"] = self.shipping_preference
         return context
 
-    def build_payment_source(self, for_call):
+    def build_payment_source_for_authorize(self):
         """Return the payment source object appropriate for the type of call being made."""
-        context = self.build_context()
-        payment_source_body = {
-            "experience_context": context,
-        }
 
-        match (self.intent, for_call):
-            case ("CAPTURE", "create"):
-                pass
-            case ("AUTHORIZE", "authorize"):
-                del payment_source_body["experience_context"]
-            case _:
-                # If we're trying to do anything other than
-                # • 'create an intent=capture order' or
-                # • 'authorize an intent=authorize order',
-                # then just return without an FI attached.
-                return {self.payment_source_type: payment_source_body}
-
+        payment_source = {}
         if self.ba_id:
-            payment_source = {"token": {"id": self.ba_id, "type": "BILLING_AGREEMENT"}}
+            payment_source["token"] = {
+                "id": self.ba_id,
+                "type": "BILLING_AGREEMENT",
+            }
+        elif self.vault_flow == "buyer-not-present" and self.vault_id:
+            payment_source["vault_id"] = self.vault_id
+
+        return payment_source
+
+    def build_payment_source_for_create(self):
+        """Return the payment source object appropriate for the type of call being made."""
+
+        if self.ba_id and self.intent == "AUTHORIZE":
+            payment_source = {
+                "token": {
+                    "id": self.ba_id,
+                    "type": "BILLING_AGREEMENT",
+                },
+            }
             return payment_source
 
-        context = self.build_context()
-        payment_source_body = {
-            "experience_context": context,
-        }
+        payment_source_body = {"experience_context": self.build_context()}
 
-        attributes = None
         match self.vault_flow:
             case "buyer-not-present":
-                if self.vault_id:
-                    payment_source_body["vault_id"] = self.vault_id
+                if not self.vault_id:
+                    return {}
+
+                del payment_source_body["experience_context"]
+                payment_source_body["vault_id"] = self.vault_id
+
             case "first-time-buyer":
-                attributes = {
+                payment_source_body["attributes"] = {
                     "vault": {
                         "store_in_vault": "ON_SUCCESS",
                         "usage_type": self.vault_level,
                         "permit_multiple_payment_tokens": True,
                     }
                 }
+
             case "return-buyer":
                 if self.customer_id:
-                    attributes = {"customer": {"id": self.customer_id}}
+                    payment_source_body["attributes"] = {
+                        "customer": {
+                            "id": self.customer_id,
+                        },
+                    }
 
-        if attributes:
-            payment_source_body["attributes"] = attributes
-
-        payment_source = {self.payment_source_type: payment_source_body}
-        return payment_source
+        return {self.payment_source_type: payment_source_body}
 
     def create(self):
         """Create the order with the POST /v2/checkout/orders endpoint.
@@ -334,7 +338,7 @@ class Order:
             "intent": self.intent,
             "purchase_units": purchase_units,
         }
-        payment_source = self.build_payment_source(for_call="create")
+        payment_source = self.build_payment_source_for_create()
         if payment_source:
             data["payment_source"] = payment_source
 
@@ -395,7 +399,7 @@ class Order:
 
         headers = self.build_headers()
 
-        payment_source = self.build_payment_source(for_call="authorize")
+        payment_source = self.build_payment_source_for_authorize()
         if payment_source:
             data = {"payment_source": payment_source}
         else:
@@ -434,7 +438,7 @@ class Order:
             self.auth_id = auth_response.json()["purchase_units"][0]["payments"][
                 "authorizations"
             ][0]["id"]
-        except (TypeError, IndexError) as exc:
+        except (TypeError, IndexError, KeyError) as exc:
             current_app.logger.error(
                 f"Error accessing authorization ID from response: {exc}"
             )
@@ -462,7 +466,7 @@ class Order:
         return {"formatted": self.formatted}
 
 
-@bp.route("/create", methods=("POST",))
+@bp.route("/", methods=("POST",))
 def create_order():
     """Create an order.
 
@@ -480,7 +484,7 @@ def create_order():
     return jsonify(resp)
 
 
-@bp.route("/capture/<order_id>", methods=("POST",))
+@bp.route("/<order_id>/capture", methods=("POST",))
 def capture_order(order_id):
     """Capture the order with the given ID.
 
@@ -499,7 +503,7 @@ def capture_order(order_id):
     return jsonify(resp)
 
 
-@bp.route("/status/<order_id>", methods=("POST",))
+@bp.route("/<order_id>", methods=("POST",))
 def get_order_status(order_id):
     """Retrieve the status of the order with the given ID.
 
