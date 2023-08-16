@@ -17,9 +17,9 @@
   <legend>
     Referral options
   </legend>
-  <fieldset>
-    <label>
-      Features
+  <div>
+    <label class="raised">
+      Features:
     </label>
     <ul>
       <li>
@@ -39,9 +39,8 @@
         <label for="feature-access-merchant-information">Access merchant information</label>
       </li>
     </ul>
-    <div class="break"></div>
-  </fieldset>
-  <fieldset>
+  </div>
+  <div>
     <label for="product">
       Product
     </label>
@@ -49,7 +48,8 @@
       <option value="EXPRESS_CHECKOUT" selected>Branded only</option>
       <option value="PPCP">Branded + ACDC</option>
     </select>
-    <div class="break"></div>
+  </div>
+  <div>
     <label for="country-code">
       Country
     </label>
@@ -62,7 +62,8 @@
       <option value="MX">Mexico</option>
       <option value="US">United States</option>
     </select>
-    <div class="break"></div>
+  </div>
+  <div>
     <label for="include-legal-consents">
       Legal consents
     </label>
@@ -70,7 +71,8 @@
       <option value="include" selected>Include</option>
       <option value="">Exclude</option>
     </select>
-    <div class="break"></div>
+  </div>
+  <div>
     <label for="vault-level">
       Vault v3
     </label>
@@ -78,22 +80,19 @@
       <option value="" selected>None</option>
       <option value="MERCHANT">Merchant-level</option>
     </select>
-    <div class="break"></div>
+  </div>
+  <div>
     <label for="tracking-id">
       Tracking ID
     </label>
-    <span>
-      <input name="tracking-id" id="tracking-id" class="monospaced"/>
-    </span>
-    <div class="break"></div>
+    <input name="tracking-id" id="tracking-id" class="monospaced"/>
+  </div>
+  <div>
     <label for="email">
       Email
     </label>
-    <span>
-      <input name="email" id="email" class="monospaced"/>
-    </span>
-    <div class="break"></div>
-  </fieldset>
+    <input name="email" id="email" class="monospaced"/>
+  </div>
 </fieldset>
 {% endblock %}
 
