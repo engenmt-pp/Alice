@@ -535,7 +535,6 @@ function buyerNotPresentCheckout() {
     myOptions.orderId = orderId
 
     if (options.intent === 'AUTHORIZE') {
-      // console.log("Paying with myOptions", myOptions)
       await authorizeAndOrCaptureOrder(myOptions)
     } else {
       console.log('Order should be complete!')
