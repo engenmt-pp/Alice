@@ -273,24 +273,16 @@ class Order:
     def build_payment_source_for_authorize(self):
         """Return the payment source object appropriate for the type of call being made."""
 
+        payment_source = {}
         if self.ba_id:
-            payment_source = {
-                "token": {
-                    "id": self.ba_id,
-                    "type": "BILLING_AGREEMENT",
-                },
+            payment_source["token"] = {
+                "id": self.ba_id,
+                "type": "BILLING_AGREEMENT",
             }
-            return payment_source
+        elif self.vault_flow == "buyer-not-present" and self.vault_id:
+            payment_source["vault_id"] = self.vault_id
 
-        match self.vault_flow:
-            case "buyer-not-present":
-                if not self.vault_id:
-                    return {}
-
-                return {"vault_id": self.vault_id}
-
-            case _:
-                return {}
+        return payment_source
 
     def build_payment_source_for_create(self):
         """Return the payment source object appropriate for the type of call being made."""
@@ -324,16 +316,12 @@ class Order:
             case "return-buyer":
                 if self.customer_id:
                     payment_source_body["attributes"] = {
-                        "customer": {"id": self.customer_id}
+                        "customer": {
+                            "id": self.customer_id,
+                        },
                     }
 
-            case _:
-                pass
-
-        if payment_source_body:
-            return {self.payment_source_type: payment_source_body}
-
-        return {}
+        return {self.payment_source_type: payment_source_body}
 
     def create(self):
         """Create the order with the POST /v2/checkout/orders endpoint.
