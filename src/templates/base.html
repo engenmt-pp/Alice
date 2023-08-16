@@ -53,33 +53,32 @@
             <legend>
               Partner/merchant info
             </legend>
-            <fieldset>
-              <!-- Partner ID -->
+            <div>
               <label for="partner-id">
                 Partner ID
               </label>
               <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced"/>
-              <div class="break"></div>
-              <!-- Partner client ID -->
+            </div>
+            <div>
               <label for="partner-client-id">
                 Client ID
               </label>
               <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced"></input>
-              <div class="break"></div>
-              <!-- Partner BN code -->
+            </div>
+            <div>
               <label for="partner-bn-code">
                 BN Code
               </label>
               <input name="partner-bn-code" id="partner-bn-code" value="{{ partner_bn_code }}" class="monospaced"></input>
-              <div class="break"></div>
-              {% block merchant_id %}
-              <!-- Merchant ID -->
+            </div>
+            {% block merchant_id %}
+            <div>
               <label for="merchant-id">
                 Merchant ID
               </label>
               <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced"></input>
-              {% endblock merchant_id %}
-            </fieldset>
+            </div>
+            {% endblock merchant_id %}
           </fieldset>
           {% endblock creds %}
 

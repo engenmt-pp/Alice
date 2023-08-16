@@ -18,7 +18,7 @@ button {
   --zinc-800: rgb(39 39 42);
   --zinc-750: rgb(51 51 56);
   --zinc-700: rgb(63 63 70);
-  --zinc-600: rgb(82 82 27);
+  --zinc-600: rgb(82 82 91);
   --zinc-500: rgb(113 113 122);
   --zinc-400: rgb(161 161 170);
   --zinc-300: rgb(212 212 216);
@@ -158,53 +158,66 @@ a {
     }
 }
 
+form {
+    width: 100%;
+}
 form legend {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-fieldset {
-    width: calc(100% - 0.5rem);
-    border: 0;
     padding: 0;
-    font-weight: 500;
-    margin-left: 0.5rem;
-    margin-right: 0;
 }
-form > fieldset {
-    margin-bottom: 0.5rem;
-}
-form > fieldset > fieldset {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.25rem 0.5rem;
-}
-fieldset > label {
+
+form label {
     font-weight: 450;
     flex: 1 1 9ch;
     margin-right: auto;
     min-width: max-content;
 }
-fieldset > span {
-    flex: 1 1 50%;
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 0.25em;
-}
-fieldset select,
-fieldset input {
-    flex: 1 1 50%;
+
+form legend {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
 }
 
-fieldset > ul {
-    flex-basis: 100%;
-    margin: 0 0.5rem 0 0;
-    padding: 0 0.5rem 0 0;
-    list-style-type: none;
+form > fieldset {
+    margin-bottom: 0.5rem;
 }
-fieldset > ul > li > label {
+fieldset {
+    width: 100%;
+    border: 0;
+    padding: 0;
+    font-weight: 500;
+    margin: 0;
+}
+fieldset div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+fieldset > div {
+    margin: 0 0 6px 8px;
+}
+
+fieldset > div > div,
+fieldset > div > ul,
+fieldset select,
+fieldset input  {
+    flex: 1 1 50%;
+    min-width: 35%;
+}
+fieldset input[type='checkbox'] {
+    flex: 1 1 1rem;
+    margin: 0;
+    min-width: max-content;
+    vertical-align: text-bottom;
+}
+
+fieldset > div > ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+fieldset div ul > li > label {
     font-weight: 400;
     vertical-align: baseline;
 }
@@ -244,25 +257,9 @@ fieldset select {
         color: var(--dark-text-5);
     }
 }
-fieldset > span > button {
-    min-width: max-content;
-    flex: none;
-}
-fieldset > button {
-    flex: 1 0 100%;
-    text-align: center;
-    background-color: var(--blue-600);
-    border-radius: 0.25rem;
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
-    color: var(--white);
-}
 button {
     cursor: pointer;
     text-align: center;
-}
-button.half {
-    flex: 1 1 48%;
 }
 button.half {
     flex: 1 1 48%;

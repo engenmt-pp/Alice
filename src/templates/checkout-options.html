@@ -1,29 +1,8 @@
-<fieldset id="checkout-options">
-  <legend>
-    SDK options
-  </legend>
-  <fieldset>
-    <label for="intent">
-      Intent
-    </label>
-    <select name="intent" id="intent">
-      <option value="CAPTURE" selected>Capture</option>
-      <option value="AUTHORIZE">Authorize</option>
-    </select>
-    <div class="break"></div>
-    <label for="currency">
-      Currency
-    </label>
-    <select name="currency" id="currency">
-      <option value="USD" selected>USD</option>
-    </select>
-  </fieldset>
-</fieldset>
 <fieldset id="vault-options">
   <legend>
     Vault v3 options
   </legend>
-  <fieldset>
+  <div>
     <label for="vault-flow">
       Flow
     </label>
@@ -33,51 +12,52 @@
       <option value="return-buyer">Return buyer</option>
       <option value="buyer-not-present">Buyer not present</option>
     </select>
-    <fieldset class="first-time-buyer return-buyer buyer-not-present">
-      <label for="vault-level">
-        Vault level
-      </label>
-      <select name="vault-level" id="vault-level">
-        <option value="PLATFORM" selected>Partner-level</option>
-        <option value="MERCHANT">Merchant-level</option>
+  </div>
+  <div class="first-time-buyer return-buyer buyer-not-present">
+    <label for="vault-level">
+      Vault level
+    </label>
+    <select name="vault-level" id="vault-level">
+      <option value="PLATFORM" selected>Partner-level</option>
+      <option value="MERCHANT">Merchant-level</option>
+    </select>
+  </div>
+  <div class="first-time-buyer return-buyer">
+    <label for="vault-without-purchase">
+      Vault without purchase
+    </label>
+    <input type="checkbox" name="vault-without-purchase" id="vault-without-purchase"/>
+  </div>
+  <div class="return-buyer">
+    <label for="customer-id">
+      Customer ID
+    </label>
+    <input name="customer-id" id="customer-id" class="monospaced"/>
+  </div>
+  <div class="buyer-not-present">
+    <label for="vault-id">
+      Vault ID
+    </label>
+    <input name="vault-id" id="vault-id" class="monospaced"/>
+  </div>
+  <div class="buyer-not-present">
+    <label for="vault-payment-source" class="buyer-not-present">
+      Payment source
+    </label>
+    <div>
+      <select name="vault-payment-source" id="vault-payment-source">
+        <option value="paypal" selected>PayPal</option>
+        <option value="card">Card</option>
       </select>
-    </fieldset>
-    <fieldset class="first-time-buyer return-buyer">
-      <label for="vault-without-purchase">
-        Vault without purchase
-      </label>
-      <input type="checkbox" name="vault-without-purchase" id="vault-without-purchase"/>
-    </fieldset>
-    <fieldset class="return-buyer">
-      <label for="customer-id">
-        Customer ID
-      </label>
-      <input name="customer-id" id="customer-id" class="monospaced"/>
-    </fieldset>
-    <fieldset class="buyer-not-present">
-      <label for="vault-id">
-        Vault ID
-      </label>
-      <input name="vault-id" id="vault-id" class="monospaced"/>
-      <div class="break"></div>
-      <label for="vault-payment-source" class="buyer-not-present">
-        Payment source
-      </label>
-      <span>
-        <select name="vault-payment-source" id="vault-payment-source">
-          <option value="paypal" selected>PayPal</option>
-          <option value="card">Card</option>
-        </select>
-        <button type="button" class="action" id="buyer-not-present-checkout">Pay</button>
-      </span>
-    </fieldset>
-  </fieldset>
+      <button type="button" class="action" id="buyer-not-present-checkout">Pay</button>
+    </div>
+  </div>
 </fieldset>
 <fieldset id="hosted-v1-options">
   <legend>
     Hosted Fields v1 options
   </legend>
-  <fieldset>
+  <div>
     <label for="3ds-preference">
       3D-Secure (3DS)
     </label>
@@ -85,13 +65,22 @@
       <option value="SCA_WHEN_REQUIRED" selected>When required</option>
       <option value="SCA_ALWAYS">Always</option>
     </select>
-  </fieldset>
+  </div>
 </fieldset>
 <fieldset id="order-options">
   <legend>
     Order options
   </legend>
-  <fieldset>
+  <div>
+    <label for="intent">
+      Intent
+    </label>
+    <select name="intent" id="intent">
+      <option value="CAPTURE" selected>Capture</option>
+      <option value="AUTHORIZE">Authorize</option>
+    </select>
+  </div>
+  <div>
     <label for="shipping-preference">
       Shipping pref.
     </label>
@@ -101,48 +90,43 @@
       <option value="SET_PROVIDED_ADDRESS">Set provided address</option>
       <option value="">Unspecified</option>
     </select>
-    <div class="break"></div>
+  </div>
+  <div>
     <label for="ba-id">
       BA ID
     </label>
-    <span>
-      <input name="ba-id" id="ba-id" class="monospaced"/>
-    </span>
-  </fieldset>
+    <input name="ba-id" id="ba-id" class="monospaced"/>
+  </div>
 </fieldset>
 <fieldset id="purchase-unit-options">
   <legend>
     Purchase unit options
   </legend>
-  <fieldset>
+  <div>
     <label for="reference-id">
       Reference ID
     </label>
-    <span>
-      <input name="reference-id" id="reference-id" class="monospaced" placeholder="default" type="text"/>
-    </span>
-    <div class="break"></div>
+    <input name="reference-id" id="reference-id" class="monospaced" placeholder="default" type="text"/>
+  </div>
+  <div>
     <label for="custom-id">
       Custom ID
     </label>
-    <span>
-      <input name="custom-id" id="custom-id" class="monospaced" type="text"/>
-    </span>
-    <div class="break"></div>
+    <input name="custom-id" id="custom-id" class="monospaced" type="text"/>
+  </div>
+  <div>
     <label for="soft-descriptor">
       Soft descriptor
     </label>
-    <span>
-      <input name="soft-descriptor" id="soft-descriptor" class="monospaced" type="text"/>
-    </span>
-    <div class="break"></div>
+    <input name="soft-descriptor" id="soft-descriptor" class="monospaced" type="text"/>
+  </div>
+  <div>
     <label for="partner-fee">
       Partner fee
     </label>
-    <span>
-      <input name="partner-fee" id="partner-fee" class="monospaced" type="number" value="0"/>
-    </span>
-    <div class="break"></div>
+    <input name="partner-fee" id="partner-fee" class="monospaced" type="number" value="0"/>
+  </div>
+  <div>
     <label>
       Include:
     </label>
@@ -160,31 +144,30 @@
         <label for="include-custom-purchase-unit-field">Custom field</label>
       </li>
     </ul>
-
-    <fieldset id="custom-purchase-unit-field">
-      <label for="custom-purchase-unit-key">Key</label>
-      <input name="custom-purchase-unit-key" id="custom-purchase-unit-key" class="monospaced" type="text"/>
-      <div class="break"></div>
-
-      <label for="custom-purchase-unit-value">JSON value</label>
-      <input name="custom-purchase-unit-value" id="custom-purchase-unit-value" class="monospaced full" type="text"/>
-      <div class="break"></div>
-    </fieldset>
+  </div>
+  <div class="custom-purchase-unit-field">
+    <label for="custom-purchase-unit-key">Key</label>
+    <input name="custom-purchase-unit-key" id="custom-purchase-unit-key" class="monospaced" type="text"/>
+  </div>
+  <div class="custom-purchase-unit-field">
+    <label for="custom-purchase-unit-value">JSON value</label>
+    <input name="custom-purchase-unit-value" id="custom-purchase-unit-value" class="monospaced full" type="text"/>
+  </div>
   </fieldset>
 </fieldset>
 <fieldset id="item-options">
   <legend>
     Item options
   </legend>
-  <fieldset>
+  <div>
     <label for="item-price">Price</label>
     <input name="item-price" id="item-price" class="monospaced" type="number" value="3.14"/>
-    <div class="break"></div>
-
+  </div>
+  <div>
     <label for="item-tax">Tax</label>
     <input name="item-tax" id="item-tax" class="monospaced" type="number" value="0"/>
-    <div class="break"></div>
-
+  </div>
+  <div>
     <label for="item-category">Category</label>
     <select name="item-category" id="item-category">
       <option value="None" selected>Unspecified</option>
@@ -192,12 +175,12 @@
       <option value="DIGITAL_GOODS">Digital goods</option>
       <option value="DONATION">Donation</option>
     </select>
-    <div class="break"></div>
-
+  </div>
+  <div>
     <label for="disbursement-mode">Disbursement</label>
     <select name="disbursement-mode" id="disbursement-mode">
       <option value="INSTANT" selected>Instant</option>
       <option value="DELAYED">Delayed</option>
     </select>
-  </fieldset>
+  </div>
 </fieldset>

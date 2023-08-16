@@ -34,7 +34,7 @@ class Order:
             "card",  # If 'payment-source' is undefined, it must be a card transaction!
         )
 
-        self.currency = kwargs.get("currency")
+        self.currency = kwargs.get("currency", "USD")
         self.intent = kwargs.get("intent")
         self.disbursement_mode = kwargs.get("disbursement-mode")
 
