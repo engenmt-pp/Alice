@@ -3,14 +3,21 @@ import logging
 from logging.config import dictConfig
 
 from src import create_app
-from config import PartnerOneConfig, MerchantOneConfig, ManagedPathPartnerConfigOne
-
 from src.logs import FilterNoStatic
+
+from config import (
+    PartnerOneConfig,
+    MerchantOneConfig,
+    ManagedPathPartnerConfigOne,
+    ManagedPathPartnerConfigTwo,
+)
+
 
 app = create_app()
 app.config.from_object(PartnerOneConfig)
 app.config.from_object(MerchantOneConfig)
 app.config.from_object(ManagedPathPartnerConfigOne)
+app.config.from_object(ManagedPathPartnerConfigTwo)
 
 
 if __name__ == "__main__":

@@ -38,3 +38,10 @@ class ManagedPathPartnerConfigOne(TestingConfig):
     MP_PARTNER_ONE_SECRET = os.environ.get("MP_PARTNER_ONE_SECRET")
     MP_PARTNER_ONE_ID = os.environ.get("MP_PARTNER_ONE_ID")
     MP_PARTNER_ONE_BN_CODE = os.environ.get("MP_PARTNER_ONE_BN_CODE")
+
+
+class ManagedPathPartnerConfigTwo(TestingConfig):
+    MP_PARTNER_TWO_CLIENT_ID = os.environ.get("MP_PARTNER_TWO_CLIENT_ID")
+    MP_PARTNER_TWO_SECRET = os.environ.get("MP_PARTNER_TWO_SECRET")
+    MP_PARTNER_TWO_ID = os.environ.get("MP_PARTNER_TWO_ID")
+    MP_PARTNER_TWO_BN_CODE = os.environ.get("MP_PARTNER_TWO_BN_CODE")

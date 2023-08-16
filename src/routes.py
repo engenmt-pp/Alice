@@ -33,13 +33,15 @@ def onboarding():
 def mam_onboarding():
     """Return the rendered MAM-onboarding page from its template."""
 
-    partner_config = get_managed_partner_config(model=1)
+    partner_config = {
+        model: get_managed_partner_config(model=model) for model in [1, 2]
+    }
 
     current_datetime = datetime.now().isoformat(timespec="seconds")
 
     return render_template(
         "onboarding-mam.html",
-        **partner_config,
+        partners=partner_config,
         current_datetime=current_datetime,
         favicon=current_app.config["favicon"],
     )

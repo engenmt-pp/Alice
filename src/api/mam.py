@@ -22,6 +22,9 @@ class MAM:
 
         self.account_id = kwargs.get("account_id")
 
+        self.create_prefer_header = kwargs.get("create-mam-prefer-header")
+        self.get_include_process_view = kwargs.get("get-mam-process-view")
+
         self.business_type = kwargs.get("business-type")
 
         self.legal_region_code = kwargs.get("legal-region-code")
@@ -82,8 +85,8 @@ class MAM:
         config = get_managed_partner_config(model=self.partner_model)
 
         headers = build_headers(
-            client_id=config["partner_client_id"],
-            secret=config["partner_secret"],
+            client_id=config["client_id"],
+            secret=config["secret"],
             auth_header=self.auth_header,
         )
 
@@ -174,7 +177,8 @@ class MAM:
     def create(self):
         endpoint = build_endpoint("/v3/customer/managed-accounts")
         headers = self.build_headers()
-        headers["Prefer"] = "return=representation"
+        if self.create_prefer_header:
+            headers["Prefer"] = self.create_prefer_header
 
         individual_owners = [self.build_individual_owner()]
         business_entity = self.build_business_entity()
@@ -225,12 +229,17 @@ class MAM:
         if self.account_id is None:
             return {"formatted": {"error": "No account ID found!"}}
 
+        if self.get_include_process_view:
+            query = {"views": "process_view"}
+        else:
+            query = None
+
         endpoint = build_endpoint(
             f"/v3/customer/managed-accounts/{self.account_id}",
-            query={"views": "process_view"},
+            query=query,
         )
+
         headers = self.build_headers()
-        # headers["Prefer"] = "return=representation"
 
         response = requests.get(
             endpoint,

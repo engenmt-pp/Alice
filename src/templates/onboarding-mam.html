@@ -5,7 +5,15 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='onboarding-mam.css') }}"/>
 {% endblock %}
 
+
+
 {% block options_form %}
+{% for model_num, credentials in partners.items() %}
+<input id='model-{{ model_num }}-id' value="{{ credentials.id }}" type="hidden"/>
+<input id='model-{{ model_num }}-client-id' value="{{ credentials.client_id }}" type="hidden"/>
+<input id='model-{{ model_num }}-bn-code' value="{{ credentials.bn_code }}" type="hidden"/>
+{% endfor %}
+
 <form id="options-form">
   <fieldset id="partner-credentials">
     <legend>
@@ -42,8 +50,30 @@
 
   <fieldset>
     <legend>
+      Managed Account Creation
+    </legend>
+    <div>
+      <label for="create-mam-prefer-header">
+        <span class="monospaced">Prefer</span> header
+      </label>
+      <select class="monospaced" name="create-mam-prefer-header" id="create-mam-prefer-header">
+        <option value="" selected>None</option>
+        <option>return=representation</option>
+        <option>views=process_view</option>
+      </select>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>
       Managed Account Info
     </legend>
+    <div>
+      <label for="get-mam-process-view">
+        Request <span class="monospaced">process_view</span>
+      </label>
+      <input type="checkbox"name="get-mam-process-view" id="get-mam-process-view"/>
+    </div>
     <div>
       <label for="managed-account-id">
         ID

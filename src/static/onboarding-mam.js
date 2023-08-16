@@ -4,18 +4,23 @@ function setPartnerCredentials() {
     const eltPartnerId = document.getElementById('partner-id')
     const eltPartnerClientId = document.getElementById('partner-client-id')
     const eltPartnerBNCode = document.getElementById('partner-bn-code')
-    switch (model) {
-        case "1":
-            eltPartnerId.value = '9P94JRPRJ8QYL'
-            eltPartnerClientId.value = 'AfskEKI9yB2g2aBYYLFPLvDGy5TYNYPx3ZMjXf28V4aLrRCBtBhz05wT6YOOMDudZAgIQgDb3cJuVN3q'
-            eltPartnerBNCode.value = 'gms_mgd_mod1'
-            break
-        default:
-            alert(`Model ${model} is not yet supported!`)
-            eltPartnerId.value = ''
-            eltPartnerClientId.value = ''
-            eltPartnerBNCode.value = ''
-            break
+
+    const sourcePartnerId = document.getElementById(`model-${model}-id`)
+    const sourcePartnerClientId = document.getElementById(`model-${model}-client-id`)
+    const sourcePartnerBNCode = document.getElementById(`model-${model}-bn-code`)
+
+    if (sourcePartnerId == null
+        || sourcePartnerClientId == null
+        || sourcePartnerBNCode == null
+    ) {
+        eltPartnerId.value = ''
+        eltPartnerClientId.value = ''
+        eltPartnerBNCode.value = ''
+        alert(`Model ${model} is not yet supported!`)
+    } else {
+        eltPartnerId.value = sourcePartnerId.value
+        eltPartnerClientId.value = sourcePartnerClientId.value
+        eltPartnerBNCode.value = sourcePartnerBNCode.value
     }
 }
 
