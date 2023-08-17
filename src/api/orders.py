@@ -36,6 +36,7 @@ class Order:
 
         self.currency = kwargs.get("currency", "USD")
         self.intent = kwargs.get("intent")
+        self.user_action = kwargs.get("user-action")
         self.disbursement_mode = kwargs.get("disbursement-mode")
 
         self.reference_id = kwargs.get("reference-id")
@@ -268,6 +269,8 @@ class Order:
         }
         if self.shipping_preference:
             context["shipping_preference"] = self.shipping_preference
+        if self.user_action:
+            context["user_action"] = self.user_action
         return context
 
     def build_payment_source_for_authorize(self):
