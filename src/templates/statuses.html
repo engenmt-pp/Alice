@@ -7,102 +7,110 @@
 
 {% block other_options %}
 <fieldset id="onboarding">
-  <legend>
-    Onboarding
-  </legend>
-  <div>
-    <label for="status-tracking-id">
-      Tracking ID
-    </label>
+  <details open>
+    <summary>
+      <legend>
+        Onboarding
+      </legend>
+    </summary>
     <div>
-      <input name="status-tracking-id" id="status-tracking-id" class="monospaced"/>
-      <button type="button" onclick="getSellerStatusByTrackingId()" class="action">
-        Get
-      </button>
+      <label for="status-tracking-id">
+        Tracking ID
+      </label>
+      <div>
+        <input name="status-tracking-id" id="status-tracking-id" class="monospaced"/>
+        <button type="button" onclick="getSellerStatusByTrackingId()" class="action">
+          Get
+        </button>
+      </div>
     </div>
-  </div>
-  <div>
-    <label for="status-merchant-id">
-      Merchant ID
-    </label>
     <div>
-      <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
-      <button type="button" onclick="getSellerStatus()" class="action">
-        Get
-      </button>
+      <label for="status-merchant-id">
+        Merchant ID
+      </label>
+      <div>
+        <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
+        <button type="button" onclick="getSellerStatus()" class="action">
+          Get
+        </button>
+      </div>
     </div>
-  </div>
-  <div>
-    <label for="status-referral-token">
-      Referral Token
-    </label>
     <div>
-      <input name="status-referral-token" id="status-referral-token" class="monospaced"/>
-      <button type="button" onclick="getReferralStatus()" class="action">
-        Get
-      </button>
+      <label for="status-referral-token">
+        Referral Token
+      </label>
+      <div>
+        <input name="status-referral-token" id="status-referral-token" class="monospaced"/>
+        <button type="button" onclick="getReferralStatus()" class="action">
+          Get
+        </button>
+      </div>
     </div>
-  </fieldset>
+  </details>
 </fieldset>
 
 <fieldset id="checkout">
-  <legend>
-    Checkout
-  </legend>
-  <div>
-    <label for="include-auth-assertion">
-      Auth Assertion
-    </label>
-    <select name="include-auth-assertion" id="include-auth-assertion" class="monospaced">
-      <option value="" selected>Exclude</option>
-      <option value="True">Include</option>
-    </select>
-  </div>
-  <div>
-    <label for="status-order-id">
-      Order ID
-    </label>
+  <details open>
+    <summary>
+      <legend>
+        Checkout
+      </legend>
+    </summary>
     <div>
-      <input name="status-order-id" id="status-order-id" class="monospaced"/>
-      <button type="button" onclick="getOrderStatus()" class="action">
+      <label for="include-auth-assertion">
+        Auth Assertion
+      </label>
+      <select name="include-auth-assertion" id="include-auth-assertion" class="monospaced">
+        <option value="" selected>Exclude</option>
+        <option value="True">Include</option>
+      </select>
+    </div>
+    <div>
+      <label for="status-order-id">
+        Order ID
+      </label>
+      <div>
+        <input name="status-order-id" id="status-order-id" class="monospaced"/>
+        <button type="button" onclick="getOrderStatus()" class="action">
+          Get
+        </button>
+      </div>
+    </div>
+    <div>
+      <label for="status-ba-id">
+        BA ID
+      </label>
+      <div>
+        <input name="status-ba-id" id="status-ba-id" class="monospaced"/>
+        <button type="button" onclick="getBaStatus()" class="action">
+          Get
+        </button>
+      </div>
+    </div>
+    <div>
+      <label for="status-customer-id">
+        Customer ID
+      </label>
+      <div>
+        <input name="status-customer-id" id="status-customer-id" class="monospaced"/>
+        <button type="button" onclick="getPaymentTokens()" class="action">
+          Get
+        </button>
+      </div>
+    </div>
+    <div>
+      <label for="status-payment-token-id">
+        Vault v3 ID
+      </label>
+      <input name="status-payment-token-id" id="status-payment-token-id" class="monospaced"/>
+      <button type="button" onclick="deletePaymentToken()" class="action action-delete half">
+        Delete
+      </button>
+      <button type="button" onclick="getPaymentTokenStatus()" class="action action-get half">
         Get
       </button>
     </div>
-  </div>
-  <div>
-    <label for="status-ba-id">
-      BA ID
-    </label>
-    <div>
-      <input name="status-ba-id" id="status-ba-id" class="monospaced"/>
-      <button type="button" onclick="getBaStatus()" class="action">
-        Get
-      </button>
-    </div>
-  </div>
-  <div>
-    <label for="status-customer-id">
-      Customer ID
-    </label>
-    <div>
-      <input name="status-customer-id" id="status-customer-id" class="monospaced"/>
-      <button type="button" onclick="getPaymentTokens()" class="action">
-        Get
-      </button>
-    </div>
-  </div>
-  <div>
-    <label for="status-payment-token-id">
-      Vault v3 ID
-    </label>
-    <input name="status-payment-token-id" id="status-payment-token-id" class="monospaced"/>
-    <button type="button" onclick="deletePaymentToken()" class="action action-delete half">
-      Delete
-    </button>
-    <button type="button" onclick="getPaymentTokenStatus()" class="action action-get half">
-      Get
-    </button>
-  </div>
+  </details>
 </fieldset>
 {% endblock %}
 
