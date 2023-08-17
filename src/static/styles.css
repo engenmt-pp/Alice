@@ -209,11 +209,14 @@ fieldset input {
     flex: 1 1 50%;
     min-width: 35%;
 }
-fieldset input[type='checkbox'] {
-    flex: 1 1 1rem;
-    margin: 0;
+fieldset input[type=checkbox] {
+    flex: 0 1 1rem;
     min-width: max-content;
     vertical-align: text-bottom;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+    margin-left: auto;
+    margin-right: 0.25rem;
 }
 
 fieldset > div > ul {
@@ -222,7 +225,10 @@ fieldset > div > ul {
     padding: 0;
 }
 fieldset div ul > li > label {
-    vertical-align: baseline;
+    vertical-align: top;
+}
+li input[type=checkbox] {
+    margin: 0.125rem;
 }
 input[type=checkbox] {
     min-width: 1rem;

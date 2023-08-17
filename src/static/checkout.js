@@ -72,9 +72,8 @@ async function buildScriptElement(onload, hosted = false) {
   if (hosted) {
     query.set('components', 'hosted-fields')
   } else {
-    query.set('components', 'buttons')
-    query.set('disable-funding', 'paylater')
-    query.set('enable-funding', 'card,venmo')
+    query.set('components', 'card-fields,buttons')
+    query.set('enable-funding', 'venmo,paylater')
   }
 
   if (document.getElementById('vault-without-purchase').checked) {
