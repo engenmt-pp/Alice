@@ -237,6 +237,7 @@ fieldset div > ul {
 }
 fieldset div ul > li > label {
     vertical-align: top;
+    font-weight: 400;
 }
 li input[type=checkbox] {
     margin: 0.125rem;
