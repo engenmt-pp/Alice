@@ -164,6 +164,15 @@ form {
 form legend {
     padding: 0;
 }
+details summary {
+    cursor: pointer;
+}
+details summary > legend {
+    display: inline;
+}
+summary {
+    margin-bottom: 6px;
+}
 
 form label {
     font-weight: 500;
@@ -190,10 +199,12 @@ fieldset {
 fieldset div {
     display: flex;
     justify-content: space-between;
+    flex-direction: row;
     align-items: center;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 4px 6px;
 }
+details > div,
 fieldset > div {
     margin: 0 0 6px 8px;
 }
@@ -202,8 +213,8 @@ fieldset > div {
     align-self: baseline;
 }
 
-fieldset > div > div,
-fieldset > div > ul,
+fieldset div > div,
+fieldset div > ul,
 fieldset select,
 fieldset input {
     flex: 1 1 50%;
@@ -219,13 +230,14 @@ fieldset input[type=checkbox] {
     margin-right: 0.25rem;
 }
 
-fieldset > div > ul {
+fieldset div > ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
 fieldset div ul > li > label {
     vertical-align: top;
+    font-weight: 400;
 }
 li input[type=checkbox] {
     margin: 0.125rem;
