@@ -53,22 +53,27 @@ async function buildScriptElement(onload, hosted = false) {
     partnerClientId,
     merchantId,
     intent,
-    currency,
     ...options
   } = getOptions()
   const url = new URL('https://www.paypal.com/sdk/js')
   const query = url.searchParams
   query.set("client-id", partnerClientId)
   query.set("merchant-id", merchantId)
-  query.set("currency", currency)
-  query.set("commit", true)
+  query.set("currency", "USD")
   query.set("debug", false)
+  let commit
+  if (document.getElementById('user-action').value == 'CONTINUE') {
+    commit = false
+  } else {
+    commit = true
+  }
+  query.set('commit', commit)
 
   if (hosted) {
     query.set('components', 'hosted-fields')
   } else {
-    query.set('components', 'buttons,card-fields')
-    query.set('enable-funding', 'card,paylater,venmo')
+    query.set('components', 'card-fields,buttons')
+    query.set('enable-funding', 'venmo,paylater')
   }
 
   if (document.getElementById('vault-without-purchase').checked) {
@@ -443,6 +448,7 @@ let addOnChange = (function () {
     'vault-flow',
     'vault-level',
     'vault-without-purchase',
+    'user-action',
     'customer-id',
   ]
 
