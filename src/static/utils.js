@@ -1,20 +1,9 @@
-let authHeader
-function copyToClipboard(id) {
-  // As written, this fails in "production" as the site isn't HTTPS.
-  navigator.clipboard.writeText(document.getElementById(id).value)
-}
-
-
 function getOptions() {
   const formData = new FormData(document.getElementById('options-form'))
   const formOptions = Object.fromEntries(formData)
   const partnerMerchantInfo = getPartnerMerchantInfo()
-  if (authHeader != null) {
-    partnerMerchantInfo.authHeader = authHeader
-  }
   return { ...formOptions, ...partnerMerchantInfo }
 }
-
 
 function getPartnerMerchantInfo() {
   const info = {}
@@ -55,96 +44,25 @@ function deactivate(selector) {
   })
 }
 
-
-function saveOptions(loadHosted = false) {
+function saveOptions() {
   const formData = new FormData(document.getElementById('options-form'))
   for (const pair of formData.entries()) {
     window.sessionStorage.setItem(pair[0], pair[1])
   }
-  window.sessionStorage.setItem('loadHosted', loadHosted)
 }
 function loadOptions() {
   const keys = Object.keys(window.sessionStorage)
   const options = {}
   for (const key of keys) {
     const val = window.sessionStorage.getItem(key)
-    if (key !== 'loadHosted') {
-      document.getElementById(key).value = val
-    }
     options[key] = val
   }
   return options
 }
 
-
-function selectTabHostedClosure() {
-  function saveAndReload() {
-    saveOptions(loadHosted = true)
-    location.reload()
-  }
-  function activateAndRenderHostedFields() {
-    /** This is attached to the top-level "Checkout - Hosted Fields" button.
-     * It deactivates all top-level nav buttons except for the target and
-     * deactivates all top-level divs except the div corresponding to the target.
-     */
-    const buttonHostedFields = document.getElementById('button-checkout-hosted')
-    deactivate('#top-level-buttons button')
-    activate(buttonHostedFields)
-
-    const renderHostedFields = hostedFieldsClosure()
-    buildScriptElement(renderHostedFields, hosted = true)
-    addOnChange(saveAndReload)
-
-    const divIdHostedFields = buttonHostedFields.id.replace('button-', 'tab-')
-    const divHostedFields = document.getElementById(divIdHostedFields)
-    deactivate('#top-level-nav ~ div')
-    activate(divHostedFields)
-  }
-  function loadHostedFields(event) {
-    const hostedFieldCardNumber = document.getElementById('braintree-hosted-field-number')
-    if (hostedFieldCardNumber != null) {
-      /** The 'braintree-hosted-field-number' iframe exists in the DOM,
-       * so we'll have to reload the page to re-render the hosted fields.
-       */
-      saveAndReload()
-    } else {
-      activateAndRenderHostedFields()
-    }
-  }
-  return loadHostedFields
-}
-
-function selectTab(event) {
-  /** This is attached to the top-level "Checkout - Branded" and "API Calls" buttons.
-   * It deactivates all top-level nav buttons except for the target and
-   * deactivates all top-level divs except the div corresponding to the target.
-   */
-
-  const target = event.target
-  const target_id = target.id
-  const curr = document.querySelector('#top-level-buttons .active')
-  let curr_id
-  if (curr != null) {
-    curr_id = curr.id
-  }
-
-  deactivate('#top-level-buttons button')
-  activate(target)
-
-  if (target_id.includes('branded') || target_id.includes('card')) {
-    if (curr_id == null || curr_id.includes('hosted')) {
-      const loadCheckout = brandedAndCardFieldsClosure()
-      buildScriptElement(loadCheckout)
-      addOnChange(() => {
-        buildScriptElement(loadCheckout)
-      })
-    }
-  }
-
-  const divId = target_id.replace('button-', 'tab-')
-  const div = document.getElementById(divId)
-  deactivate('#top-level-nav ~ div')
-  activate(div)
+function saveOptionsAndReloadPage() {
+  saveOptions()
+  location.reload()
 }
 
 
@@ -175,12 +93,11 @@ function createApiCallButton(id, divId) {
 
     // Also deactivate all api-call-level divs except the div corresponding to the target.
     const div = document.getElementById(divId)
-    deactivate('#tab-api-calls div')
+    deactivate('#div-api-calls div')
     activate(div)
   })
   return button
 }
-
 
 function createApiCallDiv(id, contents) {
   if (id === 'access-token') {
@@ -218,11 +135,11 @@ function addApiCalls(formattedCalls, click = true) {
       li.appendChild(button)
       apiCallsButtons.appendChild(li)
 
-      const apiCalls = document.getElementById('tab-api-calls')
+      const apiCalls = document.getElementById('div-api-calls')
       apiCalls.appendChild(div)
 
       if (click) {
-        document.getElementById('button-api-calls').click()
+        document.getElementById('input-api-calls').click()
       }
       // Always illuminate the button!
       document.getElementById(buttonId).click()

@@ -33,10 +33,35 @@ def onboarding():
 
 @bp.route("")
 @bp.route("checkout/")
-def checkout():
-    """Return the rendered checkout page from its template."""
+@bp.route("checkout/branded/")
+def checkout_branded():
+    """Return the rendered Branded checkout page from its template."""
 
-    template = "checkout.html"
+    template = "checkout-branded.html"
+
+    partner_and_merchant_config = get_partner_and_merchant_config()
+
+    return render_template(
+        template, **partner_and_merchant_config, favicon=current_app.config["favicon"]
+    )
+
+
+@bp.route("checkout/hosted-v1/")
+def checkout_hosted_v1():
+    """Return the rendered Hosted Fields v1 checkout page from its template."""
+    template = "checkout-hf-v1.html"
+
+    partner_and_merchant_config = get_partner_and_merchant_config()
+
+    return render_template(
+        template, **partner_and_merchant_config, favicon=current_app.config["favicon"]
+    )
+
+
+@bp.route("checkout/hosted-v2/")
+def checkout_hosted_v2():
+    """Return the rendered Hosted Fields v2 checkout page from its template."""
+    template = "checkout-hf-v2.html"
 
     partner_and_merchant_config = get_partner_and_merchant_config()
 

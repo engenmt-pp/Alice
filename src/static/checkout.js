@@ -1,3 +1,9 @@
+function changeCheckout() {
+  saveOptions()
+  const newCheckoutURL = document.getElementById('checkout-method').value
+  window.location.replace(newCheckoutURL)
+}
+
 /** Get an ID token to be included in the JS SDK's script tag for vault purposes. */
 async function getIdToken() {
   console.groupCollapsed("Requesting ID token...")
@@ -26,29 +32,7 @@ async function getIdToken() {
   return idToken
 }
 
-/** Get a client token to be included in the JS SDK's script tag for (old) hosted fields. */
-async function getClientToken() {
-  console.groupCollapsed("Requesting Client token...")
-
-  const endpoint = "/api/identity/client-token"
-  const clientTokenResponse = await fetch(endpoint, {
-    headers: { "Content-Type": "application/json" },
-    method: "POST",
-    body: JSON.stringify({ authHeader: authHeader }),
-  })
-  const clientTokenData = await clientTokenResponse.json()
-  const { formatted, clientToken } = clientTokenData;
-  ({ authHeader } = clientTokenData)
-
-  addApiCalls(formatted, click = false)
-
-  console.log(`Client token: ${clientToken}`)
-  console.groupEnd()
-
-  return clientToken
-}
-
-async function buildScriptElement(onload, hosted = false) {
+async function buildScriptElement(onload, checkoutMethod) {
   const {
     partnerClientId,
     merchantId,
@@ -75,11 +59,17 @@ async function buildScriptElement(onload, hosted = false) {
   }
   query.set('commit', commit)
 
-  if (hosted) {
-    query.set('components', 'hosted-fields')
-  } else {
-    query.set('components', 'card-fields,buttons')
-    query.set('enable-funding', 'venmo,paylater')
+  switch (checkoutMethod) {
+    case 'branded':
+      query.set('components', 'buttons')
+      query.set('enable-funding', 'venmo,paylater,cards')
+      break
+    case 'hosted-fields-v1':
+      query.set('components', 'hosted-fields')
+      break
+    case 'hosted-fields-v2':
+      query.set('components', 'card-fields')
+      break
   }
 
   if (document.getElementById('vault-without-purchase').checked) {
@@ -96,10 +86,11 @@ async function buildScriptElement(onload, hosted = false) {
   scriptElement.id = 'paypal-js-sdk'
   scriptElement.src = url.href
 
-  if (hosted) {
+  if (checkoutMethod == 'hosted-fields-v1') {
     const clientToken = await getClientToken()
     scriptElement.setAttribute('data-client-token', clientToken)
   }
+
   const vault = Boolean(options['vault-flow'])
   if (vault) {
     const idToken = await getIdToken()
@@ -556,4 +547,166 @@ function buyerNotPresentCheckout() {
     console.groupEnd()
   }
   return payWithVaultedPaymentToken
+}
+
+let addOnChange = (function () {
+  let myFunc
+  const elementIds = [
+    'intent',
+    'vault-flow',
+    'vault-level',
+    'vault-without-purchase',
+    'user-action',
+    'customer-id',
+  ]
+
+  function innerAddOnChange(loadCheckout) {
+    console.groupCollapsed("Updating 'change' event listeners...")
+    if (myFunc != null) {
+      console.log("Removing previous event listener:", myFunc)
+      for (const elementId of elementIds) {
+        const element = document.getElementById(elementId)
+        element.removeEventListener('change', myFunc)
+      }
+    }
+    myFunc = loadCheckout
+    console.log("Adding new event listener:", myFunc)
+    for (const elementId of elementIds) {
+      const element = document.getElementById(elementId)
+      element.addEventListener('change', myFunc)
+    }
+    console.groupEnd()
+  }
+  return innerAddOnChange
+})()
+
+function checkoutFunctions() {
+  let orderId
+  let authHeader
+  function onClick({ fundingSource }) {
+    console.group("Button clicked!")
+    console.log('fundingSource:', fundingSource)
+    console.groupEnd()
+  }
+  async function createOrder({ paymentSource } = {}) {
+    console.group("Creating the order...")
+    console.log('paymentSource:', paymentSource)
+
+    const options = getOptions()
+    if (paymentSource != null) {
+      options['payment-source'] = paymentSource
+    }
+    if (authHeader != null) {
+      options.authHeader = authHeader
+    }
+    const createResp = await fetch("/api/orders/", {
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify(options),
+    })
+    const createData = await createResp.json()
+    const { formatted } = createData;
+    ({ authHeader, orderId } = createData)
+
+    addApiCalls(formatted)
+    console.log(`Order ${orderId} created!`)
+    console.groupEnd()
+    return orderId
+  }
+  async function getStatus() {
+    console.log(`Getting status of order ${orderId}...`)
+
+    const statusResp = await fetch(`/api/orders/${orderId}`, {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify(options)
+    })
+    const statusData = await statusResp.json()
+    const { formatted } = statusData
+
+    addApiCalls(formatted)
+  }
+  async function captureOrder({ paymentSource, orderID: orderId } = {}) {
+    console.group(`Order ${orderId} was approved!`)
+    console.log('paymentSource:', paymentSource)
+    console.log(`Capturing order ${orderId}...`)
+
+    const options = getOptions()
+    if (authHeader != null) {
+      options.authHeader = authHeader
+    }
+    const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify(options)
+    })
+    console.log(`Captured order ${orderId}!`)
+    const captureData = await captureResp.json()
+    const { formatted } = captureData;
+    ({ authHeader } = captureData)
+
+    addApiCalls(formatted)
+    console.groupEnd()
+  }
+  async function createVaultSetupToken({ paymentSource } = {}) {
+    console.group("Creating the vault setup token...")
+    console.log('paymentSource:', paymentSource)
+
+    options = getOptions()
+    if (paymentSource != null) {
+      options['payment-source'] = paymentSource
+    }
+    if (authHeader != null) {
+      options.authHeader = authHeader
+    }
+    const createResp = await fetch("/api/vault/setup-tokens", {
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify(options),
+    })
+    const createData = await createResp.json()
+    const { formatted, setupTokenId } = createData;
+    ({ authHeader } = createData)
+
+    addApiCalls(formatted)
+    console.log(`Vault setup token ${setupTokenId} created!`)
+    console.groupEnd()
+    return setupTokenId
+  }
+  async function createVaultPaymentToken({ vaultSetupToken: setupTokenId } = {}) {
+    console.log(`Vault setup token ${setupTokenId} was approved!`)
+    console.group('Creating vault payment token...')
+
+    if (authHeader != null) {
+      options.authHeader = authHeader
+    }
+    const createResp = await fetch(`/api/vault/setup-tokens/${setupTokenId}`, {
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify(options),
+    })
+    const createData = await createResp.json()
+    const { formatted, paymentTokenId } = createData;
+    ({ authHeader } = createData)
+
+    addApiCalls(formatted)
+    console.log(`Vault payment token ${paymentTokenId} created!`)
+    console.groupEnd()
+    return paymentTokenId
+  }
+  function onError(data) {
+    console.group('Error!')
+    console.log('data:', data)
+    alert("An error with the JS SDK occurred! Check the console for more information.")
+    console.groupEnd()
+  }
+  return {
+    onClick: onClick,
+    createOrder: createOrder,
+    getStatus: getStatus,
+    captureOrder: captureOrder,
+    createVaultSetupToken: createVaultSetupToken,
+    createVaultPaymentToken: createVaultPaymentToken,
+    onError: onError,
+  }
 }
