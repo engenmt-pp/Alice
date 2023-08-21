@@ -62,7 +62,7 @@ async function buildScriptElement(onload, checkoutMethod) {
   switch (checkoutMethod) {
     case 'branded':
       query.set('components', 'buttons')
-      query.set('enable-funding', 'venmo,paylater,cards')
+      query.set('enable-funding', 'venmo,paylater,card')
       break
     case 'hosted-fields-v1':
       query.set('components', 'hosted-fields')

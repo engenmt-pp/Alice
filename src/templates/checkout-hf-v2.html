@@ -10,21 +10,6 @@
 />
 {% endblock head %}
 
-{% block preamble_options %}
-  <fieldset>
-    <div>
-      <label>
-        Checkout Method
-      </label>
-      <select id='checkout-method' onchange="changeCheckout()">
-        <option value="{{ url_for('routes.checkout_branded') }}">Branded</option>
-        <option value="{{ url_for('routes.checkout_hosted_v2') }}" selected>Hosted Fields v2 (new!)</option>
-        <option value="{{ url_for('routes.checkout_hosted_v1') }}">Hosted Fields v1</option>
-      </select>
-    </div>
-  </fieldset>
-{% endblock preamble_options %}
-
 {% block checkout_div %}
 <script>
   window.addEventListener('DOMContentLoaded', async function() {
@@ -34,6 +19,7 @@
     const loadCheckout = hostedFieldsV2Closure()
     buildScriptElement(loadCheckout, 'hosted-fields-v2')
     addOnChange(saveOptionsAndReloadPage)
+
     const BNPCheckout = buyerNotPresentCheckout()
     document.getElementById('buyer-not-present-checkout').onclick = BNPCheckout
   })

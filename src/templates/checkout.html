@@ -1,14 +1,50 @@
 {% extends 'base.html' %}
 
 {% block head %}
-
 {{ super() }}
 
-<script src="{{ url_for('static', filename='checkout.js') }}"></script>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='custom-purchase-unit.css') }}"/>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vault.css') }}"/>
-
+<script
+  src="{{ url_for('static', filename='checkout.js') }}"
+></script>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{{ url_for('static', filename='custom-purchase-unit.css') }}"
+/>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{{ url_for('static', filename='vault.css') }}"
+/>
 {% endblock head %}
+
+
+{% block preamble_options %}
+<fieldset id="fieldset-checkout-method">
+  <div>
+    <label>
+      Checkout Method
+    </label>
+    <select id='checkout-method' onchange="changeCheckout()">
+      <option
+        value="{{ url_for('routes.checkout_branded') }}"
+        {{ 'selected' if method == 'branded' else '' }}
+      >Branded</option>
+      <optgroup label="ACDC">
+        <option
+          value="{{ url_for('routes.checkout_hosted_v2') }}"
+          {{ 'selected' if method == 'hosted-v2' else '' }}
+        >Hosted Fields v2</option>
+        <option
+          value="{{ url_for('routes.checkout_hosted_v1') }}"
+          {{ 'selected' if method == 'hosted-v1' else '' }}
+        >Hosted Fields v1</option>
+      </optgroup>
+    </select>
+  </div>
+</fieldset>
+{% endblock preamble_options %}
+
 
 {% block other_options %}
 {% include 'checkout-options.html' %}
@@ -28,8 +64,6 @@
   {% endblock checkout_div %}
 </div>
 <div id="div-api-calls">
-  <nav role="tabset">
-    <ol id="api-calls-buttons"></ol>
-  </nav>
+  <nav role="tabset"></nav>
 </div>
 {% endblock %}

@@ -5,21 +5,6 @@
 <script src="{{ url_for('static', filename='checkout-branded.js') }}"></script>
 {% endblock head %}
 
-{% block preamble_options %}
-  <fieldset>
-    <div>
-      <label>
-        Checkout Method
-      </label>
-      <select id='checkout-method' onchange="changeCheckout()">
-        <option value="{{ url_for('routes.checkout_branded') }}" selected>Branded</option>
-        <option value="{{ url_for('routes.checkout_hosted_v2') }}">Hosted Fields v2 (new!)</option>
-        <option value="{{ url_for('routes.checkout_hosted_v1') }}">Hosted Fields v1</option>
-      </select>
-    </div>
-  </fieldset>
-{% endblock preamble_options %}
-
 {% block checkout_div %}
 <script>
   window.addEventListener('DOMContentLoaded', async function() {
@@ -30,7 +15,7 @@
     buildScriptElement(loadCheckout, 'branded')
     addOnChange(() => {
       buildScriptElement(loadCheckout, 'branded')
-      })
+    })
     const BNPCheckout = buyerNotPresentCheckout()
     document.getElementById('buyer-not-present-checkout').onclick = BNPCheckout
   })

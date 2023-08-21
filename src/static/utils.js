@@ -30,20 +30,6 @@ function getPartnerMerchantInfo() {
   return info
 }
 
-
-function activate(elt) {
-  elt.classList.remove('inactive')
-  elt.classList.add('active')
-}
-
-
-function deactivate(selector) {
-  document.querySelectorAll(selector).forEach(each => {
-    each.classList.remove('active')
-    each.classList.add('inactive')
-  })
-}
-
 function saveOptions() {
   const formData = new FormData(document.getElementById('options-form'))
   for (const pair of formData.entries()) {
@@ -65,84 +51,83 @@ function saveOptionsAndReloadPage() {
   location.reload()
 }
 
+function updateApiCalls() {
+  /* This event fires when an input in #div-api-calls > nav gets checked.
+   */
+  const apiCalls = document.querySelector('#div-api-calls')
+  const targetInput = apiCalls.querySelector('input[checked]')
+  const targetInputId = targetInput.getAttribute('id')
+  const divId = targetInputId.replace('input', 'div')
+  const divElement = document.getElementById(divId)
 
-function createApiCallButton(id, divId) {
-  const button = document.createElement('button')
-  button.type = 'button'
-
-  let n = 1
-  let buttonId = `button-${id}-${n}`
-  while (document.getElementById(buttonId)) {
-    n++
-    buttonId = `button-${id}-${n}`
-  }
-  button.id = buttonId
-
-  let title
-  if (n === 1) {
-    title = id
-  } else {
-    title = `${id} (${n})`
-  }
-  button.innerHTML = title
-  button.classList.add('inactive')
-  button.addEventListener('click', (event) => {
-    // Deactivate all api-call-level buttons except for the target.
-    deactivate('#api-calls-buttons button')
-    activate(event.target)
-
-    // Also deactivate all api-call-level divs except the div corresponding to the target.
-    const div = document.getElementById(divId)
-    deactivate('#div-api-calls div')
-    activate(div)
+  apiCalls.querySelectorAll('div').forEach((each) => {
+    each.classList.remove('active')
+    each.classList.add('inactive')
   })
-  return button
-}
 
-function createApiCallDiv(id, contents) {
-  if (id === 'access-token') {
-    const prevElt = document.getElementById(id)
-    if (prevElt != null) {
-      prevElt.remove()
-    }
-  }
+  divElement.classList.remove('inactive')
+  divElement.classList.add('active')
+}
+function createApiCallDiv(baseId, contents) {
   const div = document.createElement('div')
 
   let n = 1
-  let divId = `${id}-${n}`
+  let divId = `div-api-call-${baseId}-${n}`
   while (document.getElementById(divId)) {
     n++
-    divId = `${id}-${n}`
+    divId = `div-api-call-${baseId}-${n}`
   }
-  div.id = divId
-
-  div.innerHTML = contents
+  div.setAttribute('id', divId)
+  div.innerText = contents
   div.classList.add('api-response')
-  return div
+  return { div: div, n: n }
+}
+function createApiCallInput(baseId, n) {
+  const input = document.createElement('input')
+  input.setAttribute('type', 'radio')
+  input.setAttribute('name', 'api-calls-nav-tabs')
+
+  const inputId = `input-api-call-${baseId}-${n}`
+  input.setAttribute('id', inputId)
+  input.onchange = updateApiCalls
+  // input.setAttribute('onchange', 'updateApiCalls')
+
+  return input
+}
+function createApiCallLabel(baseId, inputId, n) {
+  const label = document.createElement('label')
+  label.setAttribute('for', inputId)
+  let title = baseId
+  if (n > 1) {
+    title += ` (${n})`
+  }
+  label.innerText = title
+
+  return label
 }
 
 function addApiCalls(formattedCalls, click = true) {
-  const apiCallsButtons = document.getElementById('api-calls-buttons')
-  for (const id in formattedCalls) {
-    if (formattedCalls.hasOwnProperty(id)) {
-      // `id` is something like 'create-order'.
-      let contents = formattedCalls[id]
-      const div = createApiCallDiv(id, contents)
-
-      const li = document.createElement('li')
-      const button = createApiCallButton(id, div.id)
-      const buttonId = button.id
-      li.appendChild(button)
-      apiCallsButtons.appendChild(li)
-
-      const apiCalls = document.getElementById('div-api-calls')
+  const apiCalls = document.getElementById('div-api-calls')
+  const apiCallsNav = apiCalls.querySelector('nav')
+  for (const baseId in formattedCalls) {
+    if (formattedCalls.hasOwnProperty(baseId)) {
+      // `baseId` is something like 'create-order'.
+      let contents = formattedCalls[baseId]
+      const { div, n } = createApiCallDiv(baseId, contents)
       apiCalls.appendChild(div)
+
+      const input = createApiCallInput(baseId, n)
+      apiCallsNav.appendChild(input)
+
+      const inputId = input.getAttribute('id')
+      const label = createApiCallLabel(baseId, inputId, n)
+      apiCallsNav.appendChild(label)
 
       if (click) {
         document.getElementById('input-api-calls').click()
       }
-      // Always illuminate the button!
-      document.getElementById(buttonId).click()
+      input.setAttribute('checked', true)
+      updateApiCalls()
     }
   }
 }

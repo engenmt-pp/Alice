@@ -7,21 +7,6 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cards.css') }}"/>
 {% endblock head %}
 
-{% block preamble_options %}
-  <fieldset>
-    <div>
-      <label>
-        Checkout Method
-      </label>
-      <select id='checkout-method' onchange="changeCheckout()">
-        <option value="{{ url_for('routes.checkout_branded') }}">Branded</option>
-        <option value="{{ url_for('routes.checkout_hosted_v2') }}">Hosted Fields v2 (new!)</option>
-        <option value="{{ url_for('routes.checkout_hosted_v1') }}" selected>Hosted Fields v1</option>
-      </select>
-    </div>
-  </fieldset>
-{% endblock preamble_options %}
-
 {% block other_options %}
 <fieldset id="hosted-v1-options">
   <details open>
@@ -54,6 +39,7 @@
     const loadCheckout = hostedFieldsV1Closure()
     buildScriptElement(loadCheckout, 'hosted-fields-v1')
     addOnChange(saveOptionsAndReloadPage)
+
     const BNPCheckout = buyerNotPresentCheckout()
     document.getElementById('buyer-not-present-checkout').onclick = BNPCheckout
   })
