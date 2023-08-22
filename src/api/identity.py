@@ -19,8 +19,6 @@ def get_client_token():
 
     Docs: https://developer.paypal.com/docs/multiparty/checkout/advanced/integrate/#link-generateclienttoken
     """
-    current_app.logger.info(f"Getting client token with {auth_header=}")
-
     endpoint = build_endpoint("/v1/identity/generate-token")
     headers = build_headers(return_formatted=True)
 

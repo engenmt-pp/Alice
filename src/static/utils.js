@@ -55,9 +55,9 @@ function updateApiCalls() {
   /* This event fires when an input in #div-api-calls > nav gets checked.
    */
   const apiCalls = document.querySelector('#div-api-calls')
-  const targetInput = apiCalls.querySelector('input[checked]')
-  const targetInputId = targetInput.getAttribute('id')
-  const divId = targetInputId.replace('input', 'div')
+  const checkedInput = apiCalls.querySelector('input:checked')
+  const checkedInputId = checkedInput.getAttribute('id')
+  const divId = checkedInputId.replace('input', 'div')
   const divElement = document.getElementById(divId)
 
   apiCalls.querySelectorAll('div').forEach((each) => {
@@ -86,6 +86,7 @@ function createApiCallInput(baseId, n) {
   const input = document.createElement('input')
   input.setAttribute('type', 'radio')
   input.setAttribute('name', 'api-calls-nav-tabs')
+  input.setAttribute('checked', true)
 
   const inputId = `input-api-call-${baseId}-${n}`
   input.setAttribute('id', inputId)
@@ -124,9 +125,11 @@ function addApiCalls(formattedCalls, click = true) {
       apiCallsNav.appendChild(label)
 
       if (click) {
-        document.getElementById('input-api-calls').click()
+        const topLevelNavInput = document.getElementById('input-api-calls')
+        if (topLevelNavInput != null) {
+          topLevelNavInput.click()
+        }
       }
-      input.setAttribute('checked', true)
       updateApiCalls()
     }
   }

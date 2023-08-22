@@ -39,13 +39,11 @@
 }
 #form-hf-v1-card > button,
 #form-hf-v2-card > button {
-    background-color: green;
-    color: white;
-    margin: 12px 6px;
+    background-color: var(--green-800);
+    color: var(--white);
+    margin-top: 12px;
     padding: 4px 8px;
     text-transform: capitalize;
     border-radius: 4px;
     display: block;
 }
-
-

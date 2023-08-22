@@ -9,9 +9,11 @@
 <fieldset id="onboarding">
   <details open>
     <summary>
-      <legend>
-        Onboarding
-      </legend>
+      <span>
+        <legend>
+          Onboarding
+        </legend>
+      </span>
     </summary>
     <div>
       <label for="status-tracking-id">
@@ -52,9 +54,11 @@
 <fieldset id="checkout">
   <details open>
     <summary>
-      <legend>
-        Checkout
-      </legend>
+      <span>
+        <legend>
+          Checkout
+        </legend>
+      </span>
     </summary>
     <div>
       <label for="include-auth-assertion">
@@ -115,16 +119,7 @@
 {% endblock %}
 
 {% block right_col %}
-<nav id='top-level-nav' role="tabset">
-  <ol id="top-level-buttons">
-    <li>
-      <button id="button-api-calls" type="button" class="active" onclick="selectTab(event)">API Calls</button>
-    </li>
-  </ol>
-</nav>
-<div id="tab-api-calls" class="active">
-  <nav role="tabset">
-    <ol id="api-calls-buttons"></ol>
-  </nav>
+<div id="div-api-calls">
+  <nav role="tabset"></nav>
 </div>
 {% endblock %}

@@ -25,15 +25,15 @@ function getContingencies() {
 function hostedFieldsV1Closure() {
   const fields = {
     number: {
-      selector: "#hf-card-number",
+      selector: "#hf-v1-card-number",
       placeholder: "4111 1111 1111 1111"
     },
     cvv: {
-      selector: "#hf-cvv",
+      selector: "#hf-v1-cvv",
       placeholder: "123"
     },
     expirationDate: {
-      selector: "#hf-expiration-date",
+      selector: "#hf-v1-expiration-date",
       placeholder: "MM/YY"
     }
   }
@@ -55,15 +55,15 @@ function hostedFieldsV1Closure() {
     event.preventDefault()
     await hostedFields.submit({
       // Cardholder's first and last name
-      cardholderName: document.getElementById('hf-card-holder-name').value,
+      cardholderName: document.getElementById('hf-v1-card-holder-name').value,
       // Billing Address
       billingAddress: {
-        streetAddress: document.getElementById('hf-billing-address-street').value,
-        extendedAddress: document.getElementById('hf-billing-address-unit').value,
-        region: document.getElementById('hf-billing-address-state').value,
-        locality: document.getElementById('hf-billing-address-city').value,
-        postalCode: document.getElementById('hf-billing-address-zip').value,
-        countryCodeAlpha2: document.getElementById('hf-billing-address-country').value.toUpperCase()
+        streetAddress: document.getElementById('hf-v1-billing-address-street').value,
+        extendedAddress: document.getElementById('hf-v1-billing-address-unit').value,
+        region: document.getElementById('hf-v1-billing-address-state').value,
+        locality: document.getElementById('hf-v1-billing-address-city').value,
+        postalCode: document.getElementById('hf-v1-billing-address-zip').value,
+        countryCodeAlpha2: document.getElementById('hf-v1-billing-address-country').value.toUpperCase()
       },
       // Trigger 3D Secure authentication
       contingencies: getContingencies()
@@ -80,12 +80,12 @@ function hostedFieldsV1Closure() {
         fields: fields,
         styles: styles
       })
-      const payButton = await document.getElementById('hf-pay')
+      const payButton = await document.getElementById('hf-v1-pay')
       payButton.disabled = false
-      document.getElementById('form-hf-card').onsubmit = onSubmit
+      document.getElementById('form-hf-v1-card').onsubmit = onSubmit
     } else {
       alert("Not eligible for hosted fields. Sorry!")
-      document.getElementById("form-hf-card").style = 'display: none'
+      document.getElementById("form-hf-v1-card").style = 'display: none'
     }
   }
   return loadHostedFields

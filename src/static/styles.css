@@ -319,10 +319,9 @@ button:disabled {
 button[class*=action] {
     border-radius: 4px;
     min-width: 5ch;
-    padding: 4px;
+    padding: 2px 4px;
     text-transform: uppercase;
-    font-size: 0.825em;
-    color: white;
+    color: var(--white);
 }
 .action-post {
     background-color: var(--green-600);
@@ -455,6 +454,14 @@ div.inactive {
     margin: 12px;
 }
 
+nav[role=tabset] {
+    gap: 4px;
+    width: 100%;
+    flex-wrap: wrap;
+    border-bottom: 1pt solid;
+    margin-bottom: 8px;
+}
+
 #top-level-nav {
     /* By default, we just hide the top-level-nav. Unless the browser has :has. */
     display: none;
@@ -462,29 +469,33 @@ div.inactive {
 #top-level-nav:has(input) {
     /* If the browser has access to :has, then we display the top-level-nav. */
     display: flex;
-    gap: 4px;
-    width: 100%;
-    border-bottom: 1pt solid;
 }
-#top-level-nav input {
+#div-api-calls > nav {
+    display: flex;
+}
+
+#div-api-calls > nav:empty {
     display: none;
 }
-#top-level-nav input + label {
+nav input {
+    display: none;
+}
+nav input + label {
     background-color: var(--light-bg-2);
     cursor: pointer;
 }
-#top-level-nav input:hover + label {
+nav input:hover + label {
     color: var(--light-text-2);
     background-color: var(--light-bg-3);
 }
-#top-level-nav input:checked + label {
+nav input:checked + label {
     color: var(--blue-600);
     background-color: var(--light-bg-4);
 }
-#top-level-nav input:checked:hover + label {
+nav input:checked:hover + label {
     background-color: var(--light-bg-5);
 }
-#top-level-nav label {
+nav label {
     display: inline-block;
     flex: none;
     padding: 1rem;
@@ -492,30 +503,25 @@ div.inactive {
     border-top-right-radius: 0.5rem;
 }
 
-body:has(#input-checkout:not(:checked)) #div-checkout {
-    display: none;
-}
+body:has(#input-onboarding:not(:checked)) #div-onboarding,
+body:has(#input-checkout:not(:checked)) #div-checkout,
 body:has(#input-api-calls:not(:checked)) #div-api-calls {
     display: none;
 }
 
-#api-calls-buttons:empty {
-    display: none;
-}
-
 @media (prefers-color-scheme: dark) {
-    #top-level-nav input + label {
+    nav input + label {
         background-color: var(--dark-bg-2);
     }
-    #top-level-nav input:hover + label {
+    nav input:hover + label {
         color: var(--dark-text-2);
         background-color: var(--dark-bg-3);
     }
-    #top-level-nav input:checked + label {
+    nav input:checked + label {
         color: var(--blue-400);
         background-color: var(--dark-bg-4);
     }
-    #top-level-nav input:checked:hover + label {
+    nav input:checked:hover + label {
         background-color: var(--dark-bg-5);
     }
 }

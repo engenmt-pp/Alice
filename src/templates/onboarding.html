@@ -16,9 +16,11 @@
 <fieldset id="onboarding-options">
   <details open>
     <summary>
-      <legend>
-        Referral options
-      </legend>
+      <span>
+        <legend>
+          Referral options
+        </legend>
+      </span>
     </summary>
     <div>
       <label class="raised">
@@ -103,27 +105,23 @@
 
 {% block right_col %}
 <nav id='top-level-nav' role="tabset">
-  <ol id="top-level-buttons">
-    <li>
-      <button id="button-onboarding" type="button" class="active" onclick="selectTab(event)">Onboarding</button>
-    </li>
-    <li>
-      <button id="button-api-calls" type="button" class="inactive" onclick="selectTab(event)">API Calls</button>
-    </li>
-  </ol>
+  <input type=radio id="input-onboarding" name="nav-tabs" checked/>
+  <label for="input-onboarding">Onboarding</label>
+
+  <input type=radio id="input-api-calls" name="nav-tabs"/>
+  <label for="input-api-calls">API Calls</label>
 </nav>
-<div id="tab-onboarding" class="active">
+<div id="div-onboarding" style="margin-bottom: 8px;">
   <button id="create-referral" onclick="createReferral()" class="action-post">Create Referral</button>
   <a
     id="partner-referral"
     class="hidden"
     data-paypal-button="true"
     target="PPFrame"
+    style="margin-bottom: 8px;"
   >Begin Onboarding</a>
 </div>
-<div id="tab-api-calls" class="inactive">
-  <nav role="tabset">
-    <ol id="api-calls-buttons"></ol>
-  </nav>
+<div id="div-api-calls">
+  <nav role="tabset"></nav>
 </div>
 {% endblock %}

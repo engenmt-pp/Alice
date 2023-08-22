@@ -9,16 +9,12 @@ async function getIdToken() {
   console.groupCollapsed("Requesting ID token...")
 
   const vaultLevel = document.getElementById('vault-level').value
-  console.log("vaultLevel:", vaultLevel)
-
   const customerId = document.getElementById('customer-id').value
-  console.log("customerId:", customerId)
 
   let endpoint = `/api/identity/id-token/${customerId}`
   if (vaultLevel === 'MERCHANT') {
     endpoint += `?include-auth-assertion=true`
   }
-  console.log('endpoint:', endpoint)
   const idTokenResponse = await fetch(endpoint)
   const idTokenData = await idTokenResponse.json()
   const { formatted, idToken } = idTokenData;
@@ -80,11 +76,10 @@ async function buildScriptElement(onload, checkoutMethod) {
     query.set("intent", intent.toLowerCase())
   }
 
-  console.log('PayPal JS SDK URL:', url)
-
   const scriptElement = document.createElement('script')
   scriptElement.id = 'paypal-js-sdk'
   scriptElement.src = url.href
+  console.log('PayPal JS SDK URL:', url.href)
 
   if (checkoutMethod == 'hosted-fields-v1') {
     const clientToken = await getClientToken()
@@ -616,6 +611,7 @@ function checkoutFunctions() {
   async function getStatus() {
     console.log(`Getting status of order ${orderId}...`)
 
+    const options = getOptions()
     const statusResp = await fetch(`/api/orders/${orderId}`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
