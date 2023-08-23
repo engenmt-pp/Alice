@@ -373,42 +373,6 @@ nav > ol {
     margin: 0 0 10px;
     list-style: none;
 }
-nav > ol > li > button {
-    padding: 1rem;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
-}
-button.inactive {
-    background-color: var(--light-bg-1);
-}
-button.inactive:hover {
-    color: var(--light-text-2);
-    background-color: var(--light-bg-2);
-}
-button.active {
-    color: var(--blue-600);
-    background-color: var(--light-bg-3);
-}
-button.active:hover {
-    background-color: var(--light-bg-4);
-}
-@media (prefers-color-scheme: dark) {
-    button.inactive {
-        background-color: var(--dark-bg-1);
-    }
-    button.inactive:hover {
-        color: var(--dark-text-2);
-        background-color: var(--dark-bg-2);
-    }
-    button.active {
-        background-color: var(--dark-bg-3);
-    }
-    button.active:hover {
-        background-color: var(--dark-bg-4);
-    }
-}
-
-
 
 .api-response {
     width: 100%;
@@ -436,10 +400,9 @@ button.active:hover {
     margin: 0 5px 0 0;
 }
 
-div.inactive {
+.inactive {
     display: none;
 }
-
 .hidden {
     display: none;
 }

@@ -39,6 +39,8 @@
     window.sessionStorage.clear()
     setOptions(options)
 
+    document.getElementById('vault-options').hidden = true
+
     const loadCheckout = hostedFieldsV1Closure()
     buildScriptElement(loadCheckout, 'hosted-fields-v1')
     addOnChange(saveOptionsAndReloadPage)

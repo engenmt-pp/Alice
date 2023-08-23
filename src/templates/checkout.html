@@ -58,12 +58,12 @@
   <input type=radio id="input-api-calls" name="nav-tabs" onchange="changeTopLevelNav()"/>
   <label for="input-api-calls">API Calls</label>
 </nav>
-<div id="div-checkout">
+<div id="div-checkout" class="active">
   <script id="paypal-js-sdk"></script>
   {% block checkout_div %}
   {% endblock checkout_div %}
 </div>
-<div id="div-api-calls">
+<div id="div-api-calls" class="inactive">
   <nav role="tabset"></nav>
 </div>
 {% endblock %}

@@ -111,7 +111,7 @@
   <input type=radio id="input-api-calls" name="nav-tabs" onchange="changeTopLevelNav()"/>
   <label for="input-api-calls">API Calls</label>
 </nav>
-<div id="div-onboarding" style="margin-bottom: 8px;">
+<div id="div-onboarding" class="active" style="margin-bottom: 8px;">
   <button id="create-referral" onclick="createReferral()" class="action-post">Create Referral</button>
   <a
     id="partner-referral"
@@ -121,7 +121,7 @@
     style="margin-bottom: 8px;"
   >Begin Onboarding</a>
 </div>
-<div id="div-api-calls">
+<div id="div-api-calls" class="inactive">
   <nav role="tabset"></nav>
 </div>
 {% endblock %}
