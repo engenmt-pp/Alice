@@ -433,38 +433,6 @@ function hostedFieldsClosure() {
   return loadHostedFields
 }
 
-let addOnChange = (function () {
-  let myFunc
-  const elementIds = [
-    'intent',
-    'vault-flow',
-    'vault-level',
-    'vault-without-purchase',
-    'user-action',
-    'customer-id',
-    'currency',
-  ]
-
-  function innerAddOnChange(loadCheckout) {
-    console.groupCollapsed("Updating 'change' event listeners...")
-    if (myFunc != null) {
-      console.log("Removing previous event listener:", myFunc)
-      for (const elementId of elementIds) {
-        const element = document.getElementById(elementId)
-        element.removeEventListener('change', myFunc)
-      }
-    }
-    myFunc = loadCheckout
-    console.log("Adding new event listener:", myFunc)
-    for (const elementId of elementIds) {
-      const element = document.getElementById(elementId)
-      element.addEventListener('change', myFunc)
-    }
-    console.groupEnd()
-  }
-  return innerAddOnChange
-})()
-
 function buyerNotPresentCheckout() {
   let options
   let authHeader
@@ -553,6 +521,7 @@ let addOnChange = (function () {
     'vault-without-purchase',
     'user-action',
     'customer-id',
+    'currency'
   ]
 
   function innerAddOnChange(loadCheckout) {

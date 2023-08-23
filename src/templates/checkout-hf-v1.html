@@ -37,6 +37,12 @@
   window.addEventListener('load', async function() {
     const options = loadOptions()
     window.sessionStorage.clear()
+    for (const [key, value] of Object.entries(options)) {
+      const element = document.getElementById(key)
+      if (element != null) {
+        element.value = value
+      }
+    }
 
     const loadCheckout = hostedFieldsV1Closure()
     buildScriptElement(loadCheckout, 'hosted-fields-v1')

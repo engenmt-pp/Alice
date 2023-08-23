@@ -48,6 +48,7 @@ function loadOptions() {
 
 function saveOptionsAndReloadPage() {
   saveOptions()
+  console.log(JSON.stringify(window.sessionStorage, null, 2))
   location.reload()
 }
 
