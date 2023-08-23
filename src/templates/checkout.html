@@ -52,10 +52,10 @@
 
 {% block right_col %}
 <nav id='top-level-nav' role="tabset">
-  <input type=radio id="input-checkout" name="nav-tabs" checked/>
+  <input type=radio id="input-checkout" name="nav-tabs" onchange="changeTopLevelNav()" checked/>
   <label for="input-checkout">Checkout</label>
 
-  <input type=radio id="input-api-calls" name="nav-tabs"/>
+  <input type=radio id="input-api-calls" name="nav-tabs" onchange="changeTopLevelNav()"/>
   <label for="input-api-calls">API Calls</label>
 </nav>
 <div id="div-checkout">

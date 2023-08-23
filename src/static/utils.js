@@ -1,8 +1,31 @@
+function saveOptions() {
+  const formData = new FormData(document.getElementById('options-form'))
+  for (const pair of formData.entries()) {
+    window.sessionStorage.setItem(pair[0], pair[1])
+  }
+}
+function loadOptions() {
+  const keys = Object.keys(window.sessionStorage)
+  const options = {}
+  for (const key of keys) {
+    const val = window.sessionStorage.getItem(key)
+    options[key] = val
+  }
+  return options
+}
 function getOptions() {
   const formData = new FormData(document.getElementById('options-form'))
   const formOptions = Object.fromEntries(formData)
   const partnerMerchantInfo = getPartnerMerchantInfo()
   return { ...formOptions, ...partnerMerchantInfo }
+}
+function setOptions(options) {
+  for (const [key, value] of Object.entries(options)) {
+    const element = document.getElementById(key)
+    if (element != null) {
+      element.value = value
+    }
+  }
 }
 
 function getPartnerMerchantInfo() {
@@ -30,44 +53,51 @@ function getPartnerMerchantInfo() {
   return info
 }
 
-function saveOptions() {
-  const formData = new FormData(document.getElementById('options-form'))
-  for (const pair of formData.entries()) {
-    window.sessionStorage.setItem(pair[0], pair[1])
-  }
-}
-function loadOptions() {
-  const keys = Object.keys(window.sessionStorage)
-  const options = {}
-  for (const key of keys) {
-    const val = window.sessionStorage.getItem(key)
-    options[key] = val
-  }
-  return options
-}
-
 function saveOptionsAndReloadPage() {
   saveOptions()
   console.log(JSON.stringify(window.sessionStorage, null, 2))
   location.reload()
 }
 
+function activate(element) {
+  element.classList.remove('inactive')
+  element.classList.add('active')
+}
+function deactivate(element) {
+  element.classList.remove('active')
+  element.classList.add('inactive')
+}
+
+function changeTopLevelNav() {
+  const nav = document.getElementById('top-level-nav')
+  const checkedInput = nav.querySelector('input:checked')
+  const checkedInputId = checkedInput.getAttribute('id')
+  const activeDivId = checkedInputId.replace('input', 'div')
+
+  nav.querySelectorAll('input').forEach((each) => {
+    const inputId = each.getAttribute('id').replace('input', 'div')
+    const divId = inputId.replace('input', 'div')
+    const div = document.getElementById(divId)
+    if (divId == activeDivId) {
+      activate(div)
+    } else {
+      deactivate(div)
+    }
+  })
+}
+
+
 function updateApiCalls() {
   /* This event fires when an input in #div-api-calls > nav gets checked.
    */
-  const apiCalls = document.querySelector('#div-api-calls')
+  const apiCalls = document.getElementById('div-api-calls')
   const checkedInput = apiCalls.querySelector('input:checked')
   const checkedInputId = checkedInput.getAttribute('id')
   const divId = checkedInputId.replace('input', 'div')
   const divElement = document.getElementById(divId)
 
-  apiCalls.querySelectorAll('div').forEach((each) => {
-    each.classList.remove('active')
-    each.classList.add('inactive')
-  })
-
-  divElement.classList.remove('inactive')
-  divElement.classList.add('active')
+  apiCalls.querySelectorAll('div').forEach(deactivate)
+  activate(divElement)
 }
 function createApiCallDiv(baseId, contents) {
   const div = document.createElement('div')
@@ -92,7 +122,6 @@ function createApiCallInput(baseId, n) {
   const inputId = `input-api-call-${baseId}-${n}`
   input.setAttribute('id', inputId)
   input.onchange = updateApiCalls
-  // input.setAttribute('onchange', 'updateApiCalls')
 
   return input
 }
@@ -107,7 +136,6 @@ function createApiCallLabel(baseId, inputId, n) {
 
   return label
 }
-
 function addApiCalls(formattedCalls, click = true) {
   const apiCalls = document.getElementById('div-api-calls')
   const apiCallsNav = apiCalls.querySelector('nav')

@@ -72,6 +72,7 @@ function hostedFieldsV1Closure() {
     console.group("Order approved!")
     await getStatus()
     await captureOrder()
+    console.groupEnd()
   }
   async function loadHostedFields() {
     if (paypal.HostedFields.isEligible()) {

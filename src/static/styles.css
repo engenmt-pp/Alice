@@ -464,10 +464,6 @@ nav[role=tabset] {
 
 #top-level-nav {
     /* By default, we just hide the top-level-nav. Unless the browser has :has. */
-    display: none;
-}
-#top-level-nav:has(input) {
-    /* If the browser has access to :has, then we display the top-level-nav. */
     display: flex;
 }
 #div-api-calls > nav {
@@ -503,11 +499,11 @@ nav label {
     border-top-right-radius: 0.5rem;
 }
 
-body:has(#input-onboarding:not(:checked)) #div-onboarding,
+/* body:has(#input-onboarding:not(:checked)) #div-onboarding,
 body:has(#input-checkout:not(:checked)) #div-checkout,
 body:has(#input-api-calls:not(:checked)) #div-api-calls {
     display: none;
-}
+} */
 
 @media (prefers-color-scheme: dark) {
     nav input + label {
