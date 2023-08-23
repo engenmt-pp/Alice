@@ -59,7 +59,13 @@ async function buildScriptElement(onload, hosted = false) {
   const query = url.searchParams
   query.set("client-id", partnerClientId)
   query.set("merchant-id", merchantId)
-  query.set("currency", "USD")
+  const currencyElement = document.getElementById('currency')
+  if (currencyElement != null) {
+    query.set('currency', currencyElement.value)
+  } else {
+    console.log('No currency found! Defaulting to USD.')
+    query.set('currency', 'USD')
+  }
   query.set("debug", false)
   let commit
   if (document.getElementById('user-action').value == 'CONTINUE') {
@@ -450,6 +456,7 @@ let addOnChange = (function () {
     'vault-without-purchase',
     'user-action',
     'customer-id',
+    'currency',
   ]
 
   function innerAddOnChange(loadCheckout) {
