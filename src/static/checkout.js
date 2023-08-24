@@ -39,12 +39,17 @@ async function buildScriptElement(onload, checkoutMethod) {
   const query = url.searchParams
   query.set("client-id", partnerClientId)
   query.set("merchant-id", merchantId)
-  const currencyElement = document.getElementById('currency')
+  const currencyElement = document.getElementById('currency-code')
   if (currencyElement != null) {
     query.set('currency', currencyElement.value)
   } else {
     console.log('No currency found! Defaulting to USD.')
     query.set('currency', 'USD')
+  }
+
+  const buyerCountryElement = document.getElementById('buyer-country-code')
+  if (buyerCountryElement != null && buyerCountryElement.value != '') {
+    query.set('buyer-country', buyerCountryElement.value)
   }
   query.set("debug", false)
   let commit
@@ -194,7 +199,9 @@ let addOnChange = (function () {
     'vault-without-purchase',
     'user-action',
     'customer-id',
-    'currency'
+    'currency-code',
+    'buyer-country-code',
+    'button-label'
   ]
 
   function innerAddOnChange(loadCheckout) {
@@ -203,14 +210,18 @@ let addOnChange = (function () {
       console.log("Removing previous event listener:", myFunc)
       for (const elementId of elementIds) {
         const element = document.getElementById(elementId)
-        element.removeEventListener('change', myFunc)
+        if (element != null) {
+          element.removeEventListener('change', myFunc)
+        }
       }
     }
     myFunc = loadCheckout
     console.log("Adding new event listener:", myFunc)
     for (const elementId of elementIds) {
       const element = document.getElementById(elementId)
-      element.addEventListener('change', myFunc)
+      if (element != null) {
+        element.addEventListener('change', myFunc)
+      }
     }
     console.groupEnd()
   }

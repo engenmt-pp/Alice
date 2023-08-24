@@ -34,7 +34,7 @@ class Order:
             "card",  # If 'payment-source' is undefined, it must be a card transaction!
         )
 
-        self.currency = kwargs.get("currency", "USD")
+        self.currency_code = kwargs.get("currency-code", "USD")
         self.intent = kwargs.get("intent")
         self.user_action = kwargs.get("user-action")
         self.disbursement_mode = kwargs.get("disbursement-mode")
@@ -84,7 +84,7 @@ class Order:
         if isinstance(amount, str):
             amount = float(amount)
         return {
-            "currency_code": self.currency,
+            "currency_code": self.currency_code,
             "value": amount,
         }
 

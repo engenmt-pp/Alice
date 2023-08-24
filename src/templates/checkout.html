@@ -47,6 +47,65 @@
 
 
 {% block other_options %}
+<fieldset id="sdk-options">
+  <details open>
+    <summary>
+      <span>
+        <legend>
+          JS SDK options
+        </legend>
+      </span>
+    </summary>
+    <div>
+      <label for="buyer-country-code">
+        Buyer country
+      </label>
+      <select name="buyer-country-code" id="buyer-country-code">
+        {% include 'country-options.html' %}
+      </select>
+    </div>
+    <div>
+      <label for="currency-code">
+        Currency
+      </label>
+      <select name="currency-code" id="currency-code">
+        <option value=AUD>Australian dollar</option>
+        <option value=BRL>Brazilian real</option>
+        <option value=CAD>Canadian dollar</option>
+        <option value=CNY>Chinese Renmenbi</option>
+        <option value=CZK>Czech koruna</option>
+        <option value=DKK>Danish krone</option>
+        <option value=EUR>Euro</option>
+        <option value=HKD>Hong Kong dollar</option>
+        <option value=ILS>Israeli new shekel</option>
+        <option value=MYR>Malaysian ringgit</option>
+        <option value=MXN>Mexican peso</option>
+        <option value=NZD>New Zealand dollar</option>
+        <option value=NOK>Norwegian krone</option>
+        <option value=PHP>Philippine peso</option>
+        <option value=PLN>Polish złoty</option>
+        <option value=GBP>Pound sterling</option>
+        <option value=RUB>Russian ruble</option>
+        <option value=SGD>Singapore dollar</option>
+        <option value=SEK>Swedish krona</option>
+        <option value=CHF>Swiss franc</option>
+        <option value=THB>Thai baht</option>
+        <option value=USD selected>United States dollar</option>
+      </select>
+    </div>
+    <div>
+      <label for="intent">
+        Intent
+      </label>
+      <select name="intent" id="intent">
+        <option value="CAPTURE" selected>Capture</option>
+        <option value="AUTHORIZE">Authorize</option>
+      </select>
+    </div>
+    {% block additional_sdk_options %}
+    {% endblock additional_sdk_options %}
+  </details>
+</fieldset>
 {% include 'checkout-options.html' %}
 {% endblock other_options %}
 
