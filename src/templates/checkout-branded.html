@@ -5,6 +5,21 @@
 <script src="{{ url_for('static', filename='checkout-branded.js') }}"></script>
 {% endblock head %}
 
+{% block additional_sdk_options %}
+<div>
+  <label for="button-label">
+    Button label
+  </label>
+  <select name="button-label" id="button-label">
+    <option value="paypal" selected>PayPal</option>
+    <option value="checkout">Checkout</option>
+    <option value="buynow">Buy Now</option>
+    <option value="pay">Pay with</option>
+    <option value="donate">Donate</option>
+  </select>
+</div>
+{% endblock additional_sdk_options %}
+
 {% block checkout_div %}
 <script>
   window.addEventListener('load', async function() {

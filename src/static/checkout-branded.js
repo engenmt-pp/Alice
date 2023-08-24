@@ -10,8 +10,8 @@ function brandedClosure() {
     async function loadButtons() {
         if (buttons != null) await buttons.close()
         let methods
-        const vaultWithoutPurchase = document.getElementById('vault-without-purchase')
-        if (vaultWithoutPurchase.checked) {
+        const vaultWithoutPurchase = document.querySelector('#vault-without-purchase:checked')
+        if (vaultWithoutPurchase != null) {
             methods = {
                 onClick: onClick,
                 createVaultSetupToken: createVaultSetupToken,
@@ -24,7 +24,12 @@ function brandedClosure() {
                 onApprove: captureOrder
             }
         }
-        buttons = await paypal.Buttons(methods)
+        let style = {}
+        const buttonLabelElement = document.getElementById('button-label')
+        if (buttonLabelElement != null && buttonLabelElement.value != '') {
+            style.label = buttonLabelElement.value
+        }
+        buttons = await paypal.Buttons({ ...methods, style: style })
         return buttons
             .render("#paypal-button-container")
             .catch((err) => {

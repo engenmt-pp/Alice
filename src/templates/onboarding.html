@@ -59,13 +59,7 @@
         Country
       </label>
       <select name="country-code" id="country-code">
-        <option value='' selected>None</option>
-        <option value="BE">Belgium</option>
-        <option value="CA">Canada</option>
-        <option value="GB">Great Britain</option>
-        <option value="IE">Ireland</option>
-        <option value="MX">Mexico</option>
-        <option value="US">United States</option>
+        {% include 'country-options.html' %}
       </select>
     </div>
     <div>
