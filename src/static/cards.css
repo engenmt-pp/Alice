@@ -1,17 +1,17 @@
-#form-hf-card,
-#form-cf-card {
+#form-hf-v2-card,
+#form-hf-v1-card {
     max-width: 26ch;
     font-size: 1rem;
 }
-#form-hf-card > label,
-#form-cf-card > label {
+#form-hf-v2-card > label,
+#form-hf-v1-card > label {
     display: block;
     width: 100%;
     padding: 1px 2px;
     margin: 5px 0;
 }
-#form-hf-card > div,
-#form-hf-card > input {
+#form-hf-v1-card > div,
+#form-hf-v1-card > input {
     background-color: var(--light-bg-1);
     display: block;
     height: 2rem;
@@ -21,52 +21,29 @@
     border: 1px solid;
     border-radius: 0.25rem;
 }
-#cf-card-holder-name {
+#hf-v2-card-holder-name {
     background-color: var(--white);
     display: block;
     height: 2rem;
     width: calc(100% - 12px);
     margin: 12px 6px;
     padding: 2px 4px;
-    border: 1px solid var(--hcf-border);
+    border: 1px solid var(--hf-v2-border);
     border-radius: 0.25rem;
 }
 @media (prefers-color-scheme: dark) {
-    #form-hf-card > div,
-    #form-hf-card > input {
+    #form-hf-v2-card > div,
+    #form-hf-v2-card > input {
         background-color: var(--dark-bg-0);
     }
 }
-#form-cf-card > button,
-#form-hf-card > button {
-    background-color: green;
-    color: white;
-    margin: 12px 6px;
+#form-hf-v1-card > button,
+#form-hf-v2-card > button {
+    background-color: var(--green-800);
+    color: var(--white);
+    margin-top: 12px;
     padding: 4px 8px;
     text-transform: capitalize;
     border-radius: 4px;
     display: block;
-}
-
-#card-number,
-#expiration-date,
-#cvv {
-    background-color: var(--light-bg-1);
-    color: var(--light-text-1);
-    display: block;
-    height: 1.2rem;
-    width: 100%;
-    margin: 2.5px 0;
-    padding: 2px 4px;
-    border: 1px solid;
-    border-radius: 0.25rem;
-}
-@media (prefers-color-scheme: dark) {
-    #form-hosted-fields > input,
-    #card-number,
-    #expiration-date,
-    #cvv {
-        background-color: var(--dark-bg-1);
-        color: var(--dark-text-1);
-    }
 }

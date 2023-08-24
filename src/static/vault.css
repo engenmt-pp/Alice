@@ -1,26 +1,17 @@
-#vault-options > fieldset > fieldset {
-    width: 100%;
-    margin-left: 0;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.25rem 0.5rem;
-    margin-top: 0.25rem;
+#vault-options > details > div + div {
+    display: none;
 }
 
-#vault-flow:has(> option[value='']:checked) ~ fieldset,
-#vault-flow:has(> option[value='first-time-buyer']:checked) ~ fieldset:not(.first-time-buyer),
-#vault-flow:has(> option[value='buyer-not-present']:checked) ~ fieldset:not(.buyer-not-present),
-#vault-flow:has(> option[value='return-buyer']:checked) ~ fieldset:not(.return-buyer) {
-    display: none;
+#vault-options:has(option[value='first-time-buyer']:checked) .first-time-buyer,
+#vault-options:has(option[value='buyer-not-present']:checked) .buyer-not-present,
+#vault-options:has(option[value='return-buyer']:checked) .return-buyer {
+    display: flex;
 }
 
 @-moz-document url-prefix() {
     /* Firefox doesn't currently (2023-06-29) support the above :has CSS pseudo-class,
     so this is a workaround just for Firefox. */
-    #vault-flow ~ fieldset {
+    #vault-options > details > div + div {
         display: flex;
     }
 }

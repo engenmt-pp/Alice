@@ -1,0 +1,27 @@
+{% extends 'checkout.html' %}
+
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='checkout-branded.js') }}"></script>
+{% endblock head %}
+
+{% block checkout_div %}
+<script>
+  window.addEventListener('load', async function() {
+    const options = loadOptions()
+    window.sessionStorage.clear()
+    setOptions(options)
+
+    const loadCheckout = brandedClosure()
+    buildScriptElement(loadCheckout, 'branded')
+    addOnChange(() => {
+      buildScriptElement(loadCheckout, 'branded')
+    })
+    const BNPCheckout = buyerNotPresentCheckout()
+    document.getElementById('buyer-not-present-checkout').onclick = BNPCheckout
+  })
+</script>
+<div id="checkout-branded">
+  <div id="paypal-button-container"></div>
+</div>
+{% endblock %}

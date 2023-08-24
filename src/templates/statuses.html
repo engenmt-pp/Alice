@@ -9,9 +9,11 @@
 <fieldset id="onboarding">
   <details open>
     <summary>
-      <legend>
-        Onboarding
-      </legend>
+      <span>
+        <legend>
+          Onboarding
+        </legend>
+      </span>
     </summary>
     <div>
       <label for="status-tracking-id">
@@ -19,7 +21,7 @@
       </label>
       <div>
         <input name="status-tracking-id" id="status-tracking-id" class="monospaced"/>
-        <button type="button" onclick="getSellerStatusByTrackingId()" class="action">
+        <button type="button" onclick="getSellerStatusByTrackingId()" class="action-get">
           Get
         </button>
       </div>
@@ -30,7 +32,7 @@
       </label>
       <div>
         <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
-        <button type="button" onclick="getSellerStatus()" class="action">
+        <button type="button" onclick="getSellerStatus()" class="action-get">
           Get
         </button>
       </div>
@@ -41,7 +43,7 @@
       </label>
       <div>
         <input name="status-referral-token" id="status-referral-token" class="monospaced"/>
-        <button type="button" onclick="getReferralStatus()" class="action">
+        <button type="button" onclick="getReferralStatus()" class="action-get">
           Get
         </button>
       </div>
@@ -52,9 +54,11 @@
 <fieldset id="checkout">
   <details open>
     <summary>
-      <legend>
-        Checkout
-      </legend>
+      <span>
+        <legend>
+          Checkout
+        </legend>
+      </span>
     </summary>
     <div>
       <label for="include-auth-assertion">
@@ -71,7 +75,7 @@
       </label>
       <div>
         <input name="status-order-id" id="status-order-id" class="monospaced"/>
-        <button type="button" onclick="getOrderStatus()" class="action">
+        <button type="button" onclick="getOrderStatus()" class="action-get">
           Get
         </button>
       </div>
@@ -82,7 +86,7 @@
       </label>
       <div>
         <input name="status-ba-id" id="status-ba-id" class="monospaced"/>
-        <button type="button" onclick="getBaStatus()" class="action">
+        <button type="button" onclick="getBaStatus()" class="action-get">
           Get
         </button>
       </div>
@@ -93,7 +97,7 @@
       </label>
       <div>
         <input name="status-customer-id" id="status-customer-id" class="monospaced"/>
-        <button type="button" onclick="getPaymentTokens()" class="action">
+        <button type="button" onclick="getPaymentTokens()" class="action-get">
           Get
         </button>
       </div>
@@ -103,10 +107,10 @@
         Vault v3 ID
       </label>
       <input name="status-payment-token-id" id="status-payment-token-id" class="monospaced"/>
-      <button type="button" onclick="deletePaymentToken()" class="action action-delete half">
+      <button type="button" onclick="deletePaymentToken()" class="action-delete half">
         Delete
       </button>
-      <button type="button" onclick="getPaymentTokenStatus()" class="action action-get half">
+      <button type="button" onclick="getPaymentTokenStatus()" class="action-get half">
         Get
       </button>
     </div>
@@ -115,16 +119,7 @@
 {% endblock %}
 
 {% block right_col %}
-<nav id='top-level-nav' role="tabset">
-  <ol id="top-level-buttons">
-    <li>
-      <button id="button-api-calls" type="button" class="active" onclick="selectTab(event)">API Calls</button>
-    </li>
-  </ol>
-</nav>
-<div id="tab-api-calls" class="active">
-  <nav role="tabset">
-    <ol id="api-calls-buttons"></ol>
-  </nav>
+<div id="div-api-calls" class="active">
+  <nav role="tabset"></nav>
 </div>
 {% endblock %}

@@ -23,7 +23,7 @@
     <main>
       <div class="col-4">
         {% block nav %}
-        <h1 class="title">
+        <h1>
           {{ favicon }} Alice - A PPCP Testing Tool
         </h1>
         <nav>
@@ -34,7 +34,7 @@
               </a>
             </li>
             <li>
-              <a href="{{ url_for('routes.checkout') }}">
+              <a href="{{ url_for('routes.checkout-canonical') }}">
                 Checkout
               </a>
             </li>
@@ -48,13 +48,17 @@
         {% endblock nav %}
         {% block options_form %}
         <form id="options-form">
+          {% block preamble_options %}
+          {% endblock preamble_options %}
           {% block creds %}
           <fieldset id="partner-merchant-credentials" disabled=true>
             <details open>
               <summary>
-                <legend>
-                  Partner/merchant info
-                </legend>
+                <span>
+                  <legend>
+                    Partner/merchant info
+                  </legend>
+                </span>
               </summary>
               <div>
                 <label for="partner-id">

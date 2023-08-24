@@ -14,20 +14,15 @@ bp = Blueprint("identity", __name__, url_prefix="/identity")
 
 
 @bp.route("/client-token", methods=("POST",))
-def get_client_token(auth_header=None):
+def get_client_token():
     """Retrieve a client token using the GET /v1/identity/generate-token endpoint.
 
     Docs: https://developer.paypal.com/docs/multiparty/checkout/advanced/integrate/#link-generateclienttoken
     """
-    data = request.get_json()
-    auth_header = auth_header or data.get("authHeader")
-
-    current_app.logger.info(f"Getting client token with {auth_header=}")
-
     endpoint = build_endpoint("/v1/identity/generate-token")
-    headers = build_headers(return_formatted=True, auth_header=auth_header)
+    headers = build_headers(return_formatted=True)
 
-    auth_header = auth_header or headers["Authorization"]
+    auth_header = headers["Authorization"]
     return_val = {"authHeader": auth_header}
 
     # `headers` may not contained formatted calls, so default to the empty dict.

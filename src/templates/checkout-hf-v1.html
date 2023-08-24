@@ -1,0 +1,78 @@
+{% extends 'checkout.html' %}
+
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='checkout-branded.js') }}"></script>
+<script src="{{ url_for('static', filename='checkout-hf-v1.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cards.css') }}"/>
+{% endblock head %}
+
+{% block other_options %}
+<fieldset id="hosted-v1-options">
+  <details open>
+    <summary>
+      <span>
+        <legend>
+          Hosted Fields v1 options
+        </legend>
+      </span>
+    </summary>
+    <div>
+      <label for="3ds-preference">
+        3D-Secure (3DS)
+      </label>
+      <select name="3ds-preference" id="3ds-preference">
+        <option value="SCA_WHEN_REQUIRED" selected>When required</option>
+        <option value="SCA_ALWAYS">Always</option>
+      </select>
+    </div>
+  </details>
+</fieldset>
+{{ super() }}
+{% endblock other_options %}
+
+
+{% block checkout_div %}
+<script>
+  window.addEventListener('load', async function() {
+    const options = loadOptions()
+    window.sessionStorage.clear()
+    setOptions(options)
+
+    document.getElementById('vault-options').hidden = true
+
+    const loadCheckout = hostedFieldsV1Closure()
+    buildScriptElement(loadCheckout, 'hosted-fields-v1')
+    addOnChange(saveOptionsAndReloadPage)
+
+    const BNPCheckout = buyerNotPresentCheckout()
+    document.getElementById('buyer-not-present-checkout').onclick = BNPCheckout
+  })
+</script>
+<div id="checkout-hf-v1">
+  <form id="form-hf-v1-card">
+    <label for="hf-v1-card-number">Card Number</label>
+    <div id="hf-v1-card-number"></div>
+
+    <label for="hf-v1-expiration-date">Expiration Date</label>
+    <div id="hf-v1-expiration-date"></div>
+
+    <label for="hf-v1-cvv">CVV</label>
+    <div id="hf-v1-cvv"></div>
+
+    <label for="hf-v1-card-holder-name">Name on Card</label>
+    <input type="text" id="hf-v1-card-holder-name" name="hf-v1-card-holder-name" placeholder="Card holder name"/>
+
+    <br/>
+    <label>Billing Address</label>
+    <input type="text" id="hf-v1-billing-address-street" name="hf-v1-billing-address-street" placeholder="Street address"/>
+    <input type="text" id="hf-v1-billing-address-unit" name="hf-v1-billing-address-unit" placeholder="Unit"/>
+    <input type="text" id="hf-v1-billing-address-city" name="hf-v1-billing-address-city" placeholder="City""/>
+    <input type="text" id="hf-v1-billing-address-state" name="hf-v1-billing-address-state" placeholder="State"/>
+    <input type="text" id="hf-v1-billing-address-zip" name="hf-v1-billing-address-zip" placeholder="Zip / postal code"/>
+    <input type="text" id="hf-v1-billing-address-country" name="hf-v1-billing-address-country" placeholder="Country code"/>
+
+    <button value="submit" id="hf-v1-pay" disabled>Pay</button>
+  </form>
+</div>
+{% endblock %}

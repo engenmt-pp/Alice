@@ -1,0 +1,50 @@
+{% extends 'checkout.html' %}
+
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='checkout-hf-v2.js') }}"></script>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{{ url_for('static', filename='cards.css') }}"
+/>
+{% endblock head %}
+
+{% block checkout_div %}
+<script>
+  window.addEventListener('load', async function() {
+    const options = loadOptions()
+    window.sessionStorage.clear()
+    setOptions(options)
+
+    const loadCheckout = hostedFieldsV2Closure()
+    buildScriptElement(loadCheckout, 'hosted-fields-v2')
+    addOnChange(saveOptionsAndReloadPage)
+
+    const BNPCheckout = buyerNotPresentCheckout()
+    document.getElementById('buyer-not-present-checkout').onclick = BNPCheckout
+  })
+</script>
+<div id="checkout-hf-v2">
+  <form id="form-hf-v2-card">
+    <label for="hf-v2-card-number">Card Number</label>
+    <div id="hf-v2-card-number"></div>
+
+    <label for="hf-v2-expiration-date">Expiration Date</label>
+    <div id="hf-v2-expiration-date"></div>
+
+    <label for="hf-v2-cvv">CVV</label>
+    <div id="hf-v2-cvv"></div>
+
+    <label for="hf-v2-card-holder-name">Name on Card</label>
+    <input
+      type="text"
+      id="hf-v2-card-holder-name"
+      name="hf-v2-card-holder-name"
+      placeholder="Card holder name"
+    />
+
+    <button value="submit" id="cf-pay">Pay</button>
+  </form>
+</div>
+{% endblock %}

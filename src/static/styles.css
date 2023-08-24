@@ -28,13 +28,19 @@ button {
   --zinc-100: rgb(244 244 245);
   --zinc-50: rgb(250 250 250);
 
-  --hcf-border: rgb(144 150 151);
+  --hf-v2-border: rgb(144 150 151);
 
+  --green-800: rgb(22 101 52);
+  --green-600: rgb(34 197 94);
+  --green-400: rgb(74 222 128);
+
+  --blue-800: rgb(30 64 175);
   --blue-600: rgb(37 99 235);
-  --blue-500: rgb(67 132 243);
   --blue-400: rgb(96 165 250);
 
+  --red-800: rgb(153 27 27);
   --red-600: rgb(220 38 38);
+  --red-400: rgb(248 113 113);
 
   --light-bg-0: var(--zinc-50);
   --light-bg-1: var(--zinc-100);
@@ -96,11 +102,11 @@ body > header a {
     color: var(--white) !important;
 }
 
-.title {
-    font-size: 1.125rem;
+h1 {
+    font-size: 1.5rem;
     font-weight: 500;
     line-height: 1.75rem;
-    text-decoration: underline;
+    /* text-decoration: underline; */
     margin-top: 0;
 }
 
@@ -154,24 +160,25 @@ a {
 }
 @media (prefers-color-scheme: dark) {
     a {
-        color: var(--blue-500) !important;
+        color: var(--blue-400) !important;
     }
 }
 
 form {
     width: 100%;
 }
-form legend {
-    padding: 0;
-}
 details summary {
     cursor: pointer;
 }
-details summary > legend {
-    display: inline;
+details summary > span {
+    display: inline-block;
 }
-summary {
+
+details[open] summary {
     margin-bottom: 6px;
+}
+form legend {
+    font-weight: 600;
 }
 
 form label {
@@ -181,10 +188,7 @@ form label {
     min-width: max-content;
 }
 
-form legend {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
+
 
 form > fieldset {
     margin-bottom: 0.5rem;
@@ -270,6 +274,36 @@ fieldset select {
         color: var(--dark-text-5);
     }
 }
+
+#fieldset-checkout-method {
+    font-size: 1rem;
+    border: 1pt solid;
+    border-radius: 4px;
+    padding: 8px;
+}
+#fieldset-checkout-method div {
+    margin: 0;
+}
+#fieldset-checkout-method select {
+    flex: 1 0 content;
+    min-width: max-content;
+    height: 1.5rem;
+    font-size: 1rem;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 button {
     cursor: pointer;
     text-align: center;
@@ -281,31 +315,42 @@ button:disabled {
     background-color: grey;
     cursor: not-allowed;
 }
-.action {
+
+button[class*=action] {
     border-radius: 4px;
     min-width: 5ch;
-    padding: 3px;
-    background-color: var(--blue-600);
-    color: var(--white);
+    padding: 2px 4px;
     text-transform: uppercase;
-    font-size: 0.825em;
-}
-.action:hover {
     color: var(--white);
 }
-.action:active {
-    color: var(--white);
+.action-post {
+    background-color: var(--green-600);
 }
-.action:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px var(--blue-400);
-}
-
 .action-get {
     background-color: var(--blue-600);
 }
 .action-delete {
     background-color: var(--red-600);
+}
+.action-post:focus {
+    box-shadow: 0 0 0 2px var(--green-800);
+}
+.action-get:focus {
+    box-shadow: 0 0 0 2px var(--blue-800);
+}
+.action-delete:focus {
+    box-shadow: 0 0 0 2px var(--red-800);
+}
+@media (prefers-color-scheme: dark) {
+    .action-post:focus {
+        box-shadow: 0 0 0 2px var(--green-400);
+    }
+    .action-get:focus {
+        box-shadow: 0 0 0 2px var(--blue-400);
+    }
+    .action-delete:focus {
+        box-shadow: 0 0 0 2px var(--red-400);
+    }
 }
 
 .monospaced {
@@ -328,40 +373,6 @@ nav > ol {
     margin: 0 0 10px;
     list-style: none;
 }
-nav > ol > li > button {
-    padding: 1rem;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
-}
-button.inactive {
-    background-color: var(--light-bg-1);
-}
-button.inactive:hover {
-    color: var(--light-text-2);
-    background-color: var(--light-bg-2);
-}
-button.active {
-    color: var(--blue-600);
-    background-color: var(--light-bg-3);
-}
-button.active:hover {
-    background-color: var(--light-bg-4);
-}
-@media (prefers-color-scheme: dark) {
-    button.inactive {
-        background-color: var(--dark-bg-1);
-    }
-    button.inactive:hover {
-        color: var(--dark-text-2);
-        background-color: var(--dark-bg-2);
-    }
-    button.active {
-        background-color: var(--dark-bg-3);
-    }
-    button.active:hover {
-        background-color: var(--dark-bg-4);
-    }
-}
 
 .api-response {
     width: 100%;
@@ -379,22 +390,19 @@ button.active:hover {
     }
 }
 
-#top-level-buttons,
 #api-calls-buttons {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: stretch;
 }
-#top-level-buttons li,
 #api-calls-buttons li {
     margin: 0 5px 0 0;
 }
 
-div.inactive {
+.inactive {
     display: none;
 }
-
 .hidden {
     display: none;
 }
@@ -404,3 +412,75 @@ div.inactive {
     max-width: 40rem;
 }
 
+
+#div-checkout {
+    margin: 12px;
+}
+
+nav[role=tabset] {
+    gap: 4px;
+    width: 100%;
+    flex-wrap: wrap;
+    border-bottom: 1pt solid;
+    margin-bottom: 8px;
+}
+
+#top-level-nav {
+    /* By default, we just hide the top-level-nav. Unless the browser has :has. */
+    display: flex;
+}
+#div-api-calls > nav {
+    display: flex;
+}
+
+#div-api-calls > nav:empty {
+    display: none;
+}
+nav input {
+    display: none;
+}
+nav input + label {
+    background-color: var(--light-bg-2);
+    cursor: pointer;
+}
+nav input:hover + label {
+    color: var(--light-text-2);
+    background-color: var(--light-bg-3);
+}
+nav input:checked + label {
+    color: var(--blue-600);
+    background-color: var(--light-bg-4);
+}
+nav input:checked:hover + label {
+    background-color: var(--light-bg-5);
+}
+nav label {
+    display: inline-block;
+    flex: none;
+    padding: 1rem;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+}
+
+/* body:has(#input-onboarding:not(:checked)) #div-onboarding,
+body:has(#input-checkout:not(:checked)) #div-checkout,
+body:has(#input-api-calls:not(:checked)) #div-api-calls {
+    display: none;
+} */
+
+@media (prefers-color-scheme: dark) {
+    nav input + label {
+        background-color: var(--dark-bg-2);
+    }
+    nav input:hover + label {
+        color: var(--dark-text-2);
+        background-color: var(--dark-bg-3);
+    }
+    nav input:checked + label {
+        color: var(--blue-400);
+        background-color: var(--dark-bg-4);
+    }
+    nav input:checked:hover + label {
+        background-color: var(--dark-bg-5);
+    }
+}
