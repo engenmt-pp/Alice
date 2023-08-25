@@ -66,7 +66,6 @@ def format_request(request):
     url = request.url
     return "\n".join(
         [
-            "\n\n",
             f"Sending {method} request to {url}:",
             f"Headers sent: {headers_sent_str}",
             f"Body sent: {json.dumps(body_sent, indent=2)}",
