@@ -5,10 +5,6 @@ from flask import current_app
 from urllib.parse import urlencode
 
 
-class AccessTokenFailed(Exception):
-    pass
-
-
 def get_managed_partner_config(model):
     word_map = {
         1: "ONE",
