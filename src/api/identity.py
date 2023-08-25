@@ -23,8 +23,7 @@ def get_client_token():
     headers = build_headers()
 
     return_val = {}
-    formatted = headers["formatted"]
-    del headers["formatted"]
+    formatted = headers.pop("formatted")
 
     try:
         auth_header = headers["Authorization"]

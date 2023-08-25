@@ -20,8 +20,7 @@ def get_ba_status(baid):
         secret=secret,
         include_auth_assertion=True,
     )
-    formatted = headers["formatted"]
-    del headers["formatted"]
+    formatted = headers.pop("formatted")
 
     status_response = requests.get(endpoint, headers=headers)
     formatted["ba-status"] = format_request_and_response(status_response)
