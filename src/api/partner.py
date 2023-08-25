@@ -49,9 +49,11 @@ class Referral:
         """Wrapper for .utils.build_headers."""
         client_id = current_app.config["PARTNER_CLIENT_ID"]
         secret = current_app.config["PARTNER_SECRET"]
+        bn_code = current_app.config["PARTNER_BN_CODE"]
         headers = build_headers(
             client_id=client_id,
             secret=secret,
+            bn_code=bn_code,
             auth_header=self.auth_header,
         )
 

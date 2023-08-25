@@ -23,11 +23,9 @@ def get_client_token():
 
     client_id = current_app.config["PARTNER_CLIENT_ID"]
     secret = current_app.config["PARTNER_SECRET"]
+    bn_code = current_app.config["PARTNER_BN_CODE"]
 
-    headers = build_headers(
-        client_id=client_id,
-        secret=secret,
-    )
+    headers = build_headers(client_id=client_id, secret=secret, bn_code=bn_code)
 
     return_val = {}
     formatted = headers.pop("formatted")
@@ -157,7 +155,6 @@ def build_headers(
     client_id=None,
     secret=None,
     bn_code=None,
-    include_bn_code=True,
     include_auth_assertion=False,
     include_request_id=False,
     auth_header=None,
@@ -168,8 +165,8 @@ def build_headers(
         "Accept": "application/json",
         "Accept-Language": "en_US",
         "Content-Type": "application/json",
+        "formatted": {},
     }
-    formatted = {}
 
     if not auth_header:
         if client_id is None or secret is None:
@@ -177,8 +174,7 @@ def build_headers(
                 f"Invalid client ID/secret passed:\n{client_id=}\n{secret=}"
             )
         access_token_response = get_access_token(client_id, secret)
-        formatted |= access_token_response["formatted"]
-        headers["formatted"] = formatted
+        headers["formatted"] |= access_token_response["formatted"]
         try:
             access_token = access_token_response["access_token"]
         except KeyError as exc:
@@ -188,15 +184,14 @@ def build_headers(
             return headers
         else:
             auth_header = f"Bearer {access_token}"
-            headers["Authorization"] = auth_header
+
+    headers["Authorization"] = auth_header
 
     if include_request_id:
         request_id = random_decimal_string(10)
         headers["PayPal-Request-Id"] = request_id
 
-    if include_bn_code:
-        if bn_code is None:
-            raise Exception("No BN code passed!")
+    if bn_code is not None:
         headers["PayPal-Partner-Attribution-Id"] = bn_code
 
     if include_auth_assertion:

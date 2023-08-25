@@ -47,9 +47,11 @@ class Vault:
         """Build the commonly required headers for PayPal API calls."""
         client_id = current_app.config["PARTNER_CLIENT_ID"]
         secret = current_app.config["PARTNER_SECRET"]
+        bn_code = current_app.config["PARTNER_BN_CODE"]
         headers = build_headers(
             client_id=client_id,
             secret=secret,
+            bn_code=bn_code,
             auth_header=self.auth_header,
             include_auth_assertion=self.include_auth_assertion,
             include_request_id=self.include_request_id,

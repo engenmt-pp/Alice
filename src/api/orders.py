@@ -104,10 +104,7 @@ class Order:
             include_auth_assertion=self.include_auth_assertion,
             include_request_id=self.include_request_id,
         )
-        current_app.logger.error(json.dumps(headers, indent=2))
         self.formatted |= headers.pop("formatted")
-
-        current_app.logger.error(f"Headers created: {json.dumps(headers, indent=2)}")
 
         self.auth_header = headers["Authorization"]
         return headers
