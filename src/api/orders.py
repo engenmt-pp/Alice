@@ -110,7 +110,9 @@ class Order:
         )
         self.formatted |= headers.pop("formatted")
 
+        current_app.logger.debug(f"Headers created: {json.dumps(headers, indent=2)}")
         self.auth_header = headers["Authorization"]
+
         return headers
 
     def build_platform_fees(self):
@@ -373,6 +375,10 @@ class Order:
         }
         try:
             order_id = response.json()["id"]
+        except (json.decoder.JSONDecodeError, KeyError) as exc:
+            current_app.logger.error(
+                f"Encountered forseeable exception unpacking order ID: {exc}"
+            )
         except Exception as exc:
             current_app.logger.error(
                 f"Encountered generic exception unpacking order ID: {exc}"
@@ -507,14 +513,13 @@ def create_order():
     Wrapper for Order.create.
     """
     data = request.get_json()
+    current_app.logger.debug(
+        f"Creating an order with data = {json.dumps(data, indent=2, sort_keys=True)}"
+    )
     data_filtered = {key: value for key, value in data.items() if value}
+    data_filtered_str = (json.dumps(data_filtered, indent=2, sort_keys=True),)
     current_app.logger.info(
-        "\n".join(
-            [
-                f"Creating an order with (filtered) data = ",
-                json.dumps(data_filtered, indent=2, sort_keys=True),
-            ]
-        )
+        f"Creating an order with (filtered) data =\n{data_filtered_str}"
     )
 
     order = Order(**data)
