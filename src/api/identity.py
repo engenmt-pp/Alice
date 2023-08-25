@@ -7,6 +7,7 @@ from .utils import (
     build_endpoint,
     format_request_and_response,
     random_decimal_string,
+    AccessTokenFailed,
 )
 
 
@@ -110,6 +111,10 @@ def get_access_token(client_id, secret):
     )
     response_dict = response.json()
 
+    current_app.logger.debug(
+        f"<get_access_token> {json.dumps(response_dict, indent=2)}"
+    )
+
     return_val = {}
     try:
         access_token = response_dict["access_token"]
@@ -157,6 +162,7 @@ def build_headers(
         "Accept-Language": "en_US",
         "Content-Type": "application/json",
     }
+    formatted = {}
 
     if not auth_header:
         if client_id is None or secret is None:
@@ -164,13 +170,17 @@ def build_headers(
                 f"Invalid client ID/secret passed:\n{client_id=}\n{secret=}"
             )
         access_token_response = get_access_token(client_id, secret)
-        headers["formatted"] |= access_token_response["formatted"]
+        formatted["access-token"] = access_token_response["formatted"]
         try:
             access_token = access_token_response["access_token"]
             auth_header = f"Bearer {access_token}"
-        except KeyError:
+        except KeyError as exc:
+            current_app.error(
+                f"<build_headers> Encountered Exception accessing access_token: {exc}"
+            )
             return headers
 
+    headers["formatted"] = formatted
     headers["Authorization"] = auth_header
 
     if include_request_id:

@@ -94,18 +94,21 @@ class Order:
         """Wrapper for .utils.build_headers."""
         client_id = current_app.config["PARTNER_CLIENT_ID"]
         secret = current_app.config["PARTNER_SECRET"]
+        bn_code = current_app.config["PARTNER_BN_CODE"]
 
         headers = build_headers(
             client_id=client_id,
             secret=secret,
+            bn_code=bn_code,
             auth_header=self.auth_header,
             include_auth_assertion=self.include_auth_assertion,
             include_request_id=self.include_request_id,
         )
+        current_app.logger.error(json.dumps(headers, indent=2))
         self.formatted |= headers["formatted"]
         del headers["formatted"]
 
-        current_app.logger.debug(f"Headers created: {json.dumps(headers, indent=2)}")
+        current_app.logger.error(f"Headers created: {json.dumps(headers, indent=2)}")
 
         self.auth_header = headers["Authorization"]
         return headers
@@ -343,7 +346,10 @@ class Order:
         endpoint = build_endpoint("/v2/checkout/orders")
         try:
             headers = self.build_headers()
-        except KeyError:
+        except KeyError as exc:
+            current_app.logger.error(
+                f"Encountered KeyError in Orders().build_headers: exc"
+            )
             return {"formatted": self.formatted}
 
         purchase_units = [self.build_purchase_unit()]
