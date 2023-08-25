@@ -1,8 +1,26 @@
 import json
 import random
 
+from shlex import quote
 from flask import current_app
 from urllib.parse import urlencode
+
+
+def get_managed_partner_config(model):
+    word_map = {
+        1: "ONE",
+        2: "TWO",
+    }
+    model = word_map[model]
+
+    partner_config = {
+        "id": current_app.config[f"MP_PARTNER_{model}_ID"],
+        "client_id": current_app.config[f"MP_PARTNER_{model}_CLIENT_ID"],
+        "secret": current_app.config[f"MP_PARTNER_{model}_SECRET"],
+        "bn_code": current_app.config[f"MP_PARTNER_{model}_BN_CODE"],
+    }
+
+    return partner_config
 
 
 def build_endpoint(route, query=None):
@@ -43,14 +61,14 @@ def format_request(request):
         try:
             body_sent = json.loads(body_sent)
         except (json.decoder.JSONDecodeError, TypeError) as exc:
-            current_app.logger.debug(
-                f"Exception occurred during json.loads('{body_sent}'): ({type(exc)}) {exc}"
-            )
+            pass
 
     method = request.method
     url = request.url
     return "\n".join(
         [
+            format_request_as_curl(request),
+            "\n\n",
             f"Sending {method} request to {url}:",
             f"Headers sent: {headers_sent_str}",
             f"Body sent: {json.dumps(body_sent, indent=2)}",
@@ -75,16 +93,43 @@ def format_response(response):
         body_received = response.text
 
     response_code = response.status_code
+    reason = response.reason
     debug_id = headers_received.get("Paypal-Debug-Id")
     return "\n".join(
         [
             f"Response:",
-            f"Status: {response_code}",
+            f"Status: {response_code} {reason}",
             f"PayPal Debug ID: {debug_id}",
             f"Headers received: {json.dumps(headers_received,indent=2)}",
             f"Body received: {json.dumps(body_received,indent=2)}",
         ]
     )
+
+
+def format_request_as_curl(request):
+    parts = [
+        ("curl", None),
+        ("-X", request.method),
+    ]
+
+    for key, value in sorted(request.headers.items()):
+        parts.append(("-H", f"{key}: {value}"))
+
+    if request.body:
+        body = request.body
+        if isinstance(body, bytes):
+            body = body.decode("utf-8")
+        parts.append(("-d", body))
+
+    parts.append((None, request.url))
+
+    flat_parts = []
+    for k, v in parts:
+        k = quote(k) if k else "K"
+        v = quote(v) if v else "V"
+        flat_parts.append(f"{k} {v}")
+
+    return "\n\t".join(flat_parts)
 
 
 def format_request_and_response(response):

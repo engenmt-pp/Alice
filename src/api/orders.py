@@ -92,15 +92,20 @@ class Order:
 
     def build_headers(self):
         """Wrapper for .utils.build_headers."""
+        client_id = current_app.config["PARTNER_CLIENT_ID"]
+        secret = current_app.config["PARTNER_SECRET"]
+
         headers = build_headers(
+            client_id=client_id,
+            secret=secret,
             auth_header=self.auth_header,
             include_auth_assertion=self.include_auth_assertion,
             include_request_id=self.include_request_id,
-            return_formatted=True,
         )
-        if "formatted" in headers:
-            self.formatted |= headers["formatted"]
-            del headers["formatted"]
+        self.formatted |= headers["formatted"]
+        del headers["formatted"]
+
+        current_app.logger.debug(f"Headers created: {json.dumps(headers, indent=2)}")
 
         self.auth_header = headers["Authorization"]
         return headers
@@ -336,7 +341,10 @@ class Order:
         Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
         """
         endpoint = build_endpoint("/v2/checkout/orders")
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         purchase_units = [self.build_purchase_unit()]
         data = {
@@ -360,11 +368,13 @@ class Order:
         try:
             order_id = response.json()["id"]
         except Exception as exc:
-            current_app.logger.error(f"Encountered exception unpacking order ID: {exc}")
+            current_app.logger.error(
+                f"Encountered generic exception unpacking order ID: {exc}"
+            )
+        else:
+            response_dict["orderId"] = order_id
+        finally:
             return response_dict
-
-        response_dict["orderId"] = order_id
-        return response_dict
 
     def capture(self):
         """Capture the order using the the POST /v2/checkout/orders/{order_id}/capture endpoint.
@@ -378,7 +388,10 @@ class Order:
             return self.auth_and_capture()
 
         endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}/capture")
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         payment_instruction = self.build_payment_instruction(for_call="capture")
         if payment_instruction:
@@ -402,7 +415,10 @@ class Order:
         """
         endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}/authorize")
 
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         payment_source = self.build_payment_source_for_authorize()
         if payment_source:
@@ -423,7 +439,10 @@ class Order:
 
         endpoint = build_endpoint(f"/v2/payments/authorizations/{self.auth_id}/capture")
 
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         data = dict()
         payment_instruction = self.build_payment_instruction(for_call="capture")
@@ -463,7 +482,10 @@ class Order:
             raise ValueError
 
         endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}")
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         response = requests.get(endpoint, headers=headers)
         self.formatted["order-status"] = format_request_and_response(response)
@@ -480,7 +502,12 @@ def create_order():
     data = request.get_json()
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.info(
-        f"Creating an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+        "\n".join(
+            [
+                f"Creating an order with (filtered) data = ",
+                json.dumps(data_filtered, indent=2, sort_keys=True),
+            ]
+        )
     )
 
     order = Order(**data)

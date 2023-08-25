@@ -45,11 +45,14 @@ class Vault:
 
     def build_headers(self):
         """Build the commonly required headers for PayPal API calls."""
+        client_id = current_app.config["PARTNER_CLIENT_ID"]
+        secret = current_app.config["PARTNER_SECRET"]
         headers = build_headers(
+            client_id=client_id,
+            secret=secret,
             auth_header=self.auth_header,
             include_auth_assertion=self.include_auth_assertion,
             include_request_id=self.include_request_id,
-            return_formatted=True,
         )
         # If an auth header was previously provided, no API call would have been made,
         # so the `formatted` API calls wouldn't have been returned.
@@ -101,7 +104,10 @@ class Vault:
         Docs: https://developer.paypal.com/docs/api/payment-tokens/v3/#setup-tokens_create
         """
         endpoint = build_endpoint("/v3/vault/setup-tokens")
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         data = {
             "payment_source": self.build_payment_source(for_token="setup"),
@@ -138,7 +144,10 @@ class Vault:
         Docs: https://developer.paypal.com/docs/api/payment-tokens/v3/#payment-tokens_create
         """
         endpoint = build_endpoint("/v3/vault/payment-tokens")
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         data = {
             "payment_source": self.build_payment_source(for_token="payment"),
@@ -172,7 +181,10 @@ class Vault:
         Docs: https://developer.paypal.com/docs/api/payment-tokens/v3/#payment-tokens_delete
         """
         endpoint = build_endpoint(f"/v3/vault/payment-tokens/{self.payment_token}")
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         response = requests.delete(endpoint, headers=headers)
         self.formatted["delete-payment-token"] = format_request_and_response(response)
@@ -189,7 +201,10 @@ class Vault:
         Docs: https://developer.paypal.com/docs/api/payment-tokens/v3/#payment-tokens_get
         """
         endpoint = build_endpoint(f"/v3/vault/payment-tokens/{self.payment_token}")
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         response = requests.get(endpoint, headers=headers)
         self.formatted["payment-token-status"] = format_request_and_response(response)
@@ -208,7 +223,10 @@ class Vault:
         endpoint = build_endpoint(
             f"/v3/vault/payment-tokens", query={"customer_id": self.customer_id}
         )
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         response = requests.get(endpoint, headers=headers)
         self.formatted["get-payment-tokens"] = format_request_and_response(response)

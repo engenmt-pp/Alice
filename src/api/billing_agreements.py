@@ -12,11 +12,16 @@ bp = Blueprint("billing_agreements", __name__, url_prefix="/billing-agreements")
 
 @bp.route("/<baid>", methods=("POST",))
 def get_ba_status(baid):
+    client_id = current_app.config["PARTNER_CLIENT_ID"]
+    secret = current_app.config["PARTNER_SECRET"]
+
     current_app.logger.info(f"Getting the status of a billing agreement with {baid=}")
 
     endpoint = build_endpoint(f"/v1/billing-agreements/agreements/{baid}")
     headers = build_headers(
-        include_auth_assertion=True, return_formatted=True, auth_header=None
+        client_id=client_id,
+        secret=secret,
+        include_auth_assertion=True,
     )
     formatted = headers["formatted"]
     del headers["formatted"]
