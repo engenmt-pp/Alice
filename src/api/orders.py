@@ -105,8 +105,7 @@ class Order:
             include_request_id=self.include_request_id,
         )
         current_app.logger.error(json.dumps(headers, indent=2))
-        self.formatted |= headers["formatted"]
-        del headers["formatted"]
+        self.formatted |= headers.pop("formatted")
 
         current_app.logger.error(f"Headers created: {json.dumps(headers, indent=2)}")
 

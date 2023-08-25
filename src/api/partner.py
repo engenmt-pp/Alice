@@ -55,8 +55,7 @@ class Referral:
             auth_header=self.auth_header,
         )
 
-        self.formatted |= headers["formatted"]
-        del headers["formatted"]
+        self.formatted |= headers.pop("formatted")
 
         self.auth_header = headers["Authorization"]
         return headers

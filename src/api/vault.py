@@ -57,8 +57,7 @@ class Vault:
         # If an auth header was previously provided, no API call would have been made,
         # so the `formatted` API calls wouldn't have been returned.
         if "formatted" in headers:
-            self.formatted |= headers["formatted"]
-            del headers["formatted"]
+            self.formatted |= headers.pop("formatted")
 
         self.auth_header = headers["Authorization"]
         return headers

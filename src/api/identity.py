@@ -80,19 +80,19 @@ def get_id_token(customer_id):
     )
     response_dict = response.json()
 
-    formatted = {"access-token": format_request_and_response(response)}
+    formatted = {"id-token": format_request_and_response(response)}
     return_val = {"formatted": formatted}
     try:
         access_token = response_dict["access_token"]
         id_token = response_dict["id_token"]
-    except KeyError:
-        return return_val
-
-    auth_header = f"Bearer {access_token}"
-    return_val["authHeader"] = auth_header
-    return_val["idToken"] = id_token
-
-    return jsonify(return_val)
+    except KeyError as exc:
+        current_app.logger.error(f"Exception in get_id_token: {exc}")
+    else:
+        auth_header = f"Bearer {access_token}"
+        return_val["authHeader"] = auth_header
+        return_val["idToken"] = id_token
+    finally:
+        return jsonify(return_val)
 
 
 def get_access_token(client_id, secret):
@@ -125,7 +125,7 @@ def get_access_token(client_id, secret):
     else:
         return_val["access_token"] = access_token
     finally:
-        formatted = format_request_and_response(response)
+        formatted = {"access-token": format_request_and_response(response)}
         return_val["formatted"] = formatted
         return return_val
 
