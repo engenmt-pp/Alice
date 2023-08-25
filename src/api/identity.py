@@ -20,7 +20,14 @@ def get_client_token():
     Docs: https://developer.paypal.com/docs/multiparty/checkout/advanced/integrate/#link-generateclienttoken
     """
     endpoint = build_endpoint("/v1/identity/generate-token")
-    headers = build_headers()
+
+    client_id = current_app.config["PARTNER_CLIENT_ID"]
+    secret = current_app.config["PARTNER_SECRET"]
+
+    headers = build_headers(
+        client_id=client_id,
+        secret=secret,
+    )
 
     return_val = {}
     formatted = headers.pop("formatted")
@@ -39,13 +46,14 @@ def get_client_token():
 
     try:
         client_token = response.json()["client_token"]
-        return_val["clientToken"] = client_token
     except Exception as exc:
         current_app.logger.error(
             f"Exception encountered when getting client_token: {exc}"
         )
-
-    return jsonify(return_val)
+    else:
+        return_val["clientToken"] = client_token
+    finally:
+        return jsonify(return_val)
 
 
 @bp.route("/id-token/", defaults={"customer_id": None}, methods=("GET",))
@@ -77,11 +85,12 @@ def get_id_token(customer_id):
     response = requests.post(
         endpoint, headers=headers, data=data, auth=(client_id, secret)
     )
-    response_dict = response.json()
 
     formatted = {"id-token": format_request_and_response(response)}
     return_val = {"formatted": formatted}
+
     try:
+        response_dict = response.json()
         access_token = response_dict["access_token"]
         id_token = response_dict["id_token"]
     except KeyError as exc:
@@ -100,32 +109,32 @@ def get_access_token(client_id, secret):
     Docs: https://developer.paypal.com/docs/api/reference/get-an-access-token/
     """
     endpoint = build_endpoint("/v1/oauth2/token")
-    headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
-
-    data = {"grant_type": "client_credentials", "ignoreCache": True}
+    headers = {
+        "Content-Type": "application/json",
+        "Accept-Language": "en_US",
+    }
+    data = {
+        "grant_type": "client_credentials",
+        "ignoreCache": True,
+    }
 
     response = requests.post(
-        endpoint, headers=headers, data=data, auth=(client_id, secret)
-    )
-    response_dict = response.json()
-
-    current_app.logger.debug(
-        f"<get_access_token> {json.dumps(response_dict, indent=2)}"
+        endpoint,
+        headers=headers,
+        data=data,
+        auth=(client_id, secret),
     )
 
-    return_val = {}
+    formatted = {"access-token": format_request_and_response(response)}
+    return_val = {"formatted": formatted}
+
     try:
-        access_token = response_dict["access_token"]
+        access_token = response.json()["access_token"]
     except KeyError as exc:
         current_app.logger.error(f"Encountered a KeyError: {exc}")
-        current_app.logger.error(
-            f"response_dict = {json.dumps(response_dict, indent=2)}"
-        )
     else:
         return_val["access_token"] = access_token
     finally:
-        formatted = {"access-token": format_request_and_response(response)}
-        return_val["formatted"] = formatted
         return return_val
 
 
@@ -168,18 +177,18 @@ def build_headers(
                 f"Invalid client ID/secret passed:\n{client_id=}\n{secret=}"
             )
         access_token_response = get_access_token(client_id, secret)
-        formatted["access-token"] = access_token_response["formatted"]
+        formatted |= access_token_response["formatted"]
+        headers["formatted"] = formatted
         try:
             access_token = access_token_response["access_token"]
-            auth_header = f"Bearer {access_token}"
         except KeyError as exc:
             current_app.error(
                 f"<build_headers> Encountered Exception accessing access_token: {exc}"
             )
             return headers
-
-    headers["formatted"] = formatted
-    headers["Authorization"] = auth_header
+        else:
+            auth_header = f"Bearer {access_token}"
+            headers["Authorization"] = auth_header
 
     if include_request_id:
         request_id = random_decimal_string(10)
