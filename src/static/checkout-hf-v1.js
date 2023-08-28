@@ -8,7 +8,8 @@ async function getClientToken() {
     method: "POST"
   })
   const clientTokenData = await clientTokenResponse.json()
-  const { formatted, clientToken } = clientTokenData
+  const { formatted, clientToken, authHeader } = clientTokenData
+  document.getElementById('auth-header').value = authHeader
 
   addApiCalls(formatted, click = false)
 

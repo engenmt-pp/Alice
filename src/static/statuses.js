@@ -10,9 +10,9 @@ async function getSellerStatus() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  document.getElementById('auth-header').value = authHeader
+  addApiCalls(formatted)
 }
 
 
@@ -28,9 +28,9 @@ async function getSellerStatusByTrackingId() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  document.getElementById('auth-header').value = authHeader
+  addApiCalls(formatted)
 }
 
 
@@ -44,9 +44,9 @@ async function getReferralStatus() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  document.getElementById('auth-header').value = authHeader
+  addApiCalls(formatted)
 }
 
 
@@ -63,9 +63,9 @@ async function getOrderStatus() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  document.getElementById('auth-header').value = authHeader
+  addApiCalls(formatted)
 }
 
 
@@ -82,9 +82,9 @@ async function getBaStatus() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  document.getElementById('auth-header').value = authHeader
+  addApiCalls(formatted)
 }
 
 
@@ -101,9 +101,9 @@ async function deletePaymentToken() {
     body: JSON.stringify(options)
   })
   const deleteData = await deleteResp.json()
-  const { formatted } = deleteData
-  addApiCalls(formatted);
-  ({ authHeader } = deleteData)
+  const { formatted, authHeader } = deleteData
+  document.getElementById('auth-header').value = authHeader
+  addApiCalls(formatted)
 }
 
 
@@ -120,9 +120,9 @@ async function getPaymentTokenStatus() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  document.getElementById('auth-header').value = authHeader
+  addApiCalls(formatted)
 }
 
 
@@ -139,8 +139,8 @@ async function getPaymentTokens() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  document.getElementById('auth-header').value = authHeader
+  addApiCalls(formatted)
 }
 

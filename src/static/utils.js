@@ -31,6 +31,11 @@ function setOptions(options) {
 function getPartnerMerchantInfo() {
   const info = {}
 
+  const authHeader = document.getElementById('auth-header')
+  if (authHeader != null) {
+    info.authHeader = authHeader.value
+  }
+
   const partnerId = document.getElementById('partner-id')
   if (partnerId != null) {
     info.partnerId = partnerId.value

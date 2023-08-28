@@ -14,7 +14,7 @@ bp = Blueprint("vault", __name__, url_prefix="/vault")
 
 class Vault:
     def __init__(self, **kwargs):
-        self.auth_header = kwargs.get("authHeader", None)
+        self.auth_header = kwargs.get("auth-header", None)
         self.payment_source_type = kwargs.get(
             "payment-source",
             "card",  # If 'payment-source' is undefined, it must be a card transaction!
@@ -123,7 +123,7 @@ class Vault:
             json=data,
         )
         self.formatted["create-setup-token"] = format_request_and_response(response)
-        response_dict = {
+        return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
         }
@@ -134,10 +134,10 @@ class Vault:
             current_app.logger.error(
                 f"Encountered exception unpacking setup token: {exc}"
             )
-            return response_dict
-
-        response_dict["setupTokenId"] = setup_token_id
-        return response_dict
+        else:
+            return_val["setupTokenId"] = setup_token_id
+        finally:
+            return return_val
 
     def create_payment_token(self):
         """Create a payment token using the POST /v3/vault/payment-tokens endpoint.
@@ -160,7 +160,7 @@ class Vault:
             json=data,
         )
         self.formatted["create-payment-token"] = format_request_and_response(response)
-        response_dict = {
+        return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
         }
@@ -171,10 +171,10 @@ class Vault:
             current_app.logger.error(
                 f"Encountered exception unpacking setup token: {exc}"
             )
-            return response_dict
-
-        response_dict["paymentTokenId"] = payment_token_id
-        return response_dict
+        else:
+            return_val["paymentTokenId"] = payment_token_id
+        finally:
+            return return_val
 
     def delete_payment_token(self):
         """Delete the payment token using the DELETE /v3/vault/payment-tokens/{payment_token_id} endpoint.
@@ -189,12 +189,12 @@ class Vault:
 
         response = requests.delete(endpoint, headers=headers)
         self.formatted["delete-payment-token"] = format_request_and_response(response)
-        response_dict = {
+        return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
         }
 
-        return response_dict
+        return return_val
 
     def get_payment_token_status(self):
         """Retrieve the payment token status using the GET /v3/vault/payment-tokens/{payment_token_id} endpoint.
@@ -209,12 +209,12 @@ class Vault:
 
         response = requests.get(endpoint, headers=headers)
         self.formatted["payment-token-status"] = format_request_and_response(response)
-        response_dict = {
+        return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
         }
 
-        return response_dict
+        return return_val
 
     def get_payment_tokens(self):
         """Retrieve all payment tokens for a customer using the GET /v3/vault/payment-tokens endpoint.
@@ -231,12 +231,12 @@ class Vault:
 
         response = requests.get(endpoint, headers=headers)
         self.formatted["get-payment-tokens"] = format_request_and_response(response)
-        response_dict = {
+        return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
         }
 
-        return response_dict
+        return return_val
 
 
 @bp.route("/setup-tokens", methods=("POST",))

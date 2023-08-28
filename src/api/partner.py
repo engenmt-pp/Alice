@@ -175,7 +175,7 @@ class Referral:
             json=data,
         )
         self.formatted["create-referral"] = format_request_and_response(response)
-        response_dict = {
+        return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
         }
@@ -186,10 +186,10 @@ class Referral:
             current_app.logger.error(
                 f"Encountered exception unpacking action URL: {exc}"
             )
-            return response_dict
-
-        response_dict["actionUrl"] = action_url
-        return response_dict
+        else:
+            return_val["actionUrl"] = action_url
+        finally:
+            return return_val
 
     def get_merchant_id(self):
         """Return a merchant's ID given the tracking ID used during onboarding with the /v1/customer/partners API.

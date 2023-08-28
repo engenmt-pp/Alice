@@ -27,6 +27,6 @@ def get_ba_status(baid):
     status_response = requests.get(endpoint, headers=headers)
     formatted["ba-status"] = format_request_and_response(status_response)
 
-    response_dict = {"formatted": formatted}
+    return_val = {"formatted": formatted}
 
-    return jsonify(response_dict)
+    return jsonify(return_val)

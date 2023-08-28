@@ -17,8 +17,8 @@ async function getIdToken() {
   }
   const idTokenResponse = await fetch(endpoint)
   const idTokenData = await idTokenResponse.json()
-  const { formatted, idToken } = idTokenData;
-  ({ authHeader } = idTokenData)
+  const { formatted, idToken, authHeader } = idTokenData
+  document.getElementById('auth-header').value = authHeader
 
   addApiCalls(formatted, click = false)
 
@@ -113,7 +113,6 @@ function getContingencies() {
 
 function buyerNotPresentCheckout() {
   let options
-  let authHeader
   async function createOrder({ paymentSource }) {
     console.group("Creating the order...")
     console.log('paymentSource:', paymentSource)
@@ -128,8 +127,8 @@ function buyerNotPresentCheckout() {
       body: JSON.stringify(options),
     })
     const createData = await createResp.json()
-    const { formatted, orderId } = createData;
-    ({ authHeader } = createData)
+    const { formatted, orderId, authHeader } = createData
+    document.getElementById('auth-header').value = authHeader
 
     addApiCalls(formatted)
 
@@ -154,7 +153,8 @@ function buyerNotPresentCheckout() {
       body: JSON.stringify(options),
     })
     const captureData = await captureResp.json()
-    const { formatted, error } = captureData
+    const { formatted, error, authHeader } = captureData
+    document.getElementById('auth-header').value = authHeader
 
     addApiCalls(formatted)
     console.groupEnd()
@@ -230,7 +230,6 @@ let addOnChange = (function () {
 
 function checkoutFunctions() {
   let orderId
-  let authHeader
   function onClick({ fundingSource }) {
     console.group("Button clicked!")
     console.log('fundingSource:', fundingSource)
@@ -244,17 +243,15 @@ function checkoutFunctions() {
     if (paymentSource != null) {
       options['payment-source'] = paymentSource
     }
-    if (authHeader != null) {
-      options.authHeader = authHeader
-    }
     const createResp = await fetch("/api/orders/", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),
     })
     const createData = await createResp.json()
-    const { formatted } = createData;
-    ({ authHeader, orderId } = createData)
+    const { formatted, authHeader } = createData;
+    ({ orderId } = createData)
+    document.getElementById('auth-header').value = authHeader
 
     addApiCalls(formatted)
     console.log(`Order ${orderId} created!`)
@@ -271,7 +268,8 @@ function checkoutFunctions() {
       body: JSON.stringify(options)
     })
     const statusData = await statusResp.json()
-    const { formatted } = statusData
+    const { formatted, authHeader } = statusData
+    document.getElementById('auth-header').value = authHeader
 
     addApiCalls(formatted)
   }
@@ -284,9 +282,6 @@ function checkoutFunctions() {
     console.log(`Capturing order ${orderId}...`)
 
     const options = getOptions()
-    if (authHeader != null) {
-      options.authHeader = authHeader
-    }
     const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
@@ -294,8 +289,8 @@ function checkoutFunctions() {
     })
     console.log(`Captured order ${orderId}!`)
     const captureData = await captureResp.json()
-    const { formatted } = captureData;
-    ({ authHeader } = captureData)
+    const { formatted, authHeader } = captureData
+    document.getElementById('auth-header').value = authHeader
 
     addApiCalls(formatted)
     console.groupEnd()
@@ -308,17 +303,14 @@ function checkoutFunctions() {
     if (paymentSource != null) {
       options['payment-source'] = paymentSource
     }
-    if (authHeader != null) {
-      options.authHeader = authHeader
-    }
     const createResp = await fetch("/api/vault/setup-tokens", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),
     })
     const createData = await createResp.json()
-    const { formatted, setupTokenId } = createData;
-    ({ authHeader } = createData)
+    const { formatted, setupTokenId, authHeader } = createData
+    document.getElementById('auth-header').value = authHeader
 
     addApiCalls(formatted)
     console.log(`Vault setup token ${setupTokenId} created!`)
@@ -329,17 +321,14 @@ function checkoutFunctions() {
     console.log(`Vault setup token ${setupTokenId} was approved!`)
     console.group('Creating vault payment token...')
 
-    if (authHeader != null) {
-      options.authHeader = authHeader
-    }
     const createResp = await fetch(`/api/vault/setup-tokens/${setupTokenId}`, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(options),
     })
     const createData = await createResp.json()
-    const { formatted, paymentTokenId } = createData;
-    ({ authHeader } = createData)
+    const { formatted, paymentTokenId, authHeader } = createData
+    document.getElementById('auth-header').value = authHeader
 
     addApiCalls(formatted)
     console.log(`Vault payment token ${paymentTokenId} created!`)
