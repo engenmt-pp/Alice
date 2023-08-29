@@ -462,12 +462,6 @@ nav label {
     border-top-right-radius: 0.5rem;
 }
 
-/* body:has(#input-onboarding:not(:checked)) #div-onboarding,
-body:has(#input-checkout:not(:checked)) #div-checkout,
-body:has(#input-api-calls:not(:checked)) #div-api-calls {
-    display: none;
-} */
-
 @media (prefers-color-scheme: dark) {
     nav input + label {
         background-color: var(--dark-bg-2);
