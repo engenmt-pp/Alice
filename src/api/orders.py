@@ -478,17 +478,22 @@ class Order:
         if self.order_id is None:
             raise ValueError
 
-        endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}")
-
         try:
             headers = self.build_headers()
         except KeyError as exc:
             current_app.logger.error(f"KeyError encountered building headers: {exc}")
-        else:
-            response = requests.get(endpoint, headers=headers)
-            self.formatted["order-status"] = format_request_and_response(response)
-        finally:
             return {"formatted": self.formatted}
+
+        endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}")
+
+        response = requests.get(endpoint, headers=headers)
+        self.formatted["order-status"] = format_request_and_response(response)
+
+        return_val = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+        return return_val
 
 
 @bp.route("/", methods=("POST",))

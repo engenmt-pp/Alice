@@ -32,7 +32,7 @@ function getPartnerMerchantInfo() {
   const info = {}
 
   const authHeader = document.getElementById('auth-header')
-  if (authHeader != null) {
+  if (authHeader != null && authHeader.value != null) {
     info.authHeader = authHeader.value
   }
 
