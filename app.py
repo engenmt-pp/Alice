@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     app.config["favicon"] = "♣️"  # Club emoji. Devs are part of the club!
 
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=8000, debug=True)
 else:
     logger = logging.getLogger("gunicorn.access")
     logger.addFilter(FilterNoStatic())
