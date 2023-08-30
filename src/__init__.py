@@ -1,10 +1,5 @@
-#!/usr/bin/env python3
-
 import os
 from flask import Flask
-
-# from logging.config import dictConfig
-# from .logs import get_logging_config_prod
 
 
 def create_app():
