@@ -1,4 +1,5 @@
 flask
+gunicorn
 python-dotenv
 paramiko
 requests
