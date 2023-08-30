@@ -3,12 +3,11 @@
 import os
 from flask import Flask
 
-from logging.config import dictConfig
+# from logging.config import dictConfig
+# from .logs import get_logging_config_prod
 
 
 def create_app():
-    dictConfig({"version": 1, "root": {"level": "ERROR"}})
-
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(SECRET_KEY="dev")
 
