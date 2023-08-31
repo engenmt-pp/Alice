@@ -1,7 +1,7 @@
 **/__pycache__/
 **/.DS_Store
 **/test*.html
-**/*.log
+logs/
 misc/
 Confluence/
 .env*
