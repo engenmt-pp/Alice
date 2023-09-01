@@ -33,6 +33,8 @@ class Order:
             "payment-source",
             "card",  # If 'payment-source' is undefined, it must be a card transaction!
         )
+        if self.payment_source_type == "paylater":
+            self.payment_source_type = "paypal"
 
         self.currency_code = kwargs.get("currency-code", "USD")
         self.intent = kwargs.get("intent")
