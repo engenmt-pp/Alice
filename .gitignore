@@ -2,7 +2,6 @@
 **/.DS_Store
 **/test*.html
 **/*.log
-**/*.db
 misc/
 Confluence/
 .env*

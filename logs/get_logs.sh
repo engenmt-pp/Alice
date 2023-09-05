@@ -1,1 +1,0 @@
-scp mengen@alice:/home/mengen/Alice/access_log.log ./
