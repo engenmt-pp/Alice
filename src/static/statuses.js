@@ -11,7 +11,7 @@ async function getSellerStatus() {
   })
   const statusData = await statusResp.json()
   const { formatted, authHeader } = statusData
-  document.getElementById('auth-header').value = authHeader
+  setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
 
@@ -29,7 +29,7 @@ async function getSellerStatusByTrackingId() {
   })
   const statusData = await statusResp.json()
   const { formatted, authHeader } = statusData
-  document.getElementById('auth-header').value = authHeader
+  setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
 
@@ -45,13 +45,14 @@ async function getReferralStatus() {
   })
   const statusData = await statusResp.json()
   const { formatted, authHeader } = statusData
-  document.getElementById('auth-header').value = authHeader
+  setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
 
 
 async function getOrderStatus() {
   const options = getPartnerMerchantInfo()
+  console.log("Options", options)
 
   const id = 'include-auth-assertion'
   options[id] = document.getElementById(id).value
@@ -64,7 +65,7 @@ async function getOrderStatus() {
   })
   const statusData = await statusResp.json()
   const { formatted, authHeader } = statusData
-  document.getElementById('auth-header').value = authHeader
+  setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
 
@@ -83,7 +84,7 @@ async function getBaStatus() {
   })
   const statusData = await statusResp.json()
   const { formatted, authHeader } = statusData
-  document.getElementById('auth-header').value = authHeader
+  setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
 
@@ -102,7 +103,7 @@ async function deletePaymentToken() {
   })
   const deleteData = await deleteResp.json()
   const { formatted, authHeader } = deleteData
-  document.getElementById('auth-header').value = authHeader
+  setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
 
@@ -121,7 +122,7 @@ async function getPaymentTokenStatus() {
   })
   const statusData = await statusResp.json()
   const { formatted, authHeader } = statusData
-  document.getElementById('auth-header').value = authHeader
+  setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
 
@@ -140,7 +141,7 @@ async function getPaymentTokens() {
   })
   const statusData = await statusResp.json()
   const { formatted, authHeader } = statusData
-  document.getElementById('auth-header').value = authHeader
+  setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
 

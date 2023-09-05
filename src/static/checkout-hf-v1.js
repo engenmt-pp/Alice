@@ -9,7 +9,7 @@ async function getClientToken() {
   })
   const clientTokenData = await clientTokenResponse.json()
   const { formatted, clientToken, authHeader } = clientTokenData
-  document.getElementById('auth-header').value = authHeader
+  setAuthHeader(authHeader)
 
   addApiCalls(formatted, click = false)
 

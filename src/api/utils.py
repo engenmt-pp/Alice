@@ -60,7 +60,11 @@ def format_request(request):
         try:
             body_sent = json.loads(body_sent)
         except (json.decoder.JSONDecodeError, TypeError) as exc:
-            pass
+            body_sent_str = str(body_sent)
+        else:
+            body_sent_str = json.dumps(body_sent, indent=2)
+    else:
+        body_sent_str = "null"
 
     method = request.method
     url = request.url
@@ -68,7 +72,7 @@ def format_request(request):
         [
             f"Sending {method} request to {url}:",
             f"Headers sent: {headers_sent_str}",
-            f"Body sent: {json.dumps(body_sent, indent=2)}",
+            f"Body sent: {body_sent_str}",
         ]
     )
 

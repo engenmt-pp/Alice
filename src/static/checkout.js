@@ -18,7 +18,7 @@ async function getIdToken() {
   const idTokenResponse = await fetch(endpoint)
   const idTokenData = await idTokenResponse.json()
   const { formatted, idToken, authHeader } = idTokenData
-  document.getElementById('auth-header').value = authHeader
+  setAuthHeader(authHeader)
 
   addApiCalls(formatted, click = false)
 
@@ -128,7 +128,7 @@ function buyerNotPresentCheckout() {
     })
     const createData = await createResp.json()
     const { formatted, orderId, authHeader } = createData
-    document.getElementById('auth-header').value = authHeader
+    setAuthHeader(authHeader)
 
     addApiCalls(formatted)
 
@@ -154,7 +154,7 @@ function buyerNotPresentCheckout() {
     })
     const captureData = await captureResp.json()
     const { formatted, error, authHeader } = captureData
-    document.getElementById('auth-header').value = authHeader
+    setAuthHeader(authHeader)
 
     addApiCalls(formatted)
     console.groupEnd()
@@ -251,7 +251,7 @@ function checkoutFunctions() {
     const createData = await createResp.json()
     const { formatted, authHeader } = createData;
     ({ orderId } = createData)
-    document.getElementById('auth-header').value = authHeader
+    setAuthHeader(authHeader)
 
     addApiCalls(formatted)
     console.log(`Order ${orderId} created!`)
@@ -269,7 +269,7 @@ function checkoutFunctions() {
     })
     const statusData = await statusResp.json()
     const { formatted, authHeader } = statusData
-    document.getElementById('auth-header').value = authHeader
+    setAuthHeader(authHeader)
 
     addApiCalls(formatted)
   }
@@ -290,7 +290,7 @@ function checkoutFunctions() {
     console.log(`Captured order ${orderId}!`)
     const captureData = await captureResp.json()
     const { formatted, authHeader } = captureData
-    document.getElementById('auth-header').value = authHeader
+    setAuthHeader(authHeader)
 
     addApiCalls(formatted)
     console.groupEnd()
@@ -310,7 +310,7 @@ function checkoutFunctions() {
     })
     const createData = await createResp.json()
     const { formatted, setupTokenId, authHeader } = createData
-    document.getElementById('auth-header').value = authHeader
+    setAuthHeader(authHeader)
 
     addApiCalls(formatted)
     console.log(`Vault setup token ${setupTokenId} created!`)
@@ -328,7 +328,7 @@ function checkoutFunctions() {
     })
     const createData = await createResp.json()
     const { formatted, paymentTokenId, authHeader } = createData
-    document.getElementById('auth-header').value = authHeader
+    setAuthHeader(authHeader)
 
     addApiCalls(formatted)
     console.log(`Vault payment token ${paymentTokenId} created!`)

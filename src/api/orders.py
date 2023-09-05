@@ -28,7 +28,7 @@ class Order:
         self.order_id = kwargs.get("order-id") or None  # Coerce to None if empty
         self.auth_id = kwargs.get("auth-id")
 
-        self.auth_header = kwargs.get("authHeader")
+        self.auth_header = kwargs.get("auth-header")
         self.payment_source_type = kwargs.get(
             "payment-source",
             "card",  # If 'payment-source' is undefined, it must be a card transaction!

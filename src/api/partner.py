@@ -20,7 +20,7 @@ def extract_action_url(links):
 
 class Referral:
     def __init__(self, **kwargs):
-        self.auth_header = kwargs.get("authHeader") or None  # Coerce to None if empty
+        self.auth_header = kwargs.get("auth-header")
 
         self.referral_token = kwargs.get("referral-token")
 

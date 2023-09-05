@@ -14,7 +14,7 @@ bp = Blueprint("vault", __name__, url_prefix="/vault")
 
 class Vault:
     def __init__(self, **kwargs):
-        self.auth_header = kwargs.get("authHeader", None)
+        self.auth_header = kwargs.get("auth-header")
         self.payment_source_type = kwargs.get(
             "payment-source",
             "card",  # If 'payment-source' is undefined, it must be a card transaction!
