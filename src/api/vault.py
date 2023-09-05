@@ -48,12 +48,16 @@ class Vault:
         client_id = current_app.config["PARTNER_CLIENT_ID"]
         secret = current_app.config["PARTNER_SECRET"]
         bn_code = current_app.config["PARTNER_BN_CODE"]
+
+        merchant_id = (
+            current_app.config["MERCHANT_ID"] if self.include_auth_assertion else None
+        )
         headers = build_headers(
             client_id=client_id,
             secret=secret,
             bn_code=bn_code,
+            merchant_id=merchant_id,
             auth_header=self.auth_header,
-            include_auth_assertion=self.include_auth_assertion,
             include_request_id=self.include_request_id,
         )
         # If an auth header was previously provided, no API call would have been made,

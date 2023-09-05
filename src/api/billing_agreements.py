@@ -13,6 +13,8 @@ def get_ba_status(baid):
     secret = current_app.config["PARTNER_SECRET"]
     bn_code = current_app.config["PARTNER_BN_CODE"]
 
+    merchant_id = current_app.config["MERCHANT_ID"]
+
     current_app.logger.info(f"Getting the status of a billing agreement with {baid=}")
 
     endpoint = build_endpoint(f"/v1/billing-agreements/agreements/{baid}")
@@ -20,7 +22,7 @@ def get_ba_status(baid):
         client_id=client_id,
         secret=secret,
         bn_code=bn_code,
-        include_auth_assertion=True,
+        merchant_id=merchant_id,
     )
     formatted = headers.pop("formatted")
 

@@ -156,7 +156,7 @@ def build_headers(
     client_id=None,
     secret=None,
     bn_code=None,
-    include_auth_assertion=False,
+    merchant_id=None,
     include_request_id=False,
     auth_header=None,
 ):
@@ -195,8 +195,8 @@ def build_headers(
     if bn_code is not None:
         headers["PayPal-Partner-Attribution-Id"] = bn_code
 
-    if include_auth_assertion:
-        auth_assertion = build_auth_assertion()
+    if merchant_id:
+        auth_assertion = build_auth_assertion(client_id, merchant_id)
         headers["PayPal-Auth-Assertion"] = auth_assertion
 
     return headers
