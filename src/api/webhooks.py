@@ -14,7 +14,10 @@ def verify_webhook_signature(verification_dict):
     Docs: https://developer.paypal.com/api/webhooks/v1/#verify-webhook-signature_post
     """
     endpoint = build_endpoint("/v1/notifications/verify-webhook-signature")
-    headers = build_headers()
+    client_id = current_app.config["PARTNER_CLIENT_ID"]
+    secret = current_app.config["PARTNER_SECRET"]
+    bn_code = current_app.config["PARTNER_BN_CODE"]
+    headers = build_headers(client_id=client_id, secret=secret, bn_code=bn_code)
 
     response = requests.post(endpoint, headers=headers, data=verification_dict)
     response_dict = response.json()

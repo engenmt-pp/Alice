@@ -10,9 +10,9 @@ async function getSellerStatus() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
 }
 
 
@@ -28,9 +28,9 @@ async function getSellerStatusByTrackingId() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
 }
 
 
@@ -44,14 +44,15 @@ async function getReferralStatus() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
 }
 
 
 async function getOrderStatus() {
   const options = getPartnerMerchantInfo()
+  console.log("Options", options)
 
   const id = 'include-auth-assertion'
   options[id] = document.getElementById(id).value
@@ -63,9 +64,9 @@ async function getOrderStatus() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
 }
 
 
@@ -82,9 +83,9 @@ async function getBaStatus() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
 }
 
 
@@ -101,9 +102,9 @@ async function deletePaymentToken() {
     body: JSON.stringify(options)
   })
   const deleteData = await deleteResp.json()
-  const { formatted } = deleteData
-  addApiCalls(formatted);
-  ({ authHeader } = deleteData)
+  const { formatted, authHeader } = deleteData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
 }
 
 
@@ -120,9 +121,9 @@ async function getPaymentTokenStatus() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
 }
 
 
@@ -139,8 +140,8 @@ async function getPaymentTokens() {
     body: JSON.stringify(options)
   })
   const statusData = await statusResp.json()
-  const { formatted } = statusData
-  addApiCalls(formatted);
-  ({ authHeader } = statusData)
+  const { formatted, authHeader } = statusData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
 }
 

@@ -5,6 +5,23 @@ from flask import current_app
 from urllib.parse import urlencode
 
 
+def get_managed_partner_config(model):
+    word_map = {
+        1: "ONE",
+        2: "TWO",
+    }
+    model = word_map[model]
+
+    partner_config = {
+        "id": current_app.config[f"MP_PARTNER_{model}_ID"],
+        "client_id": current_app.config[f"MP_PARTNER_{model}_CLIENT_ID"],
+        "secret": current_app.config[f"MP_PARTNER_{model}_SECRET"],
+        "bn_code": current_app.config[f"MP_PARTNER_{model}_BN_CODE"],
+    }
+
+    return partner_config
+
+
 def build_endpoint(route, query=None):
     """Build the appropriate API endpoint given the suffix/route."""
     endpoint_prefix = current_app.config["ENDPOINT_PREFIX"]
@@ -43,9 +60,11 @@ def format_request(request):
         try:
             body_sent = json.loads(body_sent)
         except (json.decoder.JSONDecodeError, TypeError) as exc:
-            current_app.logger.debug(
-                f"Exception occurred during json.loads('{body_sent}'): ({type(exc)}) {exc}"
-            )
+            body_sent_str = str(body_sent)
+        else:
+            body_sent_str = json.dumps(body_sent, indent=2)
+    else:
+        body_sent_str = "null"
 
     method = request.method
     url = request.url
@@ -53,7 +72,7 @@ def format_request(request):
         [
             f"Sending {method} request to {url}:",
             f"Headers sent: {headers_sent_str}",
-            f"Body sent: {json.dumps(body_sent, indent=2)}",
+            f"Body sent: {body_sent_str}",
         ]
     )
 
@@ -75,11 +94,12 @@ def format_response(response):
         body_received = response.text
 
     response_code = response.status_code
+    reason = response.reason
     debug_id = headers_received.get("Paypal-Debug-Id")
     return "\n".join(
         [
             f"Response:",
-            f"Status: {response_code}",
+            f"Status: {response_code} {reason}",
             f"PayPal Debug ID: {debug_id}",
             f"Headers received: {json.dumps(headers_received,indent=2)}",
             f"Body received: {json.dumps(body_received,indent=2)}",

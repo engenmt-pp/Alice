@@ -28,8 +28,24 @@ function setOptions(options) {
   }
 }
 
+function getAuthHeader() {
+  const elementAuthHeader = document.getElementById('auth-header')
+  if (elementAuthHeader == null) {
+    return elementAuthHeader
+  }
+  return elementAuthHeader.value
+}
+function setAuthHeader(authHeader) {
+  document.getElementById('auth-header').value = authHeader
+}
+
 function getPartnerMerchantInfo() {
   const info = {}
+
+  const authHeader = getAuthHeader()
+  if (authHeader != null) {
+    info['auth-header'] = authHeader
+  }
 
   const partnerId = document.getElementById('partner-id')
   if (partnerId != null) {

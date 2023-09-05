@@ -28,7 +28,7 @@ class Order:
         self.order_id = kwargs.get("order-id") or None  # Coerce to None if empty
         self.auth_id = kwargs.get("auth-id")
 
-        self.auth_header = kwargs.get("authHeader")
+        self.auth_header = kwargs.get("auth-header")
         self.payment_source_type = kwargs.get(
             "payment-source",
             "card",  # If 'payment-source' is undefined, it must be a card transaction!
@@ -92,15 +92,23 @@ class Order:
 
     def build_headers(self):
         """Wrapper for .utils.build_headers."""
-        headers = build_headers(
-            auth_header=self.auth_header,
-            include_auth_assertion=self.include_auth_assertion,
-            include_request_id=self.include_request_id,
-            return_formatted=True,
+        client_id = current_app.config["PARTNER_CLIENT_ID"]
+        secret = current_app.config["PARTNER_SECRET"]
+        bn_code = current_app.config["PARTNER_BN_CODE"]
+
+        merchant_id = (
+            current_app.config["MERCHANT_ID"] if self.include_auth_assertion else None
         )
-        if "formatted" in headers:
-            self.formatted |= headers["formatted"]
-            del headers["formatted"]
+
+        headers = build_headers(
+            client_id=client_id,
+            secret=secret,
+            bn_code=bn_code,
+            auth_header=self.auth_header,
+            merchant_id=merchant_id,
+            include_request_id=self.include_request_id,
+        )
+        self.formatted |= headers.pop("formatted")
 
         self.auth_header = headers["Authorization"]
         return headers
@@ -336,7 +344,13 @@ class Order:
         Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_create
         """
         endpoint = build_endpoint("/v2/checkout/orders")
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError as exc:
+            current_app.logger.error(
+                f"Encountered KeyError in Orders().build_headers: exc"
+            )
+            return {"formatted": self.formatted}
 
         purchase_units = [self.build_purchase_unit()]
         data = {
@@ -353,18 +367,20 @@ class Order:
             json=data,
         )
         self.formatted["create-order"] = format_request_and_response(response)
-        response_dict = {
+        return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
         }
         try:
             order_id = response.json()["id"]
         except Exception as exc:
-            current_app.logger.error(f"Encountered exception unpacking order ID: {exc}")
-            return response_dict
-
-        response_dict["orderId"] = order_id
-        return response_dict
+            current_app.logger.error(
+                f"Encountered generic exception unpacking order ID: {exc}"
+            )
+        else:
+            return_val["orderId"] = order_id
+        finally:
+            return return_val
 
     def capture(self):
         """Capture the order using the the POST /v2/checkout/orders/{order_id}/capture endpoint.
@@ -378,54 +394,66 @@ class Order:
             return self.auth_and_capture()
 
         endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}/capture")
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
+        data = {}
         payment_instruction = self.build_payment_instruction(for_call="capture")
         if payment_instruction:
-            data = {"payment_instruction": payment_instruction}
-        else:
-            data = None
+            data["payment_instruction"] = payment_instruction
 
         response = requests.post(endpoint, headers=headers, json=data)
         self.formatted["capture-order"] = format_request_and_response(response)
-        response_dict = {
+        return_val = {
             "formatted": self.formatted,
+            "authHeader": self.auth_header,
         }
+        return return_val
 
-        response_dict["authHeader"] = self.auth_header
-        return response_dict
-
-    def authorize(self):
+    def _authorize(self):
         """Authorize the order using the POST /v2/checkout/orders/{order_id}/authorize endpoint.
 
         Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_authorize
         """
         endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}/authorize")
 
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return
 
+        data = {}
         payment_source = self.build_payment_source_for_authorize()
         if payment_source:
-            data = {"payment_source": payment_source}
-        else:
-            data = None
+            data["payment_source"] = payment_source
 
         response = requests.post(endpoint, headers=headers, json=data)
         self.formatted["authorize-order"] = format_request_and_response(response)
 
-        return response
+        try:
+            auth_id = response.json()["purchase_units"][0]["payments"][
+                "authorizations"
+            ][0]["id"]
+        except (TypeError, IndexError, KeyError) as exc:
+            current_app.logger.error(
+                f"Error accessing authorization ID from response: {exc}"
+            )
+        else:
+            self.auth_id = auth_id
+        finally:
+            return
 
-    def capture_authorization(self):
+    def _capture_authorization(self):
         """Capture the authorization using the POST /v2/payments/authorizations/{auth_id}/capture endpoint.
 
         Docs: https://developer.paypal.com/docs/api/payments/v2/#authorizations_capture
         """
-
         endpoint = build_endpoint(f"/v2/payments/authorizations/{self.auth_id}/capture")
-
         headers = self.build_headers()
 
-        data = dict()
+        data = {}
         payment_instruction = self.build_payment_instruction(for_call="capture")
         if payment_instruction:
             data["payment_instruction"] = payment_instruction
@@ -433,26 +461,18 @@ class Order:
         response = requests.post(endpoint, headers=headers, json=data)
         self.formatted["capture-authorization"] = format_request_and_response(response)
 
-        return response
+        return
 
     def auth_and_capture(self):
         """Authorize the order and then capture the resulting authorization."""
-        auth_response = self.authorize()
-        response_dict = {"formatted": self.formatted, "authHeader": self.auth_header}
-        try:
-            self.auth_id = auth_response.json()["purchase_units"][0]["payments"][
-                "authorizations"
-            ][0]["id"]
-        except (TypeError, IndexError, KeyError) as exc:
-            current_app.logger.error(
-                f"Error accessing authorization ID from response: {exc}"
-            )
-            return response_dict
-
-        self.capture_authorization()
-        response_dict["formatted"] = self.formatted
-
-        return response_dict
+        self._authorize()
+        if self.auth_id is not None:
+            self._capture_authorization()
+        return_val = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+        return return_val
 
     def get_status(self):
         """Retrieve the order status using the GET /v2/checkout/orders/{order_id} endpoint.
@@ -462,13 +482,22 @@ class Order:
         if self.order_id is None:
             raise ValueError
 
+        try:
+            headers = self.build_headers()
+        except KeyError as exc:
+            current_app.logger.error(f"KeyError encountered building headers: {exc}")
+            return {"formatted": self.formatted}
+
         endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}")
-        headers = self.build_headers()
 
         response = requests.get(endpoint, headers=headers)
         self.formatted["order-status"] = format_request_and_response(response)
 
-        return {"formatted": self.formatted}
+        return_val = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+        return return_val
 
 
 @bp.route("/", methods=("POST",))
@@ -480,7 +509,12 @@ def create_order():
     data = request.get_json()
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.info(
-        f"Creating an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+        "\n".join(
+            [
+                f"Creating an order with (filtered) data = ",
+                json.dumps(data_filtered, indent=2, sort_keys=True),
+            ]
+        )
     )
 
     order = Order(**data)

@@ -2,7 +2,7 @@
 
 {% block head %}
 <script src="{{ url_for('static', filename='statuses.js') }}"></script>
-{% endblock %}
+{% endblock head %}
 
 
 {% block other_options %}
@@ -116,10 +116,10 @@
     </div>
   </details>
 </fieldset>
-{% endblock %}
+{% endblock other_options %}
 
 {% block right_col %}
 <div id="div-api-calls" class="active">
   <nav role="tabset"></nav>
 </div>
-{% endblock %}
+{% endblock right_col %}

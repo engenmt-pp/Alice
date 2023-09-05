@@ -20,7 +20,7 @@ def extract_action_url(links):
 
 class Referral:
     def __init__(self, **kwargs):
-        self.auth_header = kwargs.get("authHeader") or None  # Coerce to None if empty
+        self.auth_header = kwargs.get("auth-header")
 
         self.referral_token = kwargs.get("referral-token")
 
@@ -47,13 +47,17 @@ class Referral:
 
     def build_headers(self):
         """Wrapper for .utils.build_headers."""
+        client_id = current_app.config["PARTNER_CLIENT_ID"]
+        secret = current_app.config["PARTNER_SECRET"]
+        bn_code = current_app.config["PARTNER_BN_CODE"]
         headers = build_headers(
+            client_id=client_id,
+            secret=secret,
+            bn_code=bn_code,
             auth_header=self.auth_header,
-            return_formatted=True,
         )
-        if "formatted" in headers:
-            self.formatted |= headers["formatted"]
-            del headers["formatted"]
+
+        self.formatted |= headers.pop("formatted")
 
         self.auth_header = headers["Authorization"]
         return headers
@@ -131,7 +135,10 @@ class Referral:
 
     def create(self):
         endpoint = build_endpoint("/v2/customer/partner-referrals")
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         operations = self.build_operations()
         products = self.build_products()
@@ -168,7 +175,7 @@ class Referral:
             json=data,
         )
         self.formatted["create-referral"] = format_request_and_response(response)
-        response_dict = {
+        return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
         }
@@ -179,10 +186,10 @@ class Referral:
             current_app.logger.error(
                 f"Encountered exception unpacking action URL: {exc}"
             )
-            return response_dict
-
-        response_dict["actionUrl"] = action_url
-        return response_dict
+        else:
+            return_val["actionUrl"] = action_url
+        finally:
+            return return_val
 
     def get_merchant_id(self):
         """Return a merchant's ID given the tracking ID used during onboarding with the /v1/customer/partners API.
@@ -196,7 +203,10 @@ class Referral:
             f"/v1/customer/partners/{self.partner_id}/merchant-integrations",
             query={"tracking_id": self.tracking_id},
         )
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         resp = requests.get(endpoint, headers=headers)
         self.formatted["get-merchant-id"] = format_request_and_response(resp)
@@ -222,7 +232,10 @@ class Referral:
         endpoint = build_endpoint(
             f"/v1/customer/partners/{self.partner_id}/merchant-integrations/{self.merchant_id}"
         )
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         response = requests.get(endpoint, headers=headers)
         self.formatted["seller-status"] = format_request_and_response(response)
@@ -233,7 +246,10 @@ class Referral:
         endpoint = build_endpoint(
             f"/v2/customer/partner-referrals/{self.referral_token}"
         )
-        headers = self.build_headers()
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
 
         response = requests.get(endpoint, headers=headers)
         self.formatted["referral-status"] = format_request_and_response(response)

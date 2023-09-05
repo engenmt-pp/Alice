@@ -20,13 +20,22 @@ def get_client_token():
     Docs: https://developer.paypal.com/docs/multiparty/checkout/advanced/integrate/#link-generateclienttoken
     """
     endpoint = build_endpoint("/v1/identity/generate-token")
-    headers = build_headers(return_formatted=True)
 
-    auth_header = headers["Authorization"]
-    return_val = {"authHeader": auth_header}
+    client_id = current_app.config["PARTNER_CLIENT_ID"]
+    secret = current_app.config["PARTNER_SECRET"]
+    bn_code = current_app.config["PARTNER_BN_CODE"]
 
-    # `headers` may not contained formatted calls, so default to the empty dict.
-    formatted = headers.pop("formatted", dict())
+    headers = build_headers(client_id=client_id, secret=secret, bn_code=bn_code)
+
+    return_val = {}
+    formatted = headers.pop("formatted")
+
+    try:
+        auth_header = headers["Authorization"]
+        return_val["authHeader"] = auth_header
+    except KeyError:
+        return_val["formatted"] = formatted
+        return jsonify(return_val)
 
     response = requests.post(endpoint, headers=headers)
 
@@ -35,13 +44,14 @@ def get_client_token():
 
     try:
         client_token = response.json()["client_token"]
-        return_val["clientToken"] = client_token
     except Exception as exc:
         current_app.logger.error(
             f"Exception encountered when getting client_token: {exc}"
         )
-
-    return jsonify(return_val)
+    else:
+        return_val["clientToken"] = client_token
+    finally:
+        return jsonify(return_val)
 
 
 @bp.route("/id-token/", defaults={"customer_id": None}, methods=("GET",))
@@ -54,8 +64,12 @@ def get_id_token(customer_id):
     endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
 
+    client_id = current_app.config["PARTNER_CLIENT_ID"]
+    secret = current_app.config["PARTNER_SECRET"]
+
     if request.args.get("include-auth-assertion"):
-        auth_assertion = build_auth_assertion()
+        merchant_id = current_app.config["MERCHANT_ID"]
+        auth_assertion = build_auth_assertion(client_id, merchant_id)
         headers["PayPal-Auth-Assertion"] = auth_assertion
 
     data = {
@@ -67,67 +81,67 @@ def get_id_token(customer_id):
     if customer_id:
         data["target_customer_id"] = customer_id
 
-    client_id = current_app.config["PARTNER_CLIENT_ID"]
-    secret = current_app.config["PARTNER_SECRET"]
-
     response = requests.post(
         endpoint, headers=headers, data=data, auth=(client_id, secret)
     )
-    response_dict = response.json()
 
-    formatted = {"access-token": format_request_and_response(response)}
+    formatted = {"id-token": format_request_and_response(response)}
     return_val = {"formatted": formatted}
+
     try:
+        response_dict = response.json()
         access_token = response_dict["access_token"]
         id_token = response_dict["id_token"]
-    except KeyError:
-        return return_val
+    except KeyError as exc:
+        current_app.logger.error(f"Exception in get_id_token: {exc}")
+    else:
+        auth_header = f"Bearer {access_token}"
+        return_val["authHeader"] = auth_header
+        return_val["idToken"] = id_token
+    finally:
+        return jsonify(return_val)
 
-    auth_header = f"Bearer {access_token}"
-    return_val["authHeader"] = auth_header
-    return_val["idToken"] = id_token
 
-    return jsonify(return_val)
-
-
-def get_access_token(client_id, secret, return_formatted=False):
+def get_access_token(client_id, secret):
     """Request an access token using the /v1/oauth2/token API.
 
     Docs: https://developer.paypal.com/docs/api/reference/get-an-access-token/
     """
     endpoint = build_endpoint("/v1/oauth2/token")
-    headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
-
-    data = {"grant_type": "client_credentials", "ignoreCache": True}
+    headers = {
+        "Content-Type": "application/json",
+        "Accept-Language": "en_US",
+    }
+    data = {
+        "grant_type": "client_credentials",
+        "ignoreCache": True,
+    }
 
     response = requests.post(
-        endpoint, headers=headers, data=data, auth=(client_id, secret)
+        endpoint,
+        headers=headers,
+        data=data,
+        auth=(client_id, secret),
     )
-    response_dict = response.json()
+
+    formatted = {"access-token": format_request_and_response(response)}
+    return_val = {"formatted": formatted}
 
     try:
-        access_token = response_dict["access_token"]
-        return_val = {"access_token": access_token}
-        if return_formatted:
-            formatted = format_request_and_response(response)
-            return_val["formatted"] = formatted
-        return return_val
+        access_token = response.json()["access_token"]
     except KeyError as exc:
         current_app.logger.error(f"Encountered a KeyError: {exc}")
-        current_app.logger.error(
-            f"response_dict = {json.dumps(response_dict, indent=2)}"
-        )
-        raise exc
+    else:
+        return_val["access_token"] = access_token
+    finally:
+        return return_val
 
 
-def build_auth_assertion(client_id=None, merchant_id=None):
+def build_auth_assertion(client_id, merchant_id):
     """Build and return the PayPal Auth Assertion.
 
     Docs: https://developer.paypal.com/docs/api/reference/api-requests/#paypal-auth-assertion
     """
-    client_id = client_id or current_app.config["PARTNER_CLIENT_ID"]
-    merchant_id = merchant_id or current_app.config["MERCHANT_ID"]
-
     header = {"alg": "none"}
     header_b64 = base64.b64encode(json.dumps(header).encode("ascii"))
 
@@ -142,10 +156,8 @@ def build_headers(
     client_id=None,
     secret=None,
     bn_code=None,
-    include_bn_code=True,
-    include_auth_assertion=False,
+    merchant_id=None,
     include_request_id=False,
-    return_formatted=False,
     auth_header=None,
 ):
     """Build commonly used headers using a new PayPal access token."""
@@ -154,20 +166,25 @@ def build_headers(
         "Accept": "application/json",
         "Accept-Language": "en_US",
         "Content-Type": "application/json",
+        "formatted": {},
     }
 
     if not auth_header:
-        client_id = client_id or current_app.config["PARTNER_CLIENT_ID"]
-        secret = secret or current_app.config["PARTNER_SECRET"]
-
-        access_token_response = get_access_token(
-            client_id, secret, return_formatted=return_formatted
-        )
-        access_token = access_token_response["access_token"]
-        auth_header = f"Bearer {access_token}"
-        if return_formatted:
-            formatted = {"access-token": access_token_response["formatted"]}
-            headers["formatted"] = formatted
+        if client_id is None or secret is None:
+            raise Exception(
+                f"Invalid client ID/secret passed:\n{client_id=}\n{secret=}"
+            )
+        access_token_response = get_access_token(client_id, secret)
+        headers["formatted"] |= access_token_response["formatted"]
+        try:
+            access_token = access_token_response["access_token"]
+        except KeyError as exc:
+            current_app.error(
+                f"<build_headers> Encountered Exception accessing access_token: {exc}"
+            )
+            return headers
+        else:
+            auth_header = f"Bearer {access_token}"
 
     headers["Authorization"] = auth_header
 
@@ -175,12 +192,11 @@ def build_headers(
         request_id = random_decimal_string(10)
         headers["PayPal-Request-Id"] = request_id
 
-    if include_bn_code:
-        bn_code = bn_code or current_app.config["PARTNER_BN_CODE"]
+    if bn_code is not None:
         headers["PayPal-Partner-Attribution-Id"] = bn_code
 
-    if include_auth_assertion:
-        auth_assertion = build_auth_assertion()
+    if merchant_id:
+        auth_assertion = build_auth_assertion(client_id, merchant_id)
         headers["PayPal-Auth-Assertion"] = auth_assertion
 
     return headers
