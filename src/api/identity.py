@@ -64,8 +64,12 @@ def get_id_token(customer_id):
     endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
 
+    client_id = current_app.config["PARTNER_CLIENT_ID"]
+    secret = current_app.config["PARTNER_SECRET"]
+
     if request.args.get("include-auth-assertion"):
-        auth_assertion = build_auth_assertion()
+        merchant_id = current_app.config["MERCHANT_ID"]
+        auth_assertion = build_auth_assertion(client_id, merchant_id)
         headers["PayPal-Auth-Assertion"] = auth_assertion
 
     data = {
@@ -76,9 +80,6 @@ def get_id_token(customer_id):
 
     if customer_id:
         data["target_customer_id"] = customer_id
-
-    client_id = current_app.config["PARTNER_CLIENT_ID"]
-    secret = current_app.config["PARTNER_SECRET"]
 
     response = requests.post(
         endpoint, headers=headers, data=data, auth=(client_id, secret)
