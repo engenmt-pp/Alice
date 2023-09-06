@@ -320,7 +320,4 @@ def get_seller_status_by_tracking_id():
     referral = Referral(**data)
     resp = referral.seller_status()
 
-    current_app.logger.debug(
-        f"Get seller status response: {json.dumps(resp, indent=2)}"
-    )
     return jsonify(resp)
