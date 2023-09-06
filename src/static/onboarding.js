@@ -21,11 +21,12 @@ async function createReferral() {
   const createData = await response.json()
   const { formatted, actionUrl } = createData
 
-  addApiCalls(formatted)
-  if (typeof actionUrl !== 'undefined') {
+  if (actionUrl == null) {
+    console.error('No actionUrl found:', createData)
+    addApiCalls(formatted, click = true)
+  } else {
+    addApiCalls(formatted, click = false)
     hideCreateReferral()
     populateReferralLink(actionUrl)
-  } else {
-    console.error(`No actionUrl found: ${createData}`)
   }
 }
