@@ -1,0 +1,8 @@
+#mam-onboarding {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+#mam-onboarding > fieldset {
+    flex: 1 1 30%;
+}

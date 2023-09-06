@@ -127,6 +127,12 @@ def get_access_token(client_id, secret):
     formatted = {"access-token": format_request_and_response(response)}
     return_val = {"formatted": formatted}
 
+    formatted = format_request_and_response(response)
+    return_val = {
+        "formatted": {
+            "access-token": formatted,
+        },
+    }
     try:
         access_token = response.json()["access_token"]
     except KeyError as exc:

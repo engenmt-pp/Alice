@@ -13,9 +13,18 @@ function loadOptions() {
   }
   return options
 }
-function getOptions() {
+
+
+function getOptions(additionalFormId = null) {
   const formData = new FormData(document.getElementById('options-form'))
-  const formOptions = Object.fromEntries(formData)
+  let formOptions = Object.fromEntries(formData)
+
+  if (additionalFormId) {
+    const additionalFormData = new FormData(document.getElementById(additionalFormId))
+    const additionalFormOptions = Object.fromEntries(additionalFormData)
+    formOptions = { ...formOptions, ...additionalFormOptions }
+  }
+
   const partnerMerchantInfo = getPartnerMerchantInfo()
   return { ...formOptions, ...partnerMerchantInfo }
 }
