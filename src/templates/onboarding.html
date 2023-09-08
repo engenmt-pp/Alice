@@ -32,21 +32,32 @@
       </select>
     </div>
     <div>
-      <label for="include-legal-consents">
-        Legal consents
-      </label>
-      <select name="include-legal-consents" id="include-legal-consents">
-        <option value="include" selected>Include</option>
-        <option value="">Exclude</option>
-      </select>
-    </div>
-    <div>
       <label for="vault-level">
         Vault v3
       </label>
       <select name="vault-level" id="vault-level">
         <option value="" selected>None</option>
         <option value="MERCHANT">Merchant-level</option>
+      </select>
+    </div>
+    <div>
+      <label class="raised">
+        APMs:
+      </label>
+      <ul>
+        <li>
+          <input name="apm-google-pay" id="apm-google-pay" type="checkbox" value="GOOGLE_PAY"/>
+          <label for="apm-google-pay">Google Pay</label>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <label for="include-legal-consents">
+        Legal consents
+      </label>
+      <select name="include-legal-consents" id="include-legal-consents">
+        <option value="include" selected>Include</option>
+        <option value="">Exclude</option>
       </select>
     </div>
     <div>

@@ -22,14 +22,18 @@
 {% block preamble_options %}
 <fieldset id="fieldset-checkout-method">
   <div>
-    <label>
+    <label for="checkout-method">
       Checkout Method
     </label>
-    <select id='checkout-method' onchange="changeCheckout()">
+    <select name='checkout-method' id='checkout-method' onchange="changeCheckout()">
       <option
         value="{{ url_for('routes.checkout_branded') }}"
         {{ 'selected' if method == 'branded' else '' }}
       >Branded</option>
+      <option
+        value="{{ url_for('routes.checkout_google_pay') }}"
+        {{ 'selected' if method == 'google-pay' else '' }}
+      >Google Pay</option>
       <optgroup label="ACDC">
         <option
           value="{{ url_for('routes.checkout_hosted_v2') }}"

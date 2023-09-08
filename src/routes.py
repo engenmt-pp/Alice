@@ -43,6 +43,30 @@ def checkout_branded():
     )
 
 
+@bp.route("checkout/google-pay-2/")
+def checkout_google_pay_2():
+    """Return the rendered Google Pay checkout page from its template."""
+
+    template = "checkout-google-pay-2.html"
+    return render_template(template)
+
+
+@bp.route("checkout/google-pay/")
+def checkout_google_pay():
+    """Return the rendered Google Pay checkout page from its template."""
+
+    template = "checkout-google-pay.html"
+
+    partner_and_merchant_config = get_partner_and_merchant_config()
+
+    return render_template(
+        template,
+        method="google-pay",
+        **partner_and_merchant_config,
+        favicon=current_app.config["favicon"],
+    )
+
+
 @bp.route("checkout/hosted-v1/")
 def checkout_hosted_v1():
     """Return the rendered Hosted Fields v1 checkout page from its template."""

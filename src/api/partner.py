@@ -39,6 +39,9 @@ class Referral:
         self.features = [
             value for option, value in kwargs.items() if option.startswith("feature-")
         ]
+        self.apms = [
+            value for option, value in kwargs.items() if option.startswith("apm-")
+        ]
 
         self.formatted = dict()
 
@@ -78,12 +81,15 @@ class Referral:
         products = [self.product]
         if self.vault_level == "MERCHANT":
             products.append("ADVANCED_VAULTING")
+        if self.apms:
+            products.append("PAYMENT_METHODS")
         return products
 
     def build_capabilities(self):
         capabilities = []
         if self.vault_level == "MERCHANT":
             capabilities.append("PAYPAL_WALLET_VAULTING_ADVANCED")
+        capabilities.extend(self.apms)
         return capabilities
 
     def build_partner_config_override(self):

@@ -1,0 +1,26 @@
+{% extends 'checkout.html' %}
+
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='checkout-google-pay.js') }}"></script>
+{% endblock head %}
+
+{% block checkout_div %}
+<script async src="https://pay.google.com/gp/p/js/pay.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    console.log("load event occurred")
+    const options = loadOptions()
+    window.sessionStorage.clear()
+    setOptions(options)
+
+    const loadCheckout = googlePayClosure()
+    buildScriptElement(loadCheckout, 'google-pay')
+    addOnChange(() => {
+      buildScriptElement(loadCheckout, 'google-pay')
+    })
+  })
+</script>
+<div id="checkout-google-pay">
+</div>
+{% endblock %}

@@ -56,7 +56,7 @@ async function buildScriptElement(onload, checkoutMethod) {
   if (buyerCountryElement != null && buyerCountryElement.value != '') {
     query.set('buyer-country', buyerCountryElement.value)
   }
-  query.set("debug", false)
+  query.set("debug", true)
   let commit
   if (document.getElementById('user-action').value == 'CONTINUE') {
     commit = false
@@ -69,6 +69,9 @@ async function buildScriptElement(onload, checkoutMethod) {
     case 'branded':
       query.set('components', 'buttons')
       query.set('enable-funding', 'venmo,paylater,card')
+      break
+    case 'google-pay':
+      query.set('components', 'googlepay')
       break
     case 'hosted-fields-v1':
       query.set('components', 'hosted-fields')
@@ -140,7 +143,6 @@ function buyerNotPresentCheckout() {
     if (orderId == null) {
       console.log('Order creation failed!')
       alert('Order creation failed!')
-      // throw new Error('Order creation failed!')
     } else {
       console.log(`Order ${orderId} created!`)
     }
@@ -298,11 +300,12 @@ function checkoutFunctions() {
     })
     console.log(`Captured order ${orderId}!`)
     const captureData = await captureResp.json()
-    const { formatted, authHeader } = captureData
+    const { formatted, authHeader, captureStatus } = captureData
     setAuthHeader(authHeader)
 
     addApiCalls(formatted)
     console.groupEnd()
+    return captureStatus
   }
   async function createVaultSetupToken({ paymentSource } = {}) {
     console.group("Creating the vault setup token...")
