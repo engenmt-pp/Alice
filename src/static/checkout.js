@@ -81,11 +81,12 @@ async function buildScriptElement(onload, checkoutMethod) {
       break
   }
 
-  if (document.getElementById('vault-without-purchase').checked) {
+  const vaultWithoutPurchase = document.getElementById('vault-without-purchase')
+  if (vaultWithoutPurchase == null || vaultWithoutPurchase.checked) {
     // When vaulting without purchase, the JS SDK will error out
     // if anything other than 'intent=capture' is passed.
     query.set("intent", "capture")
-  } else {
+  } else if (intent != null) {
     query.set("intent", intent.toLowerCase())
   }
 
@@ -213,6 +214,9 @@ let addOnChange = (function () {
     'partner-client-id',
     'partner-secret',
     'partner-bn-code',
+    'google-pay-button-color',
+    'google-pay-button-type',
+    'google-pay-button-locale',
   ]
 
   function innerAddOnChange(loadCheckout) {

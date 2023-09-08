@@ -116,7 +116,7 @@ function googlePayClosure() {
         console.log('Confirmation approved!')
         const captureStatus = await captureOrder(options)
         if (captureStatus === "COMPLETED") {
-          console.log("Capture was successful! Huzzah!")
+          console.log("Capture was successful! 😃 Huzzah!")
           returnVal.transactionState = 'SUCCESS'
         } else {
           console.log("Capture was unsuccessful. 😩")
@@ -149,8 +149,28 @@ function googlePayClosure() {
     }
   }
   async function addGooglePayButton() {
+    const buttonOptions = {}
+
+    const buttonColorElt = document.getElementById('google-pay-button-color')
+    if (buttonColorElt != null) {
+      buttonOptions.buttonColor = buttonColorElt.value.toLowerCase()
+    }
+    const buttonTypeElt = document.getElementById('google-pay-button-type')
+    if (buttonTypeElt != null) {
+      buttonOptions.buttonType = buttonTypeElt.value.toLowerCase()
+    }
+
+    const buttonLocaleElt = document.getElementById('google-pay-button-locale')
+    if (buttonLocaleElt != null) {
+      buttonOptions.buttonLocale = buttonLocaleElt.value.toLowerCase()
+    }
+
     paymentsClient = getGooglePaymentsClient()
-    const button = paymentsClient.createButton({ onClick })
+    const button = paymentsClient.createButton({
+      ...buttonOptions,
+      onClick,
+    })
+    console.log('button', button)
     document.getElementById("checkout-google-pay").appendChild(button)
   }
   async function onGooglePayLoaded() {
@@ -164,7 +184,7 @@ function googlePayClosure() {
       }
     } catch (e) {
       const err = await e.message
-      console.log(err)
+      console.log({ err })
     }
   }
   return onGooglePayLoaded
