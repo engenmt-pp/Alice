@@ -55,14 +55,6 @@
       </select>
     </div>
     <div>
-      <label for="country-code">
-        Country
-      </label>
-      <select name="country-code" id="country-code">
-        {% include 'country-options.html' %}
-      </select>
-    </div>
-    <div>
       <label for="include-legal-consents">
         Legal consents
       </label>
@@ -91,6 +83,14 @@
         Email
       </label>
       <input name="email" id="email" class="monospaced"/>
+    </div>
+    <div>
+      <label for="country-code">
+        Country
+      </label>
+      <select name="country-code" id="country-code">
+        {% include 'country-options.html' %}
+      </select>
     </div>
   </details>
 </fieldset>
