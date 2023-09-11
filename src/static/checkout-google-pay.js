@@ -12,14 +12,13 @@ function googlePayClosure() {
     allowedPaymentMethods = null,
     merchantInfo = null
   function getGoogleIsReadyToPayRequest(allowedPaymentMethods) {
-    return Object.assign({}, baseRequest, { allowedPaymentMethods: allowedPaymentMethods })
+    return Object.assign({}, baseRequest, { allowedPaymentMethods })
   }
   async function getGooglePayConfig() {
     if (allowedPaymentMethods == null || merchantInfo == null) {
       const googlePayConfig = await paypal.Googlepay().config()
-      console.log("Google Pay Config loaded!", googlePayConfig)
-      allowedPaymentMethods = googlePayConfig.allowedPaymentMethods
-      merchantInfo = googlePayConfig.merchantInfo
+      console.log("Google Pay Config loaded!", googlePayConfig);
+      ({ allowedPaymentMethods, merchantInfo } = googlePayConfig)
     }
     return {
       allowedPaymentMethods,
@@ -98,8 +97,8 @@ function googlePayClosure() {
     }
     return paymentsClient
   }
-  async function createAndCaptureOrder(paymentData) {
-    console.group('Creating a PayPal order with paymentData:', paymentData)
+  async function createAndCaptureOrder({ paymentMethodData }) {
+    console.group('Creating a PayPal order with paymentMethodData:', paymentMethodData)
     const paymentSource = 'google_pay'
     const options = { paymentSource }
     const orderId = await createOrder(options)
@@ -108,8 +107,8 @@ function googlePayClosure() {
     try {
       console.group("Confirming order with Google...")
       const confirmOrderResponse = await paypal.Googlepay().confirmOrder({
-        orderId: orderId,
-        paymentMethodData: paymentData.paymentMethodData
+        orderId,
+        paymentMethodData
       })
       console.log('Done! confirmOrderResponse:', confirmOrderResponse)
       if (confirmOrderResponse.status === "APPROVED") {
@@ -119,7 +118,7 @@ function googlePayClosure() {
           console.log("Capture was successful! 😃 Huzzah!")
           returnVal.transactionState = 'SUCCESS'
         } else {
-          console.log("Capture was unsuccessful. 😩")
+          console.error("Capture was unsuccessful. 😩")
           returnVal.transactionState = 'ERROR'
           returnVal.error = {
             intent: 'PAYMENT_AUTHORIZATION',
@@ -136,14 +135,13 @@ function googlePayClosure() {
       }
     } catch (err) {
       console.error('Encountered an error:', err)
-      returnVal.transactionState =
-        'ERROR'
+      returnVal.transactionState = 'ERROR'
       returnVal.error = {
         intent: 'PAYMENT_AUTHORIZATION',
         message: err.message
       }
     } finally {
-      console.log('Done. returnVal:', returnVal)
+      console.log('Order complete. returnVal:', returnVal)
       console.groupEnd()
       return returnVal
     }
