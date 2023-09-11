@@ -170,7 +170,6 @@ function googlePayClosure() {
       ...buttonOptions,
       onClick,
     })
-    console.log('button', button)
     document.getElementById("checkout-google-pay").appendChild(button)
   }
   async function onGooglePayLoaded() {
@@ -184,7 +183,7 @@ function googlePayClosure() {
       }
     } catch (e) {
       const err = await e.message
-      console.log({ err })
+      console.error({ err })
     }
   }
   return onGooglePayLoaded
