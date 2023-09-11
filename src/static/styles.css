@@ -478,3 +478,15 @@ nav label {
         background-color: var(--dark-bg-5);
     }
 }
+
+#div-onboarding a {
+    display: block;
+    margin-bottom: 8px;
+}
+#partner-referral-template {
+    display: none;
+}
+#div-onboarding a.proxy {
+    pointer-events: none;
+    text-decoration: line-through;
+}

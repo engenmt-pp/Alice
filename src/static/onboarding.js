@@ -1,13 +1,24 @@
 function populateReferralLink(actionUrl) {
-  const anchor = document.getElementById('partner-referral')
+  const id = 'partner-referral'
+  const anchor = document.getElementById(id)
   anchor.href = `${actionUrl}&displayMode=minibrowser`
-  anchor.classList.remove('hidden')
+
+
+  if (anchor.getAttribute('style')) {
+    anchor.setAttribute('style', '')
+  } else {
+    addProxyReferral()
+  }
+
 }
 
+function addProxyReferral() {
+  const proxyAnchor = document.createElement('a')
+  proxyAnchor.className = 'proxy'
+  proxyAnchor.innerHTML = 'Begin onboarding'
 
-function hideCreateReferral() {
-  const generateButton = document.getElementById('create-referral')
-  generateButton.classList.add('hidden')
+  const div = document.getElementById('div-onboarding')
+  div.prepend(proxyAnchor)
 }
 
 
@@ -19,14 +30,14 @@ async function createReferral() {
     body: JSON.stringify(options)
   })
   const createData = await response.json()
-  const { formatted, actionUrl } = createData
+  const { formatted, actionUrl, authHeader } = createData
+  setAuthHeader(authHeader)
 
   if (actionUrl == null) {
     console.error('No actionUrl found:', createData)
     addApiCalls(formatted, click = true)
   } else {
     addApiCalls(formatted, click = false)
-    hideCreateReferral()
     populateReferralLink(actionUrl)
   }
 }

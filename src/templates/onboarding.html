@@ -2,7 +2,7 @@
 
 {% block head %}
 <script src="{{ url_for('static', filename='onboarding.js') }}"></script>
-<script src="https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js" async></script>
+<script async src="https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js"></script>
 {% endblock %}
 
 {% block merchant_id %}
@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block other_options %}
-<fieldset id="onboarding-options">
+<fieldset id="referral-options">
   <details open>
     <summary>
       <span>
@@ -55,14 +55,6 @@
       </select>
     </div>
     <div>
-      <label for="country-code">
-        Country
-      </label>
-      <select name="country-code" id="country-code">
-        {% include 'country-options.html' %}
-      </select>
-    </div>
-    <div>
       <label for="include-legal-consents">
         Legal consents
       </label>
@@ -86,16 +78,37 @@
       </label>
       <input name="tracking-id" id="tracking-id" class="monospaced"/>
     </div>
+  </details>
+</fieldset>
+<fieldset id="merchant-specific-options">
+  <details open>
+    <summary>
+      <span>
+        <legend>
+          Merchant prefill
+        </legend>
+      </span>
+    </summary>
     <div>
       <label for="email">
         Email
       </label>
       <input name="email" id="email" class="monospaced"/>
     </div>
+    <div>
+      <label for="country-code">
+        Country
+      </label>
+      <select name="country-code" id="country-code">
+        {% include 'country-options.html' %}
+      </select>
+    </div>
+    <div>
+      <button type="button" id="create-referral" onclick="createReferral()" class="half action-post">Create Referral</button>
+    </div>
   </details>
 </fieldset>
 {% endblock %}
-
 
 {% block right_col %}
 <nav id='top-level-nav' role="tabset">
@@ -105,15 +118,13 @@
   <input type=radio id="input-api-calls" name="nav-tabs" onchange="changeTopLevelNav()"/>
   <label for="input-api-calls">API Calls</label>
 </nav>
-<div id="div-onboarding" class="active" style="margin-bottom: 8px;">
-  <button id="create-referral" onclick="createReferral()" class="action-post">Create Referral</button>
+<div id="div-onboarding" class="active">
   <a
     id="partner-referral"
-    class="hidden"
     data-paypal-button="true"
     target="PPFrame"
-    style="margin-bottom: 8px;"
-  >Begin Onboarding</a>
+    style="display: none;"
+  >Begin onboarding</a>
 </div>
 <div id="div-api-calls" class="inactive">
   <nav role="tabset"></nav>
