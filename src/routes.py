@@ -17,11 +17,14 @@ def get_partner_and_merchant_config():
 def onboarding():
     """Return the rendered onboarding page from its template."""
 
+    template = "onboarding.html"
     partner_config = get_partner_and_merchant_config()
     del partner_config["merchant_id"]
 
     return render_template(
-        "onboarding.html", **partner_config, favicon=current_app.config["favicon"]
+        template,
+        **partner_config,
+        favicon=current_app.config["favicon"],
     )
 
 
@@ -32,7 +35,6 @@ def checkout_branded():
     """Return the rendered Branded checkout page from its template."""
 
     template = "checkout-branded.html"
-
     partner_and_merchant_config = get_partner_and_merchant_config()
 
     return render_template(
@@ -43,20 +45,11 @@ def checkout_branded():
     )
 
 
-@bp.route("checkout/google-pay-2/")
-def checkout_google_pay_2():
-    """Return the rendered Google Pay checkout page from its template."""
-
-    template = "checkout-google-pay-2.html"
-    return render_template(template)
-
-
 @bp.route("checkout/google-pay/")
 def checkout_google_pay():
     """Return the rendered Google Pay checkout page from its template."""
 
     template = "checkout-google-pay.html"
-
     partner_and_merchant_config = get_partner_and_merchant_config()
 
     return render_template(
@@ -70,8 +63,8 @@ def checkout_google_pay():
 @bp.route("checkout/hosted-v1/")
 def checkout_hosted_v1():
     """Return the rendered Hosted Fields v1 checkout page from its template."""
-    template = "checkout-hf-v1.html"
 
+    template = "checkout-hf-v1.html"
     partner_and_merchant_config = get_partner_and_merchant_config()
 
     return render_template(
@@ -85,8 +78,8 @@ def checkout_hosted_v1():
 @bp.route("checkout/hosted-v2/")
 def checkout_hosted_v2():
     """Return the rendered Hosted Fields v2 checkout page from its template."""
-    template = "checkout-hf-v2.html"
 
+    template = "checkout-hf-v2.html"
     partner_and_merchant_config = get_partner_and_merchant_config()
 
     return render_template(
@@ -102,7 +95,6 @@ def statuses():
     """Return the rendered statuses page from its template."""
 
     template = "statuses.html"
-
     partner_and_merchant_config = get_partner_and_merchant_config()
 
     return render_template(
