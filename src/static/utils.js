@@ -1,7 +1,9 @@
 function saveOptions() {
   const formData = new FormData(document.getElementById('options-form'))
   for (const pair of formData.entries()) {
-    window.sessionStorage.setItem(pair[0], pair[1])
+    if (pair[0] != 'auth-header') {
+      window.sessionStorage.setItem(pair[0], pair[1])
+    }
   }
 }
 function loadOptions() {

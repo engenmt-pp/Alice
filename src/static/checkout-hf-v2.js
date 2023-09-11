@@ -4,7 +4,7 @@ function hostedFieldsV2Closure() {
     captureOrder,
     createVaultSetupToken,
     createVaultPaymentToken,
-    onError: onError
+    onError
   } = checkoutFunctions()
   let cardFields
   async function loadHostedFieldsV2() {

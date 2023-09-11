@@ -2,10 +2,12 @@
 async function getClientToken() {
   console.groupCollapsed("Requesting Client token...")
 
+  const options = getOptions()
   const endpoint = "/api/identity/client-token"
   const clientTokenResponse = await fetch(endpoint, {
     headers: { "Content-Type": "application/json" },
-    method: "POST"
+    method: "POST",
+    body: JSON.stringify(options),
   })
   const clientTokenData = await clientTokenResponse.json()
   const { formatted, clientToken, authHeader } = clientTokenData

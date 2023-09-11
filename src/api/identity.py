@@ -20,12 +20,17 @@ def get_client_token():
     Docs: https://developer.paypal.com/docs/multiparty/checkout/advanced/integrate/#link-generateclienttoken
     """
     endpoint = build_endpoint("/v1/identity/generate-token")
+    data = request.get_json()
+
+    auth_header = data.get("auth-header") or None
 
     client_id = current_app.config["PARTNER_CLIENT_ID"]
     secret = current_app.config["PARTNER_SECRET"]
     bn_code = current_app.config["PARTNER_BN_CODE"]
 
-    headers = build_headers(client_id=client_id, secret=secret, bn_code=bn_code)
+    headers = build_headers(
+        auth_header=auth_header, client_id=client_id, secret=secret, bn_code=bn_code
+    )
 
     return_val = {}
     formatted = headers.pop("formatted")
