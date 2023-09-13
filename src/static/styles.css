@@ -483,12 +483,6 @@ nav label {
     display: block;
     margin-bottom: 8px;
 }
-<<<<<<< Updated upstream
-#partner-referral-template {
-    display: none;
-}
-=======
->>>>>>> Stashed changes
 #div-onboarding a.proxy {
     pointer-events: none;
     text-decoration: line-through;
