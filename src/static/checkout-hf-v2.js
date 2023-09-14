@@ -21,9 +21,9 @@ function hostedFieldsV2Closure() {
       }
     } else {
       methods = {
-        createOrder: createOrder,
-        onApprove: captureOrder,
-        onError: onError
+        createOrder,
+        captureOrder,
+        onError
       }
     }
     cardFields = paypal.CardFields({

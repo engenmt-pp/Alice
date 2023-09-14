@@ -80,9 +80,9 @@ function hostedFieldsV1Closure() {
   async function loadHostedFields() {
     if (paypal.HostedFields.isEligible()) {
       hostedFields = await paypal.HostedFields.render({
-        createOrder: createOrder,
-        fields: fields,
-        styles: styles
+        createOrder,
+        fields,
+        styles
       })
       const payButton = await document.getElementById('hf-v1-pay')
       payButton.disabled = false
