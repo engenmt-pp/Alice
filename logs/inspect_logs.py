@@ -148,6 +148,29 @@ def inspect_data_by_date(con):
     print("\n".join(formatted_results))
 
 
+def inspect_data_by_user_agent(con):
+    cols = {
+        "user_agent": "User Agent",
+        "count(*)": "Count",
+    }
+    with con:
+        res = con.execute(
+            f"""
+            SELECT
+                {', '.join(cols.keys())}
+            FROM
+                access
+            GROUP BY
+                user_agent
+            ORDER BY
+                count(*) DESC
+        """
+        )
+    result = list(res.fetchall())
+    formatted_results = format_result(result, col_names=cols.values())
+    print("\n".join(formatted_results))
+
+
 def load_logs(con, log_file):
     with open(log_file, "r") as f:
         logs = f.readlines()
@@ -177,4 +200,5 @@ if __name__ == "__main__":
 
     load_logs(con, log_file)
     # list_data(con)
-    inspect_data_by_date(con)
+    inspect_data_by_user_agent(con)
+    # inspect_data_by_date(con)
