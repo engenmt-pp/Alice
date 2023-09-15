@@ -22,7 +22,7 @@ function hostedFieldsV2Closure() {
     } else {
       methods = {
         createOrder,
-        captureOrder,
+        onApprove: captureOrder,
         onError
       }
     }
