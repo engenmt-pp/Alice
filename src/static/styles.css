@@ -41,6 +41,7 @@ button {
   --blue-left: #003087;
   --blue-middle: #001C64;
   --blue-right: #0070E0;
+  --blue-v: #008CFF;
 
   --red-800: rgb(153 27 27);
   --red-600: rgb(220 38 38);
@@ -98,7 +99,7 @@ body {
 }
 
 body > header {
-    background-color: var(--blue-left);
+    background-color: var(--blue-v);
     text-align: center;
     color: var(--white);
 }
