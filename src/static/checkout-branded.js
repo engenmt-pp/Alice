@@ -1,5 +1,6 @@
 function brandedClosure() {
     const {
+        onError,
         onClick,
         createOrder,
         captureOrder,
@@ -19,6 +20,7 @@ function brandedClosure() {
             }
         } else {
             methods = {
+                onError,
                 onClick: onClick,
                 createOrder: createOrder,
                 onApprove: captureOrder
