@@ -148,6 +148,35 @@ def inspect_data_by_date(con):
     print("\n".join(formatted_results))
 
 
+def inspect_data_by_time(con, date="now"):
+    cols = {
+        "strftime('%H:%M', date_time)": "Time",
+        # "date_time": "Access time",
+        # "remote_address": "IP Address",
+        "referer": "Referer",
+        "method": "Method",
+        "url_path": "Route",
+        "status": "Status",
+        "user_agent": "User Agent",
+    }
+    with con:
+        res = con.execute(
+            f"""
+            SELECT
+                {', '.join(cols.keys())}
+            FROM
+                access
+            WHERE
+                DATE(date_time) = DATE('{date}')
+            ORDER BY
+                date_time DESC
+        """
+        )
+    result = list(res.fetchall())
+    formatted_results = format_result(result, col_names=cols.values())
+    print("\n".join(formatted_results))
+
+
 def inspect_data_by_user_agent(con):
     cols = {
         "user_agent": "User Agent",
@@ -201,4 +230,5 @@ if __name__ == "__main__":
     load_logs(con, log_file)
     # list_data(con)
     # inspect_data_by_user_agent(con)
-    inspect_data_by_date(con)
+    # inspect_data_by_date(con)
+    inspect_data_by_time(con)
