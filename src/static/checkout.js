@@ -273,7 +273,7 @@ function checkoutFunctions() {
 
     addApiCalls(formatted)
   }
-  async function captureOrder({ paymentSource, orderID } = {}) {
+  async function captureOrder({ paymentSource, orderID } = {}, actions) {
     if (orderID != null) {
       orderId = orderID
     }
@@ -287,9 +287,16 @@ function checkoutFunctions() {
       method: 'POST',
       body: JSON.stringify(options)
     })
-    console.log(`Captured order ${orderId}!`)
     const captureData = await captureResp.json()
-    const { formatted, authHeader } = captureData
+    const { formatted, authHeader, statusCode } = captureData
+    if (statusCode >= 400) {
+      console.error('Capture seems errorful:', { statusCode })
+      actions.restart()
+      // console.log("Restarting order using actions.orders.restart:", actions.orders.restart)
+      // actions.orders.restart()
+    } else {
+      console.log(`Captured order ${orderId}!`)
+    }
     setAuthHeader(authHeader)
 
     addApiCalls(formatted)

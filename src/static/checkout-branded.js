@@ -13,14 +13,14 @@ function brandedClosure() {
         const vaultWithoutPurchase = document.querySelector('#vault-without-purchase:checked')
         if (vaultWithoutPurchase != null) {
             methods = {
-                onClick: onClick,
-                createVaultSetupToken: createVaultSetupToken,
+                onClick,
+                createVaultSetupToken,
                 onApprove: createVaultPaymentToken
             }
         } else {
             methods = {
-                onClick: onClick,
-                createOrder: createOrder,
+                onClick,
+                createOrder,
                 onApprove: captureOrder
             }
         }

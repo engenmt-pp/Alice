@@ -79,6 +79,8 @@ class Order:
         self.custom_purchase_unit_key = kwargs.get("custom-purchase-unit-key")
         self.custom_purchase_unit_value = kwargs.get("custom-purchase-unit-value")
 
+        self.mock_headers = kwargs.get("mock-headers", {})
+
         self.formatted = dict()
         self.breakdown = dict()
 
@@ -346,6 +348,9 @@ class Order:
         endpoint = build_endpoint("/v2/checkout/orders")
         try:
             headers = self.build_headers()
+            # for mock_header, mock_value in self.mock_headers.get("create", []):
+            #     headers[mock_header] = mock_value
+
         except KeyError as exc:
             current_app.logger.error(
                 f"Encountered KeyError in Orders().build_headers: exc"
@@ -396,6 +401,11 @@ class Order:
         endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}/capture")
         try:
             headers = self.build_headers()
+            # for mock_header, mock_value in self.mock_headers.get("capture", []):
+            #     headers[mock_header] = mock_value
+            headers["PayPal-Mock-Response"] = json.dumps(
+                {"mock_application_codes": "INSTRUMENT_DECLINED"}
+            )
         except KeyError:
             return {"formatted": self.formatted}
 
@@ -409,6 +419,7 @@ class Order:
         return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
+            "statusCode": int(response.status_code),
         }
         return return_val
 
