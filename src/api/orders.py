@@ -65,8 +65,8 @@ class Order:
         self.merchant_id = kwargs.get("merchantId")
 
         self.include_shipping_options = kwargs.get("include-shipping-options")
-        self.shipping_cost = 9.99
         self.include_shipping_address = kwargs.get("include-shipping-address")
+        self.include_shipping_tax = kwargs.get("include-shipping-tax", True)
 
         self.partner_fee = float(kwargs.get("partner-fee", "0"))
         self.item_price = kwargs.get("item-price")
@@ -79,12 +79,13 @@ class Order:
         self.custom_purchase_unit_key = kwargs.get("custom-purchase-unit-key")
         self.custom_purchase_unit_value = kwargs.get("custom-purchase-unit-value")
 
+        self.shipping_cost = kwargs.get("shipping-cost", 0)
+
         self.formatted = dict()
-        self.breakdown = dict()
 
     def to_amount_dict(self, amount):
-        if isinstance(amount, str):
-            amount = float(amount)
+        if isinstance(amount, (float, int)):
+            amount = f"{amount:.2f}"
         return {
             "currency_code": self.currency_code,
             "value": amount,
@@ -148,14 +149,21 @@ class Order:
 
         return payment_instruction
 
-    def build_shipping_option(self):
-        """Return a default shipping option object."""
-        return {
-            "id": "shipping-default",
-            "label": "A default shipping option",
-            "selected": True,
-            "amount": self.to_amount_dict(self.shipping_cost),
-        }
+    def build_shipping_options(self):
+        return [
+            {
+                "id": "shipping-default",
+                "label": "A free, convenient shipping option.",
+                "selected": True,
+                "amount": self.to_amount_dict(0.00),
+            },
+            {
+                "id": "shipping-costly",
+                "label": "A costly, inconvenient shipping option.",
+                "selected": False,
+                "amount": self.to_amount_dict(9.99),
+            },
+        ]
 
     def build_shipping(self):
         """Return the shipping object for the order.
@@ -170,14 +178,13 @@ class Order:
                 shipping["type"] = "SHIPPING"
 
         if self.include_shipping_options:
-            shipping_options = [self.build_shipping_option()]
+            shipping_options = self.build_shipping_options()
             shipping["options"] = shipping_options
-            self.breakdown["shipping"] = self.to_amount_dict(self.shipping_cost)
 
         return shipping
 
-    def build_line_item(self):
-        """Return the line item object for the order.
+    def build_line_items(self):
+        """Return the items array for the order.
 
         Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-item
         """
@@ -200,17 +207,64 @@ class Order:
             "quantity": 1,
             "unit_amount": unit_amount,
         }
-        self.breakdown["item_total"] = unit_amount
-
         if self.item_category is not None:
             item["category"] = self.item_category
 
         if self.item_tax:
-            tax_amount = self.to_amount_dict(self.item_tax)
-            item["tax"] = tax_amount
-            self.breakdown["tax_total"] = tax_amount
+            item["tax"] = self.to_amount_dict(self.item_tax)
 
-        return item
+        items = [item]
+        if self.include_shipping_tax and self.shipping_cost:
+            tax_shipping = 0.0614 * self.shipping_cost
+            items.append(
+                {
+                    "name": "Shipping tax",
+                    "quantity": "1",
+                    "unit_amount": self.to_amount_dict(0),
+                    "tax": self.to_amount_dict(tax_shipping),
+                }
+            )
+        return items
+
+    def build_purchase_unit_amount(self, items):
+        """Build the `purchase_units[].amount` using the given `items` array.
+
+        Notes:
+        - `purchase_units[].amount.breakdown.shipping` is set in `self.build_shipping()`.
+        """
+        self.breakdown = {}
+        if self.shipping_cost:
+            self.breakdown["shipping"] = self.to_amount_dict(self.shipping_cost)
+
+        item_total = 0
+        tax_total = 0
+        for item in items:
+            quantity = int(item["quantity"])
+            try:
+                item_amount = float(item["unit_amount"]["value"]) * quantity
+            except KeyError as exc:
+                current_app.logger.error(f"KeyError encountered: {exc}")
+                current_app.logger.error(f"item: {item}")
+            else:
+                item_total += item_amount
+
+            try:
+                tax_amount = float(item["tax"]["value"]) * quantity
+            except KeyError as exc:
+                current_app.logger.error(f"KeyError encountered: {exc}")
+                current_app.logger.error(f"item: {item}")
+            else:
+                tax_total += tax_amount
+
+        if item_total:
+            self.breakdown["item_total"] = self.to_amount_dict(item_total)
+        if tax_total:
+            self.breakdown["tax_total"] = self.to_amount_dict(tax_total)
+
+        total_price = sum(float(cost["value"]) for cost in self.breakdown.values())
+        amount = self.to_amount_dict(total_price)
+        amount["breakdown"] = self.breakdown
+        return amount
 
     def build_purchase_unit(self):
         """Return the purchase unit object for the order.
@@ -259,12 +313,9 @@ class Order:
         if shipping:
             purchase_unit["shipping"] = shipping
 
-        purchase_unit["items"] = [self.build_line_item()]
-        total_price = round(
-            sum(float(cost["value"]) for cost in self.breakdown.values()), 2
-        )
-        amount = self.to_amount_dict(total_price) | {"breakdown": self.breakdown}
-        purchase_unit["amount"] = amount
+        items = self.build_line_items()
+        purchase_unit["items"] = items
+        purchase_unit["amount"] = self.build_purchase_unit_amount(items)
         return purchase_unit
 
     def build_context(self):
@@ -474,6 +525,41 @@ class Order:
         }
         return return_val
 
+    def patch_shipping(self):
+        if self.order_id is None:
+            raise ValueError
+
+        try:
+            headers = self.build_headers()
+        except KeyError as exc:
+            current_app.logger.error(f"KeyError encountered building headers: {exc}")
+            return {"formatted": self.formatted}
+
+        endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}")
+
+        items = self.build_line_items()
+        amount = self.build_purchase_unit_amount(items)
+
+        data = [
+            {
+                "op": "replace",
+                "path": "/purchase_units/@reference_id=='default'/items",
+                "value": items,
+            },
+            {
+                "op": "replace",
+                "path": "/purchase_units/@reference_id=='default'/amount",
+                "value": amount,
+            },
+        ]
+        response = requests.patch(endpoint, headers=headers, json=data)
+        self.formatted["patch-order"] = format_request_and_response(response)
+        return_val = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+        return return_val
+
     def get_status(self):
         """Retrieve the order status using the GET /v2/checkout/orders/{order_id} endpoint.
 
@@ -519,6 +605,26 @@ def create_order():
 
     order = Order(**data)
     resp = order.create()
+
+    return jsonify(resp)
+
+
+@bp.route("/<order_id>/patch", methods=("POST",))
+def patch_order_shipping(order_id):
+    """Patch the order with the given ID.
+
+    Wrapper for Order.capture.
+    """
+    data = request.get_json()
+    data["order-id"] = order_id
+    data["shipping-cost"] = 9.99
+    data_filtered = {key: value for key, value in data.items() if value}
+    current_app.logger.info(
+        f"Patching an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+    )
+
+    order = Order(**data)
+    resp = order.patch_shipping()
 
     return jsonify(resp)
 

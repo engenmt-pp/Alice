@@ -2,6 +2,7 @@ function brandedClosure() {
     const {
         onClick,
         createOrder,
+        onShippingChange,
         captureOrder,
         createVaultSetupToken,
         createVaultPaymentToken
@@ -20,6 +21,7 @@ function brandedClosure() {
         } else {
             methods = {
                 onClick: onClick,
+                onShippingChange,
                 createOrder: createOrder,
                 onApprove: captureOrder
             }

@@ -273,6 +273,23 @@ function checkoutFunctions() {
 
     addApiCalls(formatted)
   }
+  async function onShippingChange({ orderID, amount, ...info }) {
+    console.group({ 'onShippingChange info': info })
+
+    const options = getOptions()
+    const patchResp = await fetch(`/api/orders/${orderId}/patch`, {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify(options)
+    })
+    console.log(`Patched order ${orderId}!`)
+    const patchData = await patchResp.json()
+    const { formatted, authHeader } = patchData
+    setAuthHeader(authHeader)
+
+    addApiCalls(formatted)
+    console.groupEnd()
+  }
   async function captureOrder({ paymentSource, orderID } = {}) {
     if (orderID != null) {
       orderId = orderID
@@ -345,6 +362,7 @@ function checkoutFunctions() {
     onClick: onClick,
     createOrder: createOrder,
     getStatus: getStatus,
+    onShippingChange,
     captureOrder: captureOrder,
     createVaultSetupToken: createVaultSetupToken,
     createVaultPaymentToken: createVaultPaymentToken,
