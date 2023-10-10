@@ -28,7 +28,13 @@ function hostedFieldsV2Closure() {
     }
     const style = {
       '.valid': { color: 'green' },
-      '.invalid': { color: 'red' }
+      '.invalid': { color: 'red' },
+      'input': {
+        'padding': '4px',
+      },
+      'input:focus': {
+        'box-shadow': 'none',
+      },
     }
     cardFields = paypal.CardFields({
       style,
