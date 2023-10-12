@@ -3,6 +3,7 @@ import random
 
 from flask import current_app
 from urllib.parse import urlencode
+from shlex import quote
 
 
 def get_managed_partner_config(model):
@@ -109,9 +110,40 @@ def format_response(response):
 
 def format_request_and_response(response):
     """Format an HTTP request and response for output."""
-    formatted_request = format_request(response.request)
+    request = response.request
+    formatted_request = format_request(request)
+    curl_formatted_request = format_request_as_curl(request)
+
     formatted_response = format_response(response)
-    return "\n\n".join([formatted_request, formatted_response])
+    human_formatted_request = "\n\n".join([formatted_request, formatted_response])
+    return {
+        "human": human_formatted_request,
+        "curl": curl_formatted_request,
+    }
+
+
+def format_request_as_curl(request):
+    method = quote(request.method)
+    url = quote(request.url)
+    lines = [f"curl -X {method} {url}"]
+
+    for header, value in sorted(request.headers.items()):
+        if header == "User-Agent":
+            continue
+        header = quote(header)
+        # value = quote(value)
+        lines.append(f'-H "{header}: {value}"')
+
+    if request.body:
+        try:
+            # This will work if the body is of type 'bytes'.
+            request_body = request.body.decode("utf-8")
+        except AttributeError:
+            request_body = request.body
+        body = quote(request_body)
+        lines.append(f"-d {body}")
+
+    return " \\\n\t".join(lines)
 
 
 def random_decimal_string(length):

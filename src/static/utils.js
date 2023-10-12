@@ -129,7 +129,7 @@ function createApiCallDiv(baseId, contents) {
   div.setAttribute('id', divId)
   div.innerText = contents
   div.classList.add('api-response')
-  return { div: div, n: n }
+  return { div, n }
 }
 function createApiCallInput(baseId, n) {
   const input = document.createElement('input')
@@ -142,6 +142,25 @@ function createApiCallInput(baseId, n) {
   input.onchange = updateApiCalls
 
   return input
+}
+function createApiCallDownloadButton(baseId, curl) {
+  const button = document.createElement('button')
+  button.innerHTML = 'Download as cURL'
+  button.style.display = 'block'
+  button.setAttribute('class', 'action')
+  button.setAttribute('type', 'button')
+
+  const fileName = `${baseId}.curl`
+  button.onclick = function () {
+    const elt = document.createElement('a')
+    const href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(curl)
+    console.log('href:', href)
+    elt.setAttribute('href', href)
+    elt.setAttribute('download', fileName)
+    elt.click()
+  }
+
+  return button
 }
 function createApiCallLabel(baseId, inputId, n) {
   const label = document.createElement('label')
@@ -160,16 +179,18 @@ function addApiCalls(formattedCalls, click = true) {
   for (const baseId in formattedCalls) {
     if (formattedCalls.hasOwnProperty(baseId)) {
       // `baseId` is something like 'create-order'.
-      let contents = formattedCalls[baseId]
-      const { div, n } = createApiCallDiv(baseId, contents)
-      apiCalls.appendChild(div)
+      const { human, curl } = formattedCalls[baseId]
+      const { div, n } = createApiCallDiv(baseId, human)
+      const button = createApiCallDownloadButton(baseId, curl)
+      div.prepend(button)
+      apiCalls.append(div)
 
       const input = createApiCallInput(baseId, n)
-      apiCallsNav.appendChild(input)
+      apiCallsNav.append(input)
 
       const inputId = input.getAttribute('id')
       const label = createApiCallLabel(baseId, inputId, n)
-      apiCallsNav.appendChild(label)
+      apiCallsNav.append(label)
 
       if (click) {
         const topLevelNavInput = document.getElementById('input-api-calls')
