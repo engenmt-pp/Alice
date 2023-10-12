@@ -395,16 +395,6 @@ nav > ol {
     }
 }
 
-#api-calls-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    align-items: stretch;
-}
-#api-calls-buttons li {
-    margin: 0 5px 0 0;
-}
-
 .inactive {
     display: none;
 }
@@ -415,6 +405,12 @@ nav > ol {
 #paypal-button-container {
     margin: 0 auto;
     max-width: 40rem;
+}
+
+.api-response > button {
+    background-color: black;
+    float: right;
+    text-transform: none;
 }
 
 
