@@ -21,16 +21,17 @@ function hostedFieldsV2Closure() {
       }
     } else {
       methods = {
-        createOrder: createOrder,
+        createOrder,
         onApprove: captureOrder,
-        onError: onError
+        onError
       }
     }
+    const style = {
+      '.valid': { color: 'green' },
+      '.invalid': { color: 'red' }
+    }
     cardFields = paypal.CardFields({
-      styles: {
-        '.valid': { 'color': 'green' },
-        '.invalid': { 'color': 'red' }
-      },
+      style,
       ...methods
     })
     if (cardFields.isEligible()) {

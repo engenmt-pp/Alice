@@ -174,7 +174,7 @@ function buyerNotPresentCheckout() {
     const paymentSource = document.getElementById('vault-payment-source').value
     console.log('paymentSource:', paymentSource)
 
-    const myOptions = { paymentSource: paymentSource }
+    const myOptions = { paymentSource }
 
     const orderId = await createOrder(myOptions)
     myOptions.orderId = orderId
@@ -342,12 +342,12 @@ function checkoutFunctions() {
     console.groupEnd()
   }
   return {
-    onClick: onClick,
-    createOrder: createOrder,
-    getStatus: getStatus,
-    captureOrder: captureOrder,
-    createVaultSetupToken: createVaultSetupToken,
-    createVaultPaymentToken: createVaultPaymentToken,
-    onError: onError,
+    onClick,
+    createOrder,
+    getStatus,
+    captureOrder,
+    createVaultSetupToken,
+    createVaultPaymentToken,
+    onError,
   }
 }

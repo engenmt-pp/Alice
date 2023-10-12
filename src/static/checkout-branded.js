@@ -13,14 +13,14 @@ function brandedClosure() {
         const vaultWithoutPurchase = document.querySelector('#vault-without-purchase:checked')
         if (vaultWithoutPurchase != null) {
             methods = {
-                onClick: onClick,
-                createVaultSetupToken: createVaultSetupToken,
+                onClick,
+                createVaultSetupToken,
                 onApprove: createVaultPaymentToken
             }
         } else {
             methods = {
-                onClick: onClick,
-                createOrder: createOrder,
+                onClick,
+                createOrder,
                 onApprove: captureOrder
             }
         }
@@ -29,7 +29,10 @@ function brandedClosure() {
         if (buttonLabelElement != null && buttonLabelElement.value != '') {
             style.label = buttonLabelElement.value
         }
-        buttons = await paypal.Buttons({ ...methods, style: style })
+        buttons = await paypal.Buttons({
+            style,
+            ...methods
+        })
         return buttons
             .render("#paypal-button-container")
             .catch((err) => {
