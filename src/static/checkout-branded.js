@@ -29,7 +29,10 @@ function brandedClosure() {
         if (buttonLabelElement != null && buttonLabelElement.value != '') {
             style.label = buttonLabelElement.value
         }
-        buttons = await paypal.Buttons({ ...methods, style: style })
+        buttons = await paypal.Buttons({
+            style,
+            ...methods
+        })
         return buttons
             .render("#paypal-button-container")
             .catch((err) => {
