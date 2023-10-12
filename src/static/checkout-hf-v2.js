@@ -26,11 +26,12 @@ function hostedFieldsV2Closure() {
         onError
       }
     }
+    const style = {
+      '.valid': { color: 'green' },
+      '.invalid': { color: 'red' }
+    }
     cardFields = paypal.CardFields({
-      styles: {
-        '.valid': { 'color': 'green' },
-        '.invalid': { 'color': 'red' }
-      },
+      style,
       ...methods
     })
     if (cardFields.isEligible()) {
