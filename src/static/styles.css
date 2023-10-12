@@ -218,8 +218,8 @@ fieldset > div {
     margin: 0 0 6px 8px;
 }
 
-.raised {
-    align-self: baseline;
+div:has(> ul) {
+    align-items: flex-start;
 }
 
 fieldset div > div,
