@@ -410,6 +410,7 @@ nav > ol {
 .api-response > button {
     background-color: black;
     float: right;
+    text-transform: none;
 }
 
 
