@@ -328,7 +328,7 @@ class Order:
                     }
                 }
 
-            case "return-buyer":
+                # case "return-buyer":
                 if self.customer_id:
                     payment_source_body["attributes"] = {
                         "customer": {
