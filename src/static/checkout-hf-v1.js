@@ -61,7 +61,7 @@ function hostedFieldsV1Closure() {
         countryCodeAlpha2: document.getElementById('hf-v1-billing-address-country').value.toUpperCase()
       },
       // Trigger 3D Secure authentication
-      // contingencies: getContingencies()
+      contingencies: getContingencies()
     })
 
     console.group("Order approved!")
