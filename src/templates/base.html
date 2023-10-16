@@ -52,7 +52,7 @@
           {% block preamble_options %}
           {% endblock preamble_options %}
           {% block creds %}
-          <fieldset id="partner-merchant-credentials" disabled=true>
+          <fieldset id="partner-merchant-credentials">
             <details open>
               <summary>
                 <span>
@@ -60,6 +60,7 @@
                     Partner/merchant info
                   </legend>
                 </span>
+                <button type="button" onclick="resetPartnerInfo()"  style="float: right;" class="monospaced action">Reset</button>
               </summary>
               <div>
                 <label for="partner-id">
@@ -72,6 +73,12 @@
                   Client ID
                 </label>
                 <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced"></input>
+              </div>
+              <div>
+                <label for="partner-client-id">
+                  Secret
+                </label>
+                <input name="partner-client-id" id="partner-client-id" value="ECL..." class="monospaced"></input>
               </div>
               <div>
                 <label for="partner-bn-code">

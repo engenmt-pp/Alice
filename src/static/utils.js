@@ -207,3 +207,10 @@ function addApiCalls(formattedCalls, click = true) {
 function downloadAll() {
   document.querySelectorAll('#div-api-calls button').forEach((button) => { button.click() })
 }
+
+function resetPartnerInfo() {
+  const fieldset = document.getElementById('partner-merchant-credentials')
+  fieldset.querySelectorAll('input').forEach((input) => {
+    input.value = input.defaultValue
+  })
+}
