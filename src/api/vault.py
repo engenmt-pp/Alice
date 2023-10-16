@@ -43,27 +43,32 @@ class Vault:
 
         self.formatted = dict()
 
-    def build_headers(self):
-        """Build the commonly required headers for PayPal API calls."""
-        client_id = current_app.config["PARTNER_CLIENT_ID"]
-        secret = current_app.config["PARTNER_SECRET"]
-        bn_code = current_app.config["PARTNER_BN_CODE"]
+    def _set_partner_config(self, kwargs):
+        self.partner_id = kwargs.get("partner-id")
+        self.client_id = kwargs.get("partner-client-id")
+        self.secret = kwargs.get("partner-secret")
+        self.merchant_id = kwargs.get("merchant-id")
+        self.bn_code = kwargs.get("bn-code")
 
-        merchant_id = (
-            current_app.config["MERCHANT_ID"] if self.include_auth_assertion else None
-        )
+        if self.client_id == current_app.config["PARTNER_CLIENT_ID"]:
+            self.secret = current_app.config["PARTNER_SECRET"]
+
+    def build_headers(self):
+        """Wrapper for .utils.build_headers."""
+        if self.include_auth_assertion:
+            merchant_id = self.merchant_id
+        else:
+            merchant_id = None
+
         headers = build_headers(
-            client_id=client_id,
-            secret=secret,
-            bn_code=bn_code,
-            merchant_id=merchant_id,
+            client_id=self.client_id,
+            secret=self.secret,
+            bn_code=self.bn_code,
             auth_header=self.auth_header,
+            merchant_id=merchant_id,
             include_request_id=self.include_request_id,
         )
-        # If an auth header was previously provided, no API call would have been made,
-        # so the `formatted` API calls wouldn't have been returned.
-        if "formatted" in headers:
-            self.formatted |= headers.pop("formatted")
+        self.formatted |= headers.pop("formatted")
 
         self.auth_header = headers["Authorization"]
         return headers

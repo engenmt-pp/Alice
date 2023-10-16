@@ -25,6 +25,7 @@ def default_shipping_address():
 
 class Order:
     def __init__(self, **kwargs):
+        self._set_partner_config(kwargs)
         self.order_id = kwargs.get("order-id") or None  # Coerce to None if empty
         self.auth_id = kwargs.get("auth-id")
 
@@ -82,6 +83,16 @@ class Order:
         self.formatted = dict()
         self.breakdown = dict()
 
+    def _set_partner_config(self, kwargs):
+        self.partner_id = kwargs.get("partner-id")
+        self.client_id = kwargs.get("partner-client-id")
+        self.secret = kwargs.get("partner-secret")
+        self.merchant_id = kwargs.get("merchant-id")
+        self.bn_code = kwargs.get("bn-code")
+
+        if self.client_id == current_app.config["PARTNER_CLIENT_ID"]:
+            self.secret = current_app.config["PARTNER_SECRET"]
+
     def to_amount_dict(self, amount):
         if isinstance(amount, str):
             amount = float(amount)
@@ -92,18 +103,15 @@ class Order:
 
     def build_headers(self):
         """Wrapper for .utils.build_headers."""
-        client_id = current_app.config["PARTNER_CLIENT_ID"]
-        secret = current_app.config["PARTNER_SECRET"]
-        bn_code = current_app.config["PARTNER_BN_CODE"]
-
-        merchant_id = (
-            current_app.config["MERCHANT_ID"] if self.include_auth_assertion else None
-        )
+        if self.include_auth_assertion:
+            merchant_id = self.merchant_id
+        else:
+            merchant_id = None
 
         headers = build_headers(
-            client_id=client_id,
-            secret=secret,
-            bn_code=bn_code,
+            client_id=self.client_id,
+            secret=self.secret,
+            bn_code=self.bn_code,
             auth_header=self.auth_header,
             merchant_id=merchant_id,
             include_request_id=self.include_request_id,
