@@ -87,8 +87,8 @@ class Order:
         self.partner_id = kwargs.get("partner-id")
         self.client_id = kwargs.get("partner-client-id")
         self.secret = kwargs.get("partner-secret")
+        self.bn_code = kwargs.get("partner-bn-code")
         self.merchant_id = kwargs.get("merchant-id")
-        self.bn_code = kwargs.get("bn-code")
 
         if self.client_id == current_app.config["PARTNER_CLIENT_ID"]:
             self.secret = current_app.config["PARTNER_SECRET"]

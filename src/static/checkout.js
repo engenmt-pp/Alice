@@ -29,6 +29,7 @@ async function getIdToken() {
 }
 
 async function buildScriptElement(onload, checkoutMethod) {
+  setAuthHeader('')
   const {
     partnerClientId,
     merchantId,
@@ -201,7 +202,11 @@ let addOnChange = (function () {
     'customer-id',
     'currency-code',
     'buyer-country-code',
-    'button-label'
+    'button-label',
+    'merchant-id',
+    'partner-client-id',
+    'partner-secret',
+    'partner-bn-code',
   ]
 
   function innerAddOnChange(loadCheckout) {

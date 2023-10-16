@@ -20,16 +20,22 @@ def get_client_token():
     Docs: https://developer.paypal.com/docs/multiparty/checkout/advanced/integrate/#link-generateclienttoken
     """
     endpoint = build_endpoint("/v1/identity/generate-token")
-    data = request.get_json()
 
+    data = request.get_json()
     auth_header = data.get("auth-header") or None
 
-    client_id = current_app.config["PARTNER_CLIENT_ID"]
-    secret = current_app.config["PARTNER_SECRET"]
-    bn_code = current_app.config["PARTNER_BN_CODE"]
+    client_id = data.get("partner-client-id")
+    secret = data.get("partner-secret")
+    bn_code = data.get("partner-bn-code")
+
+    if client_id == current_app.config["PARTNER_CLIENT_ID"]:
+        secret = current_app.config["PARTNER_SECRET"]
 
     headers = build_headers(
-        auth_header=auth_header, client_id=client_id, secret=secret, bn_code=bn_code
+        auth_header=auth_header,
+        client_id=client_id,
+        secret=secret,
+        bn_code=bn_code,
     )
 
     return_val = {}
@@ -69,11 +75,14 @@ def get_id_token(customer_id):
     endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
 
-    client_id = current_app.config["PARTNER_CLIENT_ID"]
-    secret = current_app.config["PARTNER_SECRET"]
+    client_id = request.args.get("partner-client-id")
+    secret = request.args.get("partner-secret")
+
+    if client_id == current_app.config["PARTNER_CLIENT_ID"]:
+        secret = current_app.config["PARTNER_SECRET"]
 
     if request.args.get("include-auth-assertion"):
-        merchant_id = current_app.config["MERCHANT_ID"]
+        merchant_id = request.args["merchant-id"]
         auth_assertion = build_auth_assertion(client_id, merchant_id)
         headers["PayPal-Auth-Assertion"] = auth_assertion
 
@@ -87,7 +96,10 @@ def get_id_token(customer_id):
         data["target_customer_id"] = customer_id
 
     response = requests.post(
-        endpoint, headers=headers, data=data, auth=(client_id, secret)
+        endpoint,
+        headers=headers,
+        data=data,
+        auth=(client_id, secret),
     )
 
     formatted = {"id-token": format_request_and_response(response)}
@@ -184,7 +196,7 @@ def build_headers(
         try:
             access_token = access_token_response["access_token"]
         except KeyError as exc:
-            current_app.error(
+            current_app.logger.error(
                 f"<build_headers> Encountered Exception accessing access_token: {exc}"
             )
             return headers

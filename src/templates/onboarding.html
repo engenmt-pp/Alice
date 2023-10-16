@@ -112,10 +112,10 @@
 
 {% block right_col %}
 <nav id='top-level-nav' role="tabset">
-  <input type=radio id="input-onboarding" name="nav-tabs" onchange="changeTopLevelNav()" checked/>
+  <input autocomplete="off" type=radio id="input-onboarding" name="nav-tabs" onchange="changeTopLevelNav()" checked/>
   <label for="input-onboarding">Onboarding</label>
 
-  <input type=radio id="input-api-calls" name="nav-tabs" onchange="changeTopLevelNav()"/>
+  <input autocomplete="off" type=radio id="input-api-calls" name="nav-tabs" onchange="changeTopLevelNav()"/>
   <label for="input-api-calls">API Calls</label>
 
   <button type="button" id="download-all" class="action postman" onclick="downloadAll()">Download all for Postman</button>
@@ -127,6 +127,11 @@
     target="PPFrame"
     style="display: none;"
   >Begin onboarding</a>
+  <script>
+    window.addEventListener('load', async function() {
+      addOnChange()
+    })
+  </script>
 </div>
 <div id="div-api-calls" class="inactive">
   <nav role="tabset"></nav>

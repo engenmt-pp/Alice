@@ -51,23 +51,29 @@ function getPartnerMerchantInfo() {
 
   const partnerId = document.getElementById('partner-id')
   if (partnerId != null) {
-    info.partnerId = partnerId.value
-  }
-
-  const merchantId = document.getElementById('merchant-id')
-  if (merchantId != null) {
-    info.merchantId = merchantId.value
+    info['partner-id'] = partnerId.value
   }
 
   const partnerClientId = document.getElementById('partner-client-id')
   if (partnerClientId != null) {
-    info.partnerClientId = partnerClientId.value
+    info['partner-client-id'] = partnerClientId.value
   }
 
-  const BNCode = document.getElementById('bn-code')
-  if (BNCode != null) {
-    info.BNCode = BNCode.value
+  const partnerSecret = document.getElementById('partner-secret')
+  if (partnerSecret != null) {
+    info['partner-secret'] = partnerSecret.value
   }
+
+  const BNCode = document.getElementById('partner-bn-code')
+  if (BNCode != null) {
+    info['partner-bn-code'] = BNCode.value
+  }
+
+  const merchantId = document.getElementById('merchant-id')
+  if (merchantId != null) {
+    info['merchant-id'] = merchantId.value
+  }
+
   return info
 }
 
