@@ -145,9 +145,10 @@ function createApiCallInput(baseId, n) {
 }
 function createApiCallDownloadButton(baseId, curl) {
   const button = document.createElement('button')
-  button.innerHTML = 'Download as cURL'
+  button.innerHTML = 'Download for Postman'
   button.style.display = 'block'
-  button.setAttribute('class', 'action')
+  button.classList.add('action')
+  button.classList.add('postman')
   button.setAttribute('type', 'button')
 
   const fileName = `${baseId}.txt`
@@ -201,4 +202,8 @@ function addApiCalls(formattedCalls, click = true) {
       updateApiCalls()
     }
   }
+}
+
+function downloadAll() {
+  document.querySelectorAll('#div-api-calls button').forEach((button) => { button.click() })
 }

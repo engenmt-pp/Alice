@@ -123,6 +123,7 @@ def format_request_and_response(response):
 
 
 def format_request_as_curl(request):
+    """Format the HTTP request as a cURL command."""
     method = quote(request.method)
     url = quote(request.url)
     lines = [f"curl -X {method} {url}"]
@@ -131,7 +132,6 @@ def format_request_as_curl(request):
         if header == "User-Agent":
             continue
         header = quote(header)
-        # value = quote(value)
         lines.append(f'-H "{header}: {value}"')
 
     if request.body:

@@ -407,16 +407,22 @@ nav > ol {
     max-width: 40rem;
 }
 
-.api-response > button {
+.postman {
     background-color: black;
     float: right;
-    text-transform: none;
+    margin-left: auto;
+    margin-bottom: 4px;
+    text-transform: none !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 @media (prefers-color-scheme: dark) {
-    .api-response > button {
+    .postman {
         background-color: var(--white);
         color: black;
     }
+}
+#input-api-calls:not(:checked) ~ .postman {
+    display: none;
 }
 
 
@@ -430,6 +436,7 @@ nav[role=tabset] {
     flex-wrap: wrap;
     border-bottom: 1pt solid;
     margin-bottom: 8px;
+    align-items: flex-end;
 }
 
 #top-level-nav {
