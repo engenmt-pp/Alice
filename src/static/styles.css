@@ -412,6 +412,12 @@ nav > ol {
     float: right;
     text-transform: none;
 }
+@media (prefers-color-scheme: dark) {
+    .api-response > button{
+        background-color: var(--white);
+        color: black;
+    }
+}
 
 
 #div-checkout {

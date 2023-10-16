@@ -150,7 +150,7 @@ function createApiCallDownloadButton(baseId, curl) {
   button.setAttribute('class', 'action')
   button.setAttribute('type', 'button')
 
-  const fileName = `${baseId}.curl`
+  const fileName = `${baseId}.txt`
   button.onclick = function () {
     const elt = document.createElement('a')
     const href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(curl)
