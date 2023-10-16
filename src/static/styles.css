@@ -326,15 +326,17 @@ button[class*=action] {
     min-width: 5ch;
     padding: 2px 4px;
     text-transform: uppercase;
-    color: var(--white);
 }
 .action-post {
+    color: var(--white);
     background-color: var(--green-600);
 }
 .action-get {
+    color: var(--white);
     background-color: var(--blue-600);
 }
 .action-delete {
+    color: var(--white);
     background-color: var(--red-600);
 }
 .action-post:focus {
@@ -408,7 +410,9 @@ nav > ol {
 }
 
 .postman {
-    background-color: black;
+    background-color: var(--light-bg-2);
+    color: black;
+    border: 1px solid currentColor;
     float: right;
     margin-left: auto;
     margin-bottom: 4px;
@@ -417,8 +421,8 @@ nav > ol {
 }
 @media (prefers-color-scheme: dark) {
     .postman {
-        background-color: var(--white);
-        color: black;
+        background-color: var(--dark-bg-2);
+        color: white;
     }
 }
 #input-api-calls:not(:checked) ~ .postman {
