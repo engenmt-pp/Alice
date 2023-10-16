@@ -413,7 +413,7 @@ nav > ol {
     text-transform: none;
 }
 @media (prefers-color-scheme: dark) {
-    .api-response > button{
+    .api-response > button {
         background-color: var(--white);
         color: black;
     }
