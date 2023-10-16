@@ -11,11 +11,17 @@ async function getIdToken() {
   const vaultLevel = document.getElementById('vault-level').value
   const customerId = document.getElementById('customer-id').value
 
+  const partnerMerchantInfo = getPartnerMerchantInfo()
+
   let endpoint = `/api/identity/id-token/${customerId}`
   if (vaultLevel === 'MERCHANT') {
     endpoint += `?include-auth-assertion=true`
   }
-  const idTokenResponse = await fetch(endpoint)
+  const idTokenResponse = await fetch(endpoint, {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify(partnerMerchantInfo),
+  })
   const idTokenData = await idTokenResponse.json()
   const { formatted, idToken, authHeader } = idTokenData
   setAuthHeader(authHeader)

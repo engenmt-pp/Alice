@@ -65,8 +65,8 @@ def get_client_token():
         return jsonify(return_val)
 
 
-@bp.route("/id-token/", defaults={"customer_id": None}, methods=("GET",))
-@bp.route("/id-token/<customer_id>", methods=("GET",))
+@bp.route("/id-token/", defaults={"customer_id": None}, methods=("POST",))
+@bp.route("/id-token/<customer_id>", methods=("POST",))
 def get_id_token(customer_id):
     """Request access and ID tokens using the GET /v1/oauth2/token endpoint.
 
@@ -75,8 +75,9 @@ def get_id_token(customer_id):
     endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
 
-    client_id = request.args.get("partner-client-id")
-    secret = request.args.get("partner-secret")
+    client_id = request.get_json()["partner-client-id"]
+    current_app.logger.info(f"{client_id=}")
+    secret = request.get_json()["partner-secret"]
 
     if client_id == current_app.config["PARTNER_CLIENT_ID"]:
         secret = current_app.config["PARTNER_SECRET"]

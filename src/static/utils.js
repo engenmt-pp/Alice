@@ -215,6 +215,7 @@ function downloadAll() {
 }
 
 function resetPartnerInfo() {
+  setAuthHeader('')
   const fieldset = document.getElementById('partner-merchant-credentials')
   fieldset.querySelectorAll('input').forEach((input) => {
     input.value = input.defaultValue
