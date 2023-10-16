@@ -2,7 +2,7 @@ async function getSellerStatus() {
   const options = getPartnerMerchantInfo()
 
   const merchantId = document.getElementById('status-merchant-id').value
-  options['merchantId'] = merchantId
+  options['merchant-id'] = merchantId
 
   const statusResp = await fetch(`/api/partner/sellers/${merchantId}`, {
     headers: { 'Content-Type': 'application/json' },
@@ -19,7 +19,7 @@ async function getSellerStatus() {
 async function getSellerStatusByTrackingId() {
   const options = getPartnerMerchantInfo()
 
-  delete options['merchantId']
+  delete options['merchant-id']
 
   const trackingId = document.getElementById('status-tracking-id').value
   const statusResp = await fetch(`/api/partner/sellers?tracking-id=${trackingId}`, {

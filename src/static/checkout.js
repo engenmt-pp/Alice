@@ -31,15 +31,13 @@ async function getIdToken() {
 async function buildScriptElement(onload, checkoutMethod) {
   setAuthHeader('')
   const {
-    partnerClientId,
-    merchantId,
     intent,
     ...options
   } = getOptions()
   const url = new URL('https://www.paypal.com/sdk/js')
   const query = url.searchParams
-  query.set("client-id", partnerClientId)
-  query.set("merchant-id", merchantId)
+  query.set("client-id", options['partner-client-id'])
+  query.set("merchant-id", options['merchant-id'])
   const currencyElement = document.getElementById('currency-code')
   if (currencyElement != null) {
     query.set('currency', currencyElement.value)
