@@ -273,6 +273,9 @@ class Order:
         Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-experience_context_base
         Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-order_application_context
         """
+        if self.payment_source_type == "card":
+            return {}
+
         context = {
             "return_url": "http://go/alice/return",
             "cancel_url": "http://go/alice/cancel",
