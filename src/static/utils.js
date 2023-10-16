@@ -220,3 +220,20 @@ function resetPartnerInfo() {
     input.value = input.defaultValue
   })
 }
+
+function addOnChangeSimple() {
+  const ids = [
+    'partner-id',
+    'partner-client-id',
+    'partner-secret',
+    'merchant-id',
+  ]
+  for (const id of ids) {
+    const elt = document.getElementById(id)
+    if (elt != null) {
+      elt.onchange = function () {
+        setAuthHeader('')
+      }
+    }
+  }
+}

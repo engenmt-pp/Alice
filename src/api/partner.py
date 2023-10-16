@@ -25,10 +25,6 @@ class Referral:
 
         self.referral_token = kwargs.get("referral-token")
 
-        self.tracking_id = kwargs.get("tracking-id")
-        self.partner_id = kwargs.get("partnerId")
-        self.merchant_id = kwargs.get("merchantId")
-
         self.product = kwargs.get("product")
         self.vault_level = kwargs.get("vault-level")
         self.tracking_id = kwargs.get("tracking-id")

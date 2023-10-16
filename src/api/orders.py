@@ -62,9 +62,6 @@ class Order:
 
         self.ba_id = kwargs.get("ba-id")
 
-        self.partner_id = kwargs.get("partnerId")
-        self.merchant_id = kwargs.get("merchantId")
-
         self.include_shipping_options = kwargs.get("include-shipping-options")
         self.shipping_cost = 9.99
         self.include_shipping_address = kwargs.get("include-shipping-address")

@@ -41,13 +41,3 @@ async function createReferral() {
     populateReferralLink(actionUrl)
   }
 }
-
-
-function addOnChange() {
-  for (const id of ['partner-client-id', 'partner-secret']) {
-    const elt = document.getElementById(id)
-    elt.onchange = function () {
-      setAuthHeader('')
-    }
-  }
-}
