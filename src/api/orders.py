@@ -323,7 +323,7 @@ class Order:
         return payment_source
 
     def build_payment_source_for_create(self):
-        """Return the payment source object appropriate for the type of call being made."""
+        """Return the payment source object appropriate fora the type of call being made."""
 
         if self.ba_id and self.intent == "AUTHORIZE":
             payment_source = {
@@ -336,12 +336,12 @@ class Order:
 
         payment_source_body = {}
 
-        if self.payment_source_type == "card" and self.three_d_secure_preference:
-            payment_source_body["attributes"] = {
-                "verification": {
-                    "method": self.three_d_secure_preference,
-                }
-            }
+        # if self.payment_source_type == "card" and self.three_d_secure_preference:
+        #     payment_source_body["attributes"] = {
+        #         "verification": {
+        #             "method": self.three_d_secure_preference,
+        #         }
+        #     }
 
         context = self.build_context()
         if context:
@@ -372,7 +372,9 @@ class Order:
                         },
                     }
 
-        return {self.payment_source_type: payment_source_body}
+        if payment_source_body:
+            return {self.payment_source_type: payment_source_body}
+        return {}
 
     def create(self):
         """Create the order with the POST /v2/checkout/orders endpoint.
