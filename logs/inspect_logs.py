@@ -230,5 +230,5 @@ if __name__ == "__main__":
     load_logs(con, log_file)
     # list_data(con)
     # inspect_data_by_user_agent(con)
-    # inspect_data_by_date(con)
-    inspect_data_by_time(con)
+    inspect_data_by_date(con)
+    # inspect_data_by_time(con)
