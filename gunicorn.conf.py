@@ -2,7 +2,7 @@ from multiprocessing import cpu_count
 
 proc_name = "alice"
 workers = 2 * cpu_count() + 1
-bind = "0.0.0.0:8000"
+bind = "unix:Alice.sock"
 wsgi_app = "app:app"
 daemon = True
 
