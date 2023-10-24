@@ -185,6 +185,9 @@ details[open] summary {
 details:not([open]) button {
     display: none;
 }
+details button {
+    float: right;
+}
 form legend {
     font-weight: 600;
 }
