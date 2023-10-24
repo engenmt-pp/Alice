@@ -214,6 +214,14 @@ function downloadAll() {
   document.querySelectorAll('#div-api-calls button').forEach((button) => { button.click() })
 }
 
+function editPartnerInfo() {
+  const fieldset = document.getElementById('partner-merchant-credentials')
+  fieldset.disabled = false
+  const button = document.getElementById('button-edit-partner')
+  button.onclick = resetPartnerInfo
+  button.innerHTML = 'Reset'
+}
+
 function resetPartnerInfo() {
   setAuthHeader('')
   const fieldset = document.getElementById('partner-merchant-credentials')

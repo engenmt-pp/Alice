@@ -427,7 +427,6 @@ nav > ol {
     float: right;
     margin-left: auto;
     margin-bottom: 4px;
-    text-transform: none !important;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 @media (prefers-color-scheme: dark) {
