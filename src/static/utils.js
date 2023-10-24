@@ -216,7 +216,9 @@ function downloadAll() {
 
 function editPartnerInfo() {
   const fieldset = document.getElementById('partner-merchant-credentials')
-  fieldset.disabled = false
+  fieldset.querySelectorAll(':disabled').forEach((disabledInput) => {
+    disabledInput.disabled = false
+  })
   fieldset.querySelector('input').focus()
 
   const button = document.getElementById('button-edit-partner')

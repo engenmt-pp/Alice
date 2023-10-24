@@ -24,9 +24,9 @@ def get_client_token():
     data = request.get_json()
     auth_header = data.get("auth-header") or None
 
-    client_id = data.get("partner-client-id")
-    secret = data.get("partner-secret")
-    bn_code = data.get("partner-bn-code")
+    client_id = data["partner-client-id"]
+    secret = data["partner-secret"]
+    bn_code = data["partner-bn-code"]
 
     if client_id == current_app.config["PARTNER_CLIENT_ID"]:
         secret = current_app.config["PARTNER_SECRET"]
