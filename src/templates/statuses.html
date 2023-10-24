@@ -119,6 +119,11 @@
 {% endblock other_options %}
 
 {% block right_col %}
+<script>
+  window.addEventListener('load', async function() {
+    addOnChangeSimple()
+  })
+</script>
 <div id="div-api-calls" class="active">
   <nav role="tabset"></nav>
 </div>

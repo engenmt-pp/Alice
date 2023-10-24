@@ -20,16 +20,22 @@ def get_client_token():
     Docs: https://developer.paypal.com/docs/multiparty/checkout/advanced/integrate/#link-generateclienttoken
     """
     endpoint = build_endpoint("/v1/identity/generate-token")
-    data = request.get_json()
 
+    data = request.get_json()
     auth_header = data.get("auth-header") or None
 
-    client_id = current_app.config["PARTNER_CLIENT_ID"]
-    secret = current_app.config["PARTNER_SECRET"]
-    bn_code = current_app.config["PARTNER_BN_CODE"]
+    client_id = data["partner-client-id"]
+    secret = data["partner-secret"]
+    bn_code = data["partner-bn-code"]
+
+    if client_id == current_app.config["PARTNER_CLIENT_ID"]:
+        secret = current_app.config["PARTNER_SECRET"]
 
     headers = build_headers(
-        auth_header=auth_header, client_id=client_id, secret=secret, bn_code=bn_code
+        auth_header=auth_header,
+        client_id=client_id,
+        secret=secret,
+        bn_code=bn_code,
     )
 
     return_val = {}
@@ -59,8 +65,8 @@ def get_client_token():
         return jsonify(return_val)
 
 
-@bp.route("/id-token/", defaults={"customer_id": None}, methods=("GET",))
-@bp.route("/id-token/<customer_id>", methods=("GET",))
+@bp.route("/id-token/", defaults={"customer_id": None}, methods=("POST",))
+@bp.route("/id-token/<customer_id>", methods=("POST",))
 def get_id_token(customer_id):
     """Request access and ID tokens using the GET /v1/oauth2/token endpoint.
 
@@ -69,11 +75,18 @@ def get_id_token(customer_id):
     endpoint = build_endpoint("/v1/oauth2/token")
     headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
 
-    client_id = current_app.config["PARTNER_CLIENT_ID"]
-    secret = current_app.config["PARTNER_SECRET"]
+    data = request.get_json()
+
+    client_id = data["partner-client-id"]
+    secret = data["partner-secret"]
+
+    if client_id == current_app.config["PARTNER_CLIENT_ID"]:
+        secret = current_app.config["PARTNER_SECRET"]
 
     if request.args.get("include-auth-assertion"):
-        merchant_id = current_app.config["MERCHANT_ID"]
+        # 'include-auth-assertion' is passed in a querystring,
+        # so we access with `request.args`.
+        merchant_id = data["merchant-id"]
         auth_assertion = build_auth_assertion(client_id, merchant_id)
         headers["PayPal-Auth-Assertion"] = auth_assertion
 
@@ -87,7 +100,10 @@ def get_id_token(customer_id):
         data["target_customer_id"] = customer_id
 
     response = requests.post(
-        endpoint, headers=headers, data=data, auth=(client_id, secret)
+        endpoint,
+        headers=headers,
+        data=data,
+        auth=(client_id, secret),
     )
 
     formatted = {"id-token": format_request_and_response(response)}
@@ -184,7 +200,7 @@ def build_headers(
         try:
             access_token = access_token_response["access_token"]
         except KeyError as exc:
-            current_app.error(
+            current_app.logger.error(
                 f"<build_headers> Encountered Exception accessing access_token: {exc}"
             )
             return headers

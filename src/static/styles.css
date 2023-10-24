@@ -180,7 +180,13 @@ details summary > span {
 }
 
 details[open] summary {
-    margin-bottom: 6px;
+    margin-bottom: 10px;
+}
+details:not([open]) button {
+    display: none;
+}
+details button {
+    float: right;
 }
 form legend {
     font-weight: 600;
@@ -325,7 +331,13 @@ button[class*=action] {
     border-radius: 4px;
     min-width: 5ch;
     padding: 2px 4px;
-    text-transform: uppercase;
+    text-transform: lowercase;
+    font-variant: small-caps;
+}
+.action {
+    color: var(--light-text-5);
+    background-color: var(--light-bg-2);
+    border-color: var(--light-bg-4);
 }
 .action-post {
     color: var(--white);
@@ -349,6 +361,11 @@ button[class*=action] {
     box-shadow: 0 0 0 2px var(--red-800);
 }
 @media (prefers-color-scheme: dark) {
+    .action {
+        color: var(--dark-text-5);
+        background-color: var(--dark-bg-5);
+        border-color: var(--dark-bg-7);
+    }
     .action-post:focus {
         box-shadow: 0 0 0 2px var(--green-400);
     }
@@ -416,8 +433,9 @@ nav > ol {
     float: right;
     margin-left: auto;
     margin-bottom: 4px;
-    text-transform: none !important;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-variant: inherit !important;
+    text-transform: inherit !important;
 }
 @media (prefers-color-scheme: dark) {
     .postman {

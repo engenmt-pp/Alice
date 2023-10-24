@@ -20,13 +20,10 @@ def extract_action_url(links):
 
 class Referral:
     def __init__(self, **kwargs):
+        self._set_partner_config(kwargs)
         self.auth_header = kwargs.get("auth-header")
 
         self.referral_token = kwargs.get("referral-token")
-
-        self.tracking_id = kwargs.get("tracking-id")
-        self.partner_id = kwargs.get("partnerId")
-        self.merchant_id = kwargs.get("merchantId")
 
         self.product = kwargs.get("product")
         self.vault_level = kwargs.get("vault-level")
@@ -45,18 +42,24 @@ class Referral:
 
         self.formatted = dict()
 
+    def _set_partner_config(self, kwargs):
+        self.partner_id = kwargs.get("partner-id")
+        self.client_id = kwargs.get("partner-client-id")
+        self.secret = kwargs.get("partner-secret")
+        self.bn_code = kwargs.get("partner-bn-code")
+        self.merchant_id = kwargs.get("merchant-id")
+
+        if self.client_id == current_app.config["PARTNER_CLIENT_ID"]:
+            self.secret = current_app.config["PARTNER_SECRET"]
+
     def build_headers(self):
         """Wrapper for .utils.build_headers."""
-        client_id = current_app.config["PARTNER_CLIENT_ID"]
-        secret = current_app.config["PARTNER_SECRET"]
-        bn_code = current_app.config["PARTNER_BN_CODE"]
         headers = build_headers(
-            client_id=client_id,
-            secret=secret,
-            bn_code=bn_code,
+            client_id=self.client_id,
+            secret=self.secret,
+            bn_code=self.bn_code,
             auth_header=self.auth_header,
         )
-
         self.formatted |= headers.pop("formatted")
 
         self.auth_header = headers["Authorization"]

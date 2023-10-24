@@ -1,6 +1,6 @@
 import requests
 
-from flask import Blueprint, current_app, jsonify
+from flask import Blueprint, current_app, jsonify, request
 from .utils import build_endpoint, format_request_and_response
 from .identity import build_headers
 
@@ -9,11 +9,15 @@ bp = Blueprint("billing_agreements", __name__, url_prefix="/billing-agreements")
 
 @bp.route("/<baid>", methods=("POST",))
 def get_ba_status(baid):
-    client_id = current_app.config["PARTNER_CLIENT_ID"]
-    secret = current_app.config["PARTNER_SECRET"]
-    bn_code = current_app.config["PARTNER_BN_CODE"]
+    data = request.json()
 
-    merchant_id = current_app.config["MERCHANT_ID"]
+    client_id = data.get("partner-client-id")
+    secret = data.get("partner-secret")
+    bn_code = data.get("partner-bn-code")
+    merchant_id = data.get("merchant-id")
+
+    if client_id == current_app.config["PARTNER_CLIENT_ID"]:
+        secret = current_app.config["PARTNER_SECRET"]
 
     current_app.logger.info(f"Getting the status of a billing agreement with {baid=}")
 

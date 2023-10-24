@@ -11,11 +11,17 @@ async function getIdToken() {
   const vaultLevel = document.getElementById('vault-level').value
   const customerId = document.getElementById('customer-id').value
 
+  const partnerMerchantInfo = getPartnerMerchantInfo()
+
   let endpoint = `/api/identity/id-token/${customerId}`
   if (vaultLevel === 'MERCHANT') {
     endpoint += `?include-auth-assertion=true`
   }
-  const idTokenResponse = await fetch(endpoint)
+  const idTokenResponse = await fetch(endpoint, {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify(partnerMerchantInfo),
+  })
   const idTokenData = await idTokenResponse.json()
   const { formatted, idToken, authHeader } = idTokenData
   setAuthHeader(authHeader)
@@ -29,16 +35,15 @@ async function getIdToken() {
 }
 
 async function buildScriptElement(onload, checkoutMethod) {
+  setAuthHeader('')
   const {
-    partnerClientId,
-    merchantId,
     intent,
     ...options
   } = getOptions()
   const url = new URL('https://www.paypal.com/sdk/js')
   const query = url.searchParams
-  query.set("client-id", partnerClientId)
-  query.set("merchant-id", merchantId)
+  query.set("client-id", options['partner-client-id'])
+  query.set("merchant-id", options['merchant-id'])
   const currencyElement = document.getElementById('currency-code')
   if (currencyElement != null) {
     query.set('currency', currencyElement.value)
@@ -201,7 +206,11 @@ let addOnChange = (function () {
     'customer-id',
     'currency-code',
     'buyer-country-code',
-    'button-label'
+    'button-label',
+    'merchant-id',
+    'partner-client-id',
+    'partner-secret',
+    'partner-bn-code',
   ]
 
   function innerAddOnChange(loadCheckout) {

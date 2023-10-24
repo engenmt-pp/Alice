@@ -52,7 +52,7 @@
           {% block preamble_options %}
           {% endblock preamble_options %}
           {% block creds %}
-          <fieldset id="partner-merchant-credentials" disabled=true>
+          <fieldset id="partner-merchant-credentials">
             <details open>
               <summary>
                 <span>
@@ -60,31 +60,38 @@
                     Partner/merchant info
                   </legend>
                 </span>
+                <button id='button-edit-partner' type="button" onclick="editPartnerInfo()" class="monospaced action">Edit</button>
               </summary>
               <div>
                 <label for="partner-id">
                   Partner ID
                 </label>
-                <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced"/>
+                <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced" disabled/>
               </div>
               <div>
                 <label for="partner-client-id">
                   Client ID
                 </label>
-                <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced"></input>
+                <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced" disabled/>
+              </div>
+              <div>
+                <label for="partner-secret">
+                  Secret
+                </label>
+                <input name="partner-secret" id="partner-secret" value="SecretValue" class="monospaced" disabled/>
               </div>
               <div>
                 <label for="partner-bn-code">
                   BN Code
                 </label>
-                <input name="partner-bn-code" id="partner-bn-code" value="{{ partner_bn_code }}" class="monospaced"></input>
+                <input name="partner-bn-code" id="partner-bn-code" value="{{ partner_bn_code }}" class="monospaced" disabled/>
               </div>
               {% block merchant_id %}
               <div>
                 <label for="merchant-id">
                   Merchant ID
                 </label>
-                <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced"></input>
+                <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced" disabled/>
               </div>
               {% endblock merchant_id %}
             </details>

@@ -51,23 +51,29 @@ function getPartnerMerchantInfo() {
 
   const partnerId = document.getElementById('partner-id')
   if (partnerId != null) {
-    info.partnerId = partnerId.value
-  }
-
-  const merchantId = document.getElementById('merchant-id')
-  if (merchantId != null) {
-    info.merchantId = merchantId.value
+    info['partner-id'] = partnerId.value
   }
 
   const partnerClientId = document.getElementById('partner-client-id')
   if (partnerClientId != null) {
-    info.partnerClientId = partnerClientId.value
+    info['partner-client-id'] = partnerClientId.value
   }
 
-  const BNCode = document.getElementById('bn-code')
-  if (BNCode != null) {
-    info.BNCode = BNCode.value
+  const partnerSecret = document.getElementById('partner-secret')
+  if (partnerSecret != null) {
+    info['partner-secret'] = partnerSecret.value
   }
+
+  const BNCode = document.getElementById('partner-bn-code')
+  if (BNCode != null) {
+    info['partner-bn-code'] = BNCode.value
+  }
+
+  const merchantId = document.getElementById('merchant-id')
+  if (merchantId != null) {
+    info['merchant-id'] = merchantId.value
+  }
+
   return info
 }
 
@@ -206,4 +212,43 @@ function addApiCalls(formattedCalls, click = true) {
 
 function downloadAll() {
   document.querySelectorAll('#div-api-calls button').forEach((button) => { button.click() })
+}
+
+function editPartnerInfo() {
+  const fieldset = document.getElementById('partner-merchant-credentials')
+  fieldset.querySelectorAll(':disabled').forEach((disabledInput) => {
+    disabledInput.disabled = false
+  })
+  fieldset.querySelector('input').focus()
+
+  const button = document.getElementById('button-edit-partner')
+  button.onclick = resetPartnerInfo
+  button.innerHTML = 'Reset'
+}
+
+function resetPartnerInfo() {
+  setAuthHeader('')
+  const fieldset = document.getElementById('partner-merchant-credentials')
+  fieldset.querySelectorAll('input').forEach((elt) => {
+    elt.value = elt.defaultValue
+    elt.dispatchEvent(new Event('change'))
+  })
+
+}
+
+function addOnChangeSimple() {
+  const ids = [
+    'partner-id',
+    'partner-client-id',
+    'partner-secret',
+    'merchant-id',
+  ]
+  for (const id of ids) {
+    const elt = document.getElementById(id)
+    if (elt != null) {
+      elt.onchange = function () {
+        setAuthHeader('')
+      }
+    }
+  }
 }
