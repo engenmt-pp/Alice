@@ -182,6 +182,9 @@ details summary > span {
 details[open] summary {
     margin-bottom: 10px;
 }
+details:not([open]) button {
+    display: none;
+}
 form legend {
     font-weight: 600;
 }
@@ -428,6 +431,8 @@ nav > ol {
     margin-left: auto;
     margin-bottom: 4px;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-variant: inherit !important;
+    text-transform: inherit !important;
 }
 @media (prefers-color-scheme: dark) {
     .postman {
