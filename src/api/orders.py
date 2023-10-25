@@ -336,12 +336,12 @@ class Order:
 
         payment_source_body = {}
 
-        # if self.payment_source_type == "card" and self.three_d_secure_preference:
-        #     payment_source_body["attributes"] = {
-        #         "verification": {
-        #             "method": self.three_d_secure_preference,
-        #         }
-        #     }
+        if self.payment_source_type == "card" and self.three_d_secure_preference:
+            payment_source_body["attributes"] = {
+                "verification": {
+                    "method": self.three_d_secure_preference,
+                }
+            }
 
         context = self.build_context()
         if context:
