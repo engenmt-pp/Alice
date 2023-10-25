@@ -26,6 +26,8 @@ class Referral:
 
         self.referral_token = kwargs.get("referral-token")
 
+        self.party = kwargs.get("party", "third")
+
         self.product = kwargs.get("product")
         self.vault_level = kwargs.get("vault-level")
         self.tracking_id = kwargs.get("tracking-id")
@@ -52,7 +54,6 @@ class Referral:
         self.client_id = kwargs.get("partner-client-id")
         self.secret = kwargs.get("partner-secret")
         self.bn_code = kwargs.get("partner-bn-code")
-        self.merchant_id = kwargs.get("merchant-id")
 
         if self.client_id == current_app.config["PARTNER_CLIENT_ID"]:
             self.secret = current_app.config["PARTNER_SECRET"]
