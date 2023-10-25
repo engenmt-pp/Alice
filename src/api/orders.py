@@ -52,9 +52,11 @@ class Order:
         self.vault_id = kwargs.get("vault-id")
         self.customer_id = kwargs.get("customer-id")
         try:
-            self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
+            # self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
+            self.include_auth_assertion = True
         except KeyError:
             self.include_auth_assertion = self.vault_level == "MERCHANT"
+
         self.include_payee = not self.include_auth_assertion
         self.include_request_id = (
             True  # This is required to specify `experience_context`.
@@ -98,9 +100,12 @@ class Order:
             "value": amount,
         }
 
-    def build_headers(self):
+    def build_headers(self, include_auth_assertion=None):
         """Wrapper for .utils.build_headers."""
-        if self.include_auth_assertion:
+        if include_auth_assertion is None:
+            include_auth_assertion = self.include_auth_assertion
+
+        if include_auth_assertion:
             merchant_id = self.merchant_id
         else:
             merchant_id = None
@@ -403,7 +408,7 @@ class Order:
 
         endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}/capture")
         try:
-            headers = self.build_headers()
+            headers = self.build_headers(include_auth_assertion=False)
         except KeyError:
             return {"formatted": self.formatted}
 
