@@ -33,6 +33,7 @@ class Referral:
 
         self.partner_logo_url = kwargs.get("partner-logo-url")
         self.partner_return_url = kwargs.get("partner-return-url")
+        self.show_add_credit_card = kwargs.get("show-add-credit-card") == "on"
 
         self.include_legal_consents = kwargs.get("include-legal-consents")
 
@@ -97,6 +98,10 @@ class Referral:
                 "return_url": self.partner_return_url,
                 "return_url_description": "A description of the return URL",
             }
+        if self.show_add_credit_card:
+            partner_config_override["show_add_credit_card"] = self.show_add_credit_card
+
+        return partner_config_override
 
     def build_operations(self):
         features = self.build_features()
