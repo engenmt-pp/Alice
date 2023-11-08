@@ -328,13 +328,20 @@ class Order:
                 payment_source_body["vault_id"] = self.vault_id
 
             case "first-time-buyer":
-                payment_source_body["attributes"] = {
+                attributes = {
                     "vault": {
                         "store_in_vault": "ON_SUCCESS",
                         "usage_type": self.vault_level,
                         "permit_multiple_payment_tokens": True,
                     }
                 }
+                if self.customer_id:
+                    payment_source_body["attributes"] = {
+                        "customer": {
+                            "id": self.customer_id,
+                        },
+                    }
+                payment_source_body["attributes"] = attributes
 
             case "return-buyer":
                 if self.customer_id:
