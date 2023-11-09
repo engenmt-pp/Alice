@@ -179,6 +179,8 @@ class Order:
             shipping["options"] = shipping_options
             self.breakdown["shipping"] = self.to_amount_dict(self.shipping_cost)
 
+        self.breakdown["handling"] = self.to_amount_dict(1.00)
+
         return shipping
 
     def build_line_item(self):
