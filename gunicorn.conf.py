@@ -2,9 +2,8 @@ from multiprocessing import cpu_count
 
 proc_name = "alice"
 workers = 2 * cpu_count() + 1
-bind = "0.0.0.0:8000"
+bind = "unix:Alice.sock"
 wsgi_app = "app:app"
-daemon = True
 
 accesslog = "access_log.log"
 access_log_format = '{"date_time": "%(t)s", "remote_address": "%(h)s", "referer": "%(f)s", "method": "%(m)s", "url_path": "%(U)s", "status": "%(s)s", "user_agent": "%(a)s", "request_time_in_seconds": "%(L)s"}'
