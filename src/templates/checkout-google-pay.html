@@ -1,0 +1,106 @@
+{% extends 'checkout.html' %}
+
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='checkout-google-pay.js') }}"></script>
+{% endblock head %}
+
+
+{% block other_options %}
+<fieldset id="google-pay-options">
+  <details open>
+    <summary>
+      <span>
+        <legend>
+          Google Pay Button options
+        </legend>
+      </span>
+    </summary>
+    <div>
+      <label for="google-pay-button-color">
+        Color
+      </label>
+      <select name="google-pay-button-color" id="google-pay-button-color">
+        <option selected>Default</option>
+        <option>Black</option>
+        <option>White</option>
+      </select>
+    </div>
+    <div>
+      <label for="google-pay-button-type">
+        Label
+      </label>
+      <select id="google-pay-button-type" name="google-pay-button-type">
+        <option>Book</option>
+        <option>Buy</option>
+        <option>Checkout</option>
+        <option>Donate</option>
+        <option>Order</option>
+        <option>Pay</option>
+        <option selected>Plain</option>
+        <option>Subscribe</option>
+      </select>
+    </div>
+    <div>
+      <label for="google-pay-button-locale">
+        Language
+      </label>
+      <select id="google-pay-button-locale" name="google-pay-button-locale">
+        <option value="ar">Arabic</option>
+        <option value="bg">Bulgarian</option>
+        <option value="ca">Catalan</option>
+        <option value="zh">Chinese</option>
+        <option value="hr">Croatian</option>
+        <option value="cs">Czech</option>
+        <option value="da">Danish</option>
+        <option value="nl">Dutch</option>
+        <option value="en" selected>English</option>
+        <option value="et">Estonian</option>
+        <option value="fi">Finnish</option>
+        <option value="fr">French</option>
+        <option value="de">German</option>
+        <option value="el">Greek</option>
+        <option value="id">Indonesian</option>
+        <option value="it">Italian</option>
+        <option value="ja">Japanese</option>
+        <option value="ko">Korean</option>
+        <option value="ms">Malay</option>
+        <option value="no">Norwegian</option>
+        <option value="pl">Polish</option>
+        <option value="pt">Portuguese</option>
+        <option value="ru">Russian</option>
+        <option value="sr">Serbian</option>
+        <option value="sk">Slovak</option>
+        <option value="sl">Slovenian</option>
+        <option value="es">Spanish</option>
+        <option value="sv">Swedish</option>
+        <option value="th">Thai</option>
+        <option value="tr">Turkish</option>
+        <option value="uk">Ukrainian</option>
+      </select>
+    </div>
+  </details>
+</fieldset>
+{{ super() }}
+{% endblock other_options %}
+
+{% block vault_options %}
+{% endblock vault_options %}
+
+
+{% block checkout_div %}
+<script async src="https://pay.google.com/gp/p/js/pay.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    const options = loadOptions()
+    window.sessionStorage.clear()
+    setOptions(options)
+
+    const loadCheckout = googlePayClosure()
+    buildScriptElement(loadCheckout, 'google-pay')
+    addOnChange(saveOptionsAndReloadPage)
+  })
+</script>
+<div id="checkout-google-pay">
+</div>
+{% endblock %}

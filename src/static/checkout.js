@@ -56,7 +56,7 @@ async function buildScriptElement(onload, checkoutMethod) {
   if (buyerCountryElement != null && buyerCountryElement.value != '') {
     query.set('buyer-country', buyerCountryElement.value)
   }
-  query.set("debug", false)
+  query.set("debug", true)
   let commit
   if (document.getElementById('user-action').value == 'CONTINUE') {
     commit = false
@@ -70,6 +70,9 @@ async function buildScriptElement(onload, checkoutMethod) {
       query.set('components', 'buttons')
       query.set('enable-funding', 'venmo,paylater,card')
       break
+    case 'google-pay':
+      query.set('components', 'googlepay')
+      break
     case 'hosted-fields-v1':
       query.set('components', 'hosted-fields')
       break
@@ -78,11 +81,12 @@ async function buildScriptElement(onload, checkoutMethod) {
       break
   }
 
-  if (document.getElementById('vault-without-purchase').checked) {
+  const vaultWithoutPurchase = document.getElementById('vault-without-purchase')
+  if (vaultWithoutPurchase == null || vaultWithoutPurchase.checked) {
     // When vaulting without purchase, the JS SDK will error out
     // if anything other than 'intent=capture' is passed.
     query.set("intent", "capture")
-  } else {
+  } else if (intent != null) {
     query.set("intent", intent.toLowerCase())
   }
 
@@ -140,7 +144,6 @@ function buyerNotPresentCheckout() {
     if (orderId == null) {
       console.log('Order creation failed!')
       alert('Order creation failed!')
-      // throw new Error('Order creation failed!')
     } else {
       console.log(`Order ${orderId} created!`)
     }
@@ -211,6 +214,9 @@ let addOnChange = (function () {
     'partner-client-id',
     'partner-secret',
     'partner-bn-code',
+    'google-pay-button-color',
+    'google-pay-button-type',
+    'google-pay-button-locale',
   ]
 
   function innerAddOnChange(loadCheckout) {
@@ -298,11 +304,12 @@ function checkoutFunctions() {
     })
     console.log(`Captured order ${orderId}!`)
     const captureData = await captureResp.json()
-    const { formatted, authHeader } = captureData
+    const { formatted, authHeader, captureStatus } = captureData
     setAuthHeader(authHeader)
 
     addApiCalls(formatted)
     console.groupEnd()
+    return captureStatus
   }
   async function createVaultSetupToken({ paymentSource } = {}) {
     console.group("Creating the vault setup token...")

@@ -418,7 +418,15 @@ class Order:
             "formatted": self.formatted,
             "authHeader": self.auth_header,
         }
-        return return_val
+        try:
+            capture_status = response.json()["purchase_units"][0]["payments"][
+                "captures"
+            ][0]["status"]
+        except (KeyError, IndexError) as exc:
+            capture_status = None
+        finally:
+            return_val["captureStatus"] = capture_status
+            return return_val
 
     def _authorize(self):
         """Authorize the order using the POST /v2/checkout/orders/{order_id}/authorize endpoint.

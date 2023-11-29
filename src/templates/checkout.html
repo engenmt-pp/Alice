@@ -22,14 +22,20 @@
 {% block preamble_options %}
 <fieldset id="fieldset-checkout-method">
   <div>
-    <label>
+    <label for="checkout-method">
       Checkout Method
     </label>
-    <select id='checkout-method' onchange="changeCheckout()">
-      <option
-        value="{{ url_for('routes.checkout_branded') }}"
-        {{ 'selected' if method == 'branded' else '' }}
-      >Branded</option>
+    <select name='checkout-method' id='checkout-method' onchange="changeCheckout()">
+      <optgroup label="Buttons">
+        <option
+          value="{{ url_for('routes.checkout_branded') }}"
+          {{ 'selected' if method == 'branded' else '' }}
+        >Branded</option>
+        <option
+          value="{{ url_for('routes.checkout_google_pay') }}"
+          {{ 'selected' if method == 'google-pay' else '' }}
+        >Google Pay</option>
+      </optgroup>
       <optgroup label="ACDC">
         <option
           value="{{ url_for('routes.checkout_hosted_v2') }}"
@@ -47,12 +53,12 @@
 
 
 {% block other_options %}
-<fieldset id="sdk-options">
+<fieldset id="paypal-sdk-options">
   <details open>
     <summary>
       <span>
         <legend>
-          JS SDK options
+          PayPal JS SDK options
         </legend>
       </span>
     </summary>
@@ -69,28 +75,28 @@
         Currency
       </label>
       <select name="currency-code" id="currency-code">
-        <option value=AUD>Australian dollar</option>
-        <option value=BRL>Brazilian real</option>
-        <option value=CAD>Canadian dollar</option>
-        <option value=CNY>Chinese Renmenbi</option>
-        <option value=CZK>Czech koruna</option>
-        <option value=DKK>Danish krone</option>
-        <option value=EUR>Euro</option>
-        <option value=HKD>Hong Kong dollar</option>
-        <option value=ILS>Israeli new shekel</option>
-        <option value=MYR>Malaysian ringgit</option>
-        <option value=MXN>Mexican peso</option>
-        <option value=NZD>New Zealand dollar</option>
-        <option value=NOK>Norwegian krone</option>
-        <option value=PHP>Philippine peso</option>
-        <option value=PLN>Polish złoty</option>
-        <option value=GBP>Pound sterling</option>
-        <option value=RUB>Russian ruble</option>
-        <option value=SGD>Singapore dollar</option>
-        <option value=SEK>Swedish krona</option>
-        <option value=CHF>Swiss franc</option>
-        <option value=THB>Thai baht</option>
-        <option value=USD selected>United States dollar</option>
+        <option value="AUD">Australian dollar</option>
+        <option value="BRL">Brazilian real</option>
+        <option value="CAD">Canadian dollar</option>
+        <option value="CNY">Chinese Renmenbi</option>
+        <option value="CZK">Czech koruna</option>
+        <option value="DKK">Danish krone</option>
+        <option value="EUR">Euro</option>
+        <option value="HKD">Hong Kong dollar</option>
+        <option value="ILS">Israeli new shekel</option>
+        <option value="MYR">Malaysian ringgit</option>
+        <option value="MXN">Mexican peso</option>
+        <option value="NZD">New Zealand dollar</option>
+        <option value="NOK">Norwegian krone</option>
+        <option value="PHP">Philippine peso</option>
+        <option value="PLN">Polish złoty</option>
+        <option value="GBP">Pound sterling</option>
+        <option value="RUB">Russian ruble</option>
+        <option value="SGD">Singapore dollar</option>
+        <option value="SEK">Swedish krona</option>
+        <option value="CHF">Swiss franc</option>
+        <option value="THB">Thai baht</option>
+        <option value="USD" selected>United States dollar</option>
       </select>
     </div>
     <div>
@@ -106,6 +112,69 @@
     {% endblock additional_sdk_options %}
   </details>
 </fieldset>
+{% block vault_options %}
+<fieldset id="vault-options">
+  <details open>
+    <summary>
+      <span>
+        <legend>
+          Vault v3 options
+        </legend>
+      </span>
+    </summary>
+    <div>
+      <label for="vault-flow">
+        Flow
+      </label>
+      <select name="vault-flow" id="vault-flow">
+        <option value="" selected>None</option>
+        <option value="first-time-buyer">First-time buyer</option>
+        <option value="return-buyer">Return buyer</option>
+        <option value="buyer-not-present">Buyer not present</option>
+      </select>
+    </div>
+    <div class="first-time-buyer return-buyer buyer-not-present">
+      <label for="vault-level">
+        Vault level
+      </label>
+      <select name="vault-level" id="vault-level">
+        <option value="PLATFORM" selected>Partner-level</option>
+        <option value="MERCHANT">Merchant-level</option>
+      </select>
+    </div>
+    <div class="first-time-buyer return-buyer">
+      <label for="vault-without-purchase">
+        Vault without purchase
+      </label>
+      <input type="checkbox" name="vault-without-purchase" id="vault-without-purchase"/>
+    </div>
+    <div class="return-buyer">
+      <label for="customer-id">
+        Customer ID
+      </label>
+      <input name="customer-id" id="customer-id" class="monospaced"/>
+    </div>
+    <div class="buyer-not-present">
+      <label for="vault-id">
+        Vault ID
+      </label>
+      <input name="vault-id" id="vault-id" class="monospaced"/>
+    </div>
+    <div class="buyer-not-present">
+      <label for="vault-payment-source" class="buyer-not-present">
+        Payment source
+      </label>
+      <div>
+        <select name="vault-payment-source" id="vault-payment-source">
+          <option value="paypal" selected>PayPal</option>
+          <option value="card">Card</option>
+        </select>
+        <button type="button" class="action-post" id="buyer-not-present-checkout">Pay</button>
+      </div>
+    </div>
+  </details>
+</fieldset>
+{% endblock vault_options %}
 {% include 'checkout-options.html' %}
 {% endblock other_options %}
 
