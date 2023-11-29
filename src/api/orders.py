@@ -77,6 +77,8 @@ class Order:
         self.custom_purchase_unit_key = kwargs.get("custom-purchase-unit-key")
         self.custom_purchase_unit_value = kwargs.get("custom-purchase-unit-value")
 
+        self.three_d_secure_preference = kwargs.get("3ds-preference")
+
         self.formatted = dict()
         self.breakdown = dict()
 
@@ -293,20 +295,35 @@ class Order:
 
     def build_payment_source_for_authorize(self):
         """Return the payment source object appropriate for the type of call being made."""
-
         payment_source = {}
+
+        if self.payment_source_type == "card" and self.three_d_secure_preference:
+            return {
+                "card": {
+                    "attributes": {
+                        "verification": {
+                            "method": self.three_d_secure_preference,
+                        }
+                    }
+                }
+            }
+
         if self.ba_id:
-            payment_source["token"] = {
-                "id": self.ba_id,
-                "type": "BILLING_AGREEMENT",
+            return {
+                "token": {
+                    "id": self.ba_id,
+                    "type": "BILLING_AGREEMENT",
+                }
             }
         elif self.vault_flow == "buyer-not-present" and self.vault_id:
-            payment_source["vault_id"] = self.vault_id
+            return {
+                "vault_id": self.vault_id,
+            }
 
         return payment_source
 
     def build_payment_source_for_create(self):
-        """Return the payment source object appropriate for the type of call being made."""
+        """Return the payment source object appropriate fora the type of call being made."""
 
         if self.ba_id and self.intent == "AUTHORIZE":
             payment_source = {
@@ -317,7 +334,18 @@ class Order:
             }
             return payment_source
 
-        payment_source_body = {"experience_context": self.build_context()}
+        payment_source_body = {}
+
+        if self.payment_source_type == "card" and self.three_d_secure_preference:
+            payment_source_body["attributes"] = {
+                "verification": {
+                    "method": self.three_d_secure_preference,
+                }
+            }
+
+        context = self.build_context()
+        if context:
+            payment_source_body["experience_context"] = context
 
         match self.vault_flow:
             case "buyer-not-present":
@@ -344,7 +372,10 @@ class Order:
                         },
                     }
 
-        return {self.payment_source_type: payment_source_body}
+        if payment_source_body:
+            return {self.payment_source_type: payment_source_body}
+        else:
+            return {}
 
     def create(self):
         """Create the order with the POST /v2/checkout/orders endpoint.

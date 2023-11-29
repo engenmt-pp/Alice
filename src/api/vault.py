@@ -38,8 +38,7 @@ class Vault:
             self.setup_token = kwargs["setup-token-id"]
         if "payment-token-id" in kwargs:
             self.payment_token = kwargs["payment-token-id"]
-        if "customer-id" in kwargs:
-            self.customer_id = kwargs["customer-id"]
+        self.three_d_secure_preference = kwargs.get("3ds-preference")
 
         self.formatted = dict()
 
@@ -93,6 +92,15 @@ class Vault:
                     "usage_type": self.vault_level,
                     "experience_context": experience_context,
                 }
+                if (
+                    self.payment_source_type == "card"
+                    and self.three_d_secure_preference
+                ):
+                    payment_source_body["attributes"] = {
+                        "verification": {
+                            "method": self.three_d_secure_preference,
+                        }
+                    }
                 if self.include_shipping_address:
                     payment_source_body["shipping"] = default_shipping_address()
 

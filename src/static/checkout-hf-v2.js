@@ -1,3 +1,8 @@
+function getContingencies() {
+  const contingencies = [document.getElementById('3ds-preference').value]
+  return contingencies
+}
+
 function hostedFieldsV2Closure() {
   const {
     createOrder,
@@ -50,6 +55,9 @@ function hostedFieldsV2Closure() {
       document.querySelector("#form-hf-v2-card").addEventListener('submit', (event) => {
         event.preventDefault()
         event.stopImmediatePropagation()
+        // const contingencies = getContingencies()
+        // console.log(contingencies)
+        // cardFields.submit({ contingencies })
         cardFields.submit()
       })
     } else {

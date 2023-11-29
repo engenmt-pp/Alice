@@ -288,12 +288,13 @@ function checkoutFunctions() {
 
     addApiCalls(formatted)
   }
-  async function captureOrder({ paymentSource, orderID } = {}) {
+  async function captureOrder({ paymentSource, orderID, liabilityShift } = {}) {
     if (orderID != null) {
       orderId = orderID
     }
     console.group(`Order ${orderId} was approved!`)
     console.log('paymentSource:', paymentSource)
+    console.log('liabilityShift:', liabilityShift)
     console.log(`Capturing order ${orderId}...`)
 
     const options = getOptions()
