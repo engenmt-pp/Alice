@@ -4,10 +4,14 @@ import {
   setAuthHeader
 } from './utils.js'
 
-function populateReferralLink(actionUrl) {
+
+function populateReferralLink(actionUrl, attachCallback = false) {
   const anchor = document.getElementById('partner-referral')
   anchor.href = `${actionUrl}&displayMode=minibrowser`
 
+  if (attachCallback) {
+    anchor.setAttribute('data-paypal-onboard-complete', 'onboardedCallback')
+  }
 
   if (anchor.getAttribute('style')) {
     anchor.setAttribute('style', '')
@@ -43,8 +47,13 @@ async function createReferral() {
     addApiCalls(formatted)
   } else {
     addApiCalls(formatted, false)
-    populateReferralLink(actionUrl)
+    const attachCallback = (options.party === 'first')
+    populateReferralLink(actionUrl, attachCallback)
   }
+}
+
+async function onboardedCallback(authCode, sharedId) {
+  alert(`Onboarding complete!\nauthCode: ${authCode}\nsharedId: ${sharedId}`)
 }
 
 async function createFirstPartyURL() {

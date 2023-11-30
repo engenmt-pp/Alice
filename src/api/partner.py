@@ -4,7 +4,11 @@ import requests
 from flask import Blueprint, request, current_app, jsonify
 
 from .identity import build_headers
-from .utils import build_endpoint, format_request_and_response
+from .utils import (
+    build_endpoint,
+    format_request_and_response,
+    random_alphanumeric_string,
+)
 
 
 bp = Blueprint("partner", __name__, url_prefix="/partner")
@@ -113,20 +117,35 @@ class Referral:
         return partner_config_override
 
     def build_operations(self):
-        features = self.build_features()
         operations = [
             {
                 "operation": "API_INTEGRATION",
                 "api_integration_preference": {
-                    "rest_api_integration": {
-                        "integration_method": "PAYPAL",
-                        "integration_type": "THIRD_PARTY",
-                        "third_party_details": {"features": features},
-                    }
+                    "rest_api_integration": self.build_rest_api_integration()
                 },
             }
         ]
         return operations
+
+    def build_rest_api_integration(self):
+        features = self.build_features()
+        rest_api_integration = {"integration_method": "PAYPAL"}
+        if self.party == "third":
+            rest_api_integration |= {
+                "integration_type": "THIRD_PARTY",
+                "third_party_details": {
+                    "features": features,
+                },
+            }
+        elif self.party == "first":
+            rest_api_integration |= {
+                "integration_type": "FIRST_PARTY",
+                "first_party_details": {
+                    "features": features,
+                    "seller_nonce": random_alphanumeric_string(44),
+                },
+            }
+        return rest_api_integration
 
     def build_legal_consents(self):
         legal_consents = []
