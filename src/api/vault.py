@@ -14,6 +14,8 @@ bp = Blueprint("vault", __name__, url_prefix="/vault")
 
 class Vault:
     def __init__(self, **kwargs):
+        self._set_partner_config(kwargs)
+
         self.auth_header = kwargs.get("auth-header")
         self.payment_source_type = kwargs.get(
             "payment-source",
@@ -78,8 +80,8 @@ class Vault:
             case "setup":
                 experience_context = {
                     "payment_method_preference": "IMMEDIATE_PAYMENT_REQUIRED",
-                    "return_url": "http://go/alice/returnUrl",
-                    "cancel_url": "http://go/alice/cancelUrl",
+                    # "return_url": "http://go/alice/returnUrl",
+                    # "cancel_url": "http://go/alice/cancelUrl",
                 }
                 if self.shipping_preference:
                     experience_context["shipping_preference"] = self.shipping_preference

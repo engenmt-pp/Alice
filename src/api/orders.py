@@ -42,6 +42,8 @@ class Order:
         self.user_action = kwargs.get("user-action")
         self.disbursement_mode = kwargs.get("disbursement-mode")
 
+        self.skip_capture = kwargs.get("skip-capture")
+
         self.reference_id = kwargs.get("reference-id")
         self.custom_id = kwargs.get("custom-id")
         self.soft_descriptor = kwargs.get("soft-descriptor")
@@ -513,7 +515,7 @@ class Order:
     def auth_and_capture(self):
         """Authorize the order and then capture the resulting authorization."""
         self._authorize()
-        if self.auth_id is not None:
+        if self.auth_id is not None and not self.skip_capture:
             self._capture_authorization()
         return_val = {
             "formatted": self.formatted,

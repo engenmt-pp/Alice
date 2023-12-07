@@ -1,15 +1,8 @@
-{% extends 'checkout.html' %}
-
-{% block head %}
-{{ super() }}
+{% extends 'checkout.html' %} {% block head %} {{ super() }}
 <script src="{{ url_for('static', filename='checkout-branded.js') }}"></script>
-{% endblock head %}
-
-{% block additional_sdk_options %}
+{% endblock head %} {% block additional_sdk_options %}
 <div>
-  <label for="button-label">
-    Button label
-  </label>
+  <label for="button-label"> Button label </label>
   <select name="button-label" id="button-label">
     <option value="paypal" selected>PayPal</option>
     <option value="checkout">Checkout</option>
@@ -18,23 +11,21 @@
     <option value="donate">Donate</option>
   </select>
 </div>
-{% endblock additional_sdk_options %}
-
-{% block checkout_div %}
+{% endblock additional_sdk_options %} {% block checkout_div %}
 <script>
-  window.addEventListener('load', async function() {
-    const options = loadOptions()
-    window.sessionStorage.clear()
-    setOptions(options)
+  window.addEventListener("load", async function () {
+    const options = loadOptions();
+    window.sessionStorage.clear();
+    setOptions(options);
 
-    const loadCheckout = brandedClosure()
-    buildScriptElement(loadCheckout, 'branded')
+    const loadCheckout = brandedClosure();
+    buildScriptElement(loadCheckout, "branded");
     addOnChange(() => {
-      buildScriptElement(loadCheckout, 'branded')
-    })
-    const BNPCheckout = buyerNotPresentCheckout()
-    document.getElementById('buyer-not-present-checkout').onclick = BNPCheckout
-  })
+      buildScriptElement(loadCheckout, "branded");
+    });
+    const BNPCheckout = buyerNotPresentCheckout();
+    document.getElementById("buyer-not-present-checkout").onclick = BNPCheckout;
+  });
 </script>
 <div id="checkout-branded">
   <div id="paypal-button-container"></div>
