@@ -355,6 +355,7 @@ function checkoutFunctions() {
   function onError(data) {
     console.group('Error!')
     console.log('data:', data)
+    console.log(JSON.stringify(data, null, 2))
     alert("An error with the JS SDK occurred! Check the console for more information.")
     console.groupEnd()
   }

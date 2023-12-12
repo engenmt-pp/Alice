@@ -296,16 +296,10 @@ class Order:
     def build_payment_source_for_authorize(self):
         """Return the payment source object appropriate for the type of call being made."""
         payment_source = {}
-
-        if self.payment_source_type == "card" and self.three_d_secure_preference:
-            return {
-                "card": {
-                    "attributes": {
-                        "verification": {
-                            "method": self.three_d_secure_preference,
-                        }
-                    }
-                }
+        attributes = {}
+        if self.three_d_secure_preference:
+            attributes["verification"] = {
+                "method": self.three_d_secure_preference,
             }
 
         if self.ba_id:
@@ -334,46 +328,47 @@ class Order:
             }
             return payment_source
 
-        payment_source_body = {}
+        payment_source = {}
+        attributes = {}
 
-        if self.payment_source_type == "card" and self.three_d_secure_preference:
-            payment_source_body["attributes"] = {
-                "verification": {
-                    "method": self.three_d_secure_preference,
-                }
+        if self.three_d_secure_preference:
+            verification = {
+                "method": self.three_d_secure_preference,
             }
+            attributes["verification"] = verification
+            # if self.payment_source_type == "google_pay":
+            #     payment_source["card"] = {"attributes": attributes}
+            #     attributes = {}
 
         context = self.build_context()
         if context:
-            payment_source_body["experience_context"] = context
+            payment_source["experience_context"] = context
 
         match self.vault_flow:
             case "buyer-not-present":
                 if not self.vault_id:
                     return {}
 
-                del payment_source_body["experience_context"]
-                payment_source_body["vault_id"] = self.vault_id
+                del payment_source["experience_context"]
+                payment_source["vault_id"] = self.vault_id
 
             case "first-time-buyer":
-                payment_source_body["attributes"] = {
-                    "vault": {
-                        "store_in_vault": "ON_SUCCESS",
-                        "usage_type": self.vault_level,
-                        "permit_multiple_payment_tokens": True,
-                    }
+                attributes["vault"] = {
+                    "store_in_vault": "ON_SUCCESS",
+                    "usage_type": self.vault_level,
+                    "permit_multiple_payment_tokens": True,
                 }
 
             case "return-buyer":
                 if self.customer_id:
-                    payment_source_body["attributes"] = {
-                        "customer": {
-                            "id": self.customer_id,
-                        },
+                    attributes["customer"] = {
+                        "id": self.customer_id,
                     }
 
-        if payment_source_body:
-            return {self.payment_source_type: payment_source_body}
+        if attributes:
+            payment_source["attributes"] = attributes
+        if payment_source:
+            return {self.payment_source_type: payment_source}
         else:
             return {}
 

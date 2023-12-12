@@ -5,6 +5,7 @@ function googlePayClosure() {
   }
   const {
     createOrder,
+    getStatus,
     captureOrder,
   } = checkoutFunctions()
   let
@@ -111,27 +112,34 @@ function googlePayClosure() {
         paymentMethodData
       })
       console.log('Done! confirmOrderResponse:', confirmOrderResponse)
-      if (confirmOrderResponse.status === "APPROVED") {
-        console.log('Confirmation approved!')
-        const captureStatus = await captureOrder(options)
-        if (captureStatus === "COMPLETED") {
-          console.log("Capture was successful! 😃 Huzzah!")
-          returnVal.transactionState = 'SUCCESS'
-        } else {
-          console.error("Capture was unsuccessful. 😩")
+      switch (confirmOrderResponse.status) {
+        case "PAYER_ACTION_REQUIRED":
+          console.log('Confirmation... requires payer action!')
+          const { liabilityShift } = await paypal.Googlepay().initiatePayerAction({ orderId })
+          console.log(`liabilityShift: ${liabilityShift}`)
+          await getStatus()
+        case "APPROVED":
+          console.log('Confirmation approved!')
+          const captureStatus = await captureOrder(options)
+          if (captureStatus === "COMPLETED") {
+            console.log("Capture was successful! 😃 Huzzah!")
+            returnVal.transactionState = 'SUCCESS'
+          } else {
+            console.error("Capture was unsuccessful. 😩")
+            returnVal.transactionState = 'ERROR'
+            returnVal.error = {
+              intent: 'PAYMENT_AUTHORIZATION',
+              message: 'Transaction failed as "capture order" response status was not "COMPLETED".',
+            }
+          }
+          break
+        default:
+          console.error('Confirmation NOT approved. 😩')
           returnVal.transactionState = 'ERROR'
           returnVal.error = {
             intent: 'PAYMENT_AUTHORIZATION',
-            message: 'TRANSACTION FAILED AS CAPTURE STATUS WAS NOT COMPLETED.',
+            message: 'Transaction failed as "confirmOrder" response status was not "APPROVED".',
           }
-        }
-      } else {
-        console.error('Confirmation NOT approved. 😩')
-        returnVal.transactionState = 'ERROR'
-        returnVal.error = {
-          intent: 'PAYMENT_AUTHORIZATION',
-          message: 'TRANSACTION FAILED AS CONFIRM ORDER RESPONSE STATUS WAS NOT APPROVED',
-        }
       }
     } catch (err) {
       console.error('Encountered an error:', err)

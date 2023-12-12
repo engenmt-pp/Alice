@@ -21,10 +21,6 @@ async function getClientToken() {
   return clientToken
 }
 
-function getContingencies() {
-  return [document.getElementById('3ds-preference').value]
-}
-
 function hostedFieldsV1Closure() {
   const fields = {
     number: {

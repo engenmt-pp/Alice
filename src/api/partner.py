@@ -78,7 +78,9 @@ class Referral:
         return features
 
     def build_products(self):
-        products = [self.product]
+        products = []
+        if self.product:
+            products.append(self.product)
         if self.vault_level == "MERCHANT":
             products.append("ADVANCED_VAULTING")
         if self.apms:
