@@ -280,9 +280,6 @@ class Order:
         Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-experience_context_base
         Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-order_application_context
         """
-        if self.payment_source_type == "card":
-            return {}
-
         context = {
             "return_url": "http://go/alice/return",
             "cancel_url": "http://go/alice/cancel",
@@ -398,6 +395,9 @@ class Order:
         }
         payment_source = self.build_payment_source_for_create()
         if payment_source:
+            # payment_source["paypal"] = {
+            #     "experience_context": {"shipping_preference": "NO_SHIPPING"}
+            # }
             data["payment_source"] = payment_source
 
         response = requests.post(

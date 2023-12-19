@@ -22,7 +22,8 @@ async function getClientToken() {
 }
 
 function getContingencies() {
-  return [document.getElementById('3ds-preference').value]
+  const preference = document.getElementById('3ds-preference')?.value
+  return preference ? [preference] : preference
 }
 
 function hostedFieldsV1Closure() {
