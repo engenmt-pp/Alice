@@ -7,11 +7,3 @@
 #vault-options:has(option[value='return-buyer']:checked) .return-buyer {
     display: flex;
 }
-
-@-moz-document url-prefix() {
-    /* Firefox doesn't currently (2023-06-29) support the above :has CSS pseudo-class,
-    so this is a workaround just for Firefox. */
-    #vault-options > details > div + div {
-        display: flex;
-    }
-}
