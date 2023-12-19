@@ -333,6 +333,16 @@ class Order:
 
         payment_source_body = {}
 
+        # if self.payment_source_type == "card":
+        #     payment_source_body["billing_address"] = {
+        #         "address_line_1": "2211 N First Street",
+        #         "address_line_2": "Building 17",
+        #         "admin_area_2": "San Jose",
+        #         "admin_area_1": "CA",
+        #         "postal_code": "95131",
+        #         "country_code": "US",
+        #     }
+
         if self.payment_source_type == "card" and self.three_d_secure_preference:
             payment_source_body["attributes"] = {
                 "verification": {
