@@ -252,12 +252,11 @@ function checkoutFunctions() {
   }
   async function createOrder({ paymentSource } = {}) {
     console.group("Creating the order...")
-    console.log('paymentSource received:', paymentSource)
+    console.log('paymentSource:', paymentSource)
 
     const options = getOptions()
     switch (paymentSource) {
       case "paypal":
-      case "venmo":
       case "credit":
       case "sepa":
       case "bancontact":
@@ -270,11 +269,16 @@ function checkoutFunctions() {
       case "sofort":
         paymentSource = 'paypal'
         break
-      default:
+      case null:
+        console.log("Mapping null paymentSource to 'card'!")
         paymentSource = 'card'
         break
+      case "venmo":
+      case "google_pay":
+      case "apple_pay":
+      default:
+        break
     }
-    console.log('paymentSource sent:', paymentSource)
     options['payment-source'] = paymentSource
 
     const createResp = await fetch("/api/orders/", {
