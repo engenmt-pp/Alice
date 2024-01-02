@@ -324,8 +324,8 @@ function checkoutFunctions() {
     }
     console.group(`Order ${orderId} was approved!`)
     console.log('paymentSource:', paymentSource)
-
     console.log('liabilityShift:', liabilityShift)
+    
     console.log(`Capturing order ${orderId}...`)
 
     const options = getOptions()
