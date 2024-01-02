@@ -324,12 +324,12 @@ function checkoutFunctions() {
     }
     console.group(`Order ${orderId} was approved!`)
     console.log('paymentSource:', paymentSource)
-    options['payment-source'] = mapPaymentSource(paymentSource)
 
     console.log('liabilityShift:', liabilityShift)
     console.log(`Capturing order ${orderId}...`)
 
     const options = getOptions()
+    options['payment-source'] = mapPaymentSource(paymentSource)
     const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
