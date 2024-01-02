@@ -129,7 +129,7 @@ function buyerNotPresentCheckout() {
     console.log("Getting order options...")
     options = getOptions()
     options['vault-flow'] = "buyer-not-present"
-    options['payment-source'] = paymentSource
+    options['payment-source'] = mapPaymentSource(paymentSource)
     const createResp = await fetch("/api/orders/", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
@@ -153,6 +153,7 @@ function buyerNotPresentCheckout() {
   async function authorizeAndOrCaptureOrder({ paymentSource, orderId }) {
     console.group(`Authorizing and/or capturing order ${orderId}!`)
     console.log('paymentSource:', paymentSource)
+    options['payment-source'] = mapPaymentSource(paymentSource)
 
     options.authHeader = authHeader
     const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
@@ -243,6 +244,36 @@ let addOnChange = (function () {
   return innerAddOnChange
 })()
 
+function mapPaymentSource(paymentSource) {
+  switch (paymentSource) {
+    case "bancontact":
+    case "credit":
+    case "eps":
+    case "giropay":
+    case "ideal":
+    case "mercadopago":
+    case "mybank":
+    case "paylater":
+    case "p24":
+    case "sofort":
+    case "sepa":
+      console.log("Mapping paymentSource to 'paypal'!")
+      paymentSource = 'paypal'
+      break
+    case null:
+      console.log("Mapping null paymentSource to 'card'!")
+      paymentSource = 'card'
+      break
+    case "apple_pay":
+    case "google_pay":
+    case "paypal":
+    case "venmo":
+    default:
+      break
+  }
+  return paymentSource
+}
+
 function checkoutFunctions() {
   let orderId
   function onClick({ fundingSource }) {
@@ -255,9 +286,8 @@ function checkoutFunctions() {
     console.log('paymentSource:', paymentSource)
 
     const options = getOptions()
-    if (paymentSource != null) {
-      options['payment-source'] = paymentSource
-    }
+    options['payment-source'] = mapPaymentSource(paymentSource)
+
     const createResp = await fetch("/api/orders/", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
@@ -294,6 +324,8 @@ function checkoutFunctions() {
     }
     console.group(`Order ${orderId} was approved!`)
     console.log('paymentSource:', paymentSource)
+    options['payment-source'] = mapPaymentSource(paymentSource)
+
     console.log('liabilityShift:', liabilityShift)
     console.log(`Capturing order ${orderId}...`)
 
