@@ -252,12 +252,31 @@ function checkoutFunctions() {
   }
   async function createOrder({ paymentSource } = {}) {
     console.group("Creating the order...")
-    console.log('paymentSource:', paymentSource)
+    console.log('paymentSource received:', paymentSource)
 
     const options = getOptions()
-    if (paymentSource != null) {
-      options['payment-source'] = paymentSource
+    switch (paymentSource) {
+      case "paypal":
+      case "venmo":
+      case "credit":
+      case "sepa":
+      case "bancontact":
+      case "eps":
+      case "giropay":
+      case "ideal":
+      case "mercadopago":
+      case "mybank":
+      case "p24":
+      case "sofort":
+        paymentSource = 'paypal'
+        break
+      default:
+        paymentSource = 'card'
+        break
     }
+    console.log('paymentSource sent:', paymentSource)
+    options['payment-source'] = paymentSource
+
     const createResp = await fetch("/api/orders/", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
