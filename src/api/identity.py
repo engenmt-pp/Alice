@@ -65,6 +65,41 @@ def get_client_token():
         return jsonify(return_val)
 
 
+@bp.route("/seller-access-token/", methods=("POST",))
+def get_seller_access_token():
+    endpoint = build_endpoint("/v1/oauth2/token")
+    headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
+
+    data = request.get_json()
+
+    auth_code = data["auth-code"]
+    shared_id = data["shared-id"]
+    seller_nonce = data["seller-nonce"]
+
+    payload = {
+        "ignoreCache": True,
+        "grant_type": "authorization_code",
+        "code": auth_code,
+        "code_verifier": "SELLER-TOKEN",
+    }
+
+    response = requests.post(
+        endpoint,
+        headers=headers,
+        data=payload,
+        auth=(seller_nonce, ""),
+    )
+    formatted = {
+        "seller-access-token": format_request_and_response(response),
+    }
+    print(json.dumps(response.json(), indent=2))
+    print(formatted["seller-access-token"])
+
+    return_val = {"formatted": formatted}
+    print(json.dumps(formatted))
+    return jsonify(return_val)
+
+
 @bp.route("/id-token/", defaults={"customer_id": None}, methods=("POST",))
 @bp.route("/id-token/<customer_id>", methods=("POST",))
 def get_id_token(customer_id):

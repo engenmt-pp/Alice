@@ -131,6 +131,7 @@ class Referral:
         features = self.build_features()
         rest_api_integration = {"integration_method": "PAYPAL"}
         if self.party == "third":
+            self.seller_nonce = None
             rest_api_integration |= {
                 "integration_type": "THIRD_PARTY",
                 "third_party_details": {
@@ -138,11 +139,12 @@ class Referral:
                 },
             }
         elif self.party == "first":
+            self.seller_nonce = random_alphanumeric_string(44)
             rest_api_integration |= {
                 "integration_type": "FIRST_PARTY",
                 "first_party_details": {
                     "features": features,
-                    "seller_nonce": random_alphanumeric_string(44),
+                    "seller_nonce": self.seller_nonce,
                 },
             }
         return rest_api_integration
@@ -215,6 +217,7 @@ class Referral:
         return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
+            "sellerNonce": self.seller_nonce,
         }
         try:
             links = response.json()["links"]

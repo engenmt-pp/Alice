@@ -5,12 +5,12 @@ import {
 } from './utils.js'
 
 
-function populateReferralLink(actionUrl, attachCallback = false) {
+function populateReferralLink(actionUrl, onboardCompleteCallback) {
   const anchor = document.getElementById('partner-referral')
   anchor.href = `${actionUrl}&displayMode=minibrowser`
 
-  if (attachCallback) {
-    anchor.setAttribute('data-paypal-onboard-complete', 'onboardedCallback')
+  if (onboardCompleteCallback) {
+    anchor.setAttribute('data-paypal-onboard-complete', onboardCompleteCallback)
   }
 
   if (anchor.getAttribute('style')) {
@@ -30,30 +30,48 @@ function addProxyReferral() {
   div.prepend(proxyAnchor)
 }
 
+function onboardingClosure() {
+  let sellerNonce
+  async function createReferral() {
+    const options = getOptions()
+    const response = await fetch('/api/partner/referrals', {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify(options)
+    })
+    const createData = await response.json()
+    const { formatted, actionUrl, authHeader } = createData;
+    ({ sellerNonce } = createData)
 
-async function createReferral() {
-  const options = getOptions()
-  const response = await fetch('/api/partner/referrals', {
-    headers: { 'Content-Type': 'application/json' },
-    method: 'POST',
-    body: JSON.stringify(options)
-  })
-  const createData = await response.json()
-  const { formatted, actionUrl, authHeader } = createData
-  setAuthHeader(authHeader)
+    setAuthHeader(authHeader)
 
-  if (actionUrl == null) {
-    console.error('No actionUrl found:', createData)
-    addApiCalls(formatted)
-  } else {
-    addApiCalls(formatted, false)
-    const attachCallback = (options.party === 'first')
-    populateReferralLink(actionUrl, attachCallback)
+    if (actionUrl == null) {
+      console.error('No actionUrl found:', createData)
+      addApiCalls(formatted)
+    } else {
+      addApiCalls(formatted, false)
+      const onboardCompleteCallback = (
+        options.party === 'first' ? this.getSellerAccessToken : false
+      )
+      populateReferralLink(actionUrl, onboardCompleteCallback)
+    }
   }
-}
 
-async function onboardedCallback(authCode, sharedId) {
-  alert(`Onboarding complete!\nauthCode: ${authCode}\nsharedId: ${sharedId}`)
+  async function getSellerAccessToken(authCode, sharedId) {
+    const response = await fetch('/api/identity/seller-access-token', {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify({
+        'auth-code': authCode,
+        'shared-id': sharedId,
+        'seller-nonce': sellerNonce
+      })
+    })
+    const { formatted } = await response.json()
+    addApiCalls(formatted)
+    alert(`Onboarding complete!\nauthCode: ${authCode}\nsharedId: ${sharedId}`)
+  }
+  return createReferral
 }
 
 async function createFirstPartyURL() {
