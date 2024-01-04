@@ -50,10 +50,11 @@ function onboardingClosure() {
       addApiCalls(formatted)
     } else {
       addApiCalls(formatted, false)
-      const onboardCompleteCallback = (
-        options.party === 'first' ? this.getSellerAccessToken : false
+      const onboardCompleteCallback_ = (
+        options.party === 'first' ? getSellerAccessToken : false
       )
-      populateReferralLink(actionUrl, onboardCompleteCallback)
+      window.onboardCompleteCallback = onboardCompleteCallback_
+      populateReferralLink(actionUrl, 'onboardCompleteCallback')
     }
   }
 
@@ -67,10 +68,28 @@ function onboardingClosure() {
         'seller-nonce': sellerNonce
       })
     })
+    const { formatted, access_token: accessToken } = await response.json()
+    addApiCalls(formatted)
+    // alert(`Onboarding complete!\nauthCode: ${authCode}\nsharedId: ${sharedId}`)
+
+    getSellerCredentials(accessToken)
+  }
+
+  async function getSellerCredentials(accessToken) {
+    const partnerId = document.getElementById('partner-id').value
+
+    const response = await fetch('/api/identity/seller-credentials', {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify({
+        'partner-id': partnerId,
+        'access-token': accessToken,
+      })
+    })
     const { formatted } = await response.json()
     addApiCalls(formatted)
-    alert(`Onboarding complete!\nauthCode: ${authCode}\nsharedId: ${sharedId}`)
   }
+
   return createReferral
 }
 
