@@ -275,17 +275,21 @@ class Order:
         Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-experience_context_base
         Docs: https://developer.paypal.com/docs/api/orders/v2/#definition-order_application_context
         """
-        if self.payment_source_type == "card":
-            return {}
+        context = {}
 
-        context = {
+        if self.shipping_preference:
+            context["shipping_preference"] = self.shipping_preference
+
+        if self.payment_source_type == "card":
+            return context
+
+        context |= {
             "return_url": "http://go/alice/return",
             "cancel_url": "http://go/alice/cancel",
         }
-        if self.shipping_preference:
-            context["shipping_preference"] = self.shipping_preference
         if self.user_action:
             context["user_action"] = self.user_action
+
         return context
 
     def build_payment_source_for_authorize(self):
