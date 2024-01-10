@@ -65,11 +65,27 @@ class Capture:
         self.auth_header = headers["Authorization"]
         return headers
 
-    def refund(self):
-        """Refund the captureusing the POST /v2/checkout/orders/{order_id} endpoint.
+    def get_details(self):
+        """Get the details of the capture using the GET /v2/payments/captures/{capture_id} endpoint."""
+        try:
+            headers = self.build_headers()
+        except KeyError as exc:
+            current_app.logger.error(f"KeyError encountered building headers: {exc}")
+            return {"formatted": self.formatted}
 
-        Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_get
-        """
+        endpoint = build_endpoint(f"/v2/payments/captures/{self.capture_id}")
+        response = requests.get(endpoint, headers=headers)
+
+        self.formatted["get-capture"] = format_request_and_response(response)
+
+        return_val = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+        return return_val
+
+    def refund(self):
+        """Refund the capture using the POST /v2/payments/captures/{capture_id}/refund endpoint."""
         try:
             headers = self.build_headers()
         except KeyError as exc:
@@ -79,13 +95,32 @@ class Capture:
         endpoint = build_endpoint(f"/v2/payments/captures/{self.capture_id}/refund")
         response = requests.post(endpoint, headers=headers)
 
-        self.formatted["refund-order"] = format_request_and_response(response)
+        self.formatted["refund-capture"] = format_request_and_response(response)
 
         return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
         }
         return return_val
+
+
+@bp.route("/<capture_id>", methods=("POST",))
+def get_capture_details(capture_id):
+    """GET the capture with the given ID.
+
+    Wrapper for Captures.get_details.
+    """
+    data = request.get_json()
+    data["capture-id"] = capture_id
+    data_filtered = {key: value for key, value in data.items() if value}
+    current_app.logger.info(
+        f"Refunding an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+    )
+
+    capture = Capture(**data)
+    resp = capture.get_details()
+
+    return jsonify(resp)
 
 
 @bp.route("/<capture_id>/refund", methods=("POST",))
