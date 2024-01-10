@@ -299,10 +299,13 @@ def get_referral_status(referral_token):
     return jsonify(resp)
 
 
+@bp.route("/id-token/", defaults={"merchant_id": None}, methods=("POST",))
 @bp.route("/sellers/<merchant_id>", methods=("POST",))
 def get_seller_status(merchant_id):
     data = request.get_json()
-    data["merchant-id"] = merchant_id
+    if merchant_id:
+        data["merchant-id"] = merchant_id
+
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
         f"Getting seller status with (filtered) data = {json.dumps(data_filtered, indent=2)}"

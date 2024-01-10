@@ -73,12 +73,25 @@
       <label for="status-order-id">
         Order ID
       </label>
-      <div>
-        <input name="status-order-id" id="status-order-id" class="monospaced"/>
-        <button type="button" onclick="getOrderStatus()" class="action-get">
-          Get
-        </button>
-      </div>
+      <input name="status-order-id" id="status-order-id" class="monospaced"/>
+      <!-- <button type="button" onclick="refundOrder()" class="action-delete half">
+        Refund
+      </button> -->
+      <button type="button" onclick="getOrderStatus()" class="action-get half">
+        Get
+      </button>
+    </div>
+    <div>
+      <label for="status-capture-id">
+        Capture ID
+      </label>
+      <input name="status-capture-id" id="status-capture-id" class="monospaced"/>
+      <button type="button" onclick="refundCapture()" class="action-delete half">
+        Refund
+      </button>
+      <!-- <button type="button" onclick="getcaptureStatus()" class="action-get half">
+        Get
+      </button> -->
     </div>
     <div>
       <label for="status-ba-id">
