@@ -162,8 +162,6 @@ class Referral:
         partner_config_override = self.build_partner_config_override()
         if partner_config_override:
             data["partner_config_override"] = partner_config_override
-        else:
-            print("FALSE:", partner_config_override)
 
         capabilities = self.build_capabilities()
         if capabilities:
@@ -179,6 +177,7 @@ class Referral:
 
         if self.email:
             data["email"] = self.email
+
         if self.tracking_id:
             data["tracking_id"] = self.tracking_id
 
