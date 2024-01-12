@@ -104,6 +104,8 @@ class Referral:
                 "return_url_description": "A description of the return URL",
             }
 
+        return partner_config_override
+
     def build_operations(self):
         features = self.build_features()
         operations = [
@@ -160,6 +162,8 @@ class Referral:
         partner_config_override = self.build_partner_config_override()
         if partner_config_override:
             data["partner_config_override"] = partner_config_override
+        else:
+            print("FALSE:", partner_config_override)
 
         capabilities = self.build_capabilities()
         if capabilities:
@@ -277,7 +281,6 @@ def create_referral():
     referral = Referral(**data)
     resp = referral.create()
 
-    current_app.logger.debug(f"Create referral response: {json.dumps(resp, indent=2)}")
     return jsonify(resp)
 
 
@@ -293,9 +296,6 @@ def get_referral_status(referral_token):
     referral = Referral(**data)
     resp = referral.referral_status()
 
-    current_app.logger.debug(
-        f"Get referral status response: {json.dumps(resp, indent=2)}"
-    )
     return jsonify(resp)
 
 
@@ -311,9 +311,6 @@ def get_seller_status(merchant_id):
     referral = Referral(**data)
     resp = referral.seller_status()
 
-    current_app.logger.debug(
-        f"Get seller status response: {json.dumps(resp, indent=2)}"
-    )
     return jsonify(resp)
 
 

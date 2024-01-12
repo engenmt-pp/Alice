@@ -37,6 +37,7 @@
       </label>
       <select name="vault-level" id="vault-level">
         <option value="" selected>None</option>
+        <option value="PARTNER">Partner-level</option>
         <option value="MERCHANT">Merchant-level</option>
       </select>
     </div>
@@ -50,21 +51,6 @@
           <label for="apm-google-pay">Google Pay</label>
         </li>
       </ul>
-    </div>
-    <div>
-      <label for="include-legal-consents">
-        Legal consents
-      </label>
-      <select name="include-legal-consents" id="include-legal-consents">
-        <option value="include" selected>Include</option>
-        <option value="">Exclude</option>
-      </select>
-    </div>
-    <div>
-      <label for="tracking-id">
-        Tracking ID
-      </label>
-      <input name="tracking-id" id="tracking-id" class="monospaced"/>
     </div>
     <div>
       <label>
@@ -88,6 +74,27 @@
           <label for="feature-access-merchant-information">Access merchant information</label>
         </li>
       </ul>
+    </div>
+    <div>
+      <label for="include-legal-consents">
+        Legal consents
+      </label>
+      <select name="include-legal-consents" id="include-legal-consents">
+        <option value="include" selected>Include</option>
+        <option value="">Exclude</option>
+      </select>
+    </div>
+    <div>
+      <label for="tracking-id">
+        Tracking ID
+      </label>
+      <input name="tracking-id" id="tracking-id" class="monospaced"/>
+    </div>
+    <div>
+      <label for="partner-return-url">
+        Return URL
+      </label>
+      <input name="partner-return-url" id="partner-return-url" class="monospaced"/>
     </div>
   </details>
 </fieldset>
