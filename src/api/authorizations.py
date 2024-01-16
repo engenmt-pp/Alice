@@ -16,9 +16,9 @@ class Authorization:
 
         self._set_partner_config(kwargs)
         self.auth_header = kwargs.get("auth-header") or None
-        self.include_request_id = True
-
         self.auth_id = kwargs["auth-id"]
+
+        self.include_request_id = True
 
         self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
 

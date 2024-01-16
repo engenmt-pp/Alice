@@ -13,19 +13,14 @@ bp = Blueprint("captures", __name__, url_prefix="/captures")
 class Capture:
     def __init__(self, **kwargs):
         self.formatted = dict()
-        self.breakdown = dict()
 
         self._set_partner_config(kwargs)
         self.auth_header = kwargs.get("auth-header") or None
         self.capture_id = kwargs["capture-id"]
-        self.currency_code = kwargs.get("currency-code", "USD")
 
         self.include_request_id = True
 
-        try:
-            self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
-        except KeyError:
-            self.include_auth_assertion = self.vault_level == "MERCHANT"
+        self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
 
     def _set_partner_config(self, kwargs):
         self.partner_id = kwargs.get("partner-id")
