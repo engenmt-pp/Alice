@@ -52,10 +52,14 @@ function hostedFieldsV2Closure() {
       document.querySelector("#form-hf-v2-card").addEventListener('submit', (event) => {
         event.preventDefault()
         event.stopImmediatePropagation()
-        // const contingencies = getContingencies()
-        // console.log(contingencies)
-        // cardFields.submit({ contingencies })
-        cardFields.submit()
+        const contingencies = getContingencies()
+        let data
+        if (contingencies) {
+          data = { contingencies }
+        } else {
+          data = {}
+        }
+        cardFields.submit({ contingencies })
       })
     } else {
       alert("Not eligible for Hosted Fields v2!")
