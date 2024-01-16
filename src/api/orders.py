@@ -404,13 +404,26 @@ class Order:
             headers=headers,
             json=data,
         )
+        response_data = response.json()
         self.formatted["create-order"] = format_request_and_response(response)
         return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
         }
+
         try:
-            order_id = response.json()["id"]
+            auth_id = response_data["purchase_units"][0]["payments"]["authorizations"][
+                0
+            ]["id"]
+        except (KeyError, IndexError) as exc:
+            current_app.logger.info(
+                f"Unable to extract auth_id from {json.dumps(response_data, indent=2)}"
+            )
+        else:
+            return_val["authId"] = auth_id
+
+        try:
+            order_id = response_data["id"]
         except Exception as exc:
             current_app.logger.error(
                 f"Encountered generic exception unpacking order ID: {exc}"
@@ -511,9 +524,10 @@ class Order:
 
     def auth_and_capture(self):
         """Authorize the order and then capture the resulting authorization."""
-        self._authorize()
-        if self.auth_id is not None:
-            self._capture_authorization()
+        if self.auth_id is None:
+            self._authorize()
+
+        self._capture_authorization()
         return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
