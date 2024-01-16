@@ -136,25 +136,36 @@ function buyerNotPresentCheckout() {
       body: JSON.stringify(options),
     })
     const createData = await createResp.json()
-    const { formatted, orderId, authHeader } = createData
+    const { formatted, orderId, authHeader, authId } = createData
     setAuthHeader(authHeader)
 
     addApiCalls(formatted)
 
-    if (orderId == null) {
+    let returnVal = {}
+
+    if (orderId) {
+      console.log(`Order ${orderId} created!`)
+      returnVal.orderId = orderId
+      if (authId) {
+        console.log(`Order already authorized. Auth. ID: ${authId}`)
+        returnVal.authId = authId
+      }
+    } else {
       console.log('Order creation failed!')
       alert('Order creation failed!')
-    } else {
-      console.log(`Order ${orderId} created!`)
     }
     console.groupEnd()
-    return orderId
+    return returnVal
   }
-  async function authorizeAndOrCaptureOrder({ paymentSource, orderId }) {
+  async function authorizeAndOrCaptureOrder({ paymentSource, orderId, authId }) {
     console.group(`Authorizing and/or capturing order ${orderId}!`)
     console.log('paymentSource:', paymentSource)
     options['payment-source'] = mapPaymentSource(paymentSource)
+    if (authId) {
+      options['auth-id'] = authId
+    }
 
+    const authHeader = getAuthHeader()
     options.authHeader = authHeader
     const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
       headers: { "Content-Type": "application/json" },
@@ -162,8 +173,7 @@ function buyerNotPresentCheckout() {
       body: JSON.stringify(options),
     })
     const captureData = await captureResp.json()
-    const { formatted, error, authHeader } = captureData
-    setAuthHeader(authHeader)
+    const { formatted, error } = captureData
 
     addApiCalls(formatted)
     console.groupEnd()
@@ -183,13 +193,9 @@ function buyerNotPresentCheckout() {
     const paymentSource = document.getElementById('vault-payment-source').value
     console.log('paymentSource:', paymentSource)
 
-    const myOptions = { paymentSource }
-
-    const orderId = await createOrder(myOptions)
-    myOptions.orderId = orderId
-
+    const { orderId, authId } = await createOrder({ paymentSource })
     if (options.intent === 'AUTHORIZE') {
-      await authorizeAndOrCaptureOrder(myOptions)
+      await authorizeAndOrCaptureOrder({ paymentSource, orderId, authId })
     } else {
       console.log('Order should be complete!')
     }
@@ -325,7 +331,7 @@ function checkoutFunctions() {
     console.group(`Order ${orderId} was approved!`)
     console.log('paymentSource:', paymentSource)
     console.log('liabilityShift:', liabilityShift)
-    
+
     console.log(`Capturing order ${orderId}...`)
 
     const options = getOptions()
