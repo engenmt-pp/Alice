@@ -1,7 +1,4 @@
-function getContingencies() {
-  const contingencies = [document.getElementById('3ds-preference').value]
-  return contingencies
-}
+
 
 function hostedFieldsV2Closure() {
   const {
@@ -56,9 +53,13 @@ function hostedFieldsV2Closure() {
         event.preventDefault()
         event.stopImmediatePropagation()
         // const contingencies = getContingencies()
-        // console.log(contingencies)
+        // let data
+        // if (contingencies) {
+        //   data = { contingencies }
+        // } else {
+        //   data = {}
+        // }
         // cardFields.submit({ contingencies })
-        cardFields.submit()
       })
     } else {
       alert("Not eligible for Hosted Fields v2!")

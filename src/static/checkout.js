@@ -117,7 +117,11 @@ async function buildScriptElement(onload, checkoutMethod) {
 
 
 function getContingencies() {
-  return [document.getElementById('3ds-preference').value]
+  const contingencies = document.getElementById('3ds-preference')?.value
+  if (contingencies) {
+    return [contingencies]
+  }
+  return null
 }
 
 function buyerNotPresentCheckout() {
@@ -267,7 +271,8 @@ function mapPaymentSource(paymentSource) {
       paymentSource = 'paypal'
       break
     case null:
-      console.log("Mapping null paymentSource to 'card'!")
+    case undefined:
+      console.log(`Mapping paymentSource ${paymentSource} to 'card'!`)
       paymentSource = 'card'
       break
     case "apple_pay":
