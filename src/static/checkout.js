@@ -141,18 +141,21 @@ function buyerNotPresentCheckout() {
 
     addApiCalls(formatted)
 
+    let returnVal = {}
+
     if (orderId) {
       console.log(`Order ${orderId} created!`)
+      returnVal.orderId = orderId
       if (authId) {
         console.log(`Order already authorized. Auth. ID: ${authId}`)
-        options.authId = authId
+        returnVal.authId = authId
       }
     } else {
       console.log('Order creation failed!')
       alert('Order creation failed!')
     }
     console.groupEnd()
-    return orderId
+    return returnVal
   }
   async function authorizeAndOrCaptureOrder({ paymentSource, orderId, authId }) {
     console.group(`Authorizing and/or capturing order ${orderId}!`)
