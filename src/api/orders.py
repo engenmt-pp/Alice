@@ -619,3 +619,22 @@ def get_order_status(order_id):
     resp = order.get_status()
 
     return jsonify(resp)
+
+
+@bp.route("/<order_id>/refund", methods=("POST",))
+def refund_order(order_id):
+    """Refund the order with the given ID.
+
+    Wrapper for Order.refund.
+    """
+    data = request.get_json()
+    data["order-id"] = order_id
+    data_filtered = {key: value for key, value in data.items() if value}
+    current_app.logger.info(
+        f"Refunding an order with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+    )
+
+    order = Order(**data)
+    resp = order.refund()
+
+    return jsonify(resp)

@@ -81,6 +81,29 @@
       </div>
     </div>
     <div>
+      <label for="status-auth-id">
+        Auth ID
+      </label>
+      <div>
+        <input name="status-auth-id" id="status-auth-id" class="monospaced"/>
+        <button type="button" onclick="getAuthorizationDetails()" class="action-get">
+          Get
+        </button>
+      </div>
+    </div>
+    <div>
+      <label for="status-capture-id">
+        Capture ID
+      </label>
+      <input name="status-capture-id" id="status-capture-id" class="monospaced"/>
+      <button type="button" onclick="refundCapture()" class="action-delete half">
+        Refund
+      </button>
+      <button type="button" onclick="getCaptureDetails()" class="action-get half">
+        Get
+      </button>
+    </div>
+    <div>
       <label for="status-ba-id">
         BA ID
       </label>

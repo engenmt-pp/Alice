@@ -72,6 +72,74 @@ async function getOrderStatus() {
   addApiCalls(formatted)
 }
 
+async function getAuthorizationDetails() {
+  const options = getPartnerMerchantInfo()
+  console.log("Options", options)
+
+  const id = 'include-auth-assertion'
+  options[id] = document.getElementById(id).value
+
+  const authId = document.getElementById('status-auth-id').value
+  if (!authId) {
+    return
+  }
+  const statusResp = await fetch(`/api/authorizations/${authId}`, {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify(options)
+  })
+
+  const statusData = await statusResp.json()
+  const { formatted, authHeader } = statusData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
+}
+
+async function getCaptureDetails() {
+  const options = getPartnerMerchantInfo()
+  console.log("Options", options)
+
+  const id = 'include-auth-assertion'
+  options[id] = document.getElementById(id).value
+
+  const captureId = document.getElementById('status-capture-id').value
+  if (!captureId) {
+    return
+  }
+  const statusResp = await fetch(`/api/captures/${captureId}`, {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify(options)
+  })
+
+  const statusData = await statusResp.json()
+  const { formatted, authHeader } = statusData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
+}
+async function refundCapture() {
+  const options = getPartnerMerchantInfo()
+  console.log("Options", options)
+
+  const id = 'include-auth-assertion'
+  options[id] = true
+
+  const captureId = document.getElementById('status-capture-id').value
+  if (!captureId) {
+    return
+  }
+  const statusResp = await fetch(`/api/captures/${captureId}/refund`, {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify(options)
+  })
+
+  const statusData = await statusResp.json()
+  const { formatted, authHeader } = statusData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
+}
+
 
 async function getBaStatus() {
   const options = getPartnerMerchantInfo()
