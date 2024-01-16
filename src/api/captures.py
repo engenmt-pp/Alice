@@ -37,14 +37,6 @@ class Capture:
         if self.client_id == current_app.config["PARTNER_CLIENT_ID"]:
             self.secret = current_app.config["PARTNER_SECRET"]
 
-    def to_amount_dict(self, amount):
-        if isinstance(amount, str):
-            amount = float(amount)
-        return {
-            "currency_code": self.currency_code,
-            "value": amount,
-        }
-
     def build_headers(self):
         """Wrapper for .utils.build_headers."""
         if self.include_auth_assertion:
