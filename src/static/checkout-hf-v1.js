@@ -21,10 +21,6 @@ async function getClientToken() {
   return clientToken
 }
 
-function getContingencies() {
-  return [document.getElementById('3ds-preference').value]
-}
-
 function hostedFieldsV1Closure() {
   const fields = {
     number: {
@@ -48,7 +44,7 @@ function hostedFieldsV1Closure() {
   let hostedFields
   async function onSubmit(event) {
     event.preventDefault()
-    await hostedFields.submit({
+    const data = {
       // Cardholder's first and last name
       cardholderName: document.getElementById('hf-v1-card-holder-name').value,
       // Billing Address
@@ -60,9 +56,12 @@ function hostedFieldsV1Closure() {
         postalCode: document.getElementById('hf-v1-billing-address-zip').value,
         countryCodeAlpha2: document.getElementById('hf-v1-billing-address-country').value.toUpperCase()
       },
-      // Trigger 3D Secure authentication
-      contingencies: getContingencies()
-    })
+    }
+    const contingencies = getContingencies()
+    if (contingencies) {
+      data.contingencies = contingencies
+    }
+    await hostedFields.submit()
 
     console.group("Order approved!")
     await getStatus()

@@ -1,7 +1,4 @@
-function getContingencies() {
-  const contingencies = [document.getElementById('3ds-preference').value]
-  return contingencies
-}
+
 
 function hostedFieldsV2Closure() {
   const {
