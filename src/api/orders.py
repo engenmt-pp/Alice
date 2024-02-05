@@ -46,11 +46,12 @@ class Order:
         self.vault_level = kwargs.get("vault-level")
         self.vault_id = kwargs.get("vault-id")
         self.customer_id = kwargs.get("customer-id")
-        try:
-            self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
-        except KeyError:
-            self.include_auth_assertion = self.vault_level == "MERCHANT"
+
+        self.include_auth_assertion = (
+            bool(kwargs["include-auth-assertion"]) or self.vault_level == "MERCHANT"
+        )
         self.include_payee = not self.include_auth_assertion
+
         self.include_request_id = (
             True  # This is required to specify `experience_context`.
         )
