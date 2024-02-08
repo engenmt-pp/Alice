@@ -125,6 +125,10 @@ class Order:
         )
         self.formatted |= headers.pop("formatted")
 
+        # headers["PayPal-Mock-Response"] = json.dumps(
+        #     {"mock_application_codes": "INSTRUMENT_DECLINED"}
+        # )
+
         self.auth_header = headers["Authorization"]
         return headers
 
@@ -428,12 +432,16 @@ class Order:
             headers=headers,
             json=data,
         )
-        response_data = response.json()
+
         self.formatted["create-order"] = format_request_and_response(response)
         return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
         }
+        try:
+            response_data = response.json()
+        except:
+            return return_val
 
         try:
             auth_id = response_data["purchase_units"][0]["payments"]["authorizations"][
