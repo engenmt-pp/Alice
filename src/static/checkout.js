@@ -1,3 +1,9 @@
+import {
+  addApiCalls,
+  getOptions,
+  setAuthHeader,
+} from './utils.js'
+
 function changeCheckout() {
   saveOptions()
   const newCheckoutURL = document.getElementById('checkout-method').value
@@ -110,11 +116,10 @@ async function buildScriptElement(onload, checkoutMethod) {
   const BNCode = options['partner-bn-code']
   scriptElement.setAttribute('data-partner-attribution-id', BNCode)
 
-  scriptElement.onload = onload
+  scriptElement.addEventListener('load', onload)
   const oldScriptElement = document.getElementById('paypal-js-sdk')
   oldScriptElement.replaceWith(scriptElement)
 }
-
 
 function getContingencies() {
   const contingencies = document.getElementById('3ds-preference')?.value
@@ -122,91 +127,6 @@ function getContingencies() {
     return [contingencies]
   }
   return null
-}
-
-function buyerNotPresentCheckout() {
-  let options
-  async function createOrder({ paymentSource }) {
-    console.group("Creating the order...")
-    console.log('paymentSource:', paymentSource)
-
-    console.log("Getting order options...")
-    options = getOptions()
-    options['vault-flow'] = "buyer-not-present"
-    options['payment-source'] = mapPaymentSource(paymentSource)
-    const createResp = await fetch("/api/orders/", {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify(options),
-    })
-    const createData = await createResp.json()
-    const { formatted, orderId, authHeader, authId } = createData
-    setAuthHeader(authHeader)
-
-    addApiCalls(formatted)
-
-    let returnVal = {}
-
-    if (orderId) {
-      console.log(`Order ${orderId} created!`)
-      returnVal.orderId = orderId
-      if (authId) {
-        console.log(`Order already authorized. Auth. ID: ${authId}`)
-        returnVal.authId = authId
-      }
-    } else {
-      console.log('Order creation failed!')
-      alert('Order creation failed!')
-    }
-    console.groupEnd()
-    return returnVal
-  }
-  async function authorizeAndOrCaptureOrder({ paymentSource, orderId, authId }) {
-    console.group(`Authorizing and/or capturing order ${orderId}!`)
-    console.log('paymentSource:', paymentSource)
-    options['payment-source'] = mapPaymentSource(paymentSource)
-    if (authId) {
-      options['auth-id'] = authId
-    }
-
-    const authHeader = getAuthHeader()
-    options.authHeader = authHeader
-    const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify(options),
-    })
-    const captureData = await captureResp.json()
-    const { formatted, error } = captureData
-
-    addApiCalls(formatted)
-    console.groupEnd()
-
-    if (error === "INSTRUMENT_DECLINED") {
-      return actions.restart()
-    }
-  }
-  async function payWithVaultedPaymentToken() {
-    console.group("Initiating buyer-not-present checkout...")
-
-    const paymentTokenId = document.getElementById('vault-id').value
-    if (paymentTokenId == null || paymentTokenId == '') {
-      return alert("A payment token must be provided for buyer-not-present orders!")
-    }
-
-    const paymentSource = document.getElementById('vault-payment-source').value
-    console.log('paymentSource:', paymentSource)
-
-    const { orderId, authId } = await createOrder({ paymentSource })
-    if (options.intent === 'AUTHORIZE') {
-      await authorizeAndOrCaptureOrder({ paymentSource, orderId, authId })
-    } else {
-      console.log('Order should be complete!')
-    }
-
-    console.groupEnd()
-  }
-  return payWithVaultedPaymentToken
 }
 
 let addOnChange = (function () {
@@ -267,147 +187,155 @@ function mapPaymentSource(paymentSource) {
     case "p24":
     case "sofort":
     case "sepa":
-      console.log("Mapping paymentSource to 'paypal'!")
-      paymentSource = 'paypal'
-      break
+      console.log(`Mapping paymentSource ${paymentSource} to 'paypal'!`)
+      return 'paypal'
     case null:
     case undefined:
       console.log(`Mapping paymentSource ${paymentSource} to 'card'!`)
-      paymentSource = 'card'
-      break
+      return 'card'
     case "apple_pay":
     case "google_pay":
     case "paypal":
     case "venmo":
     default:
-      break
+      console.log(`paymentSource ${paymentSource} was recevied!`)
+      return paymentSource
   }
-  return paymentSource
 }
 
-function checkoutFunctions() {
-  let orderId
-  function onClick({ fundingSource }) {
-    console.group("Button clicked!")
-    console.log('fundingSource:', fundingSource)
-    console.groupEnd()
+let orderId
+
+function onClick({ fundingSource }) {
+  console.group("Button clicked!")
+  console.log('fundingSource:', fundingSource)
+  console.groupEnd()
+}
+
+async function createOrder({ paymentSource } = {}) {
+  console.group("Creating the order...")
+
+  const options = getOptions()
+  options['payment-source'] = mapPaymentSource(paymentSource)
+
+  const createResp = await fetch("/api/orders/", {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify(options),
+  })
+  const createData = await createResp.json()
+  const { formatted, authHeader } = createData;
+  ({ orderId } = createData)
+  setAuthHeader(authHeader)
+
+  addApiCalls(formatted)
+  console.log(`Order ${orderId} created!`)
+  console.groupEnd()
+  return orderId
+}
+
+async function getStatus() {
+  console.log(`Getting status of order ${orderId}...`)
+
+  const options = getOptions()
+  const statusResp = await fetch(`/api/orders/${orderId}`, {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify(options)
+  })
+  const statusData = await statusResp.json()
+  const { formatted, authHeader } = statusData
+  setAuthHeader(authHeader)
+
+  addApiCalls(formatted)
+}
+
+async function captureOrder({ paymentSource, orderID, liabilityShift } = {}) {
+  console.group(`Order approved!`)
+  console.log('liabilityShift:', liabilityShift)
+
+  if (orderID) {
+    orderId = orderID
+  } else {
+    console.log(`No orderID received; defaulting to orderId = ${orderId}`)
   }
-  async function createOrder({ paymentSource } = {}) {
-    console.group("Creating the order...")
-    console.log('paymentSource:', paymentSource)
+  console.log(`Capturing order ${orderId}...`)
 
-    const options = getOptions()
-    options['payment-source'] = mapPaymentSource(paymentSource)
+  const options = getOptions()
+  options['payment-source'] = mapPaymentSource(paymentSource)
 
-    const createResp = await fetch("/api/orders/", {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify(options),
-    })
-    const createData = await createResp.json()
-    const { formatted, authHeader } = createData;
-    ({ orderId } = createData)
-    setAuthHeader(authHeader)
+  const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify(options)
+  })
+  console.log(`Captured order ${orderId}!`)
+  const captureData = await captureResp.json()
+  const { formatted, authHeader, captureStatus } = captureData
+  setAuthHeader(authHeader)
 
-    addApiCalls(formatted)
-    console.log(`Order ${orderId} created!`)
-    console.groupEnd()
-    return orderId
-  }
-  async function getStatus() {
-    console.log(`Getting status of order ${orderId}...`)
+  addApiCalls(formatted)
+  console.groupEnd()
+  return captureStatus
+}
 
-    const options = getOptions()
-    const statusResp = await fetch(`/api/orders/${orderId}`, {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify(options)
-    })
-    const statusData = await statusResp.json()
-    const { formatted, authHeader } = statusData
-    setAuthHeader(authHeader)
+async function createVaultSetupToken({ paymentSource } = {}) {
+  console.group("Creating the vault setup token...")
 
-    addApiCalls(formatted)
-  }
-  async function captureOrder({ paymentSource, orderID, liabilityShift } = {}) {
-    if (orderID != null) {
-      orderId = orderID
-    }
-    console.group(`Order ${orderId} was approved!`)
-    console.log('paymentSource:', paymentSource)
-    console.log('liabilityShift:', liabilityShift)
+  options = getOptions()
+  options['payment-source'] = mapPaymentSource(paymentSource)
 
-    console.log(`Capturing order ${orderId}...`)
+  const createResp = await fetch("/api/vault/setup-tokens", {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify(options),
+  })
+  const createData = await createResp.json()
+  const { formatted, setupTokenId, authHeader } = createData
+  setAuthHeader(authHeader)
 
-    const options = getOptions()
-    options['payment-source'] = mapPaymentSource(paymentSource)
-    const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify(options)
-    })
-    console.log(`Captured order ${orderId}!`)
-    const captureData = await captureResp.json()
-    const { formatted, authHeader, captureStatus } = captureData
-    setAuthHeader(authHeader)
+  addApiCalls(formatted)
+  console.log(`Vault setup token ${setupTokenId} created!`)
+  console.groupEnd()
+  return setupTokenId
+}
 
-    addApiCalls(formatted)
-    console.groupEnd()
-    return captureStatus
-  }
-  async function createVaultSetupToken({ paymentSource } = {}) {
-    console.group("Creating the vault setup token...")
-    console.log('paymentSource:', paymentSource)
+async function createVaultPaymentToken({ vaultSetupToken: setupTokenId } = {}) {
+  console.log(`Vault setup token ${setupTokenId} was approved!`)
+  console.group('Creating vault payment token...')
 
-    options = getOptions()
-    if (paymentSource != null) {
-      options['payment-source'] = paymentSource
-    }
-    const createResp = await fetch("/api/vault/setup-tokens", {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify(options),
-    })
-    const createData = await createResp.json()
-    const { formatted, setupTokenId, authHeader } = createData
-    setAuthHeader(authHeader)
+  const createResp = await fetch(`/api/vault/setup-tokens/${setupTokenId}`, {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify(options),
+  })
+  const createData = await createResp.json()
+  const { formatted, paymentTokenId, authHeader } = createData
+  setAuthHeader(authHeader)
 
-    addApiCalls(formatted)
-    console.log(`Vault setup token ${setupTokenId} created!`)
-    console.groupEnd()
-    return setupTokenId
-  }
-  async function createVaultPaymentToken({ vaultSetupToken: setupTokenId } = {}) {
-    console.log(`Vault setup token ${setupTokenId} was approved!`)
-    console.group('Creating vault payment token...')
+  addApiCalls(formatted)
+  console.log(`Vault payment token ${paymentTokenId} created!`)
+  console.groupEnd()
+  return paymentTokenId
+}
 
-    const createResp = await fetch(`/api/vault/setup-tokens/${setupTokenId}`, {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify(options),
-    })
-    const createData = await createResp.json()
-    const { formatted, paymentTokenId, authHeader } = createData
-    setAuthHeader(authHeader)
+function onError(data) {
+  console.group('Error!')
+  console.log('data:', data)
+  alert(`An error with the JS SDK occurred: ${data}\nCheck the console for more information.`)
+  console.groupEnd()
+}
 
-    addApiCalls(formatted)
-    console.log(`Vault payment token ${paymentTokenId} created!`)
-    console.groupEnd()
-    return paymentTokenId
-  }
-  function onError(data) {
-    console.group('Error!')
-    console.log('data:', data)
-    alert("An error with the JS SDK occurred! Check the console for more information.")
-    console.groupEnd()
-  }
-  return {
-    onClick,
-    createOrder,
-    getStatus,
-    captureOrder,
-    createVaultSetupToken,
-    createVaultPaymentToken,
-    onError,
-  }
+export {
+  addOnChange,
+  buildScriptElement,
+  changeCheckout,
+  getIdToken,
+  getContingencies,
+  onClick,
+  createOrder,
+  getStatus,
+  captureOrder,
+  createVaultSetupToken,
+  createVaultPaymentToken,
+  onError,
 }

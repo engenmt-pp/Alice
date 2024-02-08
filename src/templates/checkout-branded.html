@@ -21,7 +21,8 @@
 {% endblock additional_sdk_options %}
 
 {% block checkout_div %}
-<script>
+<script type="module">
+  import { setOptions, loadOptions } from "{{ url_for('static', filename='utils.js') }}";
   window.addEventListener('load', async function() {
     const options = loadOptions()
     window.sessionStorage.clear()

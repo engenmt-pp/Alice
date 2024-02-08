@@ -3,9 +3,10 @@
 {% block head %}
 {{ super() }}
 
-<script
-  src="{{ url_for('static', filename='checkout.js') }}"
-></script>
+<script type="module">
+  import { changeCheckout } from "{{ url_for('static', filename='checkout.js') }}";
+  document.getElementById('checkout-method').addEventListener('change', changeCheckout)
+</script>
 <link
   rel="stylesheet"
   type="text/css"
@@ -25,7 +26,7 @@
     <label for="checkout-method">
       Checkout Method
     </label>
-    <select name='checkout-method' id='checkout-method' onchange="changeCheckout()">
+    <select name='checkout-method' id='checkout-method'>
       <optgroup label="Buttons">
         <option
           value="{{ url_for('routes.checkout_branded') }}"
@@ -180,10 +181,10 @@
 
 {% block right_col %}
 <nav id='top-level-nav' role="tabset">
-  <input autocomplete="off" type=radio id="input-checkout" name="nav-tabs" onchange="changeTopLevelNav()" checked/>
+  <input autocomplete="off" type=radio id="input-checkout" name="nav-tabs" checked/>
   <label for="input-checkout">Checkout</label>
 
-  <input autocomplete="off" type=radio id="input-api-calls" name="nav-tabs" onchange="changeTopLevelNav()"/>
+  <input autocomplete="off" type=radio id="input-api-calls" name="nav-tabs"/>
   <label for="input-api-calls">API Calls</label>
 
   <button type="button" id="download-all" class="action postman" onclick="downloadAll()">Download all for Postman</button>

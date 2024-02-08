@@ -1,3 +1,4 @@
+
 function saveOptions() {
   const formData = new FormData(document.getElementById('options-form'))
   for (const pair of formData.entries()) {
@@ -251,4 +252,23 @@ function addOnChangeSimple() {
       }
     }
   }
+}
+
+export {
+  saveOptions,
+  setOptions,
+  getOptions,
+  loadOptions,
+  getAuthHeader,
+  setAuthHeader,
+  getPartnerMerchantInfo,
+  saveOptionsAndReloadPage,
+  activate,
+  deactivate,
+  changeTopLevelNav,
+  addApiCalls,
+  downloadAll,
+  editPartnerInfo,
+  resetPartnerInfo,
+  addOnChangeSimple,
 }

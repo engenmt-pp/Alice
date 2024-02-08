@@ -9,7 +9,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
-    <script src="{{ url_for('static', filename='utils.js') }}"></script>
+    <script type="module">
+      import {
+        saveOptions,
+        setOptions,
+        getOptions,
+        loadOptions,
+        getAuthHeader,
+        setAuthHeader,
+        getPartnerMerchantInfo,
+        saveOptionsAndReloadPage,
+        activate,
+        deactivate,
+        changeTopLevelNav,
+        addApiCalls,
+        downloadAll,
+        editPartnerInfo,
+        resetPartnerInfo,
+        addOnChangeSimple,
+      } from "{{ url_for('static', filename='utils.js') }}";
+      document.querySelectorAll('#top-level-nav > input').forEach((each) => {
+        each.addEventListener('change', changeTopLevelNav)
+      })
+    </script>
     {% block head %}
     {% endblock head %}
   </head>
