@@ -1,10 +1,5 @@
 {% extends 'base.html' %}
 
-{% block head %}
-<script src="{{ url_for('static', filename='statuses.js') }}"></script>
-{% endblock head %}
-
-
 {% block other_options %}
 <fieldset id="onboarding">
   <details open>
@@ -16,12 +11,23 @@
       </span>
     </summary>
     <div>
+      <label for="status-referral-token">
+        Referral Token
+      </label>
+      <div>
+        <input name="status-referral-token" id="status-referral-token" class="monospaced"/>
+        <button type="button" id="get-referral-details" class="action-get">
+          Get
+        </button>
+      </div>
+    </div>
+    <div>
       <label for="status-tracking-id">
         Tracking ID
       </label>
       <div>
         <input name="status-tracking-id" id="status-tracking-id" class="monospaced"/>
-        <button type="button" onclick="getSellerStatusByTrackingId()" class="action-get">
+        <button type="button" id='get-seller-id-and-details' class="action-get">
           Get
         </button>
       </div>
@@ -32,18 +38,7 @@
       </label>
       <div>
         <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
-        <button type="button" onclick="getSellerStatus()" class="action-get">
-          Get
-        </button>
-      </div>
-    </div>
-    <div>
-      <label for="status-referral-token">
-        Referral Token
-      </label>
-      <div>
-        <input name="status-referral-token" id="status-referral-token" class="monospaced"/>
-        <button type="button" onclick="getReferralStatus()" class="action-get">
+        <button type="button" id='get-seller-details' class="action-get">
           Get
         </button>
       </div>
@@ -75,7 +70,7 @@
       </label>
       <div>
         <input name="status-order-id" id="status-order-id" class="monospaced"/>
-        <button type="button" onclick="getOrderStatus()" class="action-get">
+        <button type="button" id="get-order-details" class="action-get">
           Get
         </button>
       </div>
@@ -86,7 +81,7 @@
       </label>
       <div>
         <input name="status-auth-id" id="status-auth-id" class="monospaced"/>
-        <button type="button" onclick="getAuthorizationDetails()" class="action-get">
+        <button type="button" id="get-auth-details" class="action-get">
           Get
         </button>
       </div>
@@ -96,10 +91,10 @@
         Capture ID
       </label>
       <input name="status-capture-id" id="status-capture-id" class="monospaced"/>
-      <button type="button" onclick="refundCapture()" class="action-delete half">
+      <button type="button" id="refund-capture" class="action-delete half">
         Refund
       </button>
-      <button type="button" onclick="getCaptureDetails()" class="action-get half">
+      <button type="button" id="get-capture-details" class="action-get half">
         Get
       </button>
     </div>
@@ -109,7 +104,7 @@
       </label>
       <div>
         <input name="status-ba-id" id="status-ba-id" class="monospaced"/>
-        <button type="button" onclick="getBaStatus()" class="action-get">
+        <button type="button" id='get-ba-details' class="action-get">
           Get
         </button>
       </div>
@@ -120,7 +115,7 @@
       </label>
       <div>
         <input name="status-customer-id" id="status-customer-id" class="monospaced"/>
-        <button type="button" onclick="getPaymentTokens()" class="action-get">
+        <button type="button" id='get-payment-tokens' class="action-get">
           Get
         </button>
       </div>
@@ -130,10 +125,10 @@
         Vault v3 ID
       </label>
       <input name="status-payment-token-id" id="status-payment-token-id" class="monospaced"/>
-      <button type="button" onclick="deletePaymentToken()" class="action-delete half">
+      <button type="button" id="delete-payment-token" class="action-delete half">
         Delete
       </button>
-      <button type="button" onclick="getPaymentTokenStatus()" class="action-get half">
+      <button type="button" id="get-payment-token-details" class="action-get half">
         Get
       </button>
     </div>
@@ -142,9 +137,39 @@
 {% endblock other_options %}
 
 {% block right_col %}
-<script>
+<script type="module">
+  import {
+    getReferralDetails,
+    getSellerDetails,
+    getSellerIdAndDetails,
+    getOrderDetails,
+    getAuthorizationDetails,
+    getCaptureDetails,
+    refundCapture,
+    getBaDetails,
+    deletePaymentToken,
+    getPaymentTokens,
+    getPaymentTokenDetails,
+  } from "{{ url_for('static', filename='statuses.js') }}"
+
+  const onClicks = {
+    'get-referral-details': getReferralDetails,
+    'get-seller-details': getSellerDetails,
+    'get-seller-id-and-details': getSellerIdAndDetails,
+    'get-order-details': getOrderDetails,
+    'get-auth-details': getAuthorizationDetails,
+    'get-capture-details': getCaptureDetails,
+    'refund-capture': refundCapture,
+    'get-ba-details': getBaDetails,
+    'get-payment-tokens': getPaymentTokens,
+    'delete-payment-token': deletePaymentToken,
+    'get-payment-token-details': getPaymentTokenDetails,
+  }
   window.addEventListener('load', async function() {
-    addOnChangeSimple()
+    for (const [id, onclick] of Object.entries(onClicks) ) {
+      const button = document.getElementById(id)
+      button.addEventListener('click', onclick)
+    }
   })
 </script>
 <div id="div-api-calls" class="active">

@@ -1,3 +1,8 @@
+import {
+  getOptions,
+  setAuthHeader
+} from './utils.js'
+
 function populateReferralLink(actionUrl) {
   const id = 'partner-referral'
   const anchor = document.getElementById(id)
@@ -40,4 +45,9 @@ async function createReferral() {
     addApiCalls(formatted, false)
     populateReferralLink(actionUrl)
   }
+}
+
+
+export {
+  createReferral as default
 }

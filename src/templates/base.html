@@ -11,26 +11,16 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
     <script type="module">
       import {
-        saveOptions,
-        setOptions,
-        getOptions,
-        loadOptions,
-        getAuthHeader,
-        setAuthHeader,
-        getPartnerMerchantInfo,
-        saveOptionsAndReloadPage,
-        activate,
-        deactivate,
         changeTopLevelNav,
-        addApiCalls,
-        downloadAll,
-        editPartnerInfo,
-        resetPartnerInfo,
-        addOnChangeSimple,
+        setupCredentials,
       } from "{{ url_for('static', filename='utils.js') }}";
-      document.querySelectorAll('#top-level-nav > input').forEach((each) => {
-        each.addEventListener('change', changeTopLevelNav)
+      window.addEventListener('load', () => {
+        document.querySelectorAll('#top-level-nav > input').forEach((each) => {
+          each.addEventListener('change', changeTopLevelNav)
+        })
+        setupCredentials()
       })
+
     </script>
     {% block head %}
     {% endblock head %}
@@ -82,7 +72,7 @@
                     Partner/merchant info
                   </legend>
                 </span>
-                <button id='button-edit-partner' type="button" onclick="editPartnerInfo()" class="monospaced action">Edit</button>
+                <button id='button-edit-partner' type="button" class="monospaced action">Edit</button>
               </summary>
               <div>
                 <label for="partner-id">

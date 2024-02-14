@@ -212,43 +212,34 @@ function downloadAll() {
   document.querySelectorAll('#div-api-calls button').forEach((button) => { button.click() })
 }
 
-function editPartnerInfo() {
-  const fieldset = document.getElementById('partner-merchant-credentials')
-  fieldset.querySelectorAll(':disabled').forEach((disabledInput) => {
-    disabledInput.disabled = false
+function setupCredentials() {
+  document.querySelectorAll('#partner-merchant-credentials > input').forEach((elt) => {
+    elt.addEventListener('change', () => { setAuthHeader('') })
   })
-  fieldset.querySelector('input').focus()
+  document.getElementById('button-edit-partner').onclick = allowCredentialEditing
 
-  const button = document.getElementById('button-edit-partner')
-  button.onclick = resetPartnerInfo
-  button.innerHTML = 'Reset'
+  document.getElementById('download-all').addEventListener('click', downloadAll)
 }
 
-function resetPartnerInfo() {
+function resetCredentials() {
   setAuthHeader('')
-  const fieldset = document.getElementById('partner-merchant-credentials')
-  fieldset.querySelectorAll('input').forEach((elt) => {
+  const credentials = document.getElementById('partner-merchant-credentials')
+  credentials.querySelectorAll('input').forEach((elt) => {
     elt.value = elt.defaultValue
     elt.dispatchEvent(new Event('change'))
   })
-
 }
 
-function addOnChangeSimple() {
-  const ids = [
-    'partner-id',
-    'partner-client-id',
-    'partner-secret',
-    'merchant-id',
-  ]
-  for (const id of ids) {
-    const elt = document.getElementById(id)
-    if (elt != null) {
-      elt.onchange = function () {
-        setAuthHeader('')
-      }
-    }
-  }
+function allowCredentialEditing() {
+  const credentials = document.getElementById('partner-merchant-credentials')
+  credentials.querySelectorAll('input:disabled').forEach((input) => {
+    input.disabled = false
+  })
+  credentials.querySelector('input').focus()
+
+  const button = credentials.getElementById('button-edit-partner')
+  button.onclick = resetCredentials
+  button.innerHTML = 'Reset'
 }
 
 export {
@@ -264,8 +255,5 @@ export {
   deactivate,
   changeTopLevelNav,
   addApiCalls,
-  downloadAll,
-  editPartnerInfo,
-  resetPartnerInfo,
-  addOnChangeSimple,
+  setupCredentials,
 }

@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<script src="{{ url_for('static', filename='onboarding.js') }}"></script>
 <script async src="https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js"></script>
 {% endblock %}
 
@@ -122,7 +121,7 @@
       </select>
     </div>
     <div>
-      <button type="button" id="create-referral" onclick="createReferral()" class="half action-post">Create Referral</button>
+      <button type="button" id="create-referral" class="half action-post">Create Referral</button>
     </div>
   </details>
 </fieldset>
@@ -136,7 +135,7 @@
   <input autocomplete="off" type=radio id="input-api-calls" name="nav-tabs"/>
   <label for="input-api-calls">API Calls</label>
 
-  <button type="button" id="download-all" class="action postman" onclick="downloadAll()">Download all for Postman</button>
+  <button type="button" id="download-all" class="action postman">Download all for Postman</button>
 </nav>
 <div id="div-onboarding" class="active">
   <a
@@ -145,9 +144,11 @@
     target="PPFrame"
     style="display: none;"
   >Begin onboarding</a>
-  <script>
+  <script type="module">
+    import createReferral from "{{ url_for('static', filename='onboarding.js') }}";
     window.addEventListener('load', async function() {
-      addOnChangeSimple()
+      const createButton = document.getElementById('create-referral')
+      createButton.addEventListener('click', createReferral);
     })
   </script>
 </div>

@@ -252,7 +252,11 @@ class Referral:
         response = requests.get(endpoint, headers=headers)
         self.formatted["seller-status"] = format_request_and_response(response)
 
-        return {"formatted": self.formatted}
+        return_val = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+        return return_val
 
     def referral_status(self):
         endpoint = build_endpoint(
@@ -266,7 +270,11 @@ class Referral:
         response = requests.get(endpoint, headers=headers)
         self.formatted["referral-status"] = format_request_and_response(response)
 
-        return {"formatted": self.formatted}
+        return_val = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+        return return_val
 
 
 @bp.route("/referrals", methods=("POST",))

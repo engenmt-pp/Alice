@@ -73,7 +73,7 @@ async function buildScriptElement(onload, checkoutMethod) {
   const url = new URL('https://www.paypal.com/sdk/js')
 
   const query = url.searchParams
-  query.set("debug", true)
+  query.set("debug", false)
   query.set("client-id", options['partner-client-id'])
   query.set("merchant-id", options['merchant-id'])
 
@@ -122,6 +122,7 @@ async function buildScriptElement(onload, checkoutMethod) {
   scriptElement.id = 'paypal-js-sdk'
   scriptElement.src = url.href
   console.log('PayPal JS SDK URL:', url.href)
+  scriptElement.addEventListener('error', (event) => { console.log(event) })
 
   if (checkoutMethod == 'hosted-fields-v1') {
     const clientToken = await getClientToken()
@@ -133,7 +134,6 @@ async function buildScriptElement(onload, checkoutMethod) {
     const idToken = await getIdToken()
     scriptElement.setAttribute('data-user-id-token', idToken)
   }
-  scriptElement.addEventListener('error', (event) => { console.log(event) })
 
   const BNCode = options['partner-bn-code']
   scriptElement.setAttribute('data-partner-attribution-id', BNCode)
@@ -144,9 +144,9 @@ async function buildScriptElement(onload, checkoutMethod) {
 }
 
 function getContingencies() {
-  const contingencies = document.getElementById('3ds-preference')?.value
-  if (contingencies) {
-    return [contingencies]
+  const contingency = document.getElementById('3ds-preference')?.value
+  if (contingency) {
+    return [contingency]
   }
   return null
 }

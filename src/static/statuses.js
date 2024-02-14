@@ -1,4 +1,10 @@
-async function getSellerStatus() {
+import {
+  getPartnerMerchantInfo,
+  setAuthHeader,
+  addApiCalls
+} from './utils.js'
+
+async function getSellerDetails() {
   const options = getPartnerMerchantInfo()
 
   const merchantId = document.getElementById('status-merchant-id').value
@@ -14,9 +20,7 @@ async function getSellerStatus() {
   setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
-
-
-async function getSellerStatusByTrackingId() {
+async function getSellerIdAndDetails() {
   const options = getPartnerMerchantInfo()
 
   delete options['merchant-id']
@@ -32,9 +36,7 @@ async function getSellerStatusByTrackingId() {
   setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
-
-
-async function getReferralStatus() {
+async function getReferralDetails() {
   const options = getPartnerMerchantInfo()
 
   const referralToken = document.getElementById('status-referral-token').value
@@ -49,8 +51,7 @@ async function getReferralStatus() {
   addApiCalls(formatted)
 }
 
-
-async function getOrderStatus() {
+async function getOrderDetails() {
   const options = getPartnerMerchantInfo()
   console.log("Options", options)
 
@@ -71,7 +72,6 @@ async function getOrderStatus() {
   setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
-
 async function getAuthorizationDetails() {
   const options = getPartnerMerchantInfo()
   console.log("Options", options)
@@ -94,7 +94,6 @@ async function getAuthorizationDetails() {
   setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
-
 async function getCaptureDetails() {
   const options = getPartnerMerchantInfo()
   console.log("Options", options)
@@ -140,8 +139,7 @@ async function refundCapture() {
   addApiCalls(formatted)
 }
 
-
-async function getBaStatus() {
+async function getBaDetails() {
   const options = getPartnerMerchantInfo()
 
   const id = 'include-auth-assertion'
@@ -160,6 +158,23 @@ async function getBaStatus() {
 }
 
 
+async function getPaymentTokens() {
+  const options = getPartnerMerchantInfo()
+
+  const id = 'include-auth-assertion'
+  options[id] = document.getElementById(id).value
+
+  const customerId = document.getElementById('status-customer-id').value
+  const getResp = await fetch(`/api/vault/customers/${customerId}`, {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify(options)
+  })
+  const getData = await getResp.json()
+  const { formatted, authHeader } = getData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
+}
 async function deletePaymentToken() {
   const options = getPartnerMerchantInfo()
 
@@ -177,42 +192,34 @@ async function deletePaymentToken() {
   setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
-
-
-async function getPaymentTokenStatus() {
+async function getPaymentTokenDetails() {
   const options = getPartnerMerchantInfo()
 
   const id = 'include-auth-assertion'
   options[id] = document.getElementById(id).value
 
   const paymentTokenId = document.getElementById('status-payment-token-id').value
-  const statusResp = await fetch(`/api/vault/payment-tokens/${paymentTokenId}`, {
+  const detailsResp = await fetch(`/api/vault/payment-tokens/${paymentTokenId}`, {
     headers: { 'Content-Type': 'application/json' },
     method: 'POST',
     body: JSON.stringify(options)
   })
-  const statusData = await statusResp.json()
-  const { formatted, authHeader } = statusData
+  const details = await detailsResp.json()
+  const { formatted, authHeader } = details
   setAuthHeader(authHeader)
   addApiCalls(formatted)
 }
 
-
-async function getPaymentTokens() {
-  const options = getPartnerMerchantInfo()
-
-  const id = 'include-auth-assertion'
-  options[id] = document.getElementById(id).value
-
-  const customerId = document.getElementById('status-customer-id').value
-  const statusResp = await fetch(`/api/vault/customers/${customerId}`, {
-    headers: { 'Content-Type': 'application/json' },
-    method: 'POST',
-    body: JSON.stringify(options)
-  })
-  const statusData = await statusResp.json()
-  const { formatted, authHeader } = statusData
-  setAuthHeader(authHeader)
-  addApiCalls(formatted)
+export {
+  getSellerDetails,
+  getSellerIdAndDetails,
+  getReferralDetails,
+  getOrderDetails,
+  getAuthorizationDetails,
+  getCaptureDetails,
+  refundCapture,
+  getBaDetails,
+  deletePaymentToken,
+  getPaymentTokens,
+  getPaymentTokenDetails,
 }
-
