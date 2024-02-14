@@ -1,188 +1,205 @@
-function googlePayClosure() {
-  const baseRequest = {
-    apiVersion: 2,
-    apiVersionMinor: 0,
-  }
-  const {
-    createOrder,
-    captureOrder,
-  } = checkoutFunctions()
-  let
-    paymentsClient = null,
-    allowedPaymentMethods = null,
-    merchantInfo = null
-  function getGoogleIsReadyToPayRequest(allowedPaymentMethods) {
-    return Object.assign({}, baseRequest, { allowedPaymentMethods })
-  }
-  async function getGooglePayConfig() {
-    if (allowedPaymentMethods == null || merchantInfo == null) {
-      const googlePayConfig = await paypal.Googlepay().config()
-      console.log("Google Pay Config loaded!", googlePayConfig);
-      ({ allowedPaymentMethods, merchantInfo } = googlePayConfig)
-    }
-    return {
-      allowedPaymentMethods,
-      merchantInfo,
-    }
-  }
-  async function getGooglePaymentDataRequest() {
-    const paymentDataRequest = Object.assign({}, baseRequest)
+import {
+  createOrder,
+  captureOrder
+} from './checkout.js'
+import {
+  getOptions,
+} from './utils.js'
 
-    const { allowedPaymentMethods, merchantInfo } = await getGooglePayConfig()
-    paymentDataRequest.allowedPaymentMethods = allowedPaymentMethods
-    paymentDataRequest.merchantInfo = merchantInfo
+const baseRequest = {
+  apiVersion: 2,
+  apiVersionMinor: 0,
+}
+let paymentsClient
+let allowedPaymentMethods
+let merchantInfo
 
-    paymentDataRequest.transactionInfo = getGoogleTransactionInfo()
-    paymentDataRequest.callbackIntents = ["PAYMENT_AUTHORIZATION"]
-    return paymentDataRequest
+function getGooglePaymentsClient() {
+  /**
+   * Load the Google Payments Client or return the already loaded one.
+   */
+  if (paymentsClient) {
+    console.log("Payments client already loaded!")
+  } else {
+    console.log("Loading payments client...")
+    paymentsClient = new google.payments.api.PaymentsClient({
+      environment: "TEST",
+      paymentDataCallbacks: {
+        onPaymentAuthorized: createAndCaptureOrder,
+      },
+    })
   }
-  function getGoogleTransactionInfo() {
-
-    const formOptions = getOptions()
-    let displayItems = []
-    let totalPrice = 0
-
-    const subtotalPrice = parseFloat(formOptions['item-price'])
-    if (subtotalPrice > 0) {
-      displayItems.push({
-        label: "Subtotal",
-        type: "SUBTOTAL",
-        price: subtotalPrice.toFixed(2),
-      })
-      totalPrice += subtotalPrice
-    }
-
-    const taxPrice = parseFloat(formOptions['item-tax'])
-    if (taxPrice > 0) {
-      displayItems.push({
-        label: "Tax",
-        type: "TAX",
-        price: subtotalPrice.toFixed(2),
-      })
-      totalPrice += taxPrice
-    }
-
-    let countryCode = formOptions['buyer-country-code']
-    if (countryCode == '') {
-      countryCode = 'US'
-    }
-    const currencyCode = formOptions['currency-code']
-    return {
-      displayItems,
-      countryCode,
-      currencyCode,
-      totalPriceLabel: "Total",
-      totalPriceStatus: "FINAL",
-      totalPrice: totalPrice.toFixed(2),
-    }
+  return paymentsClient
+}
+async function getGooglePayConfig() {
+  /**
+   * Load the Google Pay Config { allowedPaymentMethod, merchantInfo } or return the already loaded config.
+   */
+  if (allowedPaymentMethods && merchantInfo) {
+    console.log("Google Pay config. already loaded!")
+  } else {
+    console.log("Loading Google Pay config...");
+    ({ allowedPaymentMethods, merchantInfo } = await paypal.Googlepay().config())
   }
-  async function onClick() {
-    /**
-     * Show Google Pay payment sheet when Google Pay payment button is clicked
-     */
-    const paymentDataRequest = await getGooglePaymentDataRequest()
-    paymentDataRequest.transactionInfo = getGoogleTransactionInfo()
+  const googlePayConfig = { allowedPaymentMethods, merchantInfo }
+  console.log("Google Pay config.:", googlePayConfig)
+  return googlePayConfig
+}
 
-    paymentsClient = getGooglePaymentsClient()
-    paymentsClient.loadPaymentData(paymentDataRequest)
+function getGoogleIsReadyToPayRequest(allowedPaymentMethods) {
+  return Object.assign({}, baseRequest, { allowedPaymentMethods })
+}
+async function getGooglePaymentDataRequest() {
+  const { allowedPaymentMethods } = await getGooglePayConfig()
+
+  const paymentDataRequest = Object.assign({}, baseRequest)
+  paymentDataRequest.allowedPaymentMethods = allowedPaymentMethods
+  paymentDataRequest.transactionInfo = getGoogleTransactionInfo()
+  paymentDataRequest.callbackIntents = ["PAYMENT_AUTHORIZATION"]
+
+  return paymentDataRequest
+}
+function getGoogleTransactionInfo() {
+  /**
+   * Convert the transaction-related form options into fields for Google Pay.
+   */
+
+  const formOptions = getOptions()
+  let displayItems = []
+  let totalPrice = 0
+
+  const subtotalPrice = parseFloat(formOptions['item-price'])
+  if (subtotalPrice > 0) {
+    displayItems.push({
+      label: "Subtotal",
+      type: "SUBTOTAL",
+      price: subtotalPrice.toFixed(2),
+    })
+    totalPrice += subtotalPrice
   }
-  function getGooglePaymentsClient() {
-    if (paymentsClient === null) {
-      paymentsClient = new google.payments.api.PaymentsClient({
-        environment: "TEST",
-        paymentDataCallbacks: {
-          onPaymentAuthorized: createAndCaptureOrder,
-        },
-      })
-    }
-    return paymentsClient
+
+  const taxPrice = parseFloat(formOptions['item-tax'])
+  if (taxPrice > 0) {
+    displayItems.push({
+      label: "Tax",
+      type: "TAX",
+      price: subtotalPrice.toFixed(2),
+    })
+    totalPrice += taxPrice
   }
-  async function createAndCaptureOrder({ paymentMethodData }) {
-    console.group('Creating a PayPal order with paymentMethodData:', paymentMethodData)
-    const paymentSource = 'google_pay'
-    const options = { paymentSource }
-    const orderId = await createOrder(options)
-    options.orderID = orderId
-    const returnVal = {}
-    try {
-      console.group("Confirming order with Google...")
-      const confirmOrderResponse = await paypal.Googlepay().confirmOrder({
-        orderId,
-        paymentMethodData
-      })
-      console.log('Done! confirmOrderResponse:', confirmOrderResponse)
-      if (confirmOrderResponse.status === "APPROVED") {
-        console.log('Confirmation approved!')
-        const captureStatus = await captureOrder(options)
-        if (captureStatus === "COMPLETED") {
-          console.log("Capture was successful! 😃 Huzzah!")
-          returnVal.transactionState = 'SUCCESS'
-        } else {
-          console.error("Capture was unsuccessful. 😩")
-          returnVal.transactionState = 'ERROR'
-          returnVal.error = {
-            intent: 'PAYMENT_AUTHORIZATION',
-            message: 'TRANSACTION FAILED AS CAPTURE STATUS WAS NOT COMPLETED.',
-          }
-        }
+
+  let countryCode = formOptions['buyer-country-code']
+  if (countryCode == '') {
+    countryCode = 'US'
+  }
+  const currencyCode = formOptions['currency-code']
+  return {
+    displayItems,
+    countryCode,
+    currencyCode,
+    totalPriceLabel: "Total",
+    totalPriceStatus: "FINAL",
+    totalPrice: totalPrice.toFixed(2),
+  }
+}
+async function onClick() {
+  /**
+   * Show Google Pay payment sheet when Google Pay payment button is clicked
+   */
+  const paymentDataRequest = await getGooglePaymentDataRequest()
+  paymentDataRequest.transactionInfo = getGoogleTransactionInfo()
+
+  paymentsClient = getGooglePaymentsClient()
+  paymentsClient.loadPaymentData(paymentDataRequest)
+}
+async function createAndCaptureOrder({ paymentMethodData }) {
+  console.group('Creating a PayPal order with paymentMethodData:', paymentMethodData)
+  const paymentSource = 'google_pay'
+  const options = { paymentSource }
+  const orderId = await createOrder(options)
+  options.orderID = orderId
+  const returnVal = {}
+  try {
+    console.group("Confirming order with Google...")
+    const confirmOrderResponse = await paypal.Googlepay().confirmOrder({
+      orderId,
+      paymentMethodData
+    })
+    console.log('Done! confirmOrderResponse:', confirmOrderResponse)
+    if (confirmOrderResponse.status === "APPROVED") {
+      console.log('Confirmation approved!')
+      const captureStatus = await captureOrder(options)
+      if (captureStatus === "COMPLETED") {
+        console.log("Capture was successful! 😃 Huzzah!")
+        returnVal.transactionState = 'SUCCESS'
       } else {
-        console.error('Confirmation NOT approved. 😩')
+        console.error("Capture was unsuccessful. 😩")
         returnVal.transactionState = 'ERROR'
         returnVal.error = {
           intent: 'PAYMENT_AUTHORIZATION',
-          message: 'TRANSACTION FAILED AS CONFIRM ORDER RESPONSE STATUS WAS NOT APPROVED',
+          message: 'TRANSACTION FAILED AS CAPTURE STATUS WAS NOT COMPLETED.',
         }
       }
-    } catch (err) {
-      console.error('Encountered an error:', err)
+    } else {
+      console.error('Confirmation NOT approved. 😩')
       returnVal.transactionState = 'ERROR'
       returnVal.error = {
         intent: 'PAYMENT_AUTHORIZATION',
-        message: err.message
+        message: 'TRANSACTION FAILED AS CONFIRM ORDER RESPONSE STATUS WAS NOT APPROVED',
       }
-    } finally {
-      console.log('Order complete. returnVal:', returnVal)
-      console.groupEnd()
-      return returnVal
     }
+  } catch (err) {
+    console.error('Encountered an error:', err)
+    returnVal.transactionState = 'ERROR'
+    returnVal.error = {
+      intent: 'PAYMENT_AUTHORIZATION',
+      message: err.message
+    }
+  } finally {
+    console.log('Order complete. returnVal:', returnVal)
+    console.groupEnd()
+    return returnVal
   }
-  async function addGooglePayButton() {
-    const buttonOptions = {}
+}
+async function addGooglePayButton() {
+  const buttonOptions = {}
 
-    const buttonColorElt = document.getElementById('google-pay-button-color')
-    if (buttonColorElt != null) {
-      buttonOptions.buttonColor = buttonColorElt.value.toLowerCase()
-    }
-    const buttonTypeElt = document.getElementById('google-pay-button-type')
-    if (buttonTypeElt != null) {
-      buttonOptions.buttonType = buttonTypeElt.value.toLowerCase()
-    }
-
-    const buttonLocaleElt = document.getElementById('google-pay-button-locale')
-    if (buttonLocaleElt != null) {
-      buttonOptions.buttonLocale = buttonLocaleElt.value.toLowerCase()
-    }
-
-    paymentsClient = getGooglePaymentsClient()
-    const button = paymentsClient.createButton({
-      ...buttonOptions,
-      onClick,
-    })
-    document.getElementById("checkout-google-pay").appendChild(button)
+  const buttonColor = document.getElementById('google-pay-button-color')?.value
+  if (buttonColor) {
+    buttonOptions.buttonColor = buttonColor.toLowerCase()
   }
-  async function onGooglePayLoaded() {
-    paymentsClient = getGooglePaymentsClient()
-    const { allowedPaymentMethods } = await getGooglePayConfig()
-    try {
-      const isReadyToPayRequest = getGoogleIsReadyToPayRequest(allowedPaymentMethods)
-      const response = await paymentsClient.isReadyToPay(isReadyToPayRequest)
-      if (response.result) {
-        addGooglePayButton()
-      }
-    } catch (e) {
-      const err = await e.message
-      console.error({ err })
-    }
+  const buttonType = document.getElementById('google-pay-button-type')?.value
+  if (buttonType) {
+    buttonOptions.buttonType = buttonType.toLowerCase()
   }
-  return onGooglePayLoaded
+
+  const buttonLocale = document.getElementById('google-pay-button-locale')?.value
+  if (buttonLocale) {
+    buttonOptions.buttonLocale = buttonLocale.toLowerCase()
+  }
+
+  paymentsClient = getGooglePaymentsClient()
+  const button = paymentsClient.createButton({
+    onClick,
+    ...buttonOptions,
+  })
+  document.getElementById("checkout-google-pay").appendChild(button)
+}
+
+async function loadGooglePay() {
+  paymentsClient = getGooglePaymentsClient()
+  const { allowedPaymentMethods } = await getGooglePayConfig()
+  try {
+    const isReadyToPayRequest = getGoogleIsReadyToPayRequest(allowedPaymentMethods)
+    const response = await paymentsClient.isReadyToPay(isReadyToPayRequest)
+    if (response.result) {
+      addGooglePayButton()
+    }
+  } catch (e) {
+    const err = await e.message
+    console.error({ err })
+  }
+}
+export {
+  loadGooglePay as default
 }

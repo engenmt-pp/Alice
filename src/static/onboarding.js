@@ -35,9 +35,9 @@ async function createReferral() {
 
   if (actionUrl == null) {
     console.error('No actionUrl found:', createData)
-    addApiCalls(formatted, click = true)
+    addApiCalls(formatted)
   } else {
-    addApiCalls(formatted, click = false)
+    addApiCalls(formatted, false)
     populateReferralLink(actionUrl)
   }
 }

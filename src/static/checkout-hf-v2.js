@@ -16,8 +16,24 @@ const style = {
   '.invalid': { color: 'red' }
 }
 
+function getMethods() {
+  const vaultWithoutPurchase = document.querySelector('#vault-without-purchase:checked')
+  if (vaultWithoutPurchase) {
+    return {
+      createVaultSetupToken,
+      onApprove: createVaultPaymentToken,
+      onError
+    }
+  }
+  return {
+    createOrder,
+    onApprove: captureOrder,
+    onError
+  }
+}
+
 let cardFields
-async function loadHostedFieldsV2() {
+async function loadHostedFields() {
   if (cardFields) {
     /* We've been instructed to load the hosted fields, but they're already loaded.
      * We'll just save the user's options and reload the page.
@@ -25,21 +41,7 @@ async function loadHostedFieldsV2() {
     saveOptionsAndReloadPage()
   }
 
-  let methods
-  const vaultWithoutPurchase = document.getElementById('vault-without-purchase')
-  if (vaultWithoutPurchase.checked) {
-    methods = {
-      createVaultSetupToken,
-      onApprove: createVaultPaymentToken,
-      onError
-    }
-  } else {
-    methods = {
-      createOrder,
-      onApprove: captureOrder,
-      onError
-    }
-  }
+  const methods = getMethods()
   cardFields = paypal.CardFields({
     style,
     ...methods
@@ -60,12 +62,10 @@ async function loadHostedFieldsV2() {
     document.querySelector("#form-hf-v2-card").addEventListener('submit', (event) => {
       event.preventDefault()
       event.stopImmediatePropagation()
+      let data = {}
       const contingencies = getContingencies()
-      let data
       if (contingencies) {
-        data = { contingencies }
-      } else {
-        data = {}
+        data.contingencies = contingencies
       }
       cardFields.submit(data)
     })
@@ -75,5 +75,5 @@ async function loadHostedFieldsV2() {
 }
 
 export {
-  loadHostedFieldsV2 as default
+  loadHostedFields as default
 }

@@ -32,11 +32,8 @@ function setOptions(options) {
 }
 
 function getAuthHeader() {
-  const elementAuthHeader = document.getElementById('auth-header')
-  if (elementAuthHeader == null) {
-    return elementAuthHeader
-  }
-  return elementAuthHeader.value
+  const authHeader = document.getElementById('auth-header')?.value
+  return authHeader
 }
 function setAuthHeader(authHeader) {
   document.getElementById('auth-header').value = authHeader
@@ -46,33 +43,33 @@ function getPartnerMerchantInfo() {
   const info = {}
 
   const authHeader = getAuthHeader()
-  if (authHeader != null) {
+  if (authHeader) {
     info['auth-header'] = authHeader
   }
 
-  const partnerId = document.getElementById('partner-id')
-  if (partnerId != null) {
-    info['partner-id'] = partnerId.value
+  const partnerId = document.getElementById('partner-id')?.value
+  if (partnerId) {
+    info['partner-id'] = partnerId
   }
 
-  const partnerClientId = document.getElementById('partner-client-id')
-  if (partnerClientId != null) {
-    info['partner-client-id'] = partnerClientId.value
+  const partnerClientId = document.getElementById('partner-client-id')?.value
+  if (partnerClientId) {
+    info['partner-client-id'] = partnerClientId
   }
 
-  const partnerSecret = document.getElementById('partner-secret')
-  if (partnerSecret != null) {
-    info['partner-secret'] = partnerSecret.value
+  const partnerSecret = document.getElementById('partner-secret')?.value
+  if (partnerSecret) {
+    info['partner-secret'] = partnerSecret
   }
 
-  const BNCode = document.getElementById('partner-bn-code')
-  if (BNCode != null) {
-    info['partner-bn-code'] = BNCode.value
+  const BNCode = document.getElementById('partner-bn-code')?.value
+  if (BNCode) {
+    info['partner-bn-code'] = BNCode
   }
 
-  const merchantId = document.getElementById('merchant-id')
-  if (merchantId != null) {
-    info['merchant-id'] = merchantId.value
+  const merchantId = document.getElementById('merchant-id')?.value
+  if (merchantId) {
+    info['merchant-id'] = merchantId
   }
 
   return info

@@ -1,10 +1,5 @@
 {% extends 'checkout.html' %}
 
-{% block head %}
-{{ super() }}
-<script src="{{ url_for('static', filename='checkout-branded.js') }}"></script>
-{% endblock head %}
-
 {% block additional_sdk_options %}
 <div>
   <label for="button-label">
@@ -22,19 +17,27 @@
 
 {% block checkout_div %}
 <script type="module">
-  import { setOptions, loadOptions } from "{{ url_for('static', filename='utils.js') }}";
+  import {
+    loadOptions,
+    setOptions
+  } from "{{ url_for('static', filename='utils.js') }}";
+  import {
+    addOnChange,
+    buildScriptElement
+  } from "{{ url_for('static', filename='checkout.js') }}";
+  import loadButtons from "{{ url_for('static', filename='checkout-branded.js') }}";
+  import buyerNotPresentCheckout from "{{ url_for('static', filename='checkout-buyer-not-present.js') }}";
   window.addEventListener('load', async function() {
     const options = loadOptions()
     window.sessionStorage.clear()
     setOptions(options)
 
-    const loadCheckout = brandedClosure()
-    buildScriptElement(loadCheckout, 'branded')
+    buildScriptElement(loadButtons, 'branded')
     addOnChange(() => {
-      buildScriptElement(loadCheckout, 'branded')
+      buildScriptElement(loadButtons, 'branded')
     })
-    const BNPCheckout = buyerNotPresentCheckout()
-    document.getElementById('buyer-not-present-checkout').onclick = BNPCheckout
+
+    document.getElementById('buyer-not-present-checkout').addEventListener('click', buyerNotPresentCheckout)
   })
 </script>
 <div id="checkout-branded">

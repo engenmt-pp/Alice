@@ -1,11 +1,5 @@
 {% extends 'checkout.html' %}
 
-{% block head %}
-{{ super() }}
-<script src="{{ url_for('static', filename='checkout-google-pay.js') }}"></script>
-{% endblock head %}
-
-
 {% block other_options %}
 <fieldset id="google-pay-options">
   <details open>
@@ -90,14 +84,24 @@
 
 {% block checkout_div %}
 <script async src="https://pay.google.com/gp/p/js/pay.js"></script>
-<script>
+<script type="module">
+  import {
+    loadOptions,
+    saveOptionsAndReloadPage,
+    setOptions
+  } from "{{ url_for('static', filename='utils.js') }}";
+  import {
+    addOnChange,
+    buildScriptElement
+  } from "{{ url_for('static', filename='checkout.js') }}";
+  import loadGooglePay from "{{ url_for('static', filename='checkout-google-pay.js') }}";
+
   window.addEventListener('load', function() {
     const options = loadOptions()
     window.sessionStorage.clear()
     setOptions(options)
 
-    const loadCheckout = googlePayClosure()
-    buildScriptElement(loadCheckout, 'google-pay')
+    buildScriptElement(loadGooglePay, 'google-pay')
     addOnChange(saveOptionsAndReloadPage)
   })
 </script>

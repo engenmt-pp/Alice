@@ -1,6 +1,8 @@
 import {
   addApiCalls,
   getOptions,
+  getPartnerMerchantInfo,
+  saveOptions,
   setAuthHeader,
 } from './utils.js'
 
@@ -10,19 +12,41 @@ function changeCheckout() {
   window.location.replace(newCheckoutURL)
 }
 
+/** Get a client token to be included in the JS SDK's script tag for (old) hosted fields. */
+async function getClientToken() {
+  console.groupCollapsed("Requesting client token...")
+
+  const options = getOptions()
+  const endpoint = "/api/identity/client-token"
+  const clientTokenResponse = await fetch(endpoint, {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify(options),
+  })
+  const clientTokenData = await clientTokenResponse.json()
+  const { formatted, clientToken, authHeader } = clientTokenData
+  setAuthHeader(authHeader)
+
+  addApiCalls(formatted, false)
+
+  console.log(`Client token: ${clientToken}`)
+  console.groupEnd()
+
+  return clientToken
+}
+
 /** Get an ID token to be included in the JS SDK's script tag for vault purposes. */
 async function getIdToken() {
   console.groupCollapsed("Requesting ID token...")
 
-  const vaultLevel = document.getElementById('vault-level').value
-  const customerId = document.getElementById('customer-id').value
-
-  const partnerMerchantInfo = getPartnerMerchantInfo()
-
+  const vaultLevel = document.getElementById('vault-level')?.value
+  const customerId = document.getElementById('customer-id')?.value
   let endpoint = `/api/identity/id-token/${customerId}`
   if (vaultLevel === 'MERCHANT') {
     endpoint += `?include-auth-assertion=true`
   }
+
+  const partnerMerchantInfo = getPartnerMerchantInfo()
   const idTokenResponse = await fetch(endpoint, {
     headers: { "Content-Type": "application/json" },
     method: "POST",
@@ -32,7 +56,7 @@ async function getIdToken() {
   const { formatted, idToken, authHeader } = idTokenData
   setAuthHeader(authHeader)
 
-  addApiCalls(formatted, click = false)
+  addApiCalls(formatted, false)
 
   console.log('ID token:', idToken)
   console.groupEnd()
@@ -47,52 +71,50 @@ async function buildScriptElement(onload, checkoutMethod) {
     ...options
   } = getOptions()
   const url = new URL('https://www.paypal.com/sdk/js')
+
   const query = url.searchParams
+  query.set("debug", true)
   query.set("client-id", options['partner-client-id'])
   query.set("merchant-id", options['merchant-id'])
-  const currencyElement = document.getElementById('currency-code')
-  if (currencyElement != null) {
-    query.set('currency', currencyElement.value)
-  } else {
-    console.log('No currency found! Defaulting to USD.')
-    query.set('currency', 'USD')
+
+  const currency = document.getElementById('currency-code')?.value || 'USD'
+  query.set('currency', currency)
+
+  const buyerCountry = document.getElementById('buyer-country-code')?.value
+  if (buyerCountry) {
+    query.set('buyer-country', buyerCountry)
   }
 
-  const buyerCountryElement = document.getElementById('buyer-country-code')
-  if (buyerCountryElement != null && buyerCountryElement.value != '') {
-    query.set('buyer-country', buyerCountryElement.value)
-  }
-  query.set("debug", true)
-  let commit
-  if (document.getElementById('user-action').value == 'CONTINUE') {
-    commit = false
-  } else {
-    commit = true
-  }
+  const userAction = document.getElementById('user-action')?.value
+  const commit = (userAction == 'CONTINUE')
   query.set('commit', commit)
 
+  let components
   switch (checkoutMethod) {
     case 'branded':
-      query.set('components', 'buttons')
+      components = 'buttons'
       query.set('enable-funding', 'venmo,paylater,card')
       break
     case 'google-pay':
-      query.set('components', 'googlepay')
+      components = 'googlepay'
       break
     case 'hosted-fields-v1':
-      query.set('components', 'hosted-fields')
+      components = 'hosted-fields'
       break
     case 'hosted-fields-v2':
-      query.set('components', 'card-fields')
+      components = 'card-fields'
       break
   }
+  if (components) {
+    query.set('components', components)
+  }
 
-  const vaultWithoutPurchase = document.getElementById('vault-without-purchase')
-  if (vaultWithoutPurchase == null || vaultWithoutPurchase.checked) {
+  const vaultWithoutPurchase = document.querySelector('#vault-without-purchase:checked')
+  if (vaultWithoutPurchase) {
     // When vaulting without purchase, the JS SDK will error out
     // if anything other than 'intent=capture' is passed.
     query.set("intent", "capture")
-  } else if (intent != null) {
+  } else if (intent) {
     query.set("intent", intent.toLowerCase())
   }
 
@@ -111,7 +133,7 @@ async function buildScriptElement(onload, checkoutMethod) {
     const idToken = await getIdToken()
     scriptElement.setAttribute('data-user-id-token', idToken)
   }
-  scriptElement.setAttribute('onerror', (event) => { console.log(event) })
+  scriptElement.addEventListener('error', (event) => { console.log(event) })
 
   const BNCode = options['partner-bn-code']
   scriptElement.setAttribute('data-partner-attribution-id', BNCode)
@@ -156,7 +178,7 @@ let addOnChange = (function () {
       console.log("Removing previous event listener:", myFunc)
       for (const elementId of elementIds) {
         const element = document.getElementById(elementId)
-        if (element != null) {
+        if (element) {
           element.removeEventListener('change', myFunc)
         }
       }
@@ -165,7 +187,7 @@ let addOnChange = (function () {
     console.log("Adding new event listener:", myFunc)
     for (const elementId of elementIds) {
       const element = document.getElementById(elementId)
-      if (element != null) {
+      if (element) {
         element.addEventListener('change', myFunc)
       }
     }

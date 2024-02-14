@@ -36,8 +36,16 @@
 
 {% block checkout_div %}
 <script type="module">
-  import { setOptions, getOptions, loadOptions, saveOptionsAndReloadPage } from "{{ url_for('static', filename='utils.js') }}";
-  import { addOnChange, buildScriptElement } from "{{ url_for('static', filename='checkout.js') }}";
+  import {
+    setOptions,
+    getOptions,
+    loadOptions,
+    saveOptionsAndReloadPage
+  } from "{{ url_for('static', filename='utils.js') }}";
+  import {
+    addOnChange,
+    buildScriptElement
+  } from "{{ url_for('static', filename='checkout.js') }}";
   import loadHostedFieldsV2 from "{{ url_for('static', filename='checkout-hf-v2.js') }}";
   import buyerNotPresentCheckout from "{{ url_for('static', filename='checkout-buyer-not-present.js') }}";
   window.addEventListener('load', async function () {
