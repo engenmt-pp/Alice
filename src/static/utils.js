@@ -159,7 +159,6 @@ function createApiCallDownloadButton(baseId, curl) {
   button.onclick = function () {
     const elt = document.createElement('a')
     const href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(curl)
-    console.log('href:', href)
     elt.setAttribute('href', href)
     elt.setAttribute('download', fileName)
     elt.click()
@@ -218,7 +217,7 @@ function setupCredentials() {
   })
   document.getElementById('button-edit-partner').onclick = allowCredentialEditing
 
-  document.getElementById('download-all').addEventListener('click', downloadAll)
+  document.getElementById('download-all')?.addEventListener('click', downloadAll)
 }
 
 function resetCredentials() {
