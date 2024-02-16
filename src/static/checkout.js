@@ -220,7 +220,7 @@ function mapPaymentSource(paymentSource) {
     case "paypal":
     case "venmo":
     default:
-      console.log(`paymentSource ${paymentSource} was recevied!`)
+      console.log(`paymentSource ${paymentSource} was received!`)
       return paymentSource
   }
 }
@@ -303,7 +303,7 @@ async function captureOrder({ paymentSource, orderID, liabilityShift } = {}) {
 async function createVaultSetupToken({ paymentSource } = {}) {
   console.group("Creating the vault setup token...")
 
-  options = getOptions()
+  const options = getOptions()
   options['payment-source'] = mapPaymentSource(paymentSource)
 
   const createResp = await fetch("/api/vault/setup-tokens", {
@@ -324,6 +324,8 @@ async function createVaultSetupToken({ paymentSource } = {}) {
 async function createVaultPaymentToken({ vaultSetupToken: setupTokenId } = {}) {
   console.log(`Vault setup token ${setupTokenId} was approved!`)
   console.group('Creating vault payment token...')
+
+  const options = getOptions()
 
   const createResp = await fetch(`/api/vault/setup-tokens/${setupTokenId}`, {
     headers: { "Content-Type": "application/json" },

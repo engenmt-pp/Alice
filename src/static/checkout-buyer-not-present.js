@@ -4,8 +4,6 @@ import {
     setAuthHeader,
 } from './utils.js'
 
-let options
-let paymentSource
 let orderId
 let authId
 
@@ -13,10 +11,10 @@ async function createOrder() {
     console.group("Creating the order...")
 
     console.log("Getting order options...")
-    options = getOptions()
+    const options = getOptions()
     options['vault-flow'] = "buyer-not-present"
 
-    paymentSource = document.getElementById('vault-payment-source').value
+    const paymentSource = document.getElementById('vault-payment-source').value
     options['payment-source'] = paymentSource
 
     const createResp = await fetch("/api/orders/", {
@@ -45,12 +43,11 @@ async function createOrder() {
 
 async function authorizeAndOrCaptureOrder() {
     console.group(`Authorizing and/or capturing order ${orderId}!`)
+
+    const options = getOptions()
     if (authId) {
         options['auth-id'] = authId
     }
-
-    const authHeader = getAuthHeader()
-    options.authHeader = authHeader
 
     const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
         headers: { "Content-Type": "application/json" },
