@@ -1,11 +1,11 @@
 import {
+  addApiCalls,
   getOptions,
   setAuthHeader
 } from './utils.js'
 
 function populateReferralLink(actionUrl) {
-  const id = 'partner-referral'
-  const anchor = document.getElementById(id)
+  const anchor = document.getElementById('partner-referral')
   anchor.href = `${actionUrl}&displayMode=minibrowser`
 
 

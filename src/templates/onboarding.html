@@ -7,7 +7,7 @@
 {% block merchant_id %}
 <!--
   This overwrites the block in 'base.html' with this block's empty contents,
-  removing the "Merchant ID" creds from the left column.
+  removing the "Merchant ID" credential from the left column.
 -->
 {% endblock %}
 
@@ -138,9 +138,11 @@
   <button type="button" id="download-all" class="action postman">Download all for Postman</button>
 </nav>
 <div id="div-onboarding" class="active">
+  <!-- As of 2024-02-21, an error is thrown if the `href` attribute is removed from the initial tag below. -->
   <a
     id="partner-referral"
     data-paypal-button="true"
+    href="/"
     target="PPFrame"
     style="display: none;"
   >Begin onboarding</a>

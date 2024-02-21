@@ -129,8 +129,8 @@ async function buildScriptElement(onload, checkoutMethod) {
     scriptElement.setAttribute('data-client-token', clientToken)
   }
 
-  const vault = Boolean(options['vault-flow'])
-  if (vault) {
+  const isReturnBuyerExperience = options['vault-flow'] === 'return-buyer'
+  if (isReturnBuyerExperience) {
     const idToken = await getIdToken()
     scriptElement.setAttribute('data-user-id-token', idToken)
   }

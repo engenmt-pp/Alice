@@ -1,14 +1,17 @@
 import {
-  getOptions
-} from './utils.js'
-import {
   createOrder,
   getContingencies,
   getStatus,
   captureOrder
 } from './checkout.js'
 
-let hostedFields
+const styles = {
+  '.number': {
+    'font-family': 'monospace',
+  },
+  '.valid': { color: 'green' },
+  '.invalid': { color: 'red' }
+}
 const fields = {
   number: {
     selector: "#hf-v1-card-number",
@@ -23,6 +26,9 @@ const fields = {
     placeholder: "MM/YY"
   }
 }
+
+let hostedFields
+
 async function onSubmit(event) {
   event.preventDefault()
   const data = {
@@ -51,13 +57,6 @@ async function onSubmit(event) {
 }
 async function loadHostedFields() {
   if (paypal.HostedFields.isEligible()) {
-    const styles = {
-      '.number': {
-        'font-family': 'monospace',
-      },
-      '.valid': { color: 'green' },
-      '.invalid': { color: 'red' }
-    }
     hostedFields = await paypal.HostedFields.render({
       createOrder,
       fields,
