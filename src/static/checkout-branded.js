@@ -1,43 +1,51 @@
-function brandedClosure() {
-    const {
+import {
+    onClick,
+    createOrder,
+    captureOrder,
+    createVaultSetupToken,
+    createVaultPaymentToken
+} from './checkout.js'
+
+function getMethods() {
+    const vaultWithoutPurchase = document.querySelector('#vault-without-purchase:checked')
+    if (vaultWithoutPurchase) {
+        return {
+            onClick,
+            createVaultSetupToken,
+            onApprove: createVaultPaymentToken
+        }
+    }
+    return {
         onClick,
         createOrder,
-        captureOrder,
-        createVaultSetupToken,
-        createVaultPaymentToken
-    } = checkoutFunctions()
-    let buttons
-    async function loadButtons() {
-        if (buttons != null) await buttons.close()
-        let methods
-        const vaultWithoutPurchase = document.querySelector('#vault-without-purchase:checked')
-        if (vaultWithoutPurchase != null) {
-            methods = {
-                onClick,
-                createVaultSetupToken,
-                onApprove: createVaultPaymentToken
-            }
-        } else {
-            methods = {
-                onClick,
-                createOrder,
-                onApprove: captureOrder
-            }
-        }
-        let style = {}
-        const buttonLabelElement = document.getElementById('button-label')
-        if (buttonLabelElement != null && buttonLabelElement.value != '') {
-            style.label = buttonLabelElement.value
-        }
-        buttons = await paypal.Buttons({
-            style,
-            ...methods
-        })
-        return buttons
-            .render("#paypal-button-container")
-            .catch((err) => {
-                console.log('Caught an error while rendering checkout:', err)
-            })
+        onApprove: captureOrder
     }
-    return loadButtons
+}
+
+function getStyle() {
+    const label = document.getElementById('button-label')?.value
+    if (label) {
+        return { label }
+    }
+    return {}
+}
+
+let buttons
+async function loadButtons() {
+    if (buttons != null) await buttons.close()
+    const style = getStyle()
+    const methods = getMethods()
+    buttons = await paypal.Buttons({
+        style,
+        ...methods
+    })
+    return buttons
+        .render("#paypal-button-container")
+        .catch((err) => {
+            console.log('Caught an error while rendering PayPal buttons:', err)
+        })
+}
+
+export {
+    loadButtons as default
 }

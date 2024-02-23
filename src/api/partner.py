@@ -21,6 +21,7 @@ def extract_action_url(links):
 class Referral:
     def __init__(self, **kwargs):
         self._set_partner_config(kwargs)
+
         self.auth_header = kwargs.get("auth-header")
 
         self.referral_token = kwargs.get("referral-token")
@@ -252,7 +253,11 @@ class Referral:
         response = requests.get(endpoint, headers=headers)
         self.formatted["seller-status"] = format_request_and_response(response)
 
-        return {"formatted": self.formatted}
+        return_val = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+        return return_val
 
     def referral_status(self):
         endpoint = build_endpoint(
@@ -266,7 +271,11 @@ class Referral:
         response = requests.get(endpoint, headers=headers)
         self.formatted["referral-status"] = format_request_and_response(response)
 
-        return {"formatted": self.formatted}
+        return_val = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+        return return_val
 
 
 @bp.route("/referrals", methods=("POST",))

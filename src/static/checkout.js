@@ -1,22 +1,52 @@
+import {
+  addApiCalls,
+  getOptions,
+  getPartnerMerchantInfo,
+  saveOptions,
+  setAuthHeader,
+} from './utils.js'
+
 function changeCheckout() {
   saveOptions()
   const newCheckoutURL = document.getElementById('checkout-method').value
   window.location.replace(newCheckoutURL)
 }
 
+/** Get a client token to be included in the JS SDK's script tag for (old) hosted fields. */
+async function getClientToken() {
+  console.groupCollapsed("Requesting client token...")
+
+  const options = getOptions()
+  const endpoint = "/api/identity/client-token"
+  const clientTokenResponse = await fetch(endpoint, {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify(options),
+  })
+  const clientTokenData = await clientTokenResponse.json()
+  const { formatted, clientToken, authHeader } = clientTokenData
+  setAuthHeader(authHeader)
+
+  addApiCalls(formatted, false)
+
+  console.log(`Client token: ${clientToken}`)
+  console.groupEnd()
+
+  return clientToken
+}
+
 /** Get an ID token to be included in the JS SDK's script tag for vault purposes. */
 async function getIdToken() {
   console.groupCollapsed("Requesting ID token...")
 
-  const vaultLevel = document.getElementById('vault-level').value
-  const customerId = document.getElementById('customer-id').value
-
-  const partnerMerchantInfo = getPartnerMerchantInfo()
-
+  const vaultLevel = document.getElementById('vault-level')?.value
+  const customerId = document.getElementById('customer-id')?.value
   let endpoint = `/api/identity/id-token/${customerId}`
   if (vaultLevel === 'MERCHANT') {
     endpoint += `?include-auth-assertion=true`
   }
+
+  const partnerMerchantInfo = getPartnerMerchantInfo()
   const idTokenResponse = await fetch(endpoint, {
     headers: { "Content-Type": "application/json" },
     method: "POST",
@@ -26,7 +56,7 @@ async function getIdToken() {
   const { formatted, idToken, authHeader } = idTokenData
   setAuthHeader(authHeader)
 
-  addApiCalls(formatted, click = false)
+  addApiCalls(formatted, false)
 
   console.log('ID token:', idToken)
   console.groupEnd()
@@ -41,52 +71,50 @@ async function buildScriptElement(onload, checkoutMethod) {
     ...options
   } = getOptions()
   const url = new URL('https://www.paypal.com/sdk/js')
+
   const query = url.searchParams
+  query.set("debug", true)
   query.set("client-id", options['partner-client-id'])
   query.set("merchant-id", options['merchant-id'])
-  const currencyElement = document.getElementById('currency-code')
-  if (currencyElement != null) {
-    query.set('currency', currencyElement.value)
-  } else {
-    console.log('No currency found! Defaulting to USD.')
-    query.set('currency', 'USD')
+
+  const currency = document.getElementById('currency-code')?.value || 'USD'
+  query.set('currency', currency)
+
+  const buyerCountry = document.getElementById('buyer-country-code')?.value
+  if (buyerCountry) {
+    query.set('buyer-country', buyerCountry)
   }
 
-  const buyerCountryElement = document.getElementById('buyer-country-code')
-  if (buyerCountryElement != null && buyerCountryElement.value != '') {
-    query.set('buyer-country', buyerCountryElement.value)
-  }
-  query.set("debug", true)
-  let commit
-  if (document.getElementById('user-action').value == 'CONTINUE') {
-    commit = false
-  } else {
-    commit = true
-  }
+  const userAction = document.getElementById('user-action')?.value
+  const commit = (userAction == 'CONTINUE')
   query.set('commit', commit)
 
+  let components
   switch (checkoutMethod) {
     case 'branded':
-      query.set('components', 'buttons')
+      components = 'buttons'
       query.set('enable-funding', 'venmo,paylater,card')
       break
     case 'google-pay':
-      query.set('components', 'googlepay')
+      components = 'googlepay'
       break
     case 'hosted-fields-v1':
-      query.set('components', 'hosted-fields')
+      components = 'hosted-fields'
       break
     case 'hosted-fields-v2':
-      query.set('components', 'card-fields')
+      components = 'card-fields'
       break
   }
+  if (components) {
+    query.set('components', components)
+  }
 
-  const vaultWithoutPurchase = document.getElementById('vault-without-purchase')
-  if (vaultWithoutPurchase == null || vaultWithoutPurchase.checked) {
+  const vaultWithoutPurchase = document.querySelector('#vault-without-purchase:checked')
+  if (vaultWithoutPurchase) {
     // When vaulting without purchase, the JS SDK will error out
     // if anything other than 'intent=capture' is passed.
     query.set("intent", "capture")
-  } else if (intent != null) {
+  } else if (intent) {
     query.set("intent", intent.toLowerCase())
   }
 
@@ -94,122 +122,36 @@ async function buildScriptElement(onload, checkoutMethod) {
   scriptElement.id = 'paypal-js-sdk'
   scriptElement.src = url.href
   console.log('PayPal JS SDK URL:', url.href)
+  scriptElement.addEventListener('error', (event) => { console.log(event) })
 
   if (checkoutMethod == 'hosted-fields-v1') {
     const clientToken = await getClientToken()
     scriptElement.setAttribute('data-client-token', clientToken)
   }
 
-  const vault = Boolean(options['vault-flow'])
-  if (vault) {
+  const isReturnBuyerExperience = options['vault-flow'] === 'return-buyer'
+  if (isReturnBuyerExperience) {
     const idToken = await getIdToken()
     scriptElement.setAttribute('data-user-id-token', idToken)
   }
-  scriptElement.setAttribute('onerror', (event) => { console.log(event) })
 
   const BNCode = options['partner-bn-code']
   scriptElement.setAttribute('data-partner-attribution-id', BNCode)
 
-  scriptElement.onload = onload
+  scriptElement.addEventListener('load', onload)
   const oldScriptElement = document.getElementById('paypal-js-sdk')
   oldScriptElement.replaceWith(scriptElement)
 }
 
-
 function getContingencies() {
-  const contingencies = document.getElementById('3ds-preference')?.value
-  if (contingencies) {
-    return [contingencies]
+  const contingency = document.getElementById('3ds-preference')?.value
+  if (contingency) {
+    return [contingency]
   }
   return null
 }
 
-function buyerNotPresentCheckout() {
-  let options
-  async function createOrder({ paymentSource }) {
-    console.group("Creating the order...")
-    console.log('paymentSource:', paymentSource)
-
-    console.log("Getting order options...")
-    options = getOptions()
-    options['vault-flow'] = "buyer-not-present"
-    options['payment-source'] = mapPaymentSource(paymentSource)
-    const createResp = await fetch("/api/orders/", {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify(options),
-    })
-    const createData = await createResp.json()
-    const { formatted, orderId, authHeader, authId } = createData
-    setAuthHeader(authHeader)
-
-    addApiCalls(formatted)
-
-    let returnVal = {}
-
-    if (orderId) {
-      console.log(`Order ${orderId} created!`)
-      returnVal.orderId = orderId
-      if (authId) {
-        console.log(`Order already authorized. Auth. ID: ${authId}`)
-        returnVal.authId = authId
-      }
-    } else {
-      console.log('Order creation failed!')
-      alert('Order creation failed!')
-    }
-    console.groupEnd()
-    return returnVal
-  }
-  async function authorizeAndOrCaptureOrder({ paymentSource, orderId, authId }) {
-    console.group(`Authorizing and/or capturing order ${orderId}!`)
-    console.log('paymentSource:', paymentSource)
-    options['payment-source'] = mapPaymentSource(paymentSource)
-    if (authId) {
-      options['auth-id'] = authId
-    }
-
-    const authHeader = getAuthHeader()
-    options.authHeader = authHeader
-    const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify(options),
-    })
-    const captureData = await captureResp.json()
-    const { formatted, error } = captureData
-
-    addApiCalls(formatted)
-    console.groupEnd()
-
-    if (error === "INSTRUMENT_DECLINED") {
-      return actions.restart()
-    }
-  }
-  async function payWithVaultedPaymentToken() {
-    console.group("Initiating buyer-not-present checkout...")
-
-    const paymentTokenId = document.getElementById('vault-id').value
-    if (paymentTokenId == null || paymentTokenId == '') {
-      return alert("A payment token must be provided for buyer-not-present orders!")
-    }
-
-    const paymentSource = document.getElementById('vault-payment-source').value
-    console.log('paymentSource:', paymentSource)
-
-    const { orderId, authId } = await createOrder({ paymentSource })
-    if (options.intent === 'AUTHORIZE') {
-      await authorizeAndOrCaptureOrder({ paymentSource, orderId, authId })
-    } else {
-      console.log('Order should be complete!')
-    }
-
-    console.groupEnd()
-  }
-  return payWithVaultedPaymentToken
-}
-
-let addOnChange = (function () {
+let setupEventListeners = (function () {
   let myFunc
   const elementIds = [
     'intent',
@@ -230,13 +172,13 @@ let addOnChange = (function () {
     'google-pay-button-locale',
   ]
 
-  function innerAddOnChange(loadCheckout) {
+  function innerSetupEventListeners(loadCheckout) {
     console.groupCollapsed("Updating 'change' event listeners...")
-    if (myFunc != null) {
+    if (myFunc) {
       console.log("Removing previous event listener:", myFunc)
       for (const elementId of elementIds) {
         const element = document.getElementById(elementId)
-        if (element != null) {
+        if (element) {
           element.removeEventListener('change', myFunc)
         }
       }
@@ -245,13 +187,13 @@ let addOnChange = (function () {
     console.log("Adding new event listener:", myFunc)
     for (const elementId of elementIds) {
       const element = document.getElementById(elementId)
-      if (element != null) {
+      if (element) {
         element.addEventListener('change', myFunc)
       }
     }
     console.groupEnd()
   }
-  return innerAddOnChange
+  return innerSetupEventListeners
 })()
 
 function mapPaymentSource(paymentSource) {
@@ -267,147 +209,156 @@ function mapPaymentSource(paymentSource) {
     case "p24":
     case "sofort":
     case "sepa":
-      console.log("Mapping paymentSource to 'paypal'!")
-      paymentSource = 'paypal'
-      break
+      console.log(`Mapping paymentSource ${paymentSource} to 'paypal'!`)
+      return 'paypal'
     case null:
     case undefined:
       console.log(`Mapping paymentSource ${paymentSource} to 'card'!`)
-      paymentSource = 'card'
-      break
+      return 'card'
     case "apple_pay":
     case "google_pay":
     case "paypal":
     case "venmo":
     default:
-      break
+      console.log(`paymentSource ${paymentSource} was received!`)
+      return paymentSource
   }
-  return paymentSource
 }
 
-function checkoutFunctions() {
-  let orderId
-  function onClick({ fundingSource }) {
-    console.group("Button clicked!")
-    console.log('fundingSource:', fundingSource)
-    console.groupEnd()
+let orderId
+
+function onClick({ fundingSource }) {
+  console.group("Button clicked!")
+  console.log('fundingSource:', fundingSource)
+  console.groupEnd()
+}
+
+async function createOrder({ paymentSource } = {}) {
+  console.group("Creating the order...")
+
+  const options = getOptions()
+  options['payment-source'] = mapPaymentSource(paymentSource)
+
+  const createResp = await fetch("/api/orders/", {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify(options),
+  })
+  const createData = await createResp.json()
+  const { formatted, authHeader } = createData;
+  ({ orderId } = createData)
+  setAuthHeader(authHeader)
+
+  addApiCalls(formatted)
+  console.log(`Order ${orderId} created!`)
+  console.groupEnd()
+  return orderId
+}
+
+async function getStatus() {
+  console.log(`Getting status of order ${orderId}...`)
+
+  const options = getOptions()
+  const statusResp = await fetch(`/api/orders/${orderId}`, {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify(options)
+  })
+  const statusData = await statusResp.json()
+  const { formatted, authHeader } = statusData
+  setAuthHeader(authHeader)
+
+  addApiCalls(formatted)
+}
+
+async function captureOrder({ paymentSource, orderID, liabilityShift } = {}) {
+  console.group(`Order approved!`)
+  console.log('liabilityShift:', liabilityShift)
+
+  if (orderID) {
+    orderId = orderID
+  } else {
+    console.log(`No orderID received; defaulting to orderId = ${orderId}`)
   }
-  async function createOrder({ paymentSource } = {}) {
-    console.group("Creating the order...")
-    console.log('paymentSource:', paymentSource)
+  console.log(`Capturing order ${orderId}...`)
 
-    const options = getOptions()
-    options['payment-source'] = mapPaymentSource(paymentSource)
+  const options = getOptions()
+  options['payment-source'] = mapPaymentSource(paymentSource)
 
-    const createResp = await fetch("/api/orders/", {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify(options),
-    })
-    const createData = await createResp.json()
-    const { formatted, authHeader } = createData;
-    ({ orderId } = createData)
-    setAuthHeader(authHeader)
+  const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify(options)
+  })
+  console.log(`Captured order ${orderId}!`)
+  const captureData = await captureResp.json()
+  const { formatted, authHeader, captureStatus } = captureData
+  setAuthHeader(authHeader)
 
-    addApiCalls(formatted)
-    console.log(`Order ${orderId} created!`)
-    console.groupEnd()
-    return orderId
-  }
-  async function getStatus() {
-    console.log(`Getting status of order ${orderId}...`)
+  addApiCalls(formatted)
+  console.groupEnd()
+  return captureStatus
+}
 
-    const options = getOptions()
-    const statusResp = await fetch(`/api/orders/${orderId}`, {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify(options)
-    })
-    const statusData = await statusResp.json()
-    const { formatted, authHeader } = statusData
-    setAuthHeader(authHeader)
+async function createVaultSetupToken({ paymentSource } = {}) {
+  console.group("Creating the vault setup token...")
 
-    addApiCalls(formatted)
-  }
-  async function captureOrder({ paymentSource, orderID, liabilityShift } = {}) {
-    if (orderID != null) {
-      orderId = orderID
-    }
-    console.group(`Order ${orderId} was approved!`)
-    console.log('paymentSource:', paymentSource)
-    console.log('liabilityShift:', liabilityShift)
+  const options = getOptions()
+  options['payment-source'] = mapPaymentSource(paymentSource)
 
-    console.log(`Capturing order ${orderId}...`)
+  const createResp = await fetch("/api/vault/setup-tokens", {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify(options),
+  })
+  const createData = await createResp.json()
+  const { formatted, setupTokenId, authHeader } = createData
+  setAuthHeader(authHeader)
 
-    const options = getOptions()
-    options['payment-source'] = mapPaymentSource(paymentSource)
-    const captureResp = await fetch(`/api/orders/${orderId}/capture`, {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify(options)
-    })
-    console.log(`Captured order ${orderId}!`)
-    const captureData = await captureResp.json()
-    const { formatted, authHeader, captureStatus } = captureData
-    setAuthHeader(authHeader)
+  addApiCalls(formatted)
+  console.log(`Vault setup token ${setupTokenId} created!`)
+  console.groupEnd()
+  return setupTokenId
+}
 
-    addApiCalls(formatted)
-    console.groupEnd()
-    return captureStatus
-  }
-  async function createVaultSetupToken({ paymentSource } = {}) {
-    console.group("Creating the vault setup token...")
-    console.log('paymentSource:', paymentSource)
+async function createVaultPaymentToken({ vaultSetupToken: setupTokenId } = {}) {
+  console.log(`Vault setup token ${setupTokenId} was approved!`)
+  console.group('Creating vault payment token...')
 
-    options = getOptions()
-    if (paymentSource != null) {
-      options['payment-source'] = paymentSource
-    }
-    const createResp = await fetch("/api/vault/setup-tokens", {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify(options),
-    })
-    const createData = await createResp.json()
-    const { formatted, setupTokenId, authHeader } = createData
-    setAuthHeader(authHeader)
+  const options = getOptions()
 
-    addApiCalls(formatted)
-    console.log(`Vault setup token ${setupTokenId} created!`)
-    console.groupEnd()
-    return setupTokenId
-  }
-  async function createVaultPaymentToken({ vaultSetupToken: setupTokenId } = {}) {
-    console.log(`Vault setup token ${setupTokenId} was approved!`)
-    console.group('Creating vault payment token...')
+  const createResp = await fetch(`/api/vault/setup-tokens/${setupTokenId}`, {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify(options),
+  })
+  const createData = await createResp.json()
+  const { formatted, paymentTokenId, authHeader } = createData
+  setAuthHeader(authHeader)
 
-    const createResp = await fetch(`/api/vault/setup-tokens/${setupTokenId}`, {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify(options),
-    })
-    const createData = await createResp.json()
-    const { formatted, paymentTokenId, authHeader } = createData
-    setAuthHeader(authHeader)
+  addApiCalls(formatted)
+  console.log(`Vault payment token ${paymentTokenId} created!`)
+  console.groupEnd()
+  return paymentTokenId
+}
 
-    addApiCalls(formatted)
-    console.log(`Vault payment token ${paymentTokenId} created!`)
-    console.groupEnd()
-    return paymentTokenId
-  }
-  function onError(data) {
-    console.group('Error!')
-    console.log('data:', data)
-    alert("An error with the JS SDK occurred! Check the console for more information.")
-    console.groupEnd()
-  }
-  return {
-    onClick,
-    createOrder,
-    getStatus,
-    captureOrder,
-    createVaultSetupToken,
-    createVaultPaymentToken,
-    onError,
-  }
+function onError(data) {
+  console.group('Error!')
+  console.log('data:', data)
+  alert(`An error with the JS SDK occurred: ${data}\nCheck the console for more information.`)
+  console.groupEnd()
+}
+
+export {
+  setupEventListeners,
+  buildScriptElement,
+  changeCheckout,
+  getContingencies,
+  onClick,
+  createOrder,
+  getStatus,
+  captureOrder,
+  createVaultSetupToken,
+  createVaultPaymentToken,
+  onError,
 }

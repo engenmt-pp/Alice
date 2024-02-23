@@ -2,7 +2,6 @@
 
 {% block head %}
 {{ super() }}
-<script src="{{ url_for('static', filename='checkout-hf-v2.js') }}"></script>
 <link
   rel="stylesheet"
   type="text/css"
@@ -36,18 +35,28 @@
 {% endblock other_options %}
 
 {% block checkout_div %}
-<script>
-  window.addEventListener('load', async function() {
+<script type="module">
+  import {
+    setOptions,
+    getOptions,
+    loadOptions,
+    saveOptionsAndReloadPage
+  } from "{{ url_for('static', filename='utils.js') }}";
+  import {
+    setupEventListeners,
+    buildScriptElement
+  } from "{{ url_for('static', filename='checkout.js') }}";
+  import loadHostedFieldsV2 from "{{ url_for('static', filename='checkout-hf-v2.js') }}";
+  import buyerNotPresentCheckout from "{{ url_for('static', filename='checkout-buyer-not-present.js') }}";
+  window.addEventListener('load', async function () {
     const options = loadOptions()
     window.sessionStorage.clear()
     setOptions(options)
 
-    const loadCheckout = hostedFieldsV2Closure()
-    buildScriptElement(loadCheckout, 'hosted-fields-v2')
-    addOnChange(saveOptionsAndReloadPage)
+    buildScriptElement(loadHostedFieldsV2, 'hosted-fields-v2')
+    setupEventListeners(saveOptionsAndReloadPage)
 
-    const BNPCheckout = buyerNotPresentCheckout()
-    document.getElementById('buyer-not-present-checkout').onclick = BNPCheckout
+    document.getElementById('buyer-not-present-checkout').addEventListener('click', buyerNotPresentCheckout)
   })
 </script>
 <div id="checkout-hf-v2">

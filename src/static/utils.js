@@ -1,3 +1,4 @@
+
 function saveOptions() {
   const formData = new FormData(document.getElementById('options-form'))
   for (const pair of formData.entries()) {
@@ -30,50 +31,17 @@ function setOptions(options) {
   }
 }
 
-function getAuthHeader() {
-  const elementAuthHeader = document.getElementById('auth-header')
-  if (elementAuthHeader == null) {
-    return elementAuthHeader
-  }
-  return elementAuthHeader.value
-}
 function setAuthHeader(authHeader) {
   document.getElementById('auth-header').value = authHeader
 }
 
 function getPartnerMerchantInfo() {
+  const ids = ['auth-header', 'partner-id', 'partner-client-id', 'partner-secret', 'partner-bn-code', 'merchant-id']
   const info = {}
-
-  const authHeader = getAuthHeader()
-  if (authHeader != null) {
-    info['auth-header'] = authHeader
-  }
-
-  const partnerId = document.getElementById('partner-id')
-  if (partnerId != null) {
-    info['partner-id'] = partnerId.value
-  }
-
-  const partnerClientId = document.getElementById('partner-client-id')
-  if (partnerClientId != null) {
-    info['partner-client-id'] = partnerClientId.value
-  }
-
-  const partnerSecret = document.getElementById('partner-secret')
-  if (partnerSecret != null) {
-    info['partner-secret'] = partnerSecret.value
-  }
-
-  const BNCode = document.getElementById('partner-bn-code')
-  if (BNCode != null) {
-    info['partner-bn-code'] = BNCode.value
-  }
-
-  const merchantId = document.getElementById('merchant-id')
-  if (merchantId != null) {
-    info['merchant-id'] = merchantId.value
-  }
-
+  ids.forEach((id) => {
+    const value = document.getElementById(id)?.value
+    if (value) info[id] = value
+  })
   return info
 }
 
@@ -161,7 +129,6 @@ function createApiCallDownloadButton(baseId, curl) {
   button.onclick = function () {
     const elt = document.createElement('a')
     const href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(curl)
-    console.log('href:', href)
     elt.setAttribute('href', href)
     elt.setAttribute('download', fileName)
     elt.click()
@@ -214,41 +181,47 @@ function downloadAll() {
   document.querySelectorAll('#div-api-calls button').forEach((button) => { button.click() })
 }
 
-function editPartnerInfo() {
-  const fieldset = document.getElementById('partner-merchant-credentials')
-  fieldset.querySelectorAll(':disabled').forEach((disabledInput) => {
-    disabledInput.disabled = false
+function setupCredentials() {
+  document.querySelectorAll('#partner-merchant-credentials > input').forEach((elt) => {
+    elt.addEventListener('change', () => { setAuthHeader('') })
   })
-  fieldset.querySelector('input').focus()
+  document.getElementById('button-edit-partner').onclick = allowCredentialEditing
 
-  const button = document.getElementById('button-edit-partner')
-  button.onclick = resetPartnerInfo
-  button.innerHTML = 'Reset'
+  document.getElementById('download-all')?.addEventListener('click', downloadAll)
 }
 
-function resetPartnerInfo() {
+function resetCredentials() {
   setAuthHeader('')
-  const fieldset = document.getElementById('partner-merchant-credentials')
-  fieldset.querySelectorAll('input').forEach((elt) => {
+  const credentials = document.getElementById('partner-merchant-credentials')
+  credentials.querySelectorAll('input').forEach((elt) => {
     elt.value = elt.defaultValue
     elt.dispatchEvent(new Event('change'))
   })
-
 }
 
-function addOnChangeSimple() {
-  const ids = [
-    'partner-id',
-    'partner-client-id',
-    'partner-secret',
-    'merchant-id',
-  ]
-  for (const id of ids) {
-    const elt = document.getElementById(id)
-    if (elt != null) {
-      elt.onchange = function () {
-        setAuthHeader('')
-      }
-    }
-  }
+function allowCredentialEditing() {
+  const credentials = document.getElementById('partner-merchant-credentials')
+  credentials.querySelectorAll('input:disabled').forEach((input) => {
+    input.disabled = false
+  })
+  credentials.querySelector('input').focus()
+
+  const button = credentials.getElementById('button-edit-partner')
+  button.onclick = resetCredentials
+  button.innerHTML = 'Reset'
+}
+
+export {
+  saveOptions,
+  setOptions,
+  getOptions,
+  loadOptions,
+  setAuthHeader,
+  getPartnerMerchantInfo,
+  saveOptionsAndReloadPage,
+  activate,
+  deactivate,
+  changeTopLevelNav,
+  addApiCalls,
+  setupCredentials,
 }

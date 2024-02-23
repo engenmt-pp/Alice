@@ -534,8 +534,8 @@ class Order:
         }
         return return_val
 
-    def get_status(self):
-        """Retrieve the order status using the GET /v2/checkout/orders/{order_id} endpoint.
+    def get_details(self):
+        """Retrieve the order details using the GET /v2/checkout/orders/{order_id} endpoint.
 
         Docs: https://developer.paypal.com/docs/api/orders/v2/#orders_get
         """
@@ -551,7 +551,7 @@ class Order:
         endpoint = build_endpoint(f"/v2/checkout/orders/{self.order_id}")
 
         response = requests.get(endpoint, headers=headers)
-        self.formatted["order-status"] = format_request_and_response(response)
+        self.formatted["order-details"] = format_request_and_response(response)
 
         return_val = {
             "formatted": self.formatted,
@@ -603,10 +603,10 @@ def capture_order(order_id):
 
 
 @bp.route("/<order_id>", methods=("POST",))
-def get_order_status(order_id):
+def get_order_details(order_id):
     """Retrieve the status of the order with the given ID.
 
-    Wrapper for Order.get_status.
+    Wrapper for Order.get_details.
     """
     data = request.get_json()
     data["order-id"] = order_id
@@ -616,7 +616,7 @@ def get_order_status(order_id):
     )
 
     order = Order(**data)
-    resp = order.get_status()
+    resp = order.get_details()
 
     return jsonify(resp)
 

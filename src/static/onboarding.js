@@ -1,6 +1,11 @@
+import {
+  addApiCalls,
+  getOptions,
+  setAuthHeader
+} from './utils.js'
+
 function populateReferralLink(actionUrl) {
-  const id = 'partner-referral'
-  const anchor = document.getElementById(id)
+  const anchor = document.getElementById('partner-referral')
   anchor.href = `${actionUrl}&displayMode=minibrowser`
 
 
@@ -35,9 +40,14 @@ async function createReferral() {
 
   if (actionUrl == null) {
     console.error('No actionUrl found:', createData)
-    addApiCalls(formatted, click = true)
+    addApiCalls(formatted)
   } else {
-    addApiCalls(formatted, click = false)
+    addApiCalls(formatted, false)
     populateReferralLink(actionUrl)
   }
+}
+
+
+export {
+  createReferral as default
 }

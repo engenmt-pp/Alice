@@ -2,8 +2,8 @@
 
 {% block head %}
 {{ super() }}
-<script src="{{ url_for('static', filename='checkout-branded.js') }}"></script>
-<script src="{{ url_for('static', filename='checkout-hf-v1.js') }}"></script>
+<!-- <script src="{{ url_for('static', filename='checkout-branded.js') }}"></script> -->
+<!-- <script src="{{ url_for('static', filename='checkout-hf-v1.js') }}"></script> -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cards.css') }}"/>
 {% endblock head %}
 
@@ -32,22 +32,29 @@
 {{ super() }}
 {% endblock other_options %}
 
+{% block vault_options %}
+{% endblock vault_options %}
 
 {% block checkout_div %}
-<script>
-  window.addEventListener('load', async function() {
+<script type="module">
+  import {
+    setOptions,
+    getOptions,
+    loadOptions,
+    saveOptionsAndReloadPage
+  } from "{{ url_for('static', filename='utils.js') }}";
+  import {
+    setupEventListeners,
+    buildScriptElement
+  } from "{{ url_for('static', filename='checkout.js') }}";
+  import loadHostedFields from "{{ url_for('static', filename='checkout-hf-v1.js') }}";
+  window.addEventListener('load', async function () {
     const options = loadOptions()
     window.sessionStorage.clear()
     setOptions(options)
 
-    document.getElementById('vault-options').hidden = true
-
-    const loadCheckout = hostedFieldsV1Closure()
-    buildScriptElement(loadCheckout, 'hosted-fields-v1')
-    addOnChange(saveOptionsAndReloadPage)
-
-    const BNPCheckout = buyerNotPresentCheckout()
-    document.getElementById('buyer-not-present-checkout').onclick = BNPCheckout
+    buildScriptElement(loadHostedFields, 'hosted-fields-v1')
+    setupEventListeners(saveOptionsAndReloadPage)
   })
 </script>
 <div id="checkout-hf-v1">
