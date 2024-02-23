@@ -44,7 +44,7 @@
     saveOptionsAndReloadPage
   } from "{{ url_for('static', filename='utils.js') }}";
   import {
-    addOnChange,
+    setupEventListeners,
     buildScriptElement
   } from "{{ url_for('static', filename='checkout.js') }}";
   import loadHostedFields from "{{ url_for('static', filename='checkout-hf-v1.js') }}";
@@ -54,7 +54,7 @@
     setOptions(options)
 
     buildScriptElement(loadHostedFields, 'hosted-fields-v1')
-    addOnChange(saveOptionsAndReloadPage)
+    setupEventListeners(saveOptionsAndReloadPage)
   })
 </script>
 <div id="checkout-hf-v1">

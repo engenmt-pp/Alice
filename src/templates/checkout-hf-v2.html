@@ -43,7 +43,7 @@
     saveOptionsAndReloadPage
   } from "{{ url_for('static', filename='utils.js') }}";
   import {
-    addOnChange,
+    setupEventListeners,
     buildScriptElement
   } from "{{ url_for('static', filename='checkout.js') }}";
   import loadHostedFieldsV2 from "{{ url_for('static', filename='checkout-hf-v2.js') }}";
@@ -54,7 +54,7 @@
     setOptions(options)
 
     buildScriptElement(loadHostedFieldsV2, 'hosted-fields-v2')
-    addOnChange(saveOptionsAndReloadPage)
+    setupEventListeners(saveOptionsAndReloadPage)
 
     document.getElementById('buyer-not-present-checkout').addEventListener('click', buyerNotPresentCheckout)
   })

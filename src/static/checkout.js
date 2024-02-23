@@ -151,7 +151,7 @@ function getContingencies() {
   return null
 }
 
-let addOnChange = (function () {
+let setupEventListeners = (function () {
   let myFunc
   const elementIds = [
     'intent',
@@ -172,9 +172,9 @@ let addOnChange = (function () {
     'google-pay-button-locale',
   ]
 
-  function innerAddOnChange(loadCheckout) {
+  function innerSetupEventListeners(loadCheckout) {
     console.groupCollapsed("Updating 'change' event listeners...")
-    if (myFunc != null) {
+    if (myFunc) {
       console.log("Removing previous event listener:", myFunc)
       for (const elementId of elementIds) {
         const element = document.getElementById(elementId)
@@ -193,7 +193,7 @@ let addOnChange = (function () {
     }
     console.groupEnd()
   }
-  return innerAddOnChange
+  return innerSetupEventListeners
 })()
 
 function mapPaymentSource(paymentSource) {
@@ -350,10 +350,9 @@ function onError(data) {
 }
 
 export {
-  addOnChange,
+  setupEventListeners,
   buildScriptElement,
   changeCheckout,
-  getIdToken,
   getContingencies,
   onClick,
   createOrder,

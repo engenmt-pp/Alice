@@ -22,7 +22,7 @@
     setOptions
   } from "{{ url_for('static', filename='utils.js') }}";
   import {
-    addOnChange,
+    setupEventListeners,
     buildScriptElement
   } from "{{ url_for('static', filename='checkout.js') }}";
   import loadButtons from "{{ url_for('static', filename='checkout-branded.js') }}";
@@ -33,7 +33,7 @@
     setOptions(options)
 
     buildScriptElement(loadButtons, 'branded')
-    addOnChange(() => {
+    setupEventListeners(() => {
       buildScriptElement(loadButtons, 'branded')
     })
 

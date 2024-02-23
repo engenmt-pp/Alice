@@ -91,7 +91,7 @@
     setOptions
   } from "{{ url_for('static', filename='utils.js') }}";
   import {
-    addOnChange,
+    setupEventListeners,
     buildScriptElement
   } from "{{ url_for('static', filename='checkout.js') }}";
   import loadGooglePay from "{{ url_for('static', filename='checkout-google-pay.js') }}";
@@ -102,7 +102,7 @@
     setOptions(options)
 
     buildScriptElement(loadGooglePay, 'google-pay')
-    addOnChange(saveOptionsAndReloadPage)
+    setupEventListeners(saveOptionsAndReloadPage)
   })
 </script>
 <div id="checkout-google-pay">

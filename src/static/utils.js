@@ -31,47 +31,17 @@ function setOptions(options) {
   }
 }
 
-function getAuthHeader() {
-  const authHeader = document.getElementById('auth-header')?.value
-  return authHeader
-}
 function setAuthHeader(authHeader) {
   document.getElementById('auth-header').value = authHeader
 }
 
 function getPartnerMerchantInfo() {
+  const ids = ['auth-header', 'partner-id', 'partner-client-id', 'partner-secret', 'partner-bn-code', 'merchant-id']
   const info = {}
-
-  const authHeader = getAuthHeader()
-  if (authHeader) {
-    info['auth-header'] = authHeader
-  }
-
-  const partnerId = document.getElementById('partner-id')?.value
-  if (partnerId) {
-    info['partner-id'] = partnerId
-  }
-
-  const partnerClientId = document.getElementById('partner-client-id')?.value
-  if (partnerClientId) {
-    info['partner-client-id'] = partnerClientId
-  }
-
-  const partnerSecret = document.getElementById('partner-secret')?.value
-  if (partnerSecret) {
-    info['partner-secret'] = partnerSecret
-  }
-
-  const BNCode = document.getElementById('partner-bn-code')?.value
-  if (BNCode) {
-    info['partner-bn-code'] = BNCode
-  }
-
-  const merchantId = document.getElementById('merchant-id')?.value
-  if (merchantId) {
-    info['merchant-id'] = merchantId
-  }
-
+  ids.forEach((id) => {
+    const value = document.getElementById(id)?.value
+    if (value) info[id] = value
+  })
   return info
 }
 
@@ -246,7 +216,6 @@ export {
   setOptions,
   getOptions,
   loadOptions,
-  getAuthHeader,
   setAuthHeader,
   getPartnerMerchantInfo,
   saveOptionsAndReloadPage,
