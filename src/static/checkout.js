@@ -73,7 +73,7 @@ async function buildScriptElement(onload, checkoutMethod) {
   const url = new URL('https://www.paypal.com/sdk/js')
 
   const query = url.searchParams
-  query.set("debug", false)
+  query.set("debug", true)
   query.set("client-id", options['partner-client-id'])
   query.set("merchant-id", options['merchant-id'])
 
