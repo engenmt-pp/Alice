@@ -30,85 +30,80 @@ function addProxyReferral() {
   div.prepend(proxyAnchor)
 }
 
-function onboardingClosure() {
-  let sellerNonce
-  async function createReferral() {
-    const options = getOptions()
-    const response = await fetch('/api/partner/referrals', {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify(options)
-    })
-    const createData = await response.json()
-    const { formatted, actionUrl, authHeader } = createData;
-    ({ sellerNonce } = createData)
-
-    setAuthHeader(authHeader)
-
-    if (actionUrl == null) {
-      console.error('No actionUrl found:', createData)
-      addApiCalls(formatted)
-    } else {
-      addApiCalls(formatted, false)
-      const onboardCompleteCallback_ = (
-        options.party === 'first' ? getSellerAccessToken : false
-      )
-      window.onboardCompleteCallback = onboardCompleteCallback_
-      populateReferralLink(actionUrl, 'onboardCompleteCallback')
-    }
-  }
-
-  async function getSellerAccessToken(authCode, sharedId) {
-    const response = await fetch('/api/identity/seller-access-token', {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify({
-        'auth-code': authCode,
-        'shared-id': sharedId,
-        'seller-nonce': sellerNonce
-      })
-    })
-    const { formatted, access_token: accessToken } = await response.json()
-    addApiCalls(formatted)
-    // alert(`Onboarding complete!\nauthCode: ${authCode}\nsharedId: ${sharedId}`)
-
-    getSellerCredentials(accessToken)
-  }
-
-  async function getSellerCredentials(accessToken) {
-    const partnerId = document.getElementById('partner-id').value
-
-    const response = await fetch('/api/identity/seller-credentials', {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify({
-        'partner-id': partnerId,
-        'access-token': accessToken,
-      })
-    })
-    const { formatted } = await response.json()
-    addApiCalls(formatted)
-  }
-
-  return createReferral
-}
-
-async function createFirstPartyURL() {
-  const endpoint = "https://www.paypal.com/bizsignup/partner/entry"
-  const url = new URL(endpoint)
-  const query = url.searchParams
+let sellerNonce
+async function createReferral() {
   const options = getOptions()
-  query.set('partnerId', partnerId)
-  let partnerId = ""
-  let product = "EXPRESS_CHECKOUT"
-  let integrationType = "FO"
-  let partnerClientId = ""
-  // let returnToPartnerUrl = "google.com"
-  // let partnerLogoUrl = ""
-  let displayMode = "minibrowser"
-  let sellerNonce = "1234567890123456789012345678901234567890"
-  let features = ["PAYMENT", "REFUND"]
+  const response = await fetch('/api/partner/referrals', {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify(options)
+  })
+  const createData = await response.json()
+  const { formatted, actionUrl, authHeader } = createData;
+  ({ sellerNonce } = createData)
+  setAuthHeader(authHeader)
+
+  if (actionUrl) {
+    addApiCalls(formatted, false)
+    const onboardCompleteCallback_ = (
+      options.party === 'first' ? getSellerAccessToken : false
+    )
+    window.onboardCompleteCallback = onboardCompleteCallback_
+    populateReferralLink(actionUrl, 'onboardCompleteCallback')
+  } else {
+    console.error('No actionUrl found:', createData)
+    addApiCalls(formatted)
+  }
 }
+
+async function getSellerAccessToken(authCode, sharedId) {
+  const response = await fetch('/api/identity/seller-access-token', {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify({
+      'auth-code': authCode,
+      'shared-id': sharedId,
+      'seller-nonce': sellerNonce
+    })
+  })
+  const { formatted, access_token: accessToken } = await response.json()
+  addApiCalls(formatted)
+  // alert(`Onboarding complete!\nauthCode: ${authCode}\nsharedId: ${sharedId}`)
+
+  getSellerCredentials(accessToken)
+}
+
+async function getSellerCredentials(accessToken) {
+  const partnerId = document.getElementById('partner-id').value
+
+  const response = await fetch('/api/identity/seller-credentials', {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify({
+      'partner-id': partnerId,
+      'access-token': accessToken,
+    })
+  })
+  const { formatted } = await response.json()
+  addApiCalls(formatted)
+}
+
+// async function createFirstPartyURL() {
+//   const endpoint = "https://www.paypal.com/bizsignup/partner/entry"
+//   const url = new URL(endpoint)
+//   const query = url.searchParams
+//   const options = getOptions()
+//   query.set('partnerId', partnerId)
+//   let partnerId = ""
+//   let product = "EXPRESS_CHECKOUT"
+//   let integrationType = "FO"
+//   let partnerClientId = ""
+//   // let returnToPartnerUrl = "google.com"
+//   // let partnerLogoUrl = ""
+//   let displayMode = "minibrowser"
+//   let sellerNonce = "1234567890123456789012345678901234567890"
+//   let features = ["PAYMENT", "REFUND"]
+// }
 
 export {
   createReferral as default
