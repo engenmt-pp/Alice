@@ -32,6 +32,8 @@ function addProxyReferral() {
 
 let sellerNonce
 async function createReferral() {
+  console.group("Creating the partner referral...")
+
   const options = getOptions()
   const response = await fetch('/api/partner/referrals', {
     headers: { 'Content-Type': 'application/json' },
@@ -42,8 +44,10 @@ async function createReferral() {
   const { formatted, actionUrl, authHeader } = createData;
   ({ sellerNonce } = createData)
   setAuthHeader(authHeader)
+  console.log("Done!")
 
   if (actionUrl) {
+    console.log("Action URL received:", actionUrl)
     addApiCalls(formatted, false)
     const onboardCompleteCallback_ = (
       options.party === 'first' ? getSellerAccessToken : false
@@ -54,9 +58,14 @@ async function createReferral() {
     console.error('No actionUrl found:', createData)
     addApiCalls(formatted)
   }
+  console.groupEnd()
 }
 
 async function getSellerAccessToken(authCode, sharedId) {
+  console.group("Onboarding complete! This is the callback.")
+  console.log("authCode:", authCode)
+  console.log("sharedId:", sharedId)
+  console.log("Fetching a seller access token...")
   const response = await fetch('/api/identity/seller-access-token', {
     headers: { 'Content-Type': 'application/json' },
     method: 'POST',
@@ -68,14 +77,16 @@ async function getSellerAccessToken(authCode, sharedId) {
   })
   const { formatted, access_token: accessToken } = await response.json()
   addApiCalls(formatted)
-  // alert(`Onboarding complete!\nauthCode: ${authCode}\nsharedId: ${sharedId}`)
+  console.log("Done! access_token:", accessToken)
 
   getSellerCredentials(accessToken)
+  console.groupEnd()
 }
 
 async function getSellerCredentials(accessToken) {
-  const partnerId = document.getElementById('partner-id').value
+  console.group("Using the seller access token to request the seller's credentials...")
 
+  const partnerId = document.getElementById('partner-id').value
   const response = await fetch('/api/identity/seller-credentials', {
     headers: { 'Content-Type': 'application/json' },
     method: 'POST',
@@ -86,6 +97,8 @@ async function getSellerCredentials(accessToken) {
   })
   const { formatted } = await response.json()
   addApiCalls(formatted)
+  console.log("Done!")
+  console.groupEnd()
 }
 
 // async function createFirstPartyURL() {
