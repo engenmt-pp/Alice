@@ -58,6 +58,7 @@ class Referral:
         self.client_id = kwargs.get("partner-client-id")
         self.secret = kwargs.get("partner-secret")
         self.bn_code = kwargs.get("partner-bn-code")
+        self.merchant_id = kwargs.get("merchant-id")
 
         if self.client_id == current_app.config["PARTNER_CLIENT_ID"]:
             self.secret = current_app.config["PARTNER_SECRET"]
@@ -340,6 +341,8 @@ def get_seller_status(merchant_id):
     data = request.get_json()
     if merchant_id:
         data["merchant-id"] = merchant_id
+    else:
+        current_app.logger.debug(f"No merchant ID provided: {merchant_id}")
 
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(
