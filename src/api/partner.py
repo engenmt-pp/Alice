@@ -34,6 +34,7 @@ class Referral:
 
         self.partner_logo_url = kwargs.get("partner-logo-url")
         self.partner_return_url = kwargs.get("partner-return-url")
+        self.action_renewal_url = kwargs.get("partner-action-renewal-url")
 
         self.include_legal_consents = kwargs.get("include-legal-consents")
 
@@ -104,6 +105,9 @@ class Referral:
                 "return_url": self.partner_return_url,
                 "return_url_description": "A description of the return URL",
             }
+
+        if self.action_renewal_url:
+            partner_config_override["action_renewal_url"] = self.action_renewal_url
 
         return partner_config_override
 
