@@ -50,7 +50,10 @@
   import buyerNotPresentCheckout from "{{ url_for('static', filename='checkout-buyer-not-present.js') }}";
   window.addEventListener('load', async function () {
     const options = loadOptions()
+    console.log(window.sessionStorage)
+    console.log('before options', options)
     window.sessionStorage.clear()
+    console.log('after options', options)
     setOptions(options)
 
     buildScriptElement(loadHostedFieldsV2, 'hosted-fields-v2')

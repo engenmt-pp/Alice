@@ -49,10 +49,8 @@ function getPartnerMerchantInfo() {
 }
 
 function saveOptionsAndReloadPage() {
-  console.log('saving')
   saveOptions()
   console.log(JSON.stringify(window.sessionStorage, null, 2))
-  console.log('and reloading')
   location.reload()
 }
 
