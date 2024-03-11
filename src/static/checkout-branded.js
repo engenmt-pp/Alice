@@ -30,15 +30,24 @@ function getStyle() {
     return {}
 }
 
+function getVaultFlow() {
+    return document.getElementById('vault-flow')?.value
+}
+
 let buttons
 async function loadButtons() {
-    if (buttons != null) await buttons.close()
+    if (buttons) await buttons.close()
     const style = getStyle()
     const methods = getMethods()
-    buttons = await paypal.Buttons({
+    const config = {
         style,
         ...methods
-    })
+    }
+    const vaultFlow = getVaultFlow()
+    if (vaultFlow === 'first-time-buyer') {
+        config.displayOnly = ['vaultable']
+    }
+    buttons = await paypal.Buttons(config)
     return buttons
         .render("#paypal-button-container")
         .catch((err) => {

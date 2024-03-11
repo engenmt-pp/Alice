@@ -1,4 +1,3 @@
-
 function saveOptions() {
   const formData = new FormData(document.getElementById('options-form'))
   for (const pair of formData.entries()) {
@@ -25,8 +24,12 @@ function getOptions() {
 function setOptions(options) {
   for (const [key, value] of Object.entries(options)) {
     const element = document.getElementById(key)
-    if (element != null) {
-      element.value = value
+    if (element) {
+      if (element.getAttribute('type') === 'checkbox' && value) {
+        element.checked = true
+      } else {
+        element.value = value
+      }
     }
   }
 }
@@ -46,8 +49,10 @@ function getPartnerMerchantInfo() {
 }
 
 function saveOptionsAndReloadPage() {
+  console.log('saving')
   saveOptions()
   console.log(JSON.stringify(window.sessionStorage, null, 2))
+  console.log('and reloading')
   location.reload()
 }
 
