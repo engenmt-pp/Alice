@@ -25,7 +25,7 @@ function setOptions(options) {
   for (const [key, value] of Object.entries(options)) {
     const element = document.getElementById(key)
     if (element) {
-      if (element.getAttribute('type') === 'checkbox' && value) {
+      if (element.getAttribute('type') === 'checkbox') {
         element.checked = true
       } else {
         element.value = value
