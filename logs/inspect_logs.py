@@ -206,7 +206,20 @@ def load_logs(con, log_file):
 
     logs_as_dicts = []
     for log in logs:
-        log = json.loads(log)
+        try:
+            log = json.loads(log)
+        except Exception as exc:
+            # print(log)
+            continue
+
+        if log["status"] == "404":
+            continue
+        if (
+            log["user_agent"]
+            == "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)"
+        ):
+            continue
+
         log["referer"] = log["referer"].removeprefix(
             "http://partnertools.dev51-test-apps-gpstam.dev51.cbf.dev.paypalinc.com:8000"
         )
