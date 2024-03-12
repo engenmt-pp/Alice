@@ -31,10 +31,8 @@
       To request features or support, go to
       <a target="_blank" rel="noopener noreferrer" href="https://paypal.slack.com/archives/C04TWRUMG5Q">#help-alice</a>.
     </header>
-    {% block main %}
     <main>
-      <div class="col-4">
-        {% block nav %}
+      <div class="col-1">
         <h1>
           {{ favicon }} Alice - A PPCP Testing Tool
         </h1>
@@ -57,13 +55,10 @@
             </li>
           </ul>
         </nav>
-        {% endblock nav %}
-        {% block options_form %}
         <form id="options-form">
           <input name="auth-header" id="auth-header" autocomplete="off" style="display: none;"/>
           {% block preamble_options %}
           {% endblock preamble_options %}
-          {% block creds %}
           <fieldset id="partner-merchant-credentials">
             <details open>
               <summary>
@@ -108,18 +103,15 @@
               {% endblock merchant_id %}
             </details>
           </fieldset>
-          {% endblock creds %}
 
           {% block other_options %}
           {% endblock other_options %}
         </form>
-        {% endblock options_form %}
       </div>
-      <div id="right-col" class="col-8">
+      <div id="right-col" class="col-2">
         {% block right_col %}
         {% endblock right_col %}
       </div>
     </main>
-    {% endblock main %}
   </body>
 </html>
