@@ -90,73 +90,58 @@ body {
     min-height: 100vh;
     background-color: var(--white);
     color: var(--light-text-1);
-}
-@media (prefers-color-scheme: dark) {
-    body {
+
+    & > header {
+        background-color: var(--blue-v);
+        text-align: center;
+        color: var(--white);
+
+        a {
+            color: var(--white) !important;
+        }
+    }
+
+    & > main {
+        max-width: 135ch;
+        margin-left: auto;
+        margin-right: auto;
+        height: 100%;
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.5rem;
+
+        .col-1 {
+            grid-column: span 1 / span 1;
+        }
+        .col-2 {
+            grid-column: span 2 / span 2;
+        }
+    }
+    @media (prefers-color-scheme: dark) {
         background-color: var(--dark-bg-0);
         color: var(--dark-text-1);
     }
 }
 
-body > header {
-    background-color: var(--blue-v);
-    text-align: center;
-    color: var(--white);
-}
-body > header a {
-    color: var(--white) !important;
-}
 
 h1 {
     font-size: 1.5rem;
     font-weight: 500;
     line-height: 1.75rem;
-    /* text-decoration: underline; */
     margin-top: 0;
 }
 
+nav {
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin-left: 0.5em;
+    }
 
-body > main {
-    max-width: 135ch;
-    margin-left: auto;
-    margin-right: auto;
-    height: 100%;
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 0.5rem;
-}
-
-.col-3 {
-    grid-column: span 3 / span 3;
-}
-.col-4 {
-    grid-column: span 4 / span 4;
-}
-.col-5 {
-    grid-column: span 5 / span 5;
-}
-.col-6 {
-    grid-column: span 6 / span 6;
-}
-.col-7 {
-    grid-column: span 7 / span 7;
-}
-.col-8 {
-    grid-column: span 8 / span 8;
-}
-.col-9 {
-    grid-column: span 9 / span 9;
-}
-
-nav ul {
-    list-style-type: none;
-    padding: 0;
-    margin-left: 0.5em;
-}
-
-nav li:not(:first-child) {
-    margin-top: 0.25rem;
+    li:not(:first-child) {
+        margin-top: 0.25rem;
+    }
 }
 
 a {
@@ -172,119 +157,127 @@ a {
 form {
     width: 100%;
 }
-details summary {
-    cursor: pointer;
-}
-details summary > span {
-    display: inline-block;
+
+details {
+    summary {
+        cursor: pointer;
+        > span {
+            display: inline-block;
+        }
+    }
+    &[open] summary {
+        margin-bottom: 10px;
+    }
+    &:not([open]) button {
+        display: none;
+    }
+    button {
+        float: right;
+    }
 }
 
-details[open] summary {
-    margin-bottom: 10px;
-}
-details:not([open]) button {
-    display: none;
-}
-details button {
-    float: right;
-}
-form legend {
-    font-weight: 600;
-}
-
-form label {
-    font-weight: 500;
-    flex: 1 1 9ch;
-    margin-right: auto;
-    min-width: max-content;
+details > div,
+fieldset > div {
+    margin: 0 0 6px 8px;
 }
 
 
+form {
+    legend {
+        font-weight: 600;
+    }
 
-form > fieldset {
-    margin-bottom: 0.5rem;
+    label {
+        font-weight: 500;
+        flex: 1 1 9ch;
+        margin-right: auto;
+        min-width: max-content;
+    }
+
+    & > fieldset {
+        margin-bottom: 0.5rem;
+    }
+
+    div {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px 6px;
+
+        &:has(> ul) {
+            align-items: flex-start;
+        }
+    }
 }
+
 fieldset {
     width: 100%;
     border: 0;
     padding: 0;
     font-weight: 500;
     margin: 0;
-}
-fieldset div {
-    display: flex;
-    justify-content: space-between;
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 4px 6px;
-}
-details > div,
-fieldset > div {
-    margin: 0 0 6px 8px;
+
+    div > div,
+    div > ul,
+    select,
+    input {
+        flex: 1 1 50%;
+        min-width: 35%;
+    }
+
+    div {
+        &> ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        ul > li > label {
+            vertical-align: top;
+            font-weight: 400;
+        }
+    }
+
+    input,
+    select {
+        font-size: 0.875rem;
+        line-height: 1.25em;
+        padding: 2px 4px;
+        border-radius: 4px;
+        border: solid 1px;
+        background-color: var(--light-bg-2);
+        border-color: var(--light-bg-4);
+        color: var(--light-text-5);
+
+        @media (prefers-color-scheme: dark) {
+            background-color: var(--dark-bg-5);
+            border-color: var(--dark-bg-7);
+            color: var(--dark-text-5);
+        }
+    }
 }
 
-div:has(> ul) {
-    align-items: flex-start;
-}
-
-fieldset div > div,
-fieldset div > ul,
-fieldset select,
-fieldset input {
-    flex: 1 1 50%;
-    min-width: 35%;
-}
-fieldset input[type=checkbox] {
-    flex: 0 1 1rem;
-    min-width: max-content;
-    vertical-align: text-bottom;
-    margin-top: 0.25rem;
-    margin-bottom: 0.25rem;
-    margin-left: auto;
-    margin-right: 0.25rem;
-}
-
-fieldset div > ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-fieldset div ul > li > label {
-    vertical-align: top;
-    font-weight: 400;
-}
-li input[type=checkbox] {
-    margin: 0.125rem;
-}
 input[type=checkbox] {
     min-width: 1rem;
     width: 1rem;
     min-height: 1rem;
     height: 1rem;
-}
-
-
-
-fieldset input,
-fieldset select {
-    font-size: 0.875rem;
-    line-height: 1.25em;
-    padding: 2px 4px;
-    border-radius: 4px;
-    border: solid 1px;
-    background-color: var(--light-bg-2);
-    border-color: var(--light-bg-4);
-    color: var(--light-text-5);
-}
-@media (prefers-color-scheme: dark) {
-    fieldset input,
-    fieldset select {
-        background-color: var(--dark-bg-5);
-        border-color: var(--dark-bg-7);
-        color: var(--dark-text-5);
+    li & {
+        margin: 0.125rem;
+    }
+    fieldset & {
+        flex: 0 1 1rem;
+        min-width: max-content;
+        vertical-align: text-bottom;
+        margin-top: 0.25rem;
+        margin-bottom: 0.25rem;
+        margin-left: auto;
+        margin-right: 0.25rem;
     }
 }
+
 
 #fieldset-checkout-method {
     font-size: 1rem;
