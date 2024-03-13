@@ -124,8 +124,8 @@ function createApiCallDownloadButton(baseId, curl) {
   const button = document.createElement('button')
   button.innerHTML = 'Download for Postman'
   button.style.display = 'block'
-  button.classList.add('action')
   button.classList.add('postman')
+  button.setAttribute('data-method', '')
   button.setAttribute('type', 'button')
 
   const fileName = `${baseId}.txt`

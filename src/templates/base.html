@@ -67,38 +67,38 @@
                     Partner/merchant info
                   </legend>
                 </span>
-                <button id='button-edit-partner' type="button" class="monospaced action">Edit</button>
+                <button id='button-edit-partner' type="button" data-method>Edit</button>
               </summary>
               <div>
                 <label for="partner-id">
                   Partner ID
                 </label>
-                <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced" disabled/>
+                <input name="partner-id" id="partner-id" value="{{ partner_id }}" disabled/>
               </div>
               <div>
                 <label for="partner-client-id">
                   Client ID
                 </label>
-                <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced" disabled/>
+                <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" disabled/>
               </div>
               <div>
                 <label for="partner-secret">
                   Secret
                 </label>
-                <input name="partner-secret" id="partner-secret" value="SecretValue" class="monospaced" disabled/>
+                <input name="partner-secret" id="partner-secret" value="SecretValue" disabled/>
               </div>
               <div>
                 <label for="partner-bn-code">
                   BN Code
                 </label>
-                <input name="partner-bn-code" id="partner-bn-code" value="{{ partner_bn_code }}" class="monospaced" disabled/>
+                <input name="partner-bn-code" id="partner-bn-code" value="{{ partner_bn_code }}" disabled/>
               </div>
               {% block merchant_id %}
               <div>
                 <label for="merchant-id">
                   Merchant ID
                 </label>
-                <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced" disabled/>
+                <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" disabled/>
               </div>
               {% endblock merchant_id %}
             </details>
