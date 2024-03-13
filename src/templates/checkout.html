@@ -3,6 +3,8 @@
 {% block head %}
 {{ super() }}
 
+<script src="{{ url_for('static', filename='tabs.js') }}">
+</script>
 <script type="module">
   import { changeCheckout } from "{{ url_for('static', filename='checkout.js') }}";
   document.getElementById('checkout-method').addEventListener('change', changeCheckout)
@@ -180,21 +182,23 @@
 {% endblock other_options %}
 
 {% block right_col %}
-<nav id='top-level-nav' role="tabset">
-  <input autocomplete="off" type=radio id="input-checkout" name="nav-tabs" checked/>
-  <label for="input-checkout">Checkout</label>
+<the-tabs>
+  <div role='tablist'>
+    <button role='tab' aria-selected='true'>Checkout</button>
+    <button role='tab' id="tab-api-calls">API Calls</button>
 
-  <input autocomplete="off" type=radio id="input-api-calls" name="nav-tabs"/>
-  <label for="input-api-calls">API Calls</label>
-
-  <button type="button" id="download-all" data-method class="postman">Download all for Postman</button>
-</nav>
-<div id="div-checkout" class="active">
-  <script id="paypal-js-sdk"></script>
-  {% block checkout_div %}
-  {% endblock checkout_div %}
-</div>
-<div id="div-api-calls" class="inactive">
-  <nav role="tabset"></nav>
-</div>
+    <button type="button" id="download-all" data-method class="postman">Download all for Postman</button>
+  </div>
+  <div role='tabpanel' data-page="checkout">
+    <script id="paypal-js-sdk"></script>
+    {% block checkout_div %}
+    {% endblock checkout_div %}
+  </div>
+  <div role='tabpanel' hidden>
+    <the-tabs>
+      <div role='tablist'>
+      </div>
+    </the-tabs>
+  </div>
+</the-tabs>
 {% endblock right_col %}

@@ -22,7 +22,7 @@ function addProxyReferral() {
   proxyAnchor.className = 'proxy'
   proxyAnchor.innerHTML = 'Begin onboarding'
 
-  const div = document.getElementById('div-onboarding')
+  const div = document.querySelector('[data-page=onboarding]')
   div.prepend(proxyAnchor)
 }
 
