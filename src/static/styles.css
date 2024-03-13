@@ -142,20 +142,71 @@ nav {
     li:not(:first-child) {
         margin-top: 0.25rem;
     }
-}
 
-a {
-    color: var(--blue-600) !important;
-    font-weight: 600;
-}
-@media (prefers-color-scheme: dark) {
-    a {
-        color: var(--blue-400) !important;
+    & > ol {
+        padding: 0;
+        border-bottom: 1px solid;
+        margin: 0 0 10px;
+        list-style: none;
+    }
+    label {
+        display: inline-block;
+        flex: none;
+        padding: 1rem;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+
+    &[role=tabset] {
+        gap: 4px;
+        width: 100%;
+        flex-wrap: wrap;
+        border-bottom: 1pt solid;
+        margin-bottom: 8px;
+        align-items: flex-end;
+    }
+
+    input {
+        display: none;
+        & + label {
+            cursor: pointer;
+            background-color: var(--light-bg-2);
+            @media (prefers-color-scheme: dark) {
+                background-color: var(--dark-bg-2);
+        }
+        }
+
+        &:hover + label {
+            color: var(--light-text-2);
+            background-color: var(--light-bg-3);
+            @media (prefers-color-scheme: dark) {
+                color: var(--dark-text-2);
+                background-color: var(--dark-bg-3);
+            }
+        }
+        &:checked + label {
+            color: var(--blue-600);
+            background-color: var(--light-bg-4);
+            @media (prefers-color-scheme: dark) {
+                color: var(--blue-400);
+                background-color: var(--dark-bg-4);
+            }
+        }
+        &:checked:hover + label {
+            background-color: var(--light-bg-5);
+            @media (prefers-color-scheme: dark) {
+                background-color: var(--dark-bg-5);
+            }
+        }
     }
 }
 
-form {
-    width: 100%;
+a {
+    font-weight: 600;
+    color: var(--blue-600) !important;
+    @media (prefers-color-scheme: dark) {
+        color: var(--blue-400) !important;
+    }
 }
 
 details {
@@ -173,6 +224,7 @@ details {
     }
     button {
         float: right;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 }
 
@@ -183,6 +235,8 @@ fieldset > div {
 
 
 form {
+    width: 100%;
+
     legend {
         font-weight: 600;
     }
@@ -243,6 +297,7 @@ fieldset {
     input,
     select {
         font-size: 0.875rem;
+        font-size: 0.875rem;
         line-height: 1.25em;
         padding: 2px 4px;
         border-radius: 4px;
@@ -255,6 +310,26 @@ fieldset {
             background-color: var(--dark-bg-5);
             border-color: var(--dark-bg-7);
             color: var(--dark-text-5);
+        }
+    }
+
+    input {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    &#fieldset-checkout-method {
+        font-size: 1rem;
+        border: 1pt solid;
+        border-radius: 4px;
+        padding: 8px;
+        div {
+            margin: 0;
+        }
+        select {
+            flex: 1 0 content;
+            min-width: max-content;
+            height: 1.5rem;
+            font-size: 1rem;
         }
     }
 }
@@ -278,36 +353,6 @@ input[type=checkbox] {
     }
 }
 
-
-#fieldset-checkout-method {
-    font-size: 1rem;
-    border: 1pt solid;
-    border-radius: 4px;
-    padding: 8px;
-}
-#fieldset-checkout-method div {
-    margin: 0;
-}
-#fieldset-checkout-method select {
-    flex: 1 0 content;
-    min-width: max-content;
-    height: 1.5rem;
-    font-size: 1rem;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 button {
     cursor: pointer;
     text-align: center;
@@ -318,77 +363,78 @@ button {
         background-color: grey;
         cursor: not-allowed;
     }
-    &[class*=action] {
+
+    &[data-method] {
+        color: var(--white);
         border-radius: 4px;
         min-width: 5ch;
         padding: 2px 4px;
         text-transform: lowercase;
         font-variant: small-caps;
     }
-}
+    &[data-method=''] {
+        color: var(--light-text-5);
+        background-color: var(--light-bg-2);
+        border-color: var(--light-bg-4);
+        @media (prefers-color-scheme: dark) {
+            color: var(--dark-text-5);
+            background-color: var(--dark-bg-5);
+            border-color: var(--dark-bg-7);
+        }
+    }
+    &[data-method=get] {
+        background-color: var(--blue-600);
+        &:focus {
+            box-shadow: 0 0 0 2px var(--blue-800);
+            @media (prefers-color-scheme: dark) {
+                box-shadow: 0 0 0 2px var(--blue-400);
+            }
+        }
+    }
+    &[data-method=post] {
+        background-color: var(--green-600);
+        &:focus {
+            box-shadow: 0 0 0 2px var(--green-800);
+            @media (prefers-color-scheme: dark) {
+                box-shadow: 0 0 0 2px var(--green-400);
+            }
+        }
+    }
 
-.action {
-    color: var(--light-text-5);
-    background-color: var(--light-bg-2);
-    border-color: var(--light-bg-4);
-}
-.action-post {
-    color: var(--white);
-    background-color: var(--green-600);
-}
-.action-get {
-    color: var(--white);
-    background-color: var(--blue-600);
-}
-.action-delete {
-    color: var(--white);
-    background-color: var(--red-600);
-}
-.action-post:focus {
-    box-shadow: 0 0 0 2px var(--green-800);
-}
-.action-get:focus {
-    box-shadow: 0 0 0 2px var(--blue-800);
-}
-.action-delete:focus {
-    box-shadow: 0 0 0 2px var(--red-800);
-}
-@media (prefers-color-scheme: dark) {
-    .action {
-        color: var(--dark-text-5);
-        background-color: var(--dark-bg-5);
-        border-color: var(--dark-bg-7);
+    &[data-method=delete] {
+        background-color: var(--red-600);
+        &:focus {
+            box-shadow: 0 0 0 2px var(--red-800);
+            @media (prefers-color-scheme: dark) {
+                box-shadow: 0 0 0 2px var(--red-400);
+            }
+        }
     }
-    .action-post:focus {
-        box-shadow: 0 0 0 2px var(--green-400);
-    }
-    .action-get:focus {
-        box-shadow: 0 0 0 2px var(--blue-400);
-    }
-    .action-delete:focus {
-        box-shadow: 0 0 0 2px var(--red-400);
-    }
-}
 
-.monospaced {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    &.postman {
+        border: 1px solid currentColor;
+        float: right;
+        margin-left: auto;
+        margin-bottom: 4px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-variant: inherit !important;
+        text-transform: inherit !important;
+
+        background-color: var(--light-bg-2);
+        color: black;
+        @media (prefers-color-scheme: dark) {
+            background-color: var(--dark-bg-2);
+            color: white;
+        }
+    }
 }
 
 main > div {
     background-color: var(--light-bg-0);
     padding: 8px;
-}
-@media (prefers-color-scheme: dark) {
-    main > div {
+    @media (prefers-color-scheme: dark) {
         background-color: var(--dark-bg-1);
     }
-}
-
-nav > ol {
-    padding: 0;
-    border-bottom: 1px solid;
-    margin: 0 0 10px;
-    list-style: none;
 }
 
 .api-response {
@@ -399,10 +445,7 @@ nav > ol {
     overflow-wrap: break-word;
     background-color: var(--light-bg-1);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-
-@media (prefers-color-scheme: dark) {
-    .api-response {
+    @media (prefers-color-scheme: dark) {
         background-color: var(--dark-bg-1);
     }
 }
@@ -419,23 +462,6 @@ nav > ol {
     max-width: 40rem;
 }
 
-.postman {
-    background-color: var(--light-bg-2);
-    color: black;
-    border: 1px solid currentColor;
-    float: right;
-    margin-left: auto;
-    margin-bottom: 4px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-variant: inherit !important;
-    text-transform: inherit !important;
-}
-@media (prefers-color-scheme: dark) {
-    .postman {
-        background-color: var(--dark-bg-2);
-        color: white;
-    }
-}
 #input-api-calls:not(:checked) ~ .postman {
     display: none;
 }
@@ -443,15 +469,6 @@ nav > ol {
 
 #div-checkout {
     margin: 12px;
-}
-
-nav[role=tabset] {
-    gap: 4px;
-    width: 100%;
-    flex-wrap: wrap;
-    border-bottom: 1pt solid;
-    margin-bottom: 8px;
-    align-items: flex-end;
 }
 
 #top-level-nav {
@@ -464,48 +481,6 @@ nav[role=tabset] {
 
 #div-api-calls > nav:empty {
     display: none;
-}
-nav input {
-    display: none;
-}
-nav input + label {
-    background-color: var(--light-bg-2);
-    cursor: pointer;
-}
-nav input:hover + label {
-    color: var(--light-text-2);
-    background-color: var(--light-bg-3);
-}
-nav input:checked + label {
-    color: var(--blue-600);
-    background-color: var(--light-bg-4);
-}
-nav input:checked:hover + label {
-    background-color: var(--light-bg-5);
-}
-nav label {
-    display: inline-block;
-    flex: none;
-    padding: 1rem;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
-}
-
-@media (prefers-color-scheme: dark) {
-    nav input + label {
-        background-color: var(--dark-bg-2);
-    }
-    nav input:hover + label {
-        color: var(--dark-text-2);
-        background-color: var(--dark-bg-3);
-    }
-    nav input:checked + label {
-        color: var(--blue-400);
-        background-color: var(--dark-bg-4);
-    }
-    nav input:checked:hover + label {
-        background-color: var(--dark-bg-5);
-    }
 }
 
 #div-onboarding a {

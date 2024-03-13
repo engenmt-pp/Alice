@@ -147,7 +147,7 @@
       <label for="customer-id">
         Customer ID
       </label>
-      <input name="customer-id" id="customer-id" class="monospaced"/>
+      <input name="customer-id" id="customer-id"/>
     </div>
     <div class="first-time-buyer return-buyer">
       <label for="vault-without-purchase">
@@ -159,7 +159,7 @@
       <label for="vault-id">
         Vault ID
       </label>
-      <input name="vault-id" id="vault-id" class="monospaced"/>
+      <input name="vault-id" id="vault-id"/>
     </div>
     <div class="buyer-not-present">
       <label for="vault-payment-source">
@@ -170,7 +170,7 @@
           <option value="paypal" selected>PayPal</option>
           <option value="card">Card</option>
         </select>
-        <button type="button" class="action-post" id="buyer-not-present-checkout">Pay</button>
+        <button type="button" data-method="post" id="buyer-not-present-checkout">Pay</button>
       </div>
     </div>
   </details>
@@ -187,7 +187,7 @@
   <input autocomplete="off" type=radio id="input-api-calls" name="nav-tabs"/>
   <label for="input-api-calls">API Calls</label>
 
-  <button type="button" id="download-all" class="action postman">Download all for Postman</button>
+  <button type="button" id="download-all" data-method class="postman">Download all for Postman</button>
 </nav>
 <div id="div-checkout" class="active">
   <script id="paypal-js-sdk"></script>

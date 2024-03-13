@@ -87,19 +87,19 @@
       <label for="tracking-id">
         Tracking ID
       </label>
-      <input name="tracking-id" id="tracking-id" class="monospaced"/>
+      <input name="tracking-id" id="tracking-id"/>
     </div>
     <div>
       <label for="partner-return-url">
         Return URL
       </label>
-      <input name="partner-return-url" id="partner-return-url" class="monospaced"/>
+      <input name="partner-return-url" id="partner-return-url"/>
     </div>
     <div>
       <label for="partner-action-renewal-url">
         Action Renewal URL
       </label>
-      <input name="partner-action-renewal-url" id="partner-action-renewal-url" class="monospaced"/>
+      <input name="partner-action-renewal-url" id="partner-action-renewal-url"/>
     </div>
   </details>
 </fieldset>
@@ -116,7 +116,7 @@
       <label for="email">
         Email
       </label>
-      <input name="email" id="email" class="monospaced"/>
+      <input name="email" id="email"/>
     </div>
     <div>
       <label for="country-code">
@@ -127,7 +127,7 @@
       </select>
     </div>
     <div>
-      <button type="button" id="create-referral" class="half action-post">Create Referral</button>
+      <button type="button" id="create-referral" data-method="post" class="half">Create Referral</button>
     </div>
   </details>
 </fieldset>
@@ -141,7 +141,7 @@
   <input autocomplete="off" type=radio id="input-api-calls" name="nav-tabs"/>
   <label for="input-api-calls">API Calls</label>
 
-  <button type="button" id="download-all" class="action postman">Download all for Postman</button>
+  <button type="button" id="download-all" data-method class="postman">Download all for Postman</button>
 </nav>
 <div id="div-onboarding" class="active">
   <!-- As of 2024-02-21, an error is thrown if the `href` attribute is removed from the initial tag below. -->
