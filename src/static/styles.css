@@ -212,8 +212,12 @@ a {
 details {
     summary {
         cursor: pointer;
-        > span {
+        & > span {
             display: inline-block;
+        }
+        & > button {
+            float: right;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         }
     }
     &[open] summary {
@@ -221,10 +225,6 @@ details {
     }
     &:not([open]) button {
         display: none;
-    }
-    button {
-        float: right;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 }
 
@@ -339,17 +339,13 @@ input[type=checkbox] {
     width: 1rem;
     min-height: 1rem;
     height: 1rem;
-    li & {
+    li > & {
         margin: 0.125rem;
     }
     fieldset & {
         flex: 0 1 1rem;
         min-width: max-content;
         vertical-align: text-bottom;
-        margin-top: 0.25rem;
-        margin-bottom: 0.25rem;
-        margin-left: auto;
-        margin-right: 0.25rem;
     }
 }
 
