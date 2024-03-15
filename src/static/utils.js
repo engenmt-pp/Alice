@@ -106,12 +106,12 @@ function addApiCalls(formattedCalls, click = true) {
     }
   }
   theTabs.setupEvents()
+  const lastTab = apiCallsTabList.querySelector(':last-child')
+  if (lastTab) {
+    lastTab.click()
+  }
   if (click) {
     document.getElementById('tab-api-calls').click()
-    const lastTab = apiCallsTabList.querySelector(':last-child')
-    if (lastTab) {
-      lastTab.click()
-    }
   }
 }
 
