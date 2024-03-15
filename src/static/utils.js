@@ -99,7 +99,7 @@ function addApiCalls(formattedCalls, click = true) {
       const tabPanel = createTabPanel(human)
       const downloadButton = createDownloadButton(label, curl)
       tabPanel.prepend(downloadButton)
-      apiCallsTabList.insertAdjacentElement('afterend', tabPanel) // Inserts the tabPanel immediately after the tabList
+      theTabs.append(tabPanel) // `tabPanel` is the last child of `theTabs`
 
       const tab = createTab(label)
       apiCallsTabList.append(tab)
