@@ -507,3 +507,75 @@ button {
         }
     }
 }
+
+#hf-v2-form,
+#hf-v1-form {
+    max-width: 26ch;
+    font-size: 1rem;
+
+    label {
+        display: block;
+        width: 100%;
+        padding: 1px 2px;
+        margin: 5px 0;
+    }
+
+    #pay-button {
+        background-color: var(--green-800);
+        color: var(--white);
+        margin-top: 12px;
+        padding: 4px 8px;
+        text-transform: capitalize;
+        border-radius: 4px;
+        display: block;
+    }
+}
+
+#hf-v1-form {
+    & > div,
+    input {
+        display: block;
+        height: 2rem;
+        width: 100%;
+        margin: 0.5ch 0;
+        padding: 2px 4px;
+        border: 1px solid;
+        border-radius: 0.25rem;
+    }
+    & > div {
+        background-color: var(--light-bg-1);
+    }
+    input {
+        color: var(--white);
+        background-color: var(--light-bg-1);
+        @media (prefers-color-scheme: dark) {
+            color: var(--white);
+            background-color: var(--dark-bg-0);
+        }
+    }
+}
+
+#hf-v2-form {
+    input {
+        display: block;
+        height: 2rem;
+        width: calc(100% - 12px);
+        margin: 12px 6px;
+        padding: 2px 4px;
+        border: 1px solid var(--hf-v2-border);
+        border-radius: 0.25rem;
+
+        color: black;
+        background-color: var(--white);
+        &[id^='hf-v2-billing-address'] {
+            margin: 6px;
+        }
+    }
+    div,
+    input {
+        @media (prefers-color-scheme: dark) {
+            color: var(--white);
+            background-color: var(--dark-bg-0);
+        }
+    }
+}

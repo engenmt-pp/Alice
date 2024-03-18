@@ -48,18 +48,18 @@ async function loadHostedFields() {
   })
   if (cardFields.isEligible()) {
     const nameField = cardFields.NameField()
-    await nameField.render('#hf-v2-cardholder-name')
+    await nameField.render('#cardholder-name')
 
     const numberField = cardFields.NumberField()
-    await numberField.render('#hf-v2-card-number')
+    await numberField.render('#card-number')
 
     const cvvField = cardFields.CVVField()
-    await cvvField.render('#hf-v2-cvv')
+    await cvvField.render('#cvv')
 
     const expiryField = cardFields.ExpiryField()
-    await expiryField.render('#hf-v2-expiration-date')
+    await expiryField.render('#expiration-date')
 
-    document.querySelector("#form-hf-v2-card").addEventListener('submit', (event) => {
+    document.querySelector("#hf-v2-form").addEventListener('submit', (event) => {
       event.preventDefault()
       event.stopImmediatePropagation()
       let data = {}
