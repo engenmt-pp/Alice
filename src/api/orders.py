@@ -55,16 +55,14 @@ class Order:
             True  # This is required to specify `experience_context`.
         )
 
-        self.cardholder_name = kwargs.get("hf-v2-cardholder-name")
+        self.cardholder_name = kwargs.get("cardholder-name")
         self.billing_address = {
-            "address_line_1": kwargs.get("hf-v2-billing-address-line-1"),
-            "address_line_2": kwargs.get("hf-v2-billing-address-line-2"),
-            "admin_area_1": kwargs.get("hf-v2-billing-address-admin-area-1"),
-            "admin_area_2": kwargs.get("hf-v2-billing-address-admin-area-2"),
-            "postal_code": kwargs.get("hf-v2-billing-address-postal-code"),
-            "country_code": kwargs.get(
-                "hf-v2-billing-address-country-code", ""
-            ).upper(),
+            "address_line_1": kwargs.get("billing-address-line-1"),
+            "address_line_2": kwargs.get("billing-address-line-2"),
+            "admin_area_1": kwargs.get("billing-address-admin-area-1"),
+            "admin_area_2": kwargs.get("billing-address-admin-area-2"),
+            "postal_code": kwargs.get("billing-address-postal-code"),
+            "country_code": kwargs.get("billing-address-country-code", "").upper(),
         }
 
         self.ba_id = kwargs.get("ba-id")
