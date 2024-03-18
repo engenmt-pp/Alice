@@ -1,14 +1,5 @@
 {% extends 'checkout.html' %}
 
-{% block head %}
-{{ super() }}
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="{{ url_for('static', filename='cards.css') }}"
-/>
-{% endblock head %}
-
 {% block other_options %}
 <fieldset id="hosted-v2-options">
   <details open>
