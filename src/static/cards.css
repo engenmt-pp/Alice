@@ -21,7 +21,8 @@
     border: 1px solid;
     border-radius: 0.25rem;
 }
-#hf-v2-card-holder-name {
+#hf-v2-cardholder-name,
+input[id^='hf-v2-billing-address'] {
     background-color: var(--white);
     display: block;
     height: 2rem;
@@ -30,6 +31,9 @@
     padding: 2px 4px;
     border: 1px solid var(--hf-v2-border);
     border-radius: 0.25rem;
+}
+input[id^='hf-v2-billing-address'] {
+    margin: 6px;
 }
 @media (prefers-color-scheme: dark) {
     #form-hf-v2-card > div,

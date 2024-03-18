@@ -70,13 +70,21 @@
     <label for="hf-v2-cvv">CVV</label>
     <div id="hf-v2-cvv"></div>
 
-    <label for="hf-v2-card-holder-name">Name on Card</label>
+    <label for="hf-v2-cardholder-name">Name on Card</label>
     <input
       type="text"
-      id="hf-v2-card-holder-name"
-      name="hf-v2-card-holder-name"
+      id="hf-v2-cardholder-name"
+      name="hf-v2-cardholder-name"
       placeholder="Card holder name"
+      form="options-form"
     />
+    <label>Billing Address</label>
+    <input type="text" form="options-form" id="hf-v2-billing-address-line-1" name="hf-v2-billing-address-line-1" placeholder="Street address"/>
+    <input type="text" form="options-form" id="hf-v2-billing-address-line-2" name="hf-v2-billing-address-line-2" placeholder="Unit"/>
+    <input type="text" form="options-form" id="hf-v2-billing-address-admin-area-1" name="hf-v2-billing-address-admin-area-1" placeholder="City"/>
+    <input type="text" form="options-form" id="hf-v2-billing-address-admin-area-2" name="hf-v2-billing-address-admin-area-2" placeholder="State"/>
+    <input type="text" form="options-form" id="hf-v2-billing-address-postal-code" name="hf-v2-billing-address-postal-code" placeholder="Postal code"/>
+    <input type="text" form="options-form" id="hf-v2-billing-address-country-code" name="hf-v2-billing-address-country-code" placeholder="Country code"/>
 
     <button value="submit" id="cf-pay">Pay</button>
   </form>
