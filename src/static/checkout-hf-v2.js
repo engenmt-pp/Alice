@@ -48,7 +48,7 @@ async function loadHostedFields() {
   })
   if (cardFields.isEligible()) {
     const nameField = cardFields.NameField()
-    await nameField.render('#hf-v2-card-holder-name')
+    await nameField.render('#hf-v2-cardholder-name')
 
     const numberField = cardFields.NumberField()
     await numberField.render('#hf-v2-card-number')
