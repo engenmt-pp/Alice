@@ -2,8 +2,6 @@
 
 {% block head %}
 {{ super() }}
-
-<script src="{{ url_for('static', filename='tabs.js') }}">
 </script>
 <script type="module">
   import { changeCheckout } from "{{ url_for('static', filename='checkout.js') }}";
