@@ -589,3 +589,16 @@ button {
 #vault-options:has(option[value='return-buyer']:checked) .return-buyer {
     display: flex;
 }
+
+#purchase-unit-options:has(#include-custom-purchase-unit-field:not(:checked)) .custom-purchase-unit-field {
+    display: none;
+}
+
+*:focus-visible {
+    outline: 3px solid black;
+    @media (prefers-color-scheme: dark) {
+        outline: 3px solid white;
+    }
+    outline-offset: 0.25rem;
+    border-radius: 0.125rem;
+}

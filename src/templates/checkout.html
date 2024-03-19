@@ -2,16 +2,14 @@
 
 {% block head %}
 {{ super() }}
-</script>
 <script type="module">
   import { changeCheckout } from "{{ url_for('static', filename='checkout.js') }}";
-  document.getElementById('checkout-method').addEventListener('change', changeCheckout)
+  window.addEventListener('load', () => {
+    const checkoutMethod = document.getElementById('checkout-method')
+    checkoutMethod.addEventListener('change', changeCheckout)
+  })
+
 </script>
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="{{ url_for('static', filename='custom-purchase-unit.css') }}"
-/>
 {% endblock head %}
 
 

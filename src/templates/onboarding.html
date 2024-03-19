@@ -1,15 +1,11 @@
 {% extends 'base.html' %}
 
-{% block head %}
-<script async src="https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js"></script>
-{% endblock %}
-
 {% block merchant_id %}
 <!--
   This overwrites the block in 'base.html' with this block's empty contents,
   removing the "Merchant ID" credential from the left column.
 -->
-{% endblock %}
+{% endblock merchant_id%}
 
 {% block other_options %}
 <fieldset id="referral-options">
@@ -131,7 +127,7 @@
     </div>
   </details>
 </fieldset>
-{% endblock %}
+{% endblock other_options %}
 
 {% block right_col %}
 <the-tabs>
@@ -142,7 +138,7 @@
     <button type="button" id="download-all" data-method class="postman">Download all for Postman</button>
   </div>
   <div role='tabpanel' data-page="onboarding">
-    <script id="paypal-js-sdk"></script>
+    <script async src="https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js"></script>
     <!-- As of 2024-02-21, an error is thrown if the `href` attribute is removed from the initial tag below. -->
     <a
       id="partner-referral"
@@ -153,7 +149,7 @@
     >Begin onboarding</a>
     <script type="module">
       import createReferral from "{{ url_for('static', filename='onboarding.js') }}";
-      window.addEventListener('load', async function() {
+      window.addEventListener('load', () => {
         const createButton = document.getElementById('create-referral')
         createButton.addEventListener('click', createReferral);
       })
