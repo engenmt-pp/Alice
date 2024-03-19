@@ -2,7 +2,7 @@
 
 {% block head %}
 {{ super() }}
-</script>
+
 <script type="module">
   import { changeCheckout } from "{{ url_for('static', filename='checkout.js') }}";
   document.getElementById('checkout-method').addEventListener('change', changeCheckout)
@@ -11,6 +11,11 @@
   rel="stylesheet"
   type="text/css"
   href="{{ url_for('static', filename='custom-purchase-unit.css') }}"
+/>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{{ url_for('static', filename='vault.css') }}"
 />
 {% endblock head %}
 
@@ -142,7 +147,7 @@
       <label for="customer-id">
         Customer ID
       </label>
-      <input name="customer-id" id="customer-id"/>
+      <input name="customer-id" id="customer-id" class="monospaced"/>
     </div>
     <div class="first-time-buyer return-buyer">
       <label for="vault-without-purchase">
@@ -154,7 +159,7 @@
       <label for="vault-id">
         Vault ID
       </label>
-      <input name="vault-id" id="vault-id"/>
+      <input name="vault-id" id="vault-id" class="monospaced"/>
     </div>
     <div class="buyer-not-present">
       <label for="vault-payment-source">
@@ -165,7 +170,7 @@
           <option value="paypal" selected>PayPal</option>
           <option value="card">Card</option>
         </select>
-        <button type="button" data-method="post" id="buyer-not-present-checkout">Pay</button>
+        <button type="button" class="action-post" id="buyer-not-present-checkout">Pay</button>
       </div>
     </div>
   </details>
@@ -175,23 +180,21 @@
 {% endblock other_options %}
 
 {% block right_col %}
-<the-tabs>
-  <div role='tablist'>
-    <button role='tab' aria-selected='true'>Checkout</button>
-    <button role='tab' id="tab-api-calls">API Calls</button>
+<nav id='top-level-nav' role="tabset">
+  <input autocomplete="off" type=radio id="input-checkout" name="nav-tabs" checked/>
+  <label for="input-checkout">Checkout</label>
 
-    <button type="button" id="download-all" data-method class="postman">Download all for Postman</button>
-  </div>
-  <div role='tabpanel' data-page="checkout">
-    <script id="paypal-js-sdk"></script>
-    {% block checkout_div %}
-    {% endblock checkout_div %}
-  </div>
-  <div role='tabpanel' hidden>
-    <the-tabs>
-      <div role='tablist'>
-      </div>
-    </the-tabs>
-  </div>
-</the-tabs>
-{% endblock right_col %}
+  <input autocomplete="off" type=radio id="input-api-calls" name="nav-tabs"/>
+  <label for="input-api-calls">API Calls</label>
+
+  <button type="button" id="download-all" class="action postman">Download all for Postman</button>
+</nav>
+<div id="div-checkout" class="active">
+  <script id="paypal-js-sdk"></script>
+  {% block checkout_div %}
+  {% endblock checkout_div %}
+</div>
+<div id="div-api-calls" class="inactive">
+  <nav role="tabset"></nav>
+</div>
+{% endblock %}
