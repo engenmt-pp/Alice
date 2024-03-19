@@ -101,23 +101,6 @@ async function getSellerCredentials(accessToken) {
   console.groupEnd()
 }
 
-// async function createFirstPartyURL() {
-//   const endpoint = "https://www.paypal.com/bizsignup/partner/entry"
-//   const url = new URL(endpoint)
-//   const query = url.searchParams
-//   const options = getOptions()
-//   query.set('partnerId', partnerId)
-//   let partnerId = ""
-//   let product = "EXPRESS_CHECKOUT"
-//   let integrationType = "FO"
-//   let partnerClientId = ""
-//   // let returnToPartnerUrl = "google.com"
-//   // let partnerLogoUrl = ""
-//   let displayMode = "minibrowser"
-//   let sellerNonce = "1234567890123456789012345678901234567890"
-//   let features = ["PAYMENT", "REFUND"]
-// }
-
 export {
   createReferral as default
 }
