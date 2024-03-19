@@ -1,5 +1,6 @@
 import json
 import random
+import string
 
 from flask import current_app
 from urllib.parse import urlencode
@@ -150,3 +151,10 @@ def random_decimal_string(length):
     """Return a decimal string of the given length chosen uniformly at random."""
     random_int = random.randrange(10**length, 10 ** (length + 1))
     return f"{random_int}"
+
+
+def random_alphanumeric_string(length):
+    """Return an alphanumeric string of the given length chosen uniformly at random."""
+    return "".join(
+        random.choice(string.ascii_uppercase + string.digits) for _ in range(length)
+    )

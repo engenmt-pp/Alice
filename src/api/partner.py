@@ -4,7 +4,11 @@ import requests
 from flask import Blueprint, request, current_app, jsonify
 
 from .identity import build_headers
-from .utils import build_endpoint, format_request_and_response
+from .utils import (
+    build_endpoint,
+    format_request_and_response,
+    random_alphanumeric_string,
+)
 
 
 bp = Blueprint("partner", __name__, url_prefix="/partner")
@@ -25,6 +29,8 @@ class Referral:
         self.auth_header = kwargs.get("auth-header")
 
         self.referral_token = kwargs.get("referral-token")
+
+        self.party = kwargs.get("party", "third")
 
         self.product = kwargs.get("product")
         self.vault_level = kwargs.get("vault-level")
@@ -112,20 +118,37 @@ class Referral:
         return partner_config_override
 
     def build_operations(self):
-        features = self.build_features()
         operations = [
             {
                 "operation": "API_INTEGRATION",
                 "api_integration_preference": {
-                    "rest_api_integration": {
-                        "integration_method": "PAYPAL",
-                        "integration_type": "THIRD_PARTY",
-                        "third_party_details": {"features": features},
-                    }
+                    "rest_api_integration": self.build_rest_api_integration()
                 },
             }
         ]
         return operations
+
+    def build_rest_api_integration(self):
+        features = self.build_features()
+        rest_api_integration = {"integration_method": "PAYPAL"}
+        if self.party == "third":
+            self.seller_nonce = None
+            rest_api_integration |= {
+                "integration_type": "THIRD_PARTY",
+                "third_party_details": {
+                    "features": features,
+                },
+            }
+        elif self.party == "first":
+            self.seller_nonce = random_alphanumeric_string(44)
+            rest_api_integration |= {
+                "integration_type": "FIRST_PARTY",
+                "first_party_details": {
+                    "features": features,
+                    "seller_nonce": self.seller_nonce,
+                },
+            }
+        return rest_api_integration
 
     def build_legal_consents(self):
         legal_consents = []
@@ -195,6 +218,7 @@ class Referral:
         return_val = {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
+            "sellerNonce": self.seller_nonce,
         }
         try:
             links = response.json()["links"]
@@ -317,6 +341,8 @@ def get_seller_status(merchant_id):
     data = request.get_json()
     if merchant_id:
         data["merchant-id"] = merchant_id
+    else:
+        current_app.logger.debug(f"No merchant ID provided: {merchant_id}")
 
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.debug(

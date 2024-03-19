@@ -65,6 +65,73 @@ def get_client_token():
         return jsonify(return_val)
 
 
+@bp.route("/seller-access-token/", methods=("POST",))
+def get_seller_access_token():
+    endpoint = build_endpoint("/v1/oauth2/token")
+    headers = {
+        "Content-Type": "application/json",
+        "Accept-Language": "en_US",
+    }
+
+    data = request.get_json()
+
+    auth_code = data["auth-code"]
+    shared_id = data["shared-id"]
+    seller_nonce = data["seller-nonce"]
+
+    payload = {
+        "grant_type": "authorization_code",
+        "code": auth_code,
+        "code_verifier": seller_nonce,
+        "ignoreCache": True,
+    }
+
+    response = requests.post(
+        endpoint,
+        headers=headers,
+        data=payload,
+        auth=(shared_id, ""),
+    )
+    formatted = {
+        "seller-access-token": format_request_and_response(response),
+    }
+
+    access_token = response.json()["access_token"]
+
+    return_val = {
+        "formatted": formatted,
+        "access_token": access_token,
+    }
+    return return_val
+
+
+@bp.route("/seller-credentials/", methods=("POST",))
+def get_seller_credentials():
+    data = request.get_json()
+
+    partner_id = data["partner-id"]
+    endpoint = build_endpoint(
+        f"/v1/customer/partners/{partner_id}/merchant-integrations/credentials"
+    )
+
+    seller_access_token = data["access-token"]
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {seller_access_token}",
+    }
+
+    response = requests.get(
+        endpoint,
+        headers=headers,
+    )
+    formatted = {
+        "seller-credentials": format_request_and_response(response),
+    }
+
+    return_val = {"formatted": formatted}
+    return jsonify(return_val)
+
+
 @bp.route("/id-token/", defaults={"customer_id": None}, methods=("POST",))
 @bp.route("/id-token/<customer_id>", methods=("POST",))
 def get_id_token(customer_id):
