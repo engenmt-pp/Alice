@@ -40,6 +40,7 @@ def format_request(request):
         "Authorization",
         "Content-Type",
         "PayPal-Auth-Assertion",
+        "PayPal-Mock-Response",
         "PayPal-Partner-Attribution-Id",
         "PayPal-Request-Id",
         "Prefer",
