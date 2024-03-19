@@ -90,502 +90,436 @@ body {
     min-height: 100vh;
     background-color: var(--white);
     color: var(--light-text-1);
-    @media (prefers-color-scheme: dark) {
+}
+@media (prefers-color-scheme: dark) {
+    body {
         background-color: var(--dark-bg-0);
         color: var(--dark-text-1);
     }
-
-    & > header {
-        text-align: center;
-
-        background-color: var(--blue-v);
-        color: var(--white);
-
-        a {
-            color: var(--white) !important;
-        }
-    }
-
-    & > main {
-        max-width: 135ch;
-        height: 100%;
-        min-height: 100vh;
-        margin-inline: auto;
-
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0.5rem;
-
-        & > div {
-            padding: 8px;
-            background-color: var(--light-bg-0);
-            @media (prefers-color-scheme: dark) {
-                background-color: var(--dark-bg-1);
-            }
-        }
-        .col-1 {
-            grid-column: span 1 / span 1;
-        }
-        .col-2 {
-            grid-column: span 2 / span 2;
-        }
-
-    }
 }
 
+body > header {
+    background-color: var(--blue-v);
+    text-align: center;
+    color: var(--white);
+}
+body > header a {
+    color: var(--white) !important;
+}
 
 h1 {
     font-size: 1.5rem;
     font-weight: 500;
     line-height: 1.75rem;
+    /* text-decoration: underline; */
     margin-top: 0;
 }
 
-nav {
-    ul {
-        list-style-type: none;
-        padding: 0;
-        margin-left: 0.5em;
-    }
 
-    li:not(:first-child) {
-        margin-top: 0.25rem;
-    }
+body > main {
+    max-width: 135ch;
+    margin-left: auto;
+    margin-right: auto;
+    height: 100%;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 0.5rem;
+}
 
-    & > ol {
-        padding: 0;
-        border-bottom: 1px solid;
-        margin: 0 0 10px;
-        list-style: none;
-    }
+.col-3 {
+    grid-column: span 3 / span 3;
+}
+.col-4 {
+    grid-column: span 4 / span 4;
+}
+.col-5 {
+    grid-column: span 5 / span 5;
+}
+.col-6 {
+    grid-column: span 6 / span 6;
+}
+.col-7 {
+    grid-column: span 7 / span 7;
+}
+.col-8 {
+    grid-column: span 8 / span 8;
+}
+.col-9 {
+    grid-column: span 9 / span 9;
+}
 
-    input {
-        & + label {
-            cursor: pointer;
-            background-color: var(--light-bg-2);
-            @media (prefers-color-scheme: dark) {
-                background-color: var(--dark-bg-2);
-        }
-        }
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin-left: 0.5em;
+}
 
-        &:hover + label {
-            color: var(--light-text-2);
-            background-color: var(--light-bg-3);
-            @media (prefers-color-scheme: dark) {
-                color: var(--dark-text-2);
-                background-color: var(--dark-bg-3);
-            }
-        }
-        &:checked + label {
-            color: var(--blue-600);
-            background-color: var(--light-bg-4);
-            @media (prefers-color-scheme: dark) {
-                color: var(--blue-400);
-                background-color: var(--dark-bg-4);
-            }
-        }
-        &:checked:hover + label {
-            background-color: var(--light-bg-5);
-            @media (prefers-color-scheme: dark) {
-                background-color: var(--dark-bg-5);
-            }
-        }
-    }
+nav li:not(:first-child) {
+    margin-top: 0.25rem;
 }
 
 a {
-    font-weight: 600;
     color: var(--blue-600) !important;
-    @media (prefers-color-scheme: dark) {
+    font-weight: 600;
+}
+@media (prefers-color-scheme: dark) {
+    a {
         color: var(--blue-400) !important;
     }
 }
 
-details {
-    summary {
-        cursor: pointer;
-        & > span {
-            display: inline-block;
-        }
-        & > button {
-            float: right;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        }
-    }
-    &[open] summary {
-        margin-bottom: 10px;
-    }
-    &:not([open]) button {
-        display: none;
-    }
-}
-
-details > div,
-fieldset > div {
-    margin: 0 0 6px 8px;
-}
-
-
 form {
     width: 100%;
-
-    legend {
-        font-weight: 600;
-    }
-
-    label {
-        font-weight: 500;
-        flex: 1 1 9ch;
-        margin-right: auto;
-        min-width: max-content;
-    }
-
-    & > fieldset {
-        margin-bottom: 0.5rem;
-    }
-
-    div {
-        display: flex;
-        justify-content: space-between;
-        flex-direction: row;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 4px 6px;
-
-        &:has(> ul) {
-            align-items: flex-start;
-        }
-    }
+}
+details summary {
+    cursor: pointer;
+}
+details summary > span {
+    display: inline-block;
 }
 
+details[open] summary {
+    margin-bottom: 10px;
+}
+details:not([open]) button {
+    display: none;
+}
+details button {
+    float: right;
+}
+form legend {
+    font-weight: 600;
+}
+
+form label {
+    font-weight: 500;
+    flex: 1 1 9ch;
+    margin-right: auto;
+    min-width: max-content;
+}
+
+
+
+form > fieldset {
+    margin-bottom: 0.5rem;
+}
 fieldset {
     width: 100%;
     border: 0;
     padding: 0;
     font-weight: 500;
     margin: 0;
-
-    div > div,
-    div > ul,
-    select,
-    input {
-        flex: 1 1 50%;
-        min-width: 35%;
-    }
-
-    div {
-        & > ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            & > li > label {
-                vertical-align: top;
-                font-weight: 400;
-            }
-        }
-    }
-
-    input,
-    select {
-        font-size: 0.875rem;
-        font-size: 0.875rem;
-        line-height: 1.25em;
-        padding: 2px 4px;
-        border-radius: 4px;
-        border: solid 1px;
-        background-color: var(--light-bg-2);
-        border-color: var(--light-bg-4);
-        color: var(--light-text-5);
-
-        @media (prefers-color-scheme: dark) {
-            background-color: var(--dark-bg-5);
-            border-color: var(--dark-bg-7);
-            color: var(--dark-text-5);
-        }
-    }
-
-    input {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    }
-
-    &#fieldset-checkout-method {
-        font-size: 1rem;
-        border: 1pt solid;
-        border-radius: 4px;
-        padding: 8px;
-        div {
-            margin: 0;
-        }
-        select {
-            flex: 1 0 content;
-            min-width: max-content;
-            height: 1.5rem;
-            font-size: 1rem;
-        }
-    }
+}
+fieldset div {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+}
+details > div,
+fieldset > div {
+    margin: 0 0 6px 8px;
 }
 
+div:has(> ul) {
+    align-items: flex-start;
+}
+
+fieldset div > div,
+fieldset div > ul,
+fieldset select,
+fieldset input {
+    flex: 1 1 50%;
+    min-width: 35%;
+}
+fieldset input[type=checkbox] {
+    flex: 0 1 1rem;
+    min-width: max-content;
+    vertical-align: text-bottom;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+    margin-left: auto;
+    margin-right: 0.25rem;
+}
+
+fieldset div > ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+fieldset div ul > li > label {
+    vertical-align: top;
+    font-weight: 400;
+}
+li input[type=checkbox] {
+    margin: 0.125rem;
+}
 input[type=checkbox] {
     min-width: 1rem;
     width: 1rem;
     min-height: 1rem;
     height: 1rem;
-    li > & {
-        margin: 0.125rem;
-    }
-    fieldset & {
-        flex: 0 1 1rem;
-        min-width: max-content;
-        vertical-align: text-bottom;
+}
+
+
+
+fieldset input,
+fieldset select {
+    font-size: 0.875rem;
+    line-height: 1.25em;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: solid 1px;
+    background-color: var(--light-bg-2);
+    border-color: var(--light-bg-4);
+    color: var(--light-text-5);
+}
+@media (prefers-color-scheme: dark) {
+    fieldset input,
+    fieldset select {
+        background-color: var(--dark-bg-5);
+        border-color: var(--dark-bg-7);
+        color: var(--dark-text-5);
     }
 }
+
+#fieldset-checkout-method {
+    font-size: 1rem;
+    border: 1pt solid;
+    border-radius: 4px;
+    padding: 8px;
+}
+#fieldset-checkout-method div {
+    margin: 0;
+}
+#fieldset-checkout-method select {
+    flex: 1 0 content;
+    min-width: max-content;
+    height: 1.5rem;
+    font-size: 1rem;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 button {
     cursor: pointer;
     text-align: center;
-    &.half {
-        flex: 1 1 45%;
-    }
-    &:disabled {
-        background-color: grey;
-        cursor: not-allowed;
-    }
+}
+button.half {
+    flex: 1 1 45%;
+}
+button:disabled {
+    background-color: grey;
+    cursor: not-allowed;
+}
 
-    &[data-method] {
-        color: var(--white);
-        border-radius: 4px;
-        min-width: 5ch;
-        padding: 2px 4px;
-        text-transform: lowercase;
-        font-variant: small-caps;
+button[class*=action] {
+    border-radius: 4px;
+    min-width: 5ch;
+    padding: 2px 4px;
+    text-transform: lowercase;
+    font-variant: small-caps;
+}
+.action {
+    color: var(--light-text-5);
+    background-color: var(--light-bg-2);
+    border-color: var(--light-bg-4);
+}
+.action-post {
+    color: var(--white);
+    background-color: var(--green-600);
+}
+.action-get {
+    color: var(--white);
+    background-color: var(--blue-600);
+}
+.action-delete {
+    color: var(--white);
+    background-color: var(--red-600);
+}
+.action-post:focus {
+    box-shadow: 0 0 0 2px var(--green-800);
+}
+.action-get:focus {
+    box-shadow: 0 0 0 2px var(--blue-800);
+}
+.action-delete:focus {
+    box-shadow: 0 0 0 2px var(--red-800);
+}
+@media (prefers-color-scheme: dark) {
+    .action {
+        color: var(--dark-text-5);
+        background-color: var(--dark-bg-5);
+        border-color: var(--dark-bg-7);
     }
-    &[data-method=''] {
-        color: var(--light-text-5);
-        background-color: var(--light-bg-2);
-        border-color: var(--light-bg-4);
-        @media (prefers-color-scheme: dark) {
-            color: var(--dark-text-5);
-            background-color: var(--dark-bg-5);
-            border-color: var(--dark-bg-7);
-        }
+    .action-post:focus {
+        box-shadow: 0 0 0 2px var(--green-400);
     }
-    &[data-method=get] {
-        background-color: var(--blue-600);
-        &:focus {
-            box-shadow: 0 0 0 2px var(--blue-800);
-            @media (prefers-color-scheme: dark) {
-                box-shadow: 0 0 0 2px var(--blue-400);
-            }
-        }
+    .action-get:focus {
+        box-shadow: 0 0 0 2px var(--blue-400);
     }
-    &[data-method=post] {
-        background-color: var(--green-600);
-        &:focus {
-            box-shadow: 0 0 0 2px var(--green-800);
-            @media (prefers-color-scheme: dark) {
-                box-shadow: 0 0 0 2px var(--green-400);
-            }
-        }
-    }
-
-    &[data-method=delete] {
-        background-color: var(--red-600);
-        &:focus {
-            box-shadow: 0 0 0 2px var(--red-800);
-            @media (prefers-color-scheme: dark) {
-                box-shadow: 0 0 0 2px var(--red-400);
-            }
-        }
-    }
-
-    &.postman {
-        border: 1px solid currentColor;
-        float: right;
-        margin-left: auto;
-        margin-bottom: 4px;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        font-variant: inherit !important;
-        text-transform: inherit !important;
-
-        background-color: var(--light-bg-2);
-        color: black;
-        @media (prefers-color-scheme: dark) {
-            background-color: var(--dark-bg-2);
-            color: white;
-        }
-
-        #tab-api-calls:not([aria-selected=true]) ~ & {
-            display: none;
-        }
+    .action-delete:focus {
+        box-shadow: 0 0 0 2px var(--red-400);
     }
 }
 
-[role='tablist'] {
-    display: flex;
-    margin-bottom: 12px;
-    border-bottom: 1px solid;
+.monospaced {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
 
+main > div {
+    background-color: var(--light-bg-0);
+    padding: 8px;
+}
+@media (prefers-color-scheme: dark) {
+    main > div {
+        background-color: var(--dark-bg-1);
+    }
+}
+
+nav > ol {
+    padding: 0;
+    border-bottom: 1px solid;
+    margin: 0 0 10px;
+    list-style: none;
+}
+
+.api-response {
+    width: 100%;
+    height: 100%;
+    padding: 0.5rem;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    background-color: var(--light-bg-1);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+    .api-response {
+        background-color: var(--dark-bg-1);
+    }
+}
+
+.inactive {
+    display: none;
+}
+.hidden {
+    display: none;
+}
+
+#paypal-button-container {
+    margin: 0 auto;
+    max-width: 40rem;
+}
+
+.postman {
+    background-color: var(--light-bg-2);
+    color: black;
+    border: 1px solid currentColor;
+    float: right;
+    margin-left: auto;
+    margin-bottom: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-variant: inherit !important;
+    text-transform: inherit !important;
+}
+@media (prefers-color-scheme: dark) {
+    .postman {
+        background-color: var(--dark-bg-2);
+        color: white;
+    }
+}
+#input-api-calls:not(:checked) ~ .postman {
+    display: none;
+}
+
+
+#div-checkout {
+    margin: 12px;
+}
+
+nav[role=tabset] {
     gap: 4px;
     width: 100%;
     flex-wrap: wrap;
     border-bottom: 1pt solid;
     margin-bottom: 8px;
     align-items: flex-end;
-
-
-    &:not(:has(*)) {
-        display: none;
-    }
 }
 
-[role='tab'] {
+#top-level-nav {
+    /* By default, we just hide the top-level-nav. Unless the browser has :has. */
+    display: flex;
+}
+#div-api-calls > nav {
+    display: flex;
+}
+
+#div-api-calls > nav:empty {
+    display: none;
+}
+nav input {
+    display: none;
+}
+nav input + label {
+    background-color: var(--light-bg-2);
+    cursor: pointer;
+}
+nav input:hover + label {
+    color: var(--light-text-2);
+    background-color: var(--light-bg-3);
+}
+nav input:checked + label {
+    color: var(--blue-600);
+    background-color: var(--light-bg-4);
+}
+nav input:checked:hover + label {
+    background-color: var(--light-bg-5);
+}
+nav label {
     display: inline-block;
     flex: none;
     padding: 1rem;
     border-top-left-radius: 0.5rem;
     border-top-right-radius: 0.5rem;
+}
 
-    background-color: var(--light-bg-2);
-    @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
+    nav input + label {
         background-color: var(--dark-bg-2);
     }
-
-    &:hover {
-        color: var(--light-text-2);
-        background-color: var(--light-bg-3);
-        @media (prefers-color-scheme: dark) {
-            color: var(--dark-text-2);
-            background-color: var(--dark-bg-3);
-        }
+    nav input:hover + label {
+        color: var(--dark-text-2);
+        background-color: var(--dark-bg-3);
     }
-
-	&[aria-selected='true'] {
-		color: var(--blue-600);
-        background-color: var(--light-bg-4);
-        @media (prefers-color-scheme: dark) {
-            color: var(--blue-400);
-            background-color: var(--dark-bg-4);
-        }
-
-        &:hover {
-            background-color: var(--light-bg-5);
-            @media (prefers-color-scheme: dark) {
-                background-color: var(--dark-bg-5);
-            }
-        }
-	}
-}
-
-[role='tabpanel'] {
-    &[data-page=checkout] {
-        margin: 12px;
-        #paypal-button-container {
-            margin: 0 auto;
-            max-width: 40rem;
-        }
+    nav input:checked + label {
+        color: var(--blue-400);
+        background-color: var(--dark-bg-4);
     }
-    &[data-page=onboarding] {
-        a {
-            display: block;
-            margin-bottom: 8px;
-            &.proxy {
-                pointer-events: none;
-                text-decoration: line-through;
-            }
-        }
-    }
-    .api-response {
-        width: 100%;
-        height: 100%;
-        padding: 0.5rem;
-        white-space: pre-wrap;
-        overflow-wrap: break-word;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        background-color: var(--light-bg-1);
-        @media (prefers-color-scheme: dark) {
-            background-color: var(--dark-bg-1);
-        }
+    nav input:checked:hover + label {
+        background-color: var(--dark-bg-5);
     }
 }
 
-#hf-v2-form,
-#hf-v1-form {
-    max-width: 26ch;
-    font-size: 1rem;
-
-    label {
-        display: block;
-        width: 100%;
-        padding: 1px 2px;
-        margin: 5px 0;
-    }
-
-    #pay-button {
-        background-color: var(--green-800);
-        color: var(--white);
-        margin-top: 12px;
-        padding: 4px 8px;
-        text-transform: capitalize;
-        border-radius: 4px;
-        display: block;
-    }
+#div-onboarding a {
+    display: block;
+    margin-bottom: 8px;
 }
-
-#hf-v1-form {
-    & > div,
-    input {
-        display: block;
-        height: 2rem;
-        width: 100%;
-        margin: 0.5ch 0;
-        padding: 2px 4px;
-        border: 1px solid;
-        border-radius: 0.25rem;
-    }
-    & > div {
-        background-color: var(--light-bg-1);
-    }
-    input {
-        color: var(--white);
-        background-color: var(--light-bg-1);
-        @media (prefers-color-scheme: dark) {
-            color: var(--white);
-            background-color: var(--dark-bg-0);
-        }
-    }
-}
-
-#hf-v2-form {
-    input {
-        display: block;
-        height: 2rem;
-        width: calc(100% - 12px);
-        margin: 12px 6px;
-        padding: 2px 4px;
-        border: 1px solid var(--hf-v2-border);
-        border-radius: 0.25rem;
-
-        color: black;
-        background-color: var(--white);
-        &[id^='hf-v2-billing-address'] {
-            margin: 6px;
-        }
-    }
-    div,
-    input {
-        @media (prefers-color-scheme: dark) {
-            color: var(--white);
-            background-color: var(--dark-bg-0);
-        }
-    }
-}
-
-#vault-options > details > div + div {
-    display: none;
-}
-
-#vault-options:has(option[value='first-time-buyer']:checked) .first-time-buyer,
-#vault-options:has(option[value='buyer-not-present']:checked) .buyer-not-present,
-#vault-options:has(option[value='return-buyer']:checked) .return-buyer {
-    display: flex;
+#div-onboarding a.proxy {
+    pointer-events: none;
+    text-decoration: line-through;
 }

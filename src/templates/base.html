@@ -11,12 +11,14 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
     <script type="module">
       import {
+        changeTopLevelNav,
         setupCredentials,
       } from "{{ url_for('static', filename='utils.js') }}";
-      import TheTabs from "{{ url_for('static', filename='tabs.js') }}";
       window.addEventListener('load', () => {
+        document.querySelectorAll('#top-level-nav > input').forEach((each) => {
+          each.addEventListener('change', changeTopLevelNav)
+        })
         setupCredentials()
-        customElements.define('the-tabs', TheTabs);
       })
 
     </script>
@@ -29,8 +31,10 @@
       To request features or support, go to
       <a target="_blank" rel="noopener noreferrer" href="https://paypal.slack.com/archives/C04TWRUMG5Q">#help-alice</a>.
     </header>
+    {% block main %}
     <main>
-      <div class="col-1">
+      <div class="col-4">
+        {% block nav %}
         <h1>
           {{ favicon }} Alice - A PPCP Testing Tool
         </h1>
@@ -53,10 +57,13 @@
             </li>
           </ul>
         </nav>
+        {% endblock nav %}
+        {% block options_form %}
         <form id="options-form">
           <input name="auth-header" id="auth-header" autocomplete="off" style="display: none;"/>
           {% block preamble_options %}
           {% endblock preamble_options %}
+          {% block creds %}
           <fieldset id="partner-merchant-credentials">
             <details open>
               <summary>
@@ -65,51 +72,54 @@
                     Partner/merchant info
                   </legend>
                 </span>
-                <button id='button-edit-partner' type="button" data-method>Edit</button>
+                <button id='button-edit-partner' type="button" class="monospaced action">Edit</button>
               </summary>
               <div>
                 <label for="partner-id">
                   Partner ID
                 </label>
-                <input name="partner-id" id="partner-id" value="{{ partner_id }}" disabled/>
+                <input name="partner-id" id="partner-id" value="{{ partner_id }}" class="monospaced" disabled/>
               </div>
               <div>
                 <label for="partner-client-id">
                   Client ID
                 </label>
-                <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" disabled/>
+                <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" class="monospaced" disabled/>
               </div>
               <div>
                 <label for="partner-secret">
                   Secret
                 </label>
-                <input name="partner-secret" id="partner-secret" value="SecretValue" disabled/>
+                <input name="partner-secret" id="partner-secret" value="SecretValue" class="monospaced" disabled/>
               </div>
               <div>
                 <label for="partner-bn-code">
                   BN Code
                 </label>
-                <input name="partner-bn-code" id="partner-bn-code" value="{{ partner_bn_code }}" disabled/>
+                <input name="partner-bn-code" id="partner-bn-code" value="{{ partner_bn_code }}" class="monospaced" disabled/>
               </div>
               {% block merchant_id %}
               <div>
                 <label for="merchant-id">
                   Merchant ID
                 </label>
-                <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" disabled/>
+                <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" class="monospaced" disabled/>
               </div>
               {% endblock merchant_id %}
             </details>
           </fieldset>
+          {% endblock creds %}
 
           {% block other_options %}
           {% endblock other_options %}
         </form>
+        {% endblock options_form %}
       </div>
-      <div class="col-2">
+      <div id="right-col" class="col-8">
         {% block right_col %}
         {% endblock right_col %}
       </div>
     </main>
+    {% endblock main %}
   </body>
 </html>
