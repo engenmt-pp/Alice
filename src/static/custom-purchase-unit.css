@@ -1,3 +1,0 @@
-#purchase-unit-options:has(#include-custom-purchase-unit-field:not(:checked)) .custom-purchase-unit-field {
-    display: none;
-}
