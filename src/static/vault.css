@@ -1,9 +1,0 @@
-#vault-options > details > div + div {
-    display: none;
-}
-
-#vault-options:has(option[value='first-time-buyer']:checked) .first-time-buyer,
-#vault-options:has(option[value='buyer-not-present']:checked) .buyer-not-present,
-#vault-options:has(option[value='return-buyer']:checked) .return-buyer {
-    display: flex;
-}

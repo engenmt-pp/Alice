@@ -14,15 +14,15 @@ const styles = {
 }
 const fields = {
   number: {
-    selector: "#hf-v1-card-number",
+    selector: "#card-number",
     placeholder: "4111 1111 1111 1111"
   },
   cvv: {
-    selector: "#hf-v1-cvv",
+    selector: "#cvv",
     placeholder: "123"
   },
   expirationDate: {
-    selector: "#hf-v1-expiration-date",
+    selector: "#expiration-date",
     placeholder: "MM/YY"
   }
 }
@@ -33,15 +33,15 @@ async function onSubmit(event) {
   event.preventDefault()
   const data = {
     // Cardholder's first and last name
-    cardholderName: document.getElementById('hf-v1-card-holder-name').value,
+    cardholderName: document.getElementById('card-holder-name').value,
     // Billing Address
     billingAddress: {
-      streetAddress: document.getElementById('hf-v1-billing-address-street').value,
-      extendedAddress: document.getElementById('hf-v1-billing-address-unit').value,
-      region: document.getElementById('hf-v1-billing-address-state').value,
-      locality: document.getElementById('hf-v1-billing-address-city').value,
-      postalCode: document.getElementById('hf-v1-billing-address-zip').value,
-      countryCodeAlpha2: document.getElementById('hf-v1-billing-address-country').value.toUpperCase()
+      streetAddress: document.getElementById('billing-address-street').value,
+      extendedAddress: document.getElementById('billing-address-unit').value,
+      region: document.getElementById('billing-address-state').value,
+      locality: document.getElementById('billing-address-city').value,
+      postalCode: document.getElementById('billing-address-zip').value,
+      countryCodeAlpha2: document.getElementById('billing-address-country').value.toUpperCase()
     },
   }
   const contingencies = getContingencies()
@@ -62,12 +62,12 @@ async function loadHostedFields() {
       fields,
       styles
     })
-    const payButton = document.getElementById('hf-v1-pay')
+    const payButton = document.getElementById('pay-button')
     payButton.disabled = false
-    document.getElementById('form-hf-v1-card').onsubmit = onSubmit
+    document.getElementById('hf-v1-form').onsubmit = onSubmit
   } else {
     alert("Not eligible for hosted fields. Sorry!")
-    document.getElementById("form-hf-v1-card").style = 'display: none'
+    document.getElementById("hf-v1-form").style = 'display: none'
   }
 }
 

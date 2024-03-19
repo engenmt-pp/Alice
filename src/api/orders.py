@@ -55,6 +55,16 @@ class Order:
             True  # This is required to specify `experience_context`.
         )
 
+        self.cardholder_name = kwargs.get("cardholder-name")
+        self.billing_address = {
+            "address_line_1": kwargs.get("billing-address-line-1"),
+            "address_line_2": kwargs.get("billing-address-line-2"),
+            "admin_area_1": kwargs.get("billing-address-admin-area-1"),
+            "admin_area_2": kwargs.get("billing-address-admin-area-2"),
+            "postal_code": kwargs.get("billing-address-postal-code"),
+            "country_code": kwargs.get("billing-address-country-code", "").upper(),
+        }
+
         self.ba_id = kwargs.get("ba-id")
 
         self.include_shipping_options = kwargs.get("include-shipping-options")
@@ -335,12 +345,20 @@ class Order:
 
         payment_source_body = {}
 
-        if self.payment_source_type == "card" and self.three_d_secure_preference:
-            payment_source_body["attributes"] = {
-                "verification": {
-                    "method": self.three_d_secure_preference,
+        if self.payment_source_type == "card":
+            if self.three_d_secure_preference:
+                payment_source_body["attributes"] = {
+                    "verification": {
+                        "method": self.three_d_secure_preference,
+                    }
                 }
+            if self.cardholder_name:
+                payment_source_body["name"] = self.cardholder_name
+            self.billing_address = {
+                key: val for key, val in self.billing_address.items() if val
             }
+            if self.billing_address:
+                payment_source_body["billing_address"] = self.billing_address
 
         context = self.build_context()
         if context:

@@ -15,8 +15,8 @@
         Referral Token
       </label>
       <div>
-        <input name="status-referral-token" id="status-referral-token" class="monospaced"/>
-        <button type="button" id="get-referral-details" class="action-get">
+        <input name="status-referral-token" id="status-referral-token"/>
+        <button type="button" id="get-referral-details" data-method="get">
           Get
         </button>
       </div>
@@ -26,8 +26,8 @@
         Tracking ID
       </label>
       <div>
-        <input name="status-tracking-id" id="status-tracking-id" class="monospaced"/>
-        <button type="button" id='get-seller-id-and-details' class="action-get">
+        <input name="status-tracking-id" id="status-tracking-id"/>
+        <button type="button" id='get-seller-id-and-details' data-method="get">
           Get
         </button>
       </div>
@@ -37,8 +37,8 @@
         Merchant ID
       </label>
       <div>
-        <input name="status-merchant-id" id="status-merchant-id" class="monospaced"/>
-        <button type="button" id='get-seller-details' class="action-get">
+        <input name="status-merchant-id" id="status-merchant-id"/>
+        <button type="button" id='get-seller-details' data-method="get">
           Get
         </button>
       </div>
@@ -59,7 +59,7 @@
       <label for="include-auth-assertion">
         Auth Assertion
       </label>
-      <select name="include-auth-assertion" id="include-auth-assertion" class="monospaced">
+      <select name="include-auth-assertion" id="include-auth-assertion">
         <option value="" selected>Exclude</option>
         <option value="True">Include</option>
       </select>
@@ -69,8 +69,8 @@
         Order ID
       </label>
       <div>
-        <input name="status-order-id" id="status-order-id" class="monospaced"/>
-        <button type="button" id="get-order-details" class="action-get">
+        <input name="status-order-id" id="status-order-id"/>
+        <button type="button" id="get-order-details" data-method="get">
           Get
         </button>
       </div>
@@ -80,8 +80,8 @@
         Auth ID
       </label>
       <div>
-        <input name="status-auth-id" id="status-auth-id" class="monospaced"/>
-        <button type="button" id="get-auth-details" class="action-get">
+        <input name="status-auth-id" id="status-auth-id"/>
+        <button type="button" id="get-auth-details" data-method="get">
           Get
         </button>
       </div>
@@ -90,11 +90,11 @@
       <label for="status-capture-id">
         Capture ID
       </label>
-      <input name="status-capture-id" id="status-capture-id" class="monospaced"/>
-      <button type="button" id="refund-capture" class="action-delete half">
+      <input name="status-capture-id" id="status-capture-id"/>
+      <button type="button" id="refund-capture" data-method='delete' class="half">
         Refund
       </button>
-      <button type="button" id="get-capture-details" class="action-get half">
+      <button type="button" id="get-capture-details" data-method="get" class="half">
         Get
       </button>
     </div>
@@ -103,8 +103,8 @@
         BA ID
       </label>
       <div>
-        <input name="status-ba-id" id="status-ba-id" class="monospaced"/>
-        <button type="button" id='get-ba-details' class="action-get">
+        <input name="status-ba-id" id="status-ba-id"/>
+        <button type="button" id='get-ba-details' data-method="get">
           Get
         </button>
       </div>
@@ -114,8 +114,8 @@
         Customer ID
       </label>
       <div>
-        <input name="status-customer-id" id="status-customer-id" class="monospaced"/>
-        <button type="button" id='get-payment-tokens' class="action-get">
+        <input name="status-customer-id" id="status-customer-id"/>
+        <button type="button" id='get-payment-tokens' data-method="get">
           Get
         </button>
       </div>
@@ -124,11 +124,11 @@
       <label for="status-payment-token-id">
         Vault v3 ID
       </label>
-      <input name="status-payment-token-id" id="status-payment-token-id" class="monospaced"/>
-      <button type="button" id="delete-payment-token" class="action-delete half">
+      <input name="status-payment-token-id" id="status-payment-token-id"/>
+      <button type="button" id="delete-payment-token" data-method='delete' class="half">
         Delete
       </button>
-      <button type="button" id="get-payment-token-details" class="action-get half">
+      <button type="button" id="get-payment-token-details" data-method="get" class="half">
         Get
       </button>
     </div>
@@ -172,7 +172,17 @@
     }
   })
 </script>
-<div id="div-api-calls" class="active">
-  <nav role="tabset"></nav>
-</div>
+<the-tabs>
+  <div role='tablist'>
+    <button role='tab' aria-selected='true' id="tab-api-calls">API Calls</button>
+
+    <button type="button" id="download-all" data-method class="postman">Download all for Postman</button>
+  </div>
+  <div role='tabpanel'>
+    <the-tabs>
+      <div role='tablist'>
+      </div>
+    </the-tabs>
+  </div>
+</the-tabs>
 {% endblock right_col %}
