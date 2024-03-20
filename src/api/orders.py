@@ -357,7 +357,8 @@ class Order:
             self.billing_address = {
                 key: val for key, val in self.billing_address.items() if val
             }
-            if self.billing_address:
+
+            if self.billing_address and self.vault_flow:
                 payment_source_body["billing_address"] = self.billing_address
 
         context = self.build_context()
