@@ -33,15 +33,15 @@ async function onSubmit(event) {
   event.preventDefault()
   const data = {
     // Cardholder's first and last name
-    cardholderName: document.getElementById('card-holder-name').value,
+    cardholderName: document.getElementById('cardholder-name').value,
     // Billing Address
     billingAddress: {
-      streetAddress: document.getElementById('billing-address-street').value,
-      extendedAddress: document.getElementById('billing-address-unit').value,
-      region: document.getElementById('billing-address-state').value,
-      locality: document.getElementById('billing-address-city').value,
-      postalCode: document.getElementById('billing-address-zip').value,
-      countryCodeAlpha2: document.getElementById('billing-address-country').value.toUpperCase()
+      streetAddress: document.getElementById('billing-address-line-1').value,
+      extendedAddress: document.getElementById('billing-address-line-2').value,
+      locality: document.getElementById('billing-address-admin-area-1').value,
+      region: document.getElementById('billing-address-admin-area-2').value,
+      postalCode: document.getElementById('billing-address-postal-code').value,
+      countryCodeAlpha2: document.getElementById('billing-address-country-code').value.toUpperCase()
     },
   }
   const contingencies = getContingencies()
@@ -50,10 +50,8 @@ async function onSubmit(event) {
   }
   await hostedFields.submit()
 
-  console.group("Order approved!")
   await getStatus()
   await captureOrder()
-  console.groupEnd()
 }
 async function loadHostedFields() {
   if (paypal.HostedFields.isEligible()) {
