@@ -57,10 +57,27 @@ class TheTabs extends HTMLElement {
             tab.addEventListener('click', () => this.selected = tab)
 
             tab.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowLeft') {
-                    this.selected = tab.previousElementSibling ?? this.tabs.at(-1)
-                } else if (e.key === 'ArrowRight') {
-                    this.selected = tab.nextElementSibling ?? this.tabs.at(0)
+                switch (e.key) {
+                    case 'ArrowLeft':
+                        this.selected = tab.previousElementSibling ?? this.tabs.at(-1)
+                        break
+                    case 'ArrowRight':
+                        this.selected = tab.nextElementSibling ?? this.tabs.at(0)
+                        break
+                    case 'ArrowUp':
+                        const outerTabs = document.querySelector('the-tabs:not(the-tabs the-tabs)')
+                        if (this !== outerTabs) {
+                            outerTabs.selected.focus()
+                            e.preventDefault()
+                        }
+                        break
+                    case 'ArrowDown':
+                        const innerTabs = this.querySelector('the-tabs')
+                        if (innerTabs) {
+                            innerTabs.selected.focus()
+                            e.preventDefault()
+                        }
+                        break
                 }
             })
         })
