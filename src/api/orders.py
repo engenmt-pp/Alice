@@ -381,14 +381,14 @@ class Order:
                         "permit_multiple_payment_tokens": True,
                     }
                 }
-
             case "return-buyer":
-                if self.customer_id:
-                    payment_source_body["attributes"] = {
-                        "customer": {
-                            "id": self.customer_id,
-                        },
-                    }
+                pass
+                # if self.customer_id:
+                #     payment_source_body["attributes"] = {
+                #         "customer": {
+                #             "id": self.customer_id,
+                #         },
+                #     }
 
         if payment_source_body:
             return {self.payment_source_type: payment_source_body}

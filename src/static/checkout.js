@@ -209,9 +209,9 @@ function mapPaymentSource(paymentSource) {
     case "p24":
     case "sofort":
     case "sepa":
+    case null:
       console.log(`Mapping paymentSource ${paymentSource} to 'paypal'!`)
       return 'paypal'
-    case null:
     case undefined:
       console.log(`Mapping paymentSource ${paymentSource} to 'card'!`)
       return 'card'

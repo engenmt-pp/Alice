@@ -48,6 +48,7 @@ class Capture:
             include_request_id=self.include_request_id,
         )
         self.formatted |= headers.pop("formatted")
+        headers["Prefer"] = "return=representation"
 
         self.auth_header = headers["Authorization"]
         return headers
