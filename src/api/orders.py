@@ -84,6 +84,8 @@ class Order:
 
         self.three_d_secure_preference = kwargs.get("3ds-preference")
 
+        self.mock_header = kwargs.get("mock-header")
+
         self.formatted = dict()
         self.breakdown = dict()
 
@@ -123,6 +125,7 @@ class Order:
         self.formatted |= headers.pop("formatted")
 
         self.auth_header = headers["Authorization"]
+
         return headers
 
     def build_platform_fees(self):
@@ -468,6 +471,20 @@ class Order:
             headers = self.build_headers()
         except KeyError:
             return {"formatted": self.formatted}
+
+        if self.mock_header and self.mock_header.startswith("capture"):
+            error_code = "_".join(
+                [
+                    word
+                    for word in self.mock_header.removeprefix("capture")
+                    .upper()
+                    .split("-")
+                    if word
+                ]
+            )
+            headers["PayPal-Mock-Response"] = json.dumps(
+                {"mock_application_codes": error_code}
+            )
 
         data = {}
         payment_instruction = self.build_payment_instruction(for_call="capture")
