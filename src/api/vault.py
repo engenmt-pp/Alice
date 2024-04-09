@@ -25,6 +25,10 @@ class Vault:
         self.vault_id = kwargs.get("vault-id")
         self.customer_id = kwargs.get("customer-id")
 
+        self.permit_multiple_payment_tokens = bool(
+            kwargs.get("permit-multiple-payment-tokens")
+        )
+
         self.shipping_preference = kwargs.get("shipping-preference", "NO_SHIPPING")
         self.include_shipping_address = kwargs.get("include-shipping-address", False)
 
@@ -85,8 +89,23 @@ class Vault:
                     experience_context["shipping_preference"] = self.shipping_preference
 
                 payment_source_body = {
+                    "description": "A description of a PayPal payment source.",
+                    "usage_pattern": "IMMEDIATE",
+                    "customer_type": "CONSUMER",
+                    "permit_multiple_payment_tokens": self.permit_multiple_payment_tokens,
+                    "usage_type": self.vault_level,
                     "experience_context": experience_context,
                 }
+
+                if (
+                    self.payment_source_type == "card"
+                    and self.three_d_secure_preference
+                ):
+                    payment_source_body["attributes"] = {
+                        "verification": {
+                            "method": self.three_d_secure_preference,
+                        }
+                    }
                 if self.include_shipping_address:
                     payment_source_body["shipping"] = default_shipping_address()
 
