@@ -65,7 +65,6 @@ async function getIdToken() {
 }
 
 async function buildScriptElement(onload, checkoutMethod) {
-  setAuthHeader('')
   const {
     intent,
     ...options
