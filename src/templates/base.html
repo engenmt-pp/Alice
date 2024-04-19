@@ -36,23 +36,33 @@
         </h1>
         <nav>
           <ul>
-            <li data-ppcp-type="partner">
-              <a href="{{ url_for('routes.onboarding') }}">
+            <li>
+              <a href="{{ url_for('routes.onboarding', ppcp_type='partner') }}">
                 Onboarding
               </a>
             </li>
             <li>
-              <a href="{{ url_for('routes.checkout-canonical') }}">
+              <a href="{{ url_for('routes.checkout-canonical', ppcp_type=ppcp_type) }}">
                 Checkout
               </a>
             </li>
             <li>
-              <a href="{{ url_for('routes.statuses') }}">
+              <a href="{{ url_for('routes.statuses', ppcp_type=ppcp_type) }}">
                 Statuses
               </a>
             </li>
           </ul>
         </nav>
+        <div id="div-ppcp-type">
+          <div>
+            <input type="radio" name="ppcp-type" id="partner" {{ 'checked' if ppcp_type == 'partner' else '' }}/>
+            <label for="partner">Partner</label>
+          </div>
+          <div>
+            <input type="radio" name="ppcp-type" id="merchant" {{ 'checked' if ppcp_type == 'merchant' else '' }}/>
+            <label for="merchant">Direct Merchant</label>
+          </div>
+        </div>
         <form id="options-form">
           <input name="auth-header" id="auth-header" autocomplete="off" style="display: none;"/>
           {% block preamble_options %}
@@ -61,21 +71,26 @@
             <details open>
               <summary>
                 <span>
-                  <legend data-ppcp-type="partner">
+                  {% if ppcp_type == 'partner' %}
+                  <legend>
                     Partner/merchant info
                   </legend>
-                  <legend data-ppcp-type="merchant">
+                  {% elif ppcp_type == 'merchant' %}
+                  <legend>
                     Merchant info
                   </legend>
+                  {% endif %}
                 </span>
                 <button id='button-edit' type="button" data-method>Edit</button>
               </summary>
-              <div data-ppcp-type="partner">
+              {% if ppcp_type == 'partner' %}
+              <div>
                 <label for="partner-id">
                   Partner ID
                 </label>
                 <input name="partner-id" id="partner-id" value="{{ partner_id }}" disabled/>
               </div>
+              {% endif %}
               <div>
                 <label for="client-id">
                   Client ID
@@ -88,12 +103,14 @@
                 </label>
                 <input name="secret" id="secret" value="SecretValue" disabled/>
               </div>
-              <div data-ppcp-type="partner">
+              {% if ppcp_type == 'partner' %}
+              <div>
                 <label for="bn-code">
                   BN Code
                 </label>
                 <input name="bn-code" id="bn-code" value="{{ bn_code }}" disabled/>
               </div>
+              {% endif %}
               {% block merchant_id %}
               <div>
                 <label for="merchant-id">

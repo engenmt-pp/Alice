@@ -48,10 +48,19 @@ function getPartnerMerchantInfo() {
   return info
 }
 
-function saveOptionsAndReloadPage() {
+function saveOptionsAndReloadPage(togglePpcp = false) {
+  const currentPpcpType = document.querySelector('partner-id') ? 'partner' : 'merchant'
+  let ppcpType
+  if (togglePpcp) {
+    ppcpType = (currentPpcpType == 'merchant') ? 'partner' : 'merchant' // Sorry in advance
+  } else {
+    ppcpType = currentPpcpType
+  }
   saveOptions()
   console.log(JSON.stringify(window.sessionStorage, null, 2))
-  location.reload()
+  const newUrl = new URL(window.location.href)
+  newUrl.searchParams.set('ppcpType', ppcpType)
+  window.location = newUrl.href
 }
 
 function createTabPanel(contents) {
@@ -147,6 +156,11 @@ function allowCredentialEditing() {
   const button = credentials.getElementById('button-edit')
   button.onclick = resetCredentials
   button.innerHTML = 'Reset'
+}
+
+function togglePpcp() {
+
+  const ppcpType = localStorage.getItem('ppcpType') ?? 'partner'
 }
 
 export {

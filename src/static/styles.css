@@ -130,6 +130,54 @@ body {
             grid-column: span 2 / span 2;
         }
 
+        #div-ppcp-type {
+            width: 100%;
+            border: 1px solid;
+            border-color: rgba(0, 0, 0, 0.50);
+            color: rgba(0, 0, 0, 0.50);
+            border-radius: 12px;
+            padding: 0 4px 4px;
+
+            &:has(#partner:checked) {
+                background-color: white;
+                color: rgba(0, 0, 0, 1.00);
+                border-color: rgba(0, 0, 0, 1.00);
+                #partner + label::after {
+                    content: ' ✅';
+                }
+            }
+
+            div {
+                padding: 8px;
+                input {
+                    position: fixed;
+                    opacity: 0;
+                    pointer-events: none;
+                }
+                label {
+                    display: inline-block;
+                    width: 100%;
+                }
+                &:has(#merchant) {
+                    border: 1px solid;
+                    border-radius: 8px;
+                    border-color: rgba(0, 0, 0, 0.50);
+                    background-color: var(--light-bg-0);
+                    color: rgba(0, 0, 0, 0.50);
+
+                    &:has(#merchant:checked) {
+                        background-color: white;
+                        border-color: rgba(0, 0, 0, 1.00);
+                        color: rgba(0, 0, 0, 1.00);
+                        label::after {
+                            content: ' ✅';
+                        }
+                    }
+                }
+            }
+
+        }
+
     }
 }
 
@@ -142,6 +190,7 @@ h1 {
 }
 
 nav {
+    width: max-content;
     ul {
         list-style-type: none;
         padding: 0;
