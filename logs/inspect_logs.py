@@ -206,7 +206,25 @@ def load_logs(con, log_file):
 
     logs_as_dicts = []
     for log in logs:
-        log = json.loads(log)
+        if not log:
+            continue
+
+        log = log.replace('\\"', "'")
+        log = log.replace("\\", "")
+        try:
+            log = json.loads(log)
+        except json.decoder.JSONDecodeError:
+            print(f"JSONDecodeError loading {log}")
+            continue
+
+        if (
+            log["user_agent"]
+            == "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)"
+            or "Nessus" in log["user_agent"]
+            or "nessus" in log["user_agent"]
+        ):
+            continue
+
         log["referer"] = log["referer"].removeprefix(
             "http://partnertools.dev51-test-apps-gpstam.dev51.cbf.dev.paypalinc.com:8000"
         )

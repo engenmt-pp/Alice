@@ -405,7 +405,7 @@ class Order:
             headers = self.build_headers()
         except KeyError as exc:
             current_app.logger.error(
-                f"Encountered KeyError in Orders().build_headers: exc"
+                f"Encountered KeyError in Orders().build_headers: {exc}"
             )
             return {"formatted": self.formatted}
 
