@@ -140,7 +140,10 @@ def get_id_token(customer_id):
     Docs: https://developer.paypal.com/docs/api/reference/get-an-access-token/
     """
     endpoint = build_endpoint("/v1/oauth2/token")
-    headers = {"Content-Type": "application/json", "Accept-Language": "en_US"}
+    headers = {
+        "Content-Type": "application/json",
+        "Accept-Language": "en_US",
+    }
 
     data = request.get_json()
 
@@ -195,21 +198,28 @@ def get_access_token(client_id, secret):
 
     Docs: https://developer.paypal.com/docs/api/reference/get-an-access-token/
     """
-    endpoint = build_endpoint("/v1/oauth2/token")
-    headers = {
-        "Content-Type": "application/json",
-        "Accept-Language": "en_US",
-    }
     data = {
         "grant_type": "client_credentials",
-        "ignoreCache": True,
+        # "ignoreCache": True,
     }
+    endpoint = build_endpoint("/v1/oauth2/token", query=data)
+    headers = {
+        # "Content-Type": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept-Language": "en_US",
+    }
+
+    basic_auth_token = base64.standard_b64encode(
+        ":".join([client_id, secret]).encode("ascii")
+    )
+
+    headers["Authorization"] = b"Basic " + basic_auth_token
 
     response = requests.post(
         endpoint,
         headers=headers,
-        data=data,
-        auth=(client_id, secret),
+        # data=data,
+        # auth=(client_id, secret),
     )
 
     formatted = {"access-token": format_request_and_response(response)}
