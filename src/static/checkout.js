@@ -74,7 +74,7 @@ async function buildScriptElement(onload, checkoutMethod) {
 
   const query = url.searchParams
   query.set("debug", false)
-  query.set("client-id", options['partner-client-id'])
+  query.set("client-id", options['client-id'])
   query.set("merchant-id", options['merchant-id'])
 
   const currency = document.getElementById('currency-code')?.value || 'USD'
@@ -135,7 +135,7 @@ async function buildScriptElement(onload, checkoutMethod) {
     scriptElement.setAttribute('data-user-id-token', idToken)
   }
 
-  const BNCode = options['partner-bn-code']
+  const BNCode = options['bn-code']
   scriptElement.setAttribute('data-partner-attribution-id', BNCode)
 
   scriptElement.addEventListener('load', onload)
@@ -164,9 +164,9 @@ let setupEventListeners = (function () {
     'buyer-country-code',
     'button-label',
     'merchant-id',
-    'partner-client-id',
-    'partner-secret',
-    'partner-bn-code',
+    'client-id',
+    'secret',
+    'bn-code',
     'google-pay-button-color',
     'google-pay-button-type',
     'google-pay-button-locale',

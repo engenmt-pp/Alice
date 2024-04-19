@@ -36,7 +36,7 @@
         </h1>
         <nav>
           <ul>
-            <li>
+            <li data-ppcp-type="partner">
               <a href="{{ url_for('routes.onboarding') }}">
                 Onboarding
               </a>
@@ -57,39 +57,42 @@
           <input name="auth-header" id="auth-header" autocomplete="off" style="display: none;"/>
           {% block preamble_options %}
           {% endblock preamble_options %}
-          <fieldset id="partner-merchant-credentials">
+          <fieldset id="credentials">
             <details open>
               <summary>
                 <span>
-                  <legend>
+                  <legend data-ppcp-type="partner">
                     Partner/merchant info
                   </legend>
+                  <legend data-ppcp-type="merchant">
+                    Merchant info
+                  </legend>
                 </span>
-                <button id='button-edit-partner' type="button" data-method>Edit</button>
+                <button id='button-edit' type="button" data-method>Edit</button>
               </summary>
-              <div>
+              <div data-ppcp-type="partner">
                 <label for="partner-id">
                   Partner ID
                 </label>
                 <input name="partner-id" id="partner-id" value="{{ partner_id }}" disabled/>
               </div>
               <div>
-                <label for="partner-client-id">
+                <label for="client-id">
                   Client ID
                 </label>
-                <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" disabled/>
+                <input name="client-id" id="client-id" value="{{ client_id }}" disabled/>
               </div>
               <div>
-                <label for="partner-secret">
+                <label for="secret">
                   Secret
                 </label>
-                <input name="partner-secret" id="partner-secret" value="SecretValue" disabled/>
+                <input name="secret" id="secret" value="SecretValue" disabled/>
               </div>
-              <div>
-                <label for="partner-bn-code">
+              <div data-ppcp-type="partner">
+                <label for="bn-code">
                   BN Code
                 </label>
-                <input name="partner-bn-code" id="partner-bn-code" value="{{ partner_bn_code }}" disabled/>
+                <input name="bn-code" id="bn-code" value="{{ bn_code }}" disabled/>
               </div>
               {% block merchant_id %}
               <div>

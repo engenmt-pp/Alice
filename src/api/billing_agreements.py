@@ -11,9 +11,9 @@ bp = Blueprint("billing_agreements", __name__, url_prefix="/billing-agreements")
 def get_ba_status(baid):
     data = request.json()
 
-    client_id = data.get("partner-client-id")
-    secret = data.get("partner-secret")
-    bn_code = data.get("partner-bn-code")
+    client_id = data.get("client-id")
+    secret = data.get("secret")
+    bn_code = data.get("bn-code")
     merchant_id = data.get("merchant-id")
 
     if client_id == current_app.config["PARTNER_CLIENT_ID"]:

@@ -6,8 +6,8 @@ bp = Blueprint("routes", __name__, url_prefix="/")
 def get_partner_and_merchant_config():
     partner_and_merchant_config = {
         "partner_id": current_app.config["PARTNER_ID"],
-        "partner_client_id": current_app.config["PARTNER_CLIENT_ID"],
-        "partner_bn_code": current_app.config["PARTNER_BN_CODE"],
+        "client_id": current_app.config["PARTNER_CLIENT_ID"],
+        "bn_code": current_app.config["PARTNER_BN_CODE"],
         "merchant_id": current_app.config["MERCHANT_ID"],
     }
     return partner_and_merchant_config
