@@ -153,11 +153,11 @@ function getContingencies() {
 }
 
 let setupEventListeners = (function () {
-  document.querySelectorAll("input[type=radio][name='ppcp-type']").forEach(elt => {
-    elt.addEventListener('change', () => {
-      saveOptionsAndReloadPage({ togglePpcp: true })
-    })
-  })
+  // document.querySelectorAll("input[type=radio][name='ppcp-type']").forEach(elt => {
+  //   elt.addEventListener('change', () => {
+  //     saveOptionsAndReloadPage({ togglePpcp: true })
+  //   })
+  // })
 
   let myFunc
   const elementIds = [

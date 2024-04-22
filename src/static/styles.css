@@ -137,6 +137,7 @@ body {
             color: rgba(0, 0, 0, 0.50);
             border-radius: 12px;
             padding: 0 4px 4px;
+            cursor: pointer;
 
             &:has(#partner:checked) {
                 background-color: white;
@@ -157,12 +158,13 @@ body {
                 label {
                     display: inline-block;
                     width: 100%;
+                    cursor: pointer;
                 }
                 &:has(#merchant) {
                     border: 1px solid;
                     border-radius: 8px;
                     border-color: rgba(0, 0, 0, 0.50);
-                    background-color: var(--light-bg-0);
+                    background-color: var(--light-bg-1);
                     color: rgba(0, 0, 0, 0.50);
 
                     &:has(#merchant:checked) {
