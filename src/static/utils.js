@@ -49,10 +49,12 @@ function getPartnerMerchantInfo() {
 }
 
 function saveOptionsAndReloadPage(togglePpcp = false) {
-  const currentPpcpType = document.querySelector('partner-id') ? 'partner' : 'merchant'
+  const currentPpcpType = document.querySelector('#partner-id') ? 'partner' : 'merchant'
   let ppcpType
   if (togglePpcp) {
+    console.log(`Toggling ppcpType from ${currentPpcpType} to...`)
     ppcpType = (currentPpcpType == 'merchant') ? 'partner' : 'merchant' // Sorry in advance
+    console.log(`...${ppcpType}`)
   } else {
     ppcpType = currentPpcpType
   }

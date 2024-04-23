@@ -34,33 +34,35 @@
         <h1>
           {{ favicon }} Alice - A PPCP Testing Tool
         </h1>
-        <nav>
-          <ul>
-            <li>
-              <a href="{{ url_for('routes.onboarding', ppcp_type='partner') }}">
-                Onboarding
-              </a>
-            </li>
-            <li>
-              <a href="{{ url_for('routes.checkout-canonical', ppcp_type=ppcp_type) }}">
-                Checkout
-              </a>
-            </li>
-            <li>
-              <a href="{{ url_for('routes.statuses', ppcp_type=ppcp_type) }}">
-                Statuses
-              </a>
-            </li>
-          </ul>
-        </nav>
-        <div id="div-ppcp-type">
-          <div>
-            <input type="radio" name="ppcp-type" id="partner" {{ 'checked' if ppcp_type == 'partner' else '' }}/>
-            <label for="partner">Partner</label>
-          </div>
-          <div>
-            <input type="radio" name="ppcp-type" id="merchant" {{ 'checked' if ppcp_type == 'merchant' else '' }}/>
-            <label for="merchant">Direct Merchant</label>
+        <div role="mini-flex">
+          <nav>
+            <ul>
+              <li>
+                <a href="{{ url_for('routes.onboarding', ppcp_type='partner') }}">
+                  Onboarding
+                </a>
+              </li>
+              <li>
+                <a href="{{ url_for('routes.checkout-canonical', ppcp_type=ppcp_type) }}">
+                  Checkout
+                </a>
+              </li>
+              <li>
+                <a href="{{ url_for('routes.statuses', ppcp_type=ppcp_type) }}">
+                  Statuses
+                </a>
+              </li>
+            </ul>
+          </nav>
+          <div id="div-ppcp-type">
+            <label for="partner">
+              Partner
+              <input type="radio" name="ppcp-type" id="partner" {{ 'checked' if ppcp_type == 'partner' else '' }}/>
+            </label>
+            <label for="merchant">
+              Direct Merchant
+              <input type="radio" name="ppcp-type" id="merchant" {{ 'checked' if ppcp_type == 'merchant' else '' }}/>
+            </label>
           </div>
         </div>
         <form id="options-form">
@@ -90,6 +92,15 @@
                 </label>
                 <input name="partner-id" id="partner-id" value="{{ partner_id }}" disabled/>
               </div>
+              {% elif ppcp_type == 'merchant' %}
+              {% block merchant_id %}
+              <div>
+                <label for="merchant-id">
+                  Merchant ID
+                </label>
+                <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" disabled/>
+              </div>
+              {% endblock merchant_id %}
               {% endif %}
               <div>
                 <label for="client-id">
@@ -110,7 +121,6 @@
                 </label>
                 <input name="bn-code" id="bn-code" value="{{ bn_code }}" disabled/>
               </div>
-              {% endif %}
               {% block merchant_id %}
               <div>
                 <label for="merchant-id">
@@ -119,6 +129,7 @@
                 <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" disabled/>
               </div>
               {% endblock merchant_id %}
+              {% endif %}
             </details>
           </fieldset>
 
