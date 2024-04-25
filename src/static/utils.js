@@ -39,7 +39,7 @@ function setAuthHeader(authHeader) {
 }
 
 function getPartnerMerchantInfo() {
-  const ids = ['auth-header', 'partner-id', 'partner-client-id', 'partner-secret', 'partner-bn-code', 'merchant-id']
+  const ids = ['auth-header', 'partner-id', 'client-id', 'secret', 'bn-code', 'merchant-id']
   const info = {}
   ids.forEach((id) => {
     const value = document.getElementById(id)?.value
@@ -48,10 +48,21 @@ function getPartnerMerchantInfo() {
   return info
 }
 
-function saveOptionsAndReloadPage() {
+function saveOptionsAndReloadPage(togglePpcp = false) {
+  const currentPpcpType = document.querySelector('#partner-id') ? 'partner' : 'merchant'
+  let ppcpType
+  if (togglePpcp) {
+    console.log(`Toggling ppcpType from ${currentPpcpType} to...`)
+    ppcpType = (currentPpcpType == 'merchant') ? 'partner' : 'merchant' // Sorry in advance
+    console.log(`...${ppcpType}`)
+  } else {
+    ppcpType = currentPpcpType
+  }
   saveOptions()
   console.log(JSON.stringify(window.sessionStorage, null, 2))
-  location.reload()
+  const newUrl = new URL(window.location.href)
+  newUrl.searchParams.set('ppcpType', ppcpType)
+  window.location = newUrl.href
 }
 
 function createTabPanel(contents) {
@@ -120,17 +131,17 @@ function downloadAll() {
 }
 
 function setupCredentials() {
-  document.querySelectorAll('#partner-merchant-credentials > input').forEach((elt) => {
+  document.querySelectorAll('#credentials > input').forEach((elt) => {
     elt.addEventListener('change', () => { setAuthHeader('') })
   })
-  document.getElementById('button-edit-partner').onclick = allowCredentialEditing
+  document.getElementById('button-edit').onclick = allowCredentialEditing
 
   document.getElementById('download-all')?.addEventListener('click', downloadAll)
 }
 
 function resetCredentials() {
   setAuthHeader('')
-  const credentials = document.getElementById('partner-merchant-credentials')
+  const credentials = document.getElementById('credentials')
   credentials.querySelectorAll('input').forEach((elt) => {
     elt.value = elt.defaultValue
     elt.dispatchEvent(new Event('change'))
@@ -138,15 +149,20 @@ function resetCredentials() {
 }
 
 function allowCredentialEditing() {
-  const credentials = document.getElementById('partner-merchant-credentials')
+  const credentials = document.getElementById('credentials')
   credentials.querySelectorAll('input:disabled').forEach((input) => {
     input.disabled = false
   })
   credentials.querySelector('input').focus()
 
-  const button = credentials.getElementById('button-edit-partner')
+  const button = credentials.getElementById('button-edit')
   button.onclick = resetCredentials
   button.innerHTML = 'Reset'
+}
+
+function togglePpcp() {
+
+  const ppcpType = localStorage.getItem('ppcpType') ?? 'partner'
 }
 
 export {

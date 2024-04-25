@@ -24,9 +24,9 @@ class Capture:
 
     def _set_partner_config(self, kwargs):
         self.partner_id = kwargs.get("partner-id")
-        self.client_id = kwargs.get("partner-client-id")
-        self.secret = kwargs.get("partner-secret")
-        self.bn_code = kwargs.get("partner-bn-code")
+        self.client_id = kwargs.get("client-id")
+        self.secret = kwargs.get("secret")
+        self.bn_code = kwargs.get("bn-code")
         self.merchant_id = kwargs.get("merchant-id")
 
         if self.client_id == current_app.config["PARTNER_CLIENT_ID"]:
