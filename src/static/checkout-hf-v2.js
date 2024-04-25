@@ -1,8 +1,4 @@
 import {
-  saveOptionsAndReloadPage
-} from './utils.js'
-
-import {
   getContingencies,
   createOrder,
   captureOrder,
@@ -34,12 +30,7 @@ function getMethods() {
 
 let cardFields
 async function loadHostedFields() {
-  if (cardFields) {
-    /* We've been instructed to load the hosted fields, but they're already loaded.
-     * We'll just save the user's options and reload the page.
-     */
-    saveOptionsAndReloadPage()
-  }
+  if (cardFields) await cardFields.close()
 
   const methods = getMethods()
   cardFields = paypal.CardFields({

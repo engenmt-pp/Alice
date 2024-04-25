@@ -45,7 +45,9 @@
     setOptions(options)
 
     buildScriptElement(loadHostedFieldsV2, 'hosted-fields-v2')
-    setupEventListeners(saveOptionsAndReloadPage)
+    setupEventListeners(() => {
+      buildScriptElement(loadHostedFieldsV2, 'hosted-fields-v2')
+    })
 
     document.getElementById('buyer-not-present-checkout').addEventListener('click', buyerNotPresentCheckout)
   })
