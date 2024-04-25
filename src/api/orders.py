@@ -67,6 +67,7 @@ class Order:
             "postal_code": kwargs.get("billing-address-postal-code"),
             "country_code": kwargs.get("billing-address-country-code", "").upper(),
         }
+        self.mock_header = kwargs.get("mock-header") or None
 
         self.ba_id = kwargs.get("ba-id")
 
@@ -124,10 +125,6 @@ class Order:
             include_request_id=self.include_request_id,
         )
         self.formatted |= headers.pop("formatted")
-
-        # headers["PayPal-Mock-Response"] = json.dumps(
-        #     {"mock_application_codes": "INSTRUMENT_DECLINED"}
-        # )
 
         self.auth_header = headers["Authorization"]
         return headers
@@ -481,6 +478,12 @@ class Order:
             headers = self.build_headers()
         except KeyError:
             return {"formatted": self.formatted}
+        else:
+            if self.mock_header and self.mock_header.startswith("capture"):
+                mock_header = self.mock_header.removeprefix("capture-")
+                headers["PayPal-Mock-Response"] = json.dumps(
+                    {"mock_application_codes": mock_header}
+                )
 
         data = {}
         payment_instruction = self.build_payment_instruction(for_call="capture")
