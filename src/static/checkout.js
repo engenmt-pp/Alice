@@ -150,6 +150,12 @@ function getContingencies() {
   return null
 }
 
+function getCardholderName() {
+  const cardholderName = document.getElementById('cardholder-name')?.value
+  if (cardholderName) return cardholderName
+  return null
+}
+
 let setupEventListeners = (function () {
   let myFunc
   const elementIds = [
@@ -353,6 +359,7 @@ export {
   setupEventListeners,
   buildScriptElement,
   changeCheckout,
+  getCardholderName,
   getContingencies,
   onClick,
   createOrder,
