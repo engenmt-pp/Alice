@@ -9,6 +9,7 @@ from datetime import datetime, timezone, timedelta
 def get_cols():
     return {
         "date_time": "timestamp",
+        "week": "TEXT",
         "remote_address": "TEXT",
         "referer": "TEXT",
         "method": "TEXT",
@@ -83,7 +84,7 @@ def format_result(result, col_names):
     for row in result:
         rows_out.append(
             " | ".join(
-                [f"{val:<{max_width}}" for val, max_width in zip(row, max_widths)]
+                [f"{val:>{max_width}}" for val, max_width in zip(row, max_widths)]
             )
         )
     return rows_out
@@ -93,7 +94,7 @@ def insert_logs_into_table(con, logs):
     cols = get_cols().keys()
     rows = [tuple(log[col_name] for col_name in cols) for log in logs]
     with con:
-        con.executemany("INSERT INTO access VALUES (?,?,?,?,?,?,?,?)", rows)
+        con.executemany("INSERT INTO access VALUES (?,?,?,?,?,?,?,?,?)", rows)
 
 
 def list_data(con):
@@ -122,6 +123,29 @@ def list_data(con):
         result,
         col_names=cols.values(),
     )
+    print("\n".join(formatted_results))
+
+
+def inspect_data_by_week(con):
+    cols = {
+        "week": "WeekNumber",
+        "count(*)": "Count",
+    }
+    with con:
+        res = con.execute(
+            f"""
+            SELECT
+                {', '.join(cols.keys())}
+            FROM
+                access
+            GROUP BY
+                week
+            ORDER BY
+                week desc
+        """
+        )
+    result = list(res.fetchall())
+    formatted_results = format_result(result, col_names=cols.values())
     print("\n".join(formatted_results))
 
 
@@ -228,7 +252,10 @@ def load_logs(con, log_file):
         log["referer"] = log["referer"].removeprefix(
             "http://partnertools.dev51-test-apps-gpstam.dev51.cbf.dev.paypalinc.com:8000"
         )
-        log["date_time"] = format_timestamp(log["date_time"])
+        date_time = format_timestamp(log["date_time"])
+        log["date_time"] = date_time
+        isocalendar = date_time.isocalendar()
+        log["week"] = f"Y{isocalendar.year}-W{isocalendar.week:02}"
         logs_as_dicts.append(log)
 
     create_table(con)
@@ -248,5 +275,6 @@ if __name__ == "__main__":
     load_logs(con, log_file)
     # list_data(con)
     # inspect_data_by_user_agent(con)
-    inspect_data_by_date(con)
+    # inspect_data_by_date(con)
+    inspect_data_by_week(con)
     # inspect_data_by_time(con)
