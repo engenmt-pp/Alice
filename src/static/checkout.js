@@ -86,7 +86,7 @@ async function buildScriptElement(onload, checkoutMethod) {
   }
 
   const userAction = document.getElementById('user-action')?.value
-  const commit = (userAction == 'CONTINUE')
+  const commit = (userAction == 'PAY_NOW')
   query.set('commit', commit)
 
   let components
