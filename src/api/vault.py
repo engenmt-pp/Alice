@@ -96,12 +96,11 @@ class Vault:
                 if (
                     self.payment_source_type == "card"
                     and self.three_d_secure_preference
+                    # and False
                 ):
-                    payment_source_body["attributes"] = {
-                        "verification": {
-                            "method": self.three_d_secure_preference,
-                        }
-                    }
+                    payment_source_body["verification_method"] = (
+                        self.three_d_secure_preference
+                    )
                 if self.include_shipping_address:
                     payment_source_body["shipping"] = default_shipping_address()
 

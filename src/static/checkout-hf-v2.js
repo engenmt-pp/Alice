@@ -54,10 +54,11 @@ async function loadHostedFields() {
       event.preventDefault()
       event.stopImmediatePropagation()
       let data = {}
-      const contingencies = getContingencies()
-      if (contingencies) {
-        data.contingencies = contingencies
-      }
+      // const contingencies = getContingencies()
+      // console.log('contingencies', contingencies)
+      // if (contingencies) {
+      //   data.contingencies = contingencies
+      // }
       cardFields.submit(data)
     })
   } else {
