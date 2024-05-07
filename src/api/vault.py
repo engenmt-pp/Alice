@@ -78,33 +78,43 @@ class Vault:
         match for_token:
             case "setup":
                 experience_context = {
-                    "payment_method_preference": "IMMEDIATE_PAYMENT_REQUIRED",
-                    "return_url": "http://go/alice/returnUrl",
-                    "cancel_url": "http://go/alice/cancelUrl",
+                    "return_url": "https://go/alice/returnUrl",
+                    "cancel_url": "https://go/alice/cancelUrl",
                 }
                 if self.shipping_preference:
                     experience_context["shipping_preference"] = self.shipping_preference
 
                 payment_source_body = {
-                    "description": "A description of a PayPal payment source.",
-                    "permit_multiple_payment_tokens": True,
-                    "usage_pattern": "IMMEDIATE",
-                    "customer_type": "CONSUMER",
-                    "usage_type": self.vault_level,
                     "experience_context": experience_context,
                 }
-                if (
-                    self.payment_source_type == "card"
-                    and self.three_d_secure_preference
-                    # and False
-                ):
-                    payment_source_body["verification_method"] = (
-                        self.three_d_secure_preference
-                    )
                 if self.include_shipping_address:
                     payment_source_body["shipping"] = default_shipping_address()
 
+                match self.payment_source_type:
+                    case "paypal" | "venmo":
+                        description = (
+                            "A PayPal payment source."
+                            if self.payment_source_type == "paypal"
+                            else "A Venmo payment source."
+                        )
+                        payment_source_body |= {
+                            "permit_multiple_payment_tokens": True,
+                            "usage_type": self.vault_level,
+                        }
+                    case "card":
+                        description = "A card payment source."
+                        if self.three_d_secure_preference:
+                            payment_source_body["verification_method"] = (
+                                self.three_d_secure_preference
+                            )
+                    case _:
+                        description = (
+                            f"A {self.payment_source_type.title()} payment source."
+                        )
+
+                payment_source_body["description"] = description
                 payment_source = {self.payment_source_type: payment_source_body}
+
             case "payment":
                 payment_source = {
                     "token": {
