@@ -321,8 +321,9 @@ async function createVaultSetupToken({ paymentSource } = {}) {
   return setupTokenId
 }
 
-async function createVaultPaymentToken({ vaultSetupToken: setupTokenId } = {}) {
+async function createVaultPaymentToken({ vaultSetupToken: setupTokenId, liabilityShift } = {}) {
   console.log(`Vault setup token ${setupTokenId} was approved!`)
+  console.log('liabilityShift:', liabilityShift)
   console.group('Creating vault payment token...')
 
   const options = getOptions()
