@@ -46,6 +46,9 @@ class Order:
         self.vault_level = kwargs.get("vault-level")
         self.vault_id = kwargs.get("vault-id")
         self.customer_id = kwargs.get("customer-id")
+        self.permit_multiple_payment_tokens = bool(
+            kwargs.get("permit-multiple-payment-tokens", "true")
+        )
         try:
             self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
         except KeyError:
@@ -365,6 +368,8 @@ class Order:
         if context:
             payment_source_body["experience_context"] = context
 
+        attributes = {}
+        customer = {}
         match self.vault_flow:
             case "buyer-not-present":
                 if not self.vault_id:
@@ -374,21 +379,21 @@ class Order:
                 payment_source_body["vault_id"] = self.vault_id
 
             case "first-time-buyer":
-                payment_source_body["attributes"] = {
-                    "vault": {
-                        "store_in_vault": "ON_SUCCESS",
-                        "usage_type": self.vault_level,
-                        "permit_multiple_payment_tokens": True,
-                    }
+                attributes["vault"] = {
+                    "store_in_vault": "ON_SUCCESS",
+                    "usage_type": self.vault_level,
+                    "permit_multiple_payment_tokens": self.permit_multiple_payment_tokens,
                 }
+                if self.customer_id:
+                    customer["id"] = self.customer_id
 
             case "return-buyer":
                 if self.customer_id:
-                    payment_source_body["attributes"] = {
-                        "customer": {
-                            "id": self.customer_id,
-                        },
-                    }
+                    customer["id"] = self.customer_id
+        if customer:
+            attributes["customer"] = customer
+        if attributes:
+            payment_source_body["attributes"] = attributes
 
         if payment_source_body:
             return {self.payment_source_type: payment_source_body}
