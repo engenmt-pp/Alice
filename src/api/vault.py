@@ -89,37 +89,18 @@ class Vault:
                     experience_context["shipping_preference"] = self.shipping_preference
 
                 payment_source_body = {
-                    "description": "A description of a PayPal payment source.",
-                    "usage_pattern": "IMMEDIATE",
-                    "customer_type": "CONSUMER",
                     "permit_multiple_payment_tokens": self.permit_multiple_payment_tokens,
                     "usage_type": self.vault_level,
                     "experience_context": experience_context,
                 }
-
-                if (
-                    self.payment_source_type == "card"
-                    and self.three_d_secure_preference
-                ):
-                    payment_source_body["attributes"] = {
-                        "verification": {
-                            "method": self.three_d_secure_preference,
-                        }
-                    }
                 if self.include_shipping_address:
                     payment_source_body["shipping"] = default_shipping_address()
 
                 match self.payment_source_type:
-                    case "paypal" | "venmo":
-                        description = (
-                            "A PayPal payment source."
-                            if self.payment_source_type == "paypal"
-                            else "A Venmo payment source."
-                        )
-                        payment_source_body |= {
-                            "permit_multiple_payment_tokens": True,
-                            "usage_type": self.vault_level,
-                        }
+                    case "paypal":
+                        description = "A PayPal payment source."
+                    case "venmo":
+                        description = "A Venmo payment source."
                     case "card":
                         description = "A card payment source."
                         if self.three_d_secure_preference:
