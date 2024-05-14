@@ -295,10 +295,15 @@ async function captureOrder({ paymentSource, orderID, liabilityShift } = {}) {
     method: 'POST',
     body: JSON.stringify(options)
   })
-  console.log(`Captured order ${orderId}!`)
+
   const captureData = await captureResp.json()
   const { formatted, authHeader, captureStatus } = captureData
   setAuthHeader(authHeader)
+  if (captureStatus) {
+    console.log(`Captured order ${orderId}! Status: ${captureStatus}`)
+  } else {
+    console.log(`Unable to capture order.`)
+  }
 
   addApiCalls(formatted)
   console.groupEnd()

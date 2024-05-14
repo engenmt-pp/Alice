@@ -408,6 +408,11 @@ class Order:
                     headers["PayPal-Mock-Response"] = json.dumps(
                         {"mock_application_codes": mock_header}
                     )
+                elif self.mock_header.startswith("create"):
+                    mock_header = self.mock_header.removeprefix("create-")
+                    headers["PayPal-Mock-Response"] = json.dumps(
+                        {"mock_application_codes": mock_header}
+                    )
 
         purchase_units = [self.build_purchase_unit()]
         data = {
@@ -491,13 +496,21 @@ class Order:
             "authHeader": self.auth_header,
         }
         try:
-            capture_status = response.json()["purchase_units"][0]["payments"][
-                "captures"
-            ][0]["status"]
-        except (KeyError, IndexError) as exc:
-            capture_status = None
+            response_dict = response.json()
+        except json.JSONDecodeError as exc:
+            current_app.logger.error(
+                f"Encountered {exc} while unpacking capture response:\n{response.text}"
+            )
+        else:
+            try:
+                capture_status = response_dict["purchase_units"][0]["payments"][
+                    "captures"
+                ][0]["status"]
+            except (KeyError, IndexError) as exc:
+                capture_status = None
+            finally:
+                return_val["captureStatus"] = capture_status
         finally:
-            return_val["captureStatus"] = capture_status
             return return_val
 
     def _authorize(self):
@@ -511,6 +524,13 @@ class Order:
             headers = self.build_headers()
         except KeyError:
             return
+        else:
+            if self.mock_header:
+                if self.mock_header.startswith("authorize"):
+                    mock_header = self.mock_header.removeprefix("authorize-")
+                    headers["PayPal-Mock-Response"] = json.dumps(
+                        {"mock_application_codes": mock_header}
+                    )
 
         data = {}
         payment_source = self.build_payment_source_for_authorize()
@@ -549,15 +569,35 @@ class Order:
         response = requests.post(endpoint, headers=headers, json=data)
         self.formatted["capture-authorization"] = format_request_and_response(response)
 
-        return
+        try:
+            response_dict = response.json()
+        except json.JSONDecodeError as exc:
+            current_app.logger.error(
+                f"Encountered {exc} while unpacking capture response:\n{response.text}"
+            )
+            return
+
+        try:
+            capture_status = response_dict["purchase_units"][0]["payments"]["captures"][
+                0
+            ]["status"]
+        except (KeyError, IndexError) as exc:
+            return
+
+        return capture_status
 
     def auth_and_capture(self):
         """Authorize the order and then capture the resulting authorization."""
         if self.auth_id is None:
             self._authorize()
 
-        self._capture_authorization()
-        return_val = {
+        return_val = dict()
+        if self.auth_id is not None:
+            capture_status = self._capture_authorization()
+            if capture_status is not None:
+                return_val["captureStatus"] = capture_status
+
+        return_val |= {
             "formatted": self.formatted,
             "authHeader": self.auth_header,
         }
