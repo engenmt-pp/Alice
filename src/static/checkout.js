@@ -150,6 +150,12 @@ function getContingencies() {
   return null
 }
 
+function getCardholderName() {
+  const cardholderName = document.getElementById('cardholder-name')?.value
+  if (cardholderName) return cardholderName
+  return null
+}
+
 let setupEventListeners = (function () {
   let myFunc
   const elementIds = [
@@ -289,10 +295,15 @@ async function captureOrder({ paymentSource, orderID, liabilityShift } = {}) {
     method: 'POST',
     body: JSON.stringify(options)
   })
-  console.log(`Captured order ${orderId}!`)
+
   const captureData = await captureResp.json()
   const { formatted, authHeader, captureStatus } = captureData
   setAuthHeader(authHeader)
+  if (captureStatus) {
+    console.log(`Captured order ${orderId}! Status: ${captureStatus}`)
+  } else {
+    console.log(`Unable to capture order.`)
+  }
 
   addApiCalls(formatted)
   console.groupEnd()
@@ -353,6 +364,7 @@ export {
   setupEventListeners,
   buildScriptElement,
   changeCheckout,
+  getCardholderName,
   getContingencies,
   onClick,
   createOrder,

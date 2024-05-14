@@ -1,4 +1,5 @@
 import {
+  getCardholderName,
   getContingencies,
   createOrder,
   captureOrder,
@@ -28,7 +29,52 @@ function getMethods() {
   }
 }
 
+function getBillingAddress() {
+  const data = {}
+
+  const addressFields = {
+    addressLine1: 'billing-address-line-1',
+    addressLine2: 'billing-address-line-2',
+    adminArea1: 'billing-address-admin-area-1',
+    adminArea2: 'billing-address-admin-area-2',
+    postalCode: 'billing-address-postal-code',
+    countryCode: 'billing-address-country-code',
+  }
+
+  for (let [key, id] of Object.entries(addressFields)) {
+    const val = document.getElementById(id)?.value
+    if (val) {
+      if (id === 'billing-address-country-code') {
+        data[key] = val.toUpperCase()
+      } else {
+        data[key] = val
+      }
+    }
+  }
+
+  if (Object.entries(data).length > 0) return data
+
+  return null
+}
+
 let cardFields
+async function onSubmit(event) {
+  event.preventDefault()
+  event.stopImmediatePropagation()
+  const data = {}
+
+  const cardholderName = getCardholderName()
+  if (cardholderName) data.cardholderName = cardholderName
+
+  const billingAddress = getBillingAddress()
+  if (billingAddress) data.billingAddress = billingAddress
+
+  const contingencies = getContingencies()
+  if (contingencies) data.contingencies = contingencies
+
+  console.log('Submitting data:', data)
+  cardFields.submit(data)
+}
 async function loadHostedFields() {
   if (cardFields) await cardFields.close()
 
@@ -50,17 +96,7 @@ async function loadHostedFields() {
     const expiryField = cardFields.ExpiryField()
     await expiryField.render('#expiration-date')
 
-    document.querySelector("#hf-v2-form").addEventListener('submit', (event) => {
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      let data = {}
-      // const contingencies = getContingencies()
-      // console.log('contingencies', contingencies)
-      // if (contingencies) {
-      //   data.contingencies = contingencies
-      // }
-      cardFields.submit(data)
-    })
+    document.querySelector("#hf-v2-form").addEventListener('submit', onSubmit)
   } else {
     alert("Not eligible for Hosted Fields v2!")
   }

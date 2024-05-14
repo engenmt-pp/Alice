@@ -1,5 +1,6 @@
 import {
   createOrder,
+  getCardholderName,
   getContingencies,
   getStatus,
   captureOrder
@@ -27,28 +28,51 @@ const fields = {
   }
 }
 
-let hostedFields
+function getBillingAddress() {
+  const data = {}
 
+  const addressFields = {
+    streetAddress: 'billing-address-line-1',
+    extendedAddress: 'billing-address-line-2',
+    locality: 'billing-address-admin-area-1',
+    region: 'billing-address-admin-area-2',
+    postalCode: 'billing-address-postal-code',
+    countryCodeAlpha2: 'billing-address-country-code',
+  }
+
+  for (let [key, id] of Object.entries(addressFields)) {
+    const val = document.getElementById(id)?.value
+    if (val) {
+      if (id === 'billing-address-country-code') {
+        data[key] = val.toUpperCase()
+      } else {
+        data[key] = val
+      }
+    }
+  }
+
+  if (Object.entries(data).length > 0) return data
+
+  return null
+}
+
+let hostedFields
 async function onSubmit(event) {
   event.preventDefault()
-  const data = {
-    // Cardholder's first and last name
-    cardholderName: document.getElementById('cardholder-name').value,
-    // Billing Address
-    billingAddress: {
-      streetAddress: document.getElementById('billing-address-line-1').value,
-      extendedAddress: document.getElementById('billing-address-line-2').value,
-      locality: document.getElementById('billing-address-admin-area-1').value,
-      region: document.getElementById('billing-address-admin-area-2').value,
-      postalCode: document.getElementById('billing-address-postal-code').value,
-      countryCodeAlpha2: document.getElementById('billing-address-country-code').value.toUpperCase()
-    },
-  }
+
+  const data = {}
+
+  const billingAddress = getBillingAddress()
+  if (billingAddress) data.billingAddress = billingAddress
+
+  const cardholderName = getCardholderName()
+  if (cardholderName) data.cardholderName = cardholderName
+
   const contingencies = getContingencies()
-  if (contingencies) {
-    data.contingencies = contingencies
-  }
-  await hostedFields.submit()
+  if (contingencies) data.contingencies = contingencies
+
+  console.log("Submitting data:", data)
+  await hostedFields.submit(data)
 
   await getStatus()
   await captureOrder()
