@@ -339,20 +339,18 @@ class Order:
             return payment_source
 
         payment_source_body = {}
+        attributes = {}
 
         if self.payment_source_type == "card":
             if self.three_d_secure_preference:
-                payment_source_body["attributes"] = {
-                    "verification": {
-                        "method": self.three_d_secure_preference,
-                    }
+                attributes["verification"] = {
+                    "method": self.three_d_secure_preference,
                 }
 
         context = self.build_context()
         if context:
             payment_source_body["experience_context"] = context
 
-        attributes = {}
         customer = {}
         match self.vault_flow:
             case "buyer-not-present":
