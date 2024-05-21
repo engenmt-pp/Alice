@@ -84,13 +84,15 @@ def format_response(response):
     headers_received_whitelist = [
         "Content-Type",
         "Date",
-        "Paypal-Debug-Id",
     ]
-    headers_received = {
-        key: value
-        for key, value in response.headers.items()
-        if key in headers_received_whitelist
-    }
+    headers_received = dict()
+    debug_id = None
+    for key, value in response.headers.items():
+        if key.lower() == "paypal-debug-id":
+            debug_id = value
+        elif key in headers_received_whitelist:
+            headers_received[key] = value
+
     try:
         body_received = response.json()
     except json.decoder.JSONDecodeError:
@@ -98,7 +100,6 @@ def format_response(response):
 
     response_code = response.status_code
     reason = response.reason
-    debug_id = headers_received.get("Paypal-Debug-Id")
     return "\n".join(
         [
             f"Response:",
