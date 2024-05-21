@@ -36,7 +36,7 @@ function getBillingAddress() {
     streetAddress: 'billing-address-line-1',
     extendedAddress: 'billing-address-line-2',
     locality: 'billing-address-admin-area-1',
-    regions: 'billing-address-admin-area-2',
+    region: 'billing-address-admin-area-2',
     postalCode: 'billing-address-postal-code',
     countryCode: 'billing-address-country-code',
   }
