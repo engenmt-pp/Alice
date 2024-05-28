@@ -16,6 +16,7 @@ class Vault:
     def __init__(self, **kwargs):
         self.auth_header = kwargs.get("auth-header")
         self._set_partner_config(kwargs)
+        self._set_billing_address(kwargs)
         self.payment_source_type = kwargs.get(
             "payment-source",
             "card",  # If 'payment-source' is undefined, it must be a card transaction!
@@ -56,6 +57,21 @@ class Vault:
 
         if self.client_id == current_app.config["PARTNER_CLIENT_ID"]:
             self.secret = current_app.config["PARTNER_SECRET"]
+
+    def _set_billing_address(self, kwargs):
+        self.cardholder_name = kwargs.get("cardholder-name")
+        self.billing_address = {
+            "address_line_1": kwargs.get("billing-address-line-1"),
+            "address_line_2": kwargs.get("billing-address-line-2"),
+            "admin_area_1": kwargs.get("billing-address-admin-area-1"),
+            "admin_area_2": kwargs.get("billing-address-admin-area-2"),
+            "postal_code": kwargs.get("billing-address-postal-code"),
+            "country_code": kwargs.get("billing-address-country-code", "").upper(),
+        }
+
+        for key, val in dict(self.billing_address).items():
+            if not val:
+                del self.billing_address[key]
 
     def build_headers(self):
         """Wrapper for .utils.build_headers."""
@@ -107,6 +123,13 @@ class Vault:
                             payment_source_body["verification_method"] = (
                                 self.three_d_secure_preference
                             )
+                        if self.billing_address:
+                            payment_source_body["billing_address"] = (
+                                self.billing_address
+                            )
+                        if self.cardholder_name:
+                            payment_source_body["name"] = self.cardholder_name
+
                     case _:
                         description = (
                             f"A {self.payment_source_type.title()} payment source."
