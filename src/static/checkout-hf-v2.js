@@ -63,11 +63,14 @@ async function onSubmit(event) {
   event.stopImmediatePropagation()
   const data = {}
 
-  const cardholderName = getCardholderName()
-  if (cardholderName) data.cardholderName = cardholderName
+  const vaultWithoutPurchase = document.querySelector('#vault-without-purchase:checked')
+  if (!vaultWithoutPurchase) {
+    const cardholderName = getCardholderName()
+    if (cardholderName) data.cardholderName = cardholderName
 
-  const billingAddress = getBillingAddress()
-  if (billingAddress) data.billingAddress = billingAddress
+    const billingAddress = getBillingAddress()
+    if (billingAddress) data.billingAddress = billingAddress
+  }
 
   const contingencies = getContingencies()
   if (contingencies) data.contingencies = contingencies
