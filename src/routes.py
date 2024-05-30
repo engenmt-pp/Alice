@@ -3,13 +3,21 @@ from flask import Blueprint, current_app, render_template, request
 bp = Blueprint("routes", __name__, url_prefix="/")
 
 
-def get_partner_and_merchant_config():
-    partner_and_merchant_config = {
-        "partner_id": current_app.config["PARTNER_ID"],
-        "partner_client_id": current_app.config["PARTNER_CLIENT_ID"],
-        "partner_bn_code": current_app.config["PARTNER_BN_CODE"],
-        "merchant_id": current_app.config["MERCHANT_ID"],
-    }
+def get_partner_and_merchant_config(is_fastlane=False):
+    if is_fastlane:
+        partner_and_merchant_config = {
+            "partner_id": current_app.config["FASTLANE_ID"],
+            "partner_client_id": current_app.config["FASTLANE_CLIENT_ID"],
+            "partner_bn_code": current_app.config["FASTLANE_BN_CODE"],
+            "merchant_id": current_app.config["FASTLANE_ID"],
+        }
+    else:
+        partner_and_merchant_config = {
+            "partner_id": current_app.config["PARTNER_ID"],
+            "partner_client_id": current_app.config["PARTNER_CLIENT_ID"],
+            "partner_bn_code": current_app.config["PARTNER_BN_CODE"],
+            "merchant_id": current_app.config["MERCHANT_ID"],
+        }
     return partner_and_merchant_config
 
 
@@ -85,6 +93,36 @@ def checkout_hosted_v2():
     return render_template(
         template,
         method="hosted-v2",
+        **partner_and_merchant_config,
+        favicon=current_app.config["favicon"],
+    )
+
+
+@bp.route("checkout/fastlane-simple/")
+def checkout_fastlane_simple():
+    """Return the rendered Fastlane checkout page from its template."""
+
+    template = "checkout-fastlane-simple.html"
+    partner_and_merchant_config = get_partner_and_merchant_config(is_fastlane=True)
+
+    return render_template(
+        template,
+        method="fastlane-simple",
+        **partner_and_merchant_config,
+        favicon=current_app.config["favicon"],
+    )
+
+
+@bp.route("checkout/fastlane/")
+def checkout_fastlane_flex():
+    """Return the rendered Fastlane checkout page from its template."""
+
+    template = "checkout-fastlane.html"
+    partner_and_merchant_config = get_partner_and_merchant_config(is_fastlane=True)
+
+    return render_template(
+        template,
+        method="fastlane",
         **partner_and_merchant_config,
         favicon=current_app.config["favicon"],
     )

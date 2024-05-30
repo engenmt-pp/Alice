@@ -32,6 +32,10 @@
       </optgroup>
       <optgroup label="ACDC">
         <option
+          value="{{ url_for('routes.checkout_fastlane') }}"
+          {{ 'selected' if method == 'fastlane' else '' }}
+        >Fastlane</option>
+        <option
           value="{{ url_for('routes.checkout_hosted_v2') }}"
           {{ 'selected' if method == 'hosted-v2' else '' }}
         >Hosted Fields v2</option>
@@ -140,7 +144,7 @@
       <label for="customer-id">
         Customer ID
       </label>
-      <input name="customer-id" id="customer-id"/>
+      <input name="customer-id" id="customer-id">
     </div>
     <div class="first-time-buyer">
       <label for="permit-multiple-payment-tokens">
@@ -155,13 +159,13 @@
       <label for="vault-without-purchase">
         Vault without purchase
       </label>
-      <input type="checkbox" name="vault-without-purchase" id="vault-without-purchase"/>
+      <input type="checkbox" name="vault-without-purchase" id="vault-without-purchase">
     </div>
     <div class="buyer-not-present">
       <label for="vault-id">
         Vault ID
       </label>
-      <input name="vault-id" id="vault-id"/>
+      <input name="vault-id" id="vault-id">
     </div>
     <div class="buyer-not-present">
       <label for="vault-payment-source">

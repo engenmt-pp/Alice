@@ -1,0 +1,49 @@
+{% extends 'checkout.html' %}
+
+{% block vault_options %}
+{% endblock vault_options %}
+
+{% block checkout_div %}
+<script type="module">
+  import {
+    setOptions,
+    getOptions,
+    loadOptions,
+    saveOptionsAndReloadPage
+  } from "{{ url_for('static', filename='utils.js') }}";
+  import {
+    setupEventListeners,
+    buildScriptElement
+  } from "{{ url_for('static', filename='checkout.js') }}";
+  import loadFastlane from "{{ url_for('static', filename='checkout-fastlane.js') }}";
+  window.addEventListener('load', async function () {
+    const options = loadOptions()
+    window.sessionStorage.clear()
+    setOptions(options)
+
+    buildScriptElement(loadFastlane, 'fastlane')
+    setupEventListeners(() => {
+      buildScriptElement(loadFastlane, 'fastlane')
+    })
+  })
+</script>
+<div>
+  <form id="fastlane-form">
+    <fieldset id="fastlane-email-container">
+      <label for="fastlane-email-input">Email</label>
+      <input id="fastlane-email-input" name="fastlane-email-input" type="email" value="dogsWithBlogs@dogspot.com">
+      <button type="button" id="fastlane-email-button" class='disabled'>Look Up Email</button>
+    </fieldset>
+
+    <div id="watermark-container">
+      <img src="https://www.paypalobjects.com/fastlane-v1/assets/fastlane-with-tooltip_en_sm_light.0808.svg">
+    </div>
+
+    <div id="payment-container"></div>
+
+    <div id="shipping-address-container"></div>
+
+    <button type="button" id="pay-button" class='disabled'>Pay</button>
+  </form>
+</div>
+{% endblock checkout_div %}

@@ -550,13 +550,61 @@ button {
     }
 
     #pay-button {
+        display: block;
+
         color: var(--white);
         background-color: var(--green-800);
         margin-top: 12px;
         padding: 4px 8px;
         text-transform: capitalize;
         border-radius: 4px;
+    }
+}
+
+#fastlane-form {
+    label {
+        display: inline-block;
+        padding: 1px 2px;
+        margin: 5px 0;
+    }
+
+    & > input {
+        height: 2rem;
+        padding: 2px 4px;
+        margin-block: 0.1875rem;
+        border: 1px solid var(--hf-v2-border);
+        border-radius: 0.25rem;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    button {
+        display: inline-block;
+
+        color: var(--white);
+        background-color: var(--green-800);
+        margin-top: 12px;
+        padding: 4px 8px;
+        text-transform: capitalize;
+        border-radius: 4px;
+
+        &.disabled {
+            background-color: grey;
+            cursor: not-allowed;
+        }
+    }
+
+    #shipping-address-container {
+        margin-block: 12px;
+        white-space: pre-line;
         display: block;
+
+        & > span {
+            text-decoration: underline;
+            font-weight: 650;
+        }
     }
 }
 
