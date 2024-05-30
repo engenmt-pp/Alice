@@ -33,10 +33,10 @@ function getBillingAddress() {
   const data = {}
 
   const addressFields = {
-    addressLine1: 'billing-address-line-1',
-    addressLine2: 'billing-address-line-2',
-    adminArea1: 'billing-address-admin-area-1',
-    adminArea2: 'billing-address-admin-area-2',
+    streetAddress: 'billing-address-line-1',
+    extendedAddress: 'billing-address-line-2',
+    locality: 'billing-address-admin-area-1',
+    region: 'billing-address-admin-area-2',
     postalCode: 'billing-address-postal-code',
     countryCode: 'billing-address-country-code',
   }

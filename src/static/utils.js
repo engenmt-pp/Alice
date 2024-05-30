@@ -144,7 +144,7 @@ function allowCredentialEditing() {
   })
   credentials.querySelector('input').focus()
 
-  const button = credentials.getElementById('button-edit-partner')
+  const button = document.getElementById('button-edit-partner')
   button.onclick = resetCredentials
   button.innerHTML = 'Reset'
 }

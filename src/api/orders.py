@@ -289,8 +289,8 @@ class Order:
             return context
 
         context |= {
-            "return_url": "http://go/alice/return",
-            "cancel_url": "http://go/alice/cancel",
+            "return_url": "https://go/alice/return",
+            "cancel_url": "https://go/alice/cancel",
         }
         if self.user_action:
             context["user_action"] = self.user_action
