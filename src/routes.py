@@ -114,7 +114,7 @@ def checkout_fastlane_simple():
 
 
 @bp.route("checkout/fastlane/")
-def checkout_fastlane_flex():
+def checkout_fastlane():
     """Return the rendered Fastlane checkout page from its template."""
 
     template = "checkout-fastlane.html"

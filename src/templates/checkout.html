@@ -31,10 +31,10 @@
         >Google Pay</option>
       </optgroup>
       <optgroup label="ACDC">
-        <option
+        <!-- <option
           value="{{ url_for('routes.checkout_fastlane') }}"
           {{ 'selected' if method == 'fastlane' else '' }}
-        >Fastlane</option>
+        >Fastlane</option> -->
         <option
           value="{{ url_for('routes.checkout_hosted_v2') }}"
           {{ 'selected' if method == 'hosted-v2' else '' }}
