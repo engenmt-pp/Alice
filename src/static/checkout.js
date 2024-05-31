@@ -231,10 +231,12 @@ function mapPaymentSource(paymentSource) {
 }
 
 let orderId
+let isBcdcCheckout
 
 function onClick({ fundingSource }) {
   console.group("Button clicked!")
   console.log('fundingSource:', fundingSource)
+  isBcdcCheckout = (fundingSource === 'card')
   console.groupEnd()
 }
 
@@ -254,7 +256,7 @@ async function createOrder({ paymentSource } = {}) {
   ({ orderId } = createData)
   setAuthHeader(authHeader)
 
-  addApiCalls(formatted)
+  addApiCalls(formatted, !isBcdcCheckout)
   console.log(`Order ${orderId} created!`)
   console.groupEnd()
   return orderId
