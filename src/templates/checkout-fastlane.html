@@ -35,13 +35,20 @@
       <button type="button" id="fastlane-email-button" class='disabled'>Look Up Email</button>
     </fieldset>
 
+    <div id="payment-container"></div>
     <div id="watermark-container">
       <img src="https://www.paypalobjects.com/fastlane-v1/assets/fastlane-with-tooltip_en_sm_light.0808.svg">
     </div>
 
-    <div id="payment-container"></div>
-
-    <div id="shipping-address-container"></div>
+    <div id="shipping-address-container">
+      <div>
+        <span>Shipping Address</span>
+        <button type="button" id="shipping-address-button">Change</button>
+      </div>
+      <span id="shipping-watermark-container">
+        <img src="https://www.paypalobjects.com/fastlane-v1/assets/fastlane_en_sm_light.0296.svg">
+      </span>
+    </div>
 
     <button type="button" id="pay-button" class='disabled'>Pay</button>
   </form>

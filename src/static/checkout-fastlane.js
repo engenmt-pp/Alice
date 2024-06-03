@@ -8,10 +8,6 @@ import {
     setAuthHeader
 } from './utils.js'
 
-let fastlane
-let fastlanePaymentComponent
-let identity, profile
-
 async function createOrder(singleUseToken) {
     console.group("Creating the order...")
 
@@ -83,14 +79,24 @@ async function captureOrder({ orderId, authId }) {
 }
 
 
-async function attemptCheckout() {
-    if (fastlanePaymentComponent) {
-        facilitateCheckout()
-    } else {
-        alert("Need to look up an email first!")
-    }
+let fastlane
+let fastlanePaymentComponent
+let identity, profile
+const styles = {
+    // root: { backgroundColorPrimary: "#FAFAFA" }
+    // root: { backgroundColorPrimary: "#FFF" }
+    root: { backgroundColorPrimary: "transparent" }
 }
-async function facilitateCheckout() {
+
+async function attemptCheckout() {
+    console.group("Attempting checkout...")
+    if (!fastlanePaymentComponent) {
+        console.log("The fastlanePaymentComponent is not yet loaded. Load the component by looking up an email first.")
+        alert("Fastlane checkout first requires an email address lookup!")
+        console.groupEnd()
+        return
+    }
+
     console.log("Facilitating checkout...")
     const { id: paymentTokenId } = await fastlanePaymentComponent.getPaymentToken()
 
@@ -154,11 +160,12 @@ async function setUpReturnBuyerCheckout(customerContextId) {
         console.log("Authentication succeeded! profileData:", profileData)
         const { shippingAddress } = profileData
         if (shippingAddress) {
+            setUpShippingAddress()
             displayShippingAddress(shippingAddress)
         } else {
             alert('No shipping address!')
         }
-        fastlanePaymentComponent = await fastlane.FastlanePaymentComponent()
+        fastlanePaymentComponent = await fastlane.FastlanePaymentComponent({ styles })
     } else {
         console.log("Authentication unsuccessful... falling back to guest experience.")
         console.groupEnd()
@@ -168,7 +175,7 @@ async function setUpReturnBuyerCheckout(customerContextId) {
 }
 
 async function setUpGuestBuyerCheckout() {
-    console.group('Facilitating guest buyer (Gary) flow...')
+    console.group('Setting up guest buyer (Gary) flow...')
 
     const fields = {
         phoneNumber: { prefill: "8882211161" },
@@ -177,25 +184,68 @@ async function setUpGuestBuyerCheckout() {
     const shippingAddress = {
         firstName: "Comp",
         lastName: "Smith",
-        streetAddress: "1 East 1st St",
-        extendedAddress: "5th Floor",
-        locality: "Bartlett",
-        region: "IL", //must be sent in 2-letter format
+        addressLine1: "1 East 1st St",
+        addressLine2: "5th Floor",
+        adminArea2: "Bartlett",
+        adminArea1: "IL", //must be sent in 2-letter format
         postalCode: "60103",
-        countryCodeAlpha2: "US"
+        countryCode: "US"
+    }
+    // const shippingAddress = {
+    //     firstName: "Comp",
+    //     lastName: "Smith",
+    //     streetAddress: "1 East 1st St",
+    //     extendedAddress: "5th Floor",
+    //     locality: "Bartlett",
+    //     region: "IL", //must be sent in 2-letter format
+    //     postalCode: "60103",
+    //     countryCodeAlpha2: "US"
+    // }
+
+    const options = {
+        styles,
+        fields,
+        shippingAddress
+    }
+    console.log("Initializing guest buyer checkout with options:", options)
+
+    fastlanePaymentComponent = await fastlane.FastlanePaymentComponent(options)
+    console.groupEnd()
+}
+
+async function setUpShippingAddress() {
+    async function changeShippingAddress() {
+        console.group("Changing shipping address...")
+        const {
+            selectionChanged,
+            selectedAddress
+        } = await profile.showShippingAddressSelector()
+
+        if (selectionChanged) {
+            console.log("Selection changed!")
+            displayShippingAddress(selectedAddress)
+        } else {
+            console.log("No new address selected.")
+        }
+        console.groupEnd()
     }
 
-    fastlanePaymentComponent = await fastlane.FastlanePaymentComponent({ fields, shippingAddress })
-    console.groupEnd()
+    const button = document.getElementById('shipping-address-button')
+    button.addEventListener('click', changeShippingAddress)
+
+    const fastlaneWatermark = await fastlane.FastlaneWatermarkComponent({
+        includeAdditionalInfo: false
+    })
+    fastlaneWatermark.render('#shipping-watermark-container')
 }
 
 async function displayShippingAddress(shippingAddress) {
     const { name, address, phoneNumber } = shippingAddress
 
-    const container = document.getElementById('shipping-address-container')
-    container.innerHTML = '<span>Shipping Address</span>'
+    const shippingAddressFooter = document.getElementById('shipping-watermark-container')
+    const div = document.createElement('div')
 
-    if (name) container.append(`\n${name.fullName}`)
+    if (name) div.append(`\n${name.fullName}`)
 
     if (address) {
         const {
@@ -206,11 +256,11 @@ async function displayShippingAddress(shippingAddress) {
             postalCode = 'postalCode'
         } = address
 
-        container.append(`\n${addressLine1}`)
+        div.append(`\n${addressLine1}`)
 
-        if (addressLine2) container.append(`\n${addressLine2}\n`)
+        if (addressLine2) div.append(`\n${addressLine2}\n`)
 
-        container.append(`\n${adminArea2}, ${adminArea1} ${postalCode}\n`)
+        div.append(`\n${adminArea2}, ${adminArea1} ${postalCode}\n`)
     }
 
     if (phoneNumber) {
@@ -218,8 +268,10 @@ async function displayShippingAddress(shippingAddress) {
             countryCode = 'countryCode',
             nationalNumber = 'nationalNumber'
         } = phoneNumber
-        container.append(`\n+${countryCode} ${nationalNumber}\n`)
+        div.append(`\n+${countryCode} ${nationalNumber}\n`)
     }
+
+    shippingAddressFooter.insertAdjacentElement('beforebegin', div)
 }
 
 async function loadFastlane() {

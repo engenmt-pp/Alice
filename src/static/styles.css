@@ -583,12 +583,15 @@ button {
     button {
         display: inline-block;
 
+        background-color: #005ccc;
         color: var(--white);
-        background-color: var(--green-800);
-        margin-top: 12px;
         padding: 4px 8px;
         text-transform: capitalize;
         border-radius: 4px;
+
+        &[id=pay-button] {
+            background-color: var(--green-800);
+        }
 
         &.disabled {
             background-color: grey;
@@ -597,13 +600,42 @@ button {
     }
 
     #shipping-address-container {
+        border: 2px solid black;
+        padding: 4px;
+        border-radius: 8px;
         margin-block: 12px;
-        white-space: pre-line;
-        display: block;
+        max-width: max-content;
 
-        & > span {
-            text-decoration: underline;
-            font-weight: 650;
+        white-space: pre-line;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+
+        & > div:first-child {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+
+            & > span {
+                font-size: 1rem;
+                text-decoration: underline;
+            }
+        }
+
+        & > div:not(:first-child) {
+            display: block;
+            &:not(:last-of-type) {
+                text-decoration: line-through;
+            }
+        }
+
+        &:not(:has(div+div)) {
+            display: none;
+        }
+
+        & > span:last-child {
+            margin-left: auto;
         }
     }
 }
