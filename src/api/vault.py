@@ -33,10 +33,13 @@ class Vault:
         self.shipping_preference = kwargs.get("shipping-preference", "NO_SHIPPING")
         self.include_shipping_address = kwargs.get("include-shipping-address", False)
 
+        self.mock_header = kwargs.get("mock-header") or None
+
         try:
             self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
         except KeyError:
             self.include_auth_assertion = self.vault_level == "MERCHANT"
+
         self.include_request_id = (
             True  # This is required to specify `experience_context`.
         )
@@ -189,6 +192,26 @@ class Vault:
         finally:
             return return_val
 
+    def get_setup_token_status(self):
+        """Retrieve the setup token status using the GET /v3/vault/setup-tokens/{setup_token_id} endpoint.
+
+        Docs: https://developer.paypal.com/docs/api/payment-tokens/v3/#setup-tokens_get
+        """
+        endpoint = build_endpoint(f"/v3/vault/setup-tokens/{self.setup_token}")
+        try:
+            headers = self.build_headers()
+        except KeyError:
+            return {"formatted": self.formatted}
+
+        response = requests.get(endpoint, headers=headers)
+        self.formatted["setup-token-status"] = format_request_and_response(response)
+        return_val = {
+            "formatted": self.formatted,
+            "authHeader": self.auth_header,
+        }
+
+        return return_val
+
     def create_payment_token(self):
         """Create a payment token using the POST /v3/vault/payment-tokens endpoint.
 
@@ -199,6 +222,14 @@ class Vault:
             headers = self.build_headers()
         except KeyError:
             return {"formatted": self.formatted}
+        else:
+            if self.mock_header and self.mock_header.startswith("vault"):
+                mock_header = self.mock_header.removeprefix("vault-")
+                if mock_header.startswith("payment"):
+                    mock_header = mock_header.removeprefix("payment-")
+                    headers["PayPal-Mock-Response"] = json.dumps(
+                        {"mock_application_codes": mock_header}
+                    )
 
         data = {
             "payment_source": self.build_payment_source(for_token="payment"),
@@ -309,13 +340,29 @@ def create_setup_token():
 
 
 @bp.route("/setup-tokens/<setup_token_id>", methods=("POST",))
-def create_payment_token(setup_token_id):
+def get_setup_token_status(setup_token_id):
+    """Retrieve the status of a setup token with the given ID."""
+    data = request.get_json()
+    data["setup-token-id"] = setup_token_id
+
+    data_filtered = {key: value for key, value in data.items() if value}
+    current_app.logger.info(
+        f"Getting the status of a setup token with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+    )
+
+    vault = Vault(**data)
+    resp = vault.get_setup_token_status()
+
+    return jsonify(resp)
+
+
+@bp.route("/payment-tokens", methods=("POST",))
+def create_payment_token():
     """Create a Vault v3 payment token using the given setup token ID.
 
     Wrapper for Vault.create_payment_token.
     """
     data = request.get_json()
-    data["setup-token-id"] = setup_token_id
 
     data_filtered = {key: value for key, value in data.items() if value}
     current_app.logger.info(

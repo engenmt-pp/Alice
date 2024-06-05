@@ -158,6 +158,44 @@ async function getBaDetails() {
 }
 
 
+async function getSetupToken() {
+  const options = getPartnerMerchantInfo()
+
+  const id = 'include-auth-assertion'
+  options[id] = document.getElementById(id).value
+
+  const setupTokenId = document.getElementById('status-setup-token-id').value
+  const detailsResp = await fetch(`/api/vault/setup-tokens/${setupTokenId}`, {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify(options)
+  })
+  const detailsData = await detailsResp.json()
+  const { formatted, authHeader } = detailsData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
+}
+
+async function exchangeSetupToken() {
+  const options = getPartnerMerchantInfo()
+
+  const id = 'include-auth-assertion'
+  options[id] = document.getElementById(id).value
+
+  const setupTokenId = document.getElementById('status-setup-token-id').value
+  options['setup-token-id'] = setupTokenId
+  const createResp = await fetch(`/api/vault/payment-tokens`, {
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    body: JSON.stringify(options)
+  })
+  const createData = await createResp.json()
+  const { formatted, authHeader } = createData
+  setAuthHeader(authHeader)
+  addApiCalls(formatted)
+}
+
+
 async function getPaymentTokens() {
   const options = getPartnerMerchantInfo()
 
@@ -219,6 +257,8 @@ export {
   getCaptureDetails,
   refundCapture,
   getBaDetails,
+  exchangeSetupToken,
+  getSetupToken,
   deletePaymentToken,
   getPaymentTokens,
   getPaymentTokenDetails,

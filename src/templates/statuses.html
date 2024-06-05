@@ -121,8 +121,20 @@
       </div>
     </div>
     <div>
+      <label for="status-setup-token-id">
+        Setup Token ID
+      </label>
+      <input name="status-setup-token-id" id="status-setup-token-id"/>
+      <button type="button" id="exchange-setup-token" data-method='post' class="half">
+        Post
+      </button>
+      <button type="button" id="get-setup-token-details" data-method="get" class="half">
+        Get
+      </button>
+    </div>
+    <div>
       <label for="status-payment-token-id">
-        Vault v3 ID
+        Payment Token ID
       </label>
       <input name="status-payment-token-id" id="status-payment-token-id"/>
       <button type="button" id="delete-payment-token" data-method='delete' class="half">
@@ -147,6 +159,8 @@
     getCaptureDetails,
     refundCapture,
     getBaDetails,
+    exchangeSetupToken,
+    getSetupToken,
     deletePaymentToken,
     getPaymentTokens,
     getPaymentTokenDetails,
@@ -161,6 +175,8 @@
     'get-capture-details': getCaptureDetails,
     'refund-capture': refundCapture,
     'get-ba-details': getBaDetails,
+    'exchange-setup-token': exchangeSetupToken,
+    'get-setup-token-details': getSetupToken,
     'get-payment-tokens': getPaymentTokens,
     'delete-payment-token': deletePaymentToken,
     'get-payment-token-details': getPaymentTokenDetails,

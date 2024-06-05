@@ -339,8 +339,9 @@ async function createVaultPaymentToken({ vaultSetupToken: setupTokenId, liabilit
   console.group('Creating vault payment token...')
 
   const options = getOptions()
+  options['setup-token-id'] = setupTokenId
 
-  const createResp = await fetch(`/api/vault/setup-tokens/${setupTokenId}`, {
+  const createResp = await fetch(`/api/vault/payment-tokens`, {
     headers: { "Content-Type": "application/json" },
     method: "POST",
     body: JSON.stringify(options),
