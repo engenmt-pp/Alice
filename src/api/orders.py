@@ -370,8 +370,8 @@ class Order:
                     customer["id"] = self.customer_id
 
             case "return-buyer":
-                if self.customer_id:
-                    customer["id"] = self.customer_id
+                pass
+
         if customer:
             attributes["customer"] = customer
         if attributes:
