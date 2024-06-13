@@ -30,6 +30,8 @@ def get_client_token():
 
     if client_id == current_app.config["PARTNER_CLIENT_ID"]:
         secret = current_app.config["PARTNER_SECRET"]
+    if client_id == current_app.config["FASTLANE_CLIENT_ID"]:
+        secret = current_app.config["FASTLANE_SECRET"]
 
     headers = build_headers(
         auth_header=auth_header,
@@ -149,6 +151,8 @@ def get_id_token(customer_id):
 
     if client_id == current_app.config["PARTNER_CLIENT_ID"]:
         secret = current_app.config["PARTNER_SECRET"]
+    if client_id == current_app.config["FASTLANE_CLIENT_ID"]:
+        secret = current_app.config["FASTLANE_SECRET"]
 
     if request.args.get("include-auth-assertion"):
         # 'include-auth-assertion' is passed in a querystring,
@@ -186,6 +190,48 @@ def get_id_token(customer_id):
         auth_header = f"Bearer {access_token}"
         return_val["authHeader"] = auth_header
         return_val["idToken"] = id_token
+    finally:
+        return jsonify(return_val)
+
+
+@bp.route("/sdk-token", methods=("POST",))
+def get_sdk_token():
+    """Request an SDK token using the GET /v1/oauth2/token endpoint."""
+
+    endpoint = build_endpoint("/v1/oauth2/token")
+
+    data = request.get_json()
+
+    client_id = data["partner-client-id"]
+    secret = data["partner-secret"]
+    if client_id == current_app.config["FASTLANE_CLIENT_ID"]:
+        secret = current_app.config["FASTLANE_SECRET"]
+
+    data = {
+        "grant_type": "client_credentials",
+        # "response_type": "sdk_token", # FB: This is in the LR docs but throws an error!
+        # "response_type": "token",  # FB: This token is fully scoped!
+        "response_type": "client_token",  # FB: This token is limited in scope!
+        "intent": "sdk_init",
+        "domains[]": "paypal.com",
+    }
+
+    response = requests.post(
+        endpoint,
+        data=data,
+        auth=(client_id, secret),
+    )
+
+    formatted = {"sdk-token": format_request_and_response(response)}
+    return_val = {"formatted": formatted}
+
+    try:
+        response_dict = response.json()
+        sdk_token = response_dict["access_token"]
+    except KeyError as exc:
+        current_app.logger.error(f"Exception in get_sdk_token: {exc}")
+    else:
+        return_val["sdkToken"] = sdk_token
     finally:
         return jsonify(return_val)
 

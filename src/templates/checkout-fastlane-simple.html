@@ -1,0 +1,65 @@
+{% extends 'checkout.html' %}
+
+{% block other_options %}
+<!-- <fieldset id="fastlane-options">
+  <details open>
+    <summary>
+      <span>
+        <legend>
+          Fastlane options
+        </legend>
+      </span>
+    </summary>
+    <div>
+      <label for="3ds-preference">
+        3D-Secure (3DS)
+      </label>
+      <select name="3ds-preference" id="3ds-preference">
+        <option value="" selected>None</option>
+        <option value="SCA_WHEN_REQUIRED">When required</option>
+        <option value="SCA_ALWAYS">Always</option>
+      </select>
+    </div>
+  </details>
+</fieldset> -->
+{{ super() }}
+{% endblock other_options %}
+
+{% block checkout_div %}
+<script type="module">
+  import {
+    setOptions,
+    getOptions,
+    loadOptions,
+    saveOptionsAndReloadPage
+  } from "{{ url_for('static', filename='utils.js') }}";
+  import {
+    setupEventListeners,
+    buildScriptElement
+  } from "{{ url_for('static', filename='checkout.js') }}";
+  import loadFastlane from "{{ url_for('static', filename='checkout-fastlane-simple.js') }}";
+  import buyerNotPresentCheckout from "{{ url_for('static', filename='checkout-buyer-not-present.js') }}";
+  window.addEventListener('load', async function () {
+    const options = loadOptions()
+    window.sessionStorage.clear()
+    setOptions(options)
+
+    buildScriptElement(loadFastlane, 'fastlane')
+    setupEventListeners(() => {
+      buildScriptElement(loadFastlane, 'fastlane')
+    })
+
+    document.getElementById('buyer-not-present-checkout').addEventListener('click', buyerNotPresentCheckout)
+  })
+</script>
+<div>
+  <form id="fastlane-form">
+    <!-- <label for="fastlane-email">Email</label>
+    <input id="fastlane-email" name="fastlane-email" type="email" value="dogsWithBlogs@dogspot.com"> -->
+
+    <div id="payment-container"></div>
+
+    <button value="submit" id="pay-button">Pay</button>
+  </form>
+</div>
+{% endblock checkout_div %}

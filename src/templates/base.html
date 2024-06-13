@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     <script type="module">
       import {
         setupCredentials,
@@ -54,7 +54,7 @@
           </ul>
         </nav>
         <form id="options-form">
-          <input name="auth-header" id="auth-header" autocomplete="off" style="display: none;"/>
+          <input name="auth-header" id="auth-header" autocomplete="off" style="display: none;">
           {% block preamble_options %}
           {% endblock preamble_options %}
           <fieldset id="partner-merchant-credentials">
@@ -71,32 +71,32 @@
                 <label for="partner-id">
                   Partner ID
                 </label>
-                <input name="partner-id" id="partner-id" value="{{ partner_id }}" disabled/>
+                <input name="partner-id" id="partner-id" value="{{ partner_id }}" disabled>
               </div>
               <div>
                 <label for="partner-client-id">
                   Client ID
                 </label>
-                <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" disabled/>
+                <input name="partner-client-id" id="partner-client-id" value="{{ partner_client_id }}" disabled>
               </div>
               <div>
                 <label for="partner-secret">
                   Secret
                 </label>
-                <input name="partner-secret" id="partner-secret" value="SecretValue" disabled/>
+                <input name="partner-secret" id="partner-secret" value="SecretValue" disabled>
               </div>
               <div>
                 <label for="partner-bn-code">
                   BN Code
                 </label>
-                <input name="partner-bn-code" id="partner-bn-code" value="{{ partner_bn_code }}" disabled/>
+                <input name="partner-bn-code" id="partner-bn-code" value="{{ partner_bn_code }}" disabled>
               </div>
               {% block merchant_id %}
               <div>
                 <label for="merchant-id">
                   Merchant ID
                 </label>
-                <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" disabled/>
+                <input name="merchant-id" id="merchant-id" value="{{ merchant_id }}" disabled>
               </div>
               {% endblock merchant_id %}
             </details>
