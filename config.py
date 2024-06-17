@@ -21,10 +21,10 @@ class PartnerOneConfig(TestingConfig):
     PARTNER_ID = os.environ.get("PARTNER_ID")
     PARTNER_BN_CODE = os.environ.get("PARTNER_BN_CODE")
 
-    FASTLANE_CLIENT_ID = os.environ.get("FASTLANE_CLIENT_ID")
-    FASTLANE_SECRET = os.environ.get("FASTLANE_SECRET")
+    # FASTLANE_CLIENT_ID = os.environ.get("FASTLANE_CLIENT_ID")
+    # FASTLANE_SECRET = os.environ.get("FASTLANE_SECRET")
     FASTLANE_ID = os.environ.get("FASTLANE_ID")
-    FASTLANE_BN_CODE = os.environ.get("PARTNER_BN_CODE")
+    # FASTLANE_BN_CODE = os.environ.get("PARTNER_BN_CODE")
 
     WEBHOOK_ID = os.environ.get("WEBHOOK_ID")
 
