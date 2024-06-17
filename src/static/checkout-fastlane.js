@@ -165,7 +165,9 @@ async function setUpReturnBuyerCheckout(customerContextId) {
         } else {
             alert('No shipping address!')
         }
-        fastlanePaymentComponent = await fastlane.FastlanePaymentComponent({ styles })
+        fastlanePaymentComponent = await fastlane.FastlanePaymentComponent({
+            styles,
+        })
     } else {
         console.log("Authentication unsuccessful... falling back to guest experience.")
         console.groupEnd()
@@ -275,7 +277,10 @@ async function displayShippingAddress(shippingAddress) {
 }
 
 async function loadFastlane() {
-    fastlane = await paypal.Fastlane()
+    const cardOptions = { "allowedBrands": ['VISA'] }
+    const fastlaneConfig = { cardOptions }
+    console.log("Instantiating paypal.Fastlane with this config:", fastlaneConfig)
+    fastlane = await paypal.Fastlane({ cardOptions })
     console.log('Fastlane:', fastlane);
     ({ identity, profile } = fastlane)
 

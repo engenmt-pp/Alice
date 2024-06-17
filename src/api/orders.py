@@ -53,7 +53,9 @@ class Order:
         try:
             self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
         except KeyError:
-            self.include_auth_assertion = self.vault_level == "MERCHANT"
+            self.include_auth_assertion = (self.vault_level == "MERCHANT") or (
+                self.single_use_token is not None
+            )
         self.include_payee = not self.include_auth_assertion
         self.include_request_id = (
             True  # This is required to specify `experience_context`.

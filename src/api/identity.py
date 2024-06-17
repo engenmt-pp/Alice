@@ -206,6 +206,9 @@ def get_sdk_token():
     secret = data["partner-secret"]
     if client_id == current_app.config["FASTLANE_CLIENT_ID"]:
         secret = current_app.config["FASTLANE_SECRET"]
+    if client_id == current_app.config["PARTNER_CLIENT_ID"]:
+        secret = current_app.config["PARTNER_SECRET"]
+    merchant_id = data["merchant-id"]
 
     data = {
         "grant_type": "client_credentials",
@@ -213,12 +216,21 @@ def get_sdk_token():
         # "response_type": "token",  # FB: This token is fully scoped!
         "response_type": "client_token",  # FB: This token is limited in scope!
         "intent": "sdk_init",
+        "ignoreCache": "true",
         "domains[]": "paypal.com",
     }
+
+    headers = {}
+    if request.args.get("include-auth-assertion"):
+        # 'include-auth-assertion' is passed in a querystring,
+        # so we access with `request.args`.
+        auth_assertion = build_auth_assertion(client_id, merchant_id)
+        headers["PayPal-Auth-Assertion"] = auth_assertion
 
     response = requests.post(
         endpoint,
         data=data,
+        headers=headers,
         auth=(client_id, secret),
     )
 
