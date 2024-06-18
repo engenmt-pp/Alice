@@ -69,7 +69,7 @@ async function getSdkToken() {
   console.groupCollapsed("Requesting SDK token...")
 
   let endpoint = "/api/identity/sdk-token"
-  endpoint += "?include-auth-assertion=true"
+  // endpoint += "?include-auth-assertion=true"
   const partnerMerchantInfo = getPartnerMerchantInfo()
 
   console.log('partnerMerchantInfo', partnerMerchantInfo)

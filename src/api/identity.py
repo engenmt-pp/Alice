@@ -30,8 +30,8 @@ def get_client_token():
 
     if client_id == current_app.config["PARTNER_CLIENT_ID"]:
         secret = current_app.config["PARTNER_SECRET"]
-    # if client_id == current_app.config["FASTLANE_CLIENT_ID"]:
-    #     secret = current_app.config["FASTLANE_SECRET"]
+    if client_id == current_app.config["FASTLANE_CLIENT_ID"]:
+        secret = current_app.config["FASTLANE_SECRET"]
 
     headers = build_headers(
         auth_header=auth_header,
@@ -151,8 +151,8 @@ def get_id_token(customer_id):
 
     if client_id == current_app.config["PARTNER_CLIENT_ID"]:
         secret = current_app.config["PARTNER_SECRET"]
-    # if client_id == current_app.config["FASTLANE_CLIENT_ID"]:
-    #     secret = current_app.config["FASTLANE_SECRET"]
+    if client_id == current_app.config["FASTLANE_CLIENT_ID"]:
+        secret = current_app.config["FASTLANE_SECRET"]
 
     if request.args.get("include-auth-assertion"):
         # 'include-auth-assertion' is passed in a querystring,
@@ -204,10 +204,10 @@ def get_sdk_token():
 
     client_id = data["partner-client-id"]
     secret = data["partner-secret"]
-    # if client_id == current_app.config["FASTLANE_CLIENT_ID"]:
-    #     secret = current_app.config["FASTLANE_SECRET"]
     if client_id == current_app.config["PARTNER_CLIENT_ID"]:
         secret = current_app.config["PARTNER_SECRET"]
+    if client_id == current_app.config["FASTLANE_CLIENT_ID"]:
+        secret = current_app.config["FASTLANE_SECRET"]
     merchant_id = data["merchant-id"]
 
     data = {

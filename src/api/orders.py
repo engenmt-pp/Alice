@@ -94,8 +94,8 @@ class Order:
 
         if self.client_id == current_app.config["PARTNER_CLIENT_ID"]:
             self.secret = current_app.config["PARTNER_SECRET"]
-        # if self.client_id == current_app.config["FASTLANE_CLIENT_ID"]:
-        #     self.secret = current_app.config["FASTLANE_SECRET"]
+        if self.client_id == current_app.config["FASTLANE_CLIENT_ID"]:
+            self.secret = current_app.config["FASTLANE_SECRET"]
 
     def to_amount_dict(self, amount):
         if isinstance(amount, str):

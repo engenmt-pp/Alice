@@ -2,14 +2,15 @@
 import logging
 from logging.config import dictConfig
 
-from config import PartnerOneConfig, MerchantOneConfig
+from config import PartnerConfig, MerchantConfig, FastlaneConfig
 from src import create_app
 
 from src.logs import FilterNoStatic
 
 app = create_app()
-app.config.from_object(PartnerOneConfig)
-app.config.from_object(MerchantOneConfig)
+app.config.from_object(PartnerConfig)
+app.config.from_object(MerchantConfig)
+app.config.from_object(FastlaneConfig)
 
 
 if __name__ == "__main__":
