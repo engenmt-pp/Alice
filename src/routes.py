@@ -8,8 +8,8 @@ def get_partner_and_merchant_config(is_fastlane=False):
         partner_and_merchant_config = {
             "partner_id": current_app.config["FASTLANE_ID"],
             "partner_client_id": current_app.config["FASTLANE_CLIENT_ID"],
-            "merchant_id": current_app.config["FASTLANE_ID"],
-            "partner_bn_code": current_app.config["PARTNER_BN_CODE"],
+            "partner_bn_code": current_app.config["FASTLANE_BN_CODE"],
+            "merchant_id": current_app.config["FASTLANE_MERCHANT_ID"],
         }
     else:
         partner_and_merchant_config = {

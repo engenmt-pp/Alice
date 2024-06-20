@@ -33,8 +33,32 @@ class MerchantConfig(TestingConfig):
     MERCHANT_ID = os.environ.get("MERCHANT_ID")
 
 
-class FastlaneConfig(TestingConfig):
+class AliceFastlaneConfig(TestingConfig):
+    FASTLANE_CLIENT_ID = os.environ.get("PARTNER_CLIENT_ID")
+    FASTLANE_BN_CODE = os.environ.get("PARTNER_BN_CODE")
+    FASTLANE_SECRET = os.environ.get("PARTNER_SECRET")
+    FASTLANE_ID = os.environ.get("PARTNER_ID")
+    FASTLANE_MERCHANT_ID = os.environ.get("PARTNER_ID")
+
+
+class ConnectedPathFastlaneConfig(TestingConfig):
+    FASTLANE_CLIENT_ID = os.environ.get("PARTNER_CLIENT_ID")
+    FASTLANE_BN_CODE = os.environ.get("PARTNER_BN_CODE")
+    FASTLANE_SECRET = os.environ.get("PARTNER_SECRET")
+    FASTLANE_ID = os.environ.get("PARTNER_ID")
+    FASTLANE_MERCHANT_ID = os.environ.get("FASTLANE_MERCHANT_ID")
+
+
+class IndependentFastlaneConfig(TestingConfig):
     FASTLANE_CLIENT_ID = os.environ.get("FASTLANE_CLIENT_ID")
     FASTLANE_BN_CODE = os.environ.get("FASTLANE_BN_CODE")
     FASTLANE_SECRET = os.environ.get("FASTLANE_SECRET")
-    FASTLANE_ID = os.environ.get("FASTLANE_ID")
+    FASTLANE_ID = os.environ.get("FASTLANE_PARTNER_ID")
+    FASTLANE_MERCHANT_ID = os.environ.get("FASTLANE_MERCHANT_ID")
+
+
+# class FastlaneConfig(TestingConfig):
+#     FASTLANE_CLIENT_ID = os.environ.get("FASTLANE_CLIENT_ID")
+#     FASTLANE_BN_CODE = os.environ.get("FASTLANE_BN_CODE")
+#     FASTLANE_SECRET = os.environ.get("FASTLANE_SECRET")
+#     FASTLANE_ID = os.environ.get("FASTLANE_ID")

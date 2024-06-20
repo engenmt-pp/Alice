@@ -1,7 +1,3 @@
-// import {
-//   captureOrder,
-//   createOrder,
-// } from './checkout.js'
 import {
     addApiCalls,
     getOptions,
