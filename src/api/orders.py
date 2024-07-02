@@ -47,6 +47,7 @@ class Order:
         self.vault_level = kwargs.get("vault-level")
         self.vault_id = kwargs.get("vault-id")
         self.customer_id = kwargs.get("customer-id")
+        self.merchant_customer_id = kwargs.get("merchant-customer-id")
         self.permit_multiple_payment_tokens = bool(
             kwargs.get("permit-multiple-payment-tokens", "true")
         )
@@ -381,6 +382,22 @@ class Order:
                 }
                 if self.customer_id:
                     customer["id"] = self.customer_id
+                if self.merchant_customer_id:
+                    customer["merchant_customer_id"] = self.merchant_customer_id
+                    # customer |= {
+                    #     "merchant_customer_id": self.merchant_customer_id,
+                    #     "email": "johndown@gmail.com",
+                    #     "name": {
+                    #         "given_name": "John",
+                    #         "surname": "Doe",
+                    #     },
+                    #     "phones": [
+                    #         {
+                    #             "national_number": "6698113328",
+                    #             "country_code": "1",
+                    #         },
+                    #     ],
+                    # }
 
             case "return-buyer":
                 if self.customer_id:
