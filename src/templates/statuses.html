@@ -120,6 +120,17 @@
         </button>
       </div>
     </div>
+    <!-- <div>
+      <label for="status-merchant-customer-id">
+        Merchant Customer ID
+      </label>
+      <div>
+        <input name="status-merchant-customer-id" id="status-merchant-customer-id"/>
+        <button type="button" id='get-payment-tokens-by-mcid' data-method="get">
+          Get
+        </button>
+      </div>
+    </div> -->
     <div>
       <label for="status-payment-token-id">
         Vault v3 ID
@@ -149,6 +160,7 @@
     getBaDetails,
     deletePaymentToken,
     getPaymentTokens,
+    // getPaymentTokensByMerchantCustomerId,
     getPaymentTokenDetails,
   } from "{{ url_for('static', filename='statuses.js') }}"
 
@@ -162,6 +174,7 @@
     'refund-capture': refundCapture,
     'get-ba-details': getBaDetails,
     'get-payment-tokens': getPaymentTokens,
+    // 'get-payment-tokens-by-mcid': getPaymentTokensByMerchantCustomerId,
     'delete-payment-token': deletePaymentToken,
     'get-payment-token-details': getPaymentTokenDetails,
   }

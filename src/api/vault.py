@@ -288,6 +288,31 @@ class Vault:
 
         return return_val
 
+    # def get_payment_tokens_by_merchant_customer_id(self):
+    #     """Retrieve all payment tokens for a customer using the GET /v3/vault/payment-tokens endpoint.
+
+    #     Docs: https://developer.paypal.com/docs/api/payment-tokens/v3/#customer_payment-tokens_get
+    #     """
+    #     endpoint = build_endpoint(
+    #         f"/v3/vault/payment-tokens",
+    #         query={"merchant_customer_id": self.merchant_customer_id},
+    #     )
+    #     try:
+    #         headers = self.build_headers()
+    #     except KeyError:
+    #         return {"formatted": self.formatted}
+
+    #     response = requests.get(endpoint, headers=headers)
+    #     self.formatted["get-payment-tokens-by-mcid"] = format_request_and_response(
+    #         response
+    #     )
+    #     return_val = {
+    #         "formatted": self.formatted,
+    #         "authHeader": self.auth_header,
+    #     }
+
+    #     return return_val
+
 
 @bp.route("/setup-tokens", methods=("POST",))
 def create_setup_token():
@@ -386,3 +411,23 @@ def get_payment_tokens(customer_id):
     resp = vault.get_payment_tokens()
 
     return jsonify(resp)
+
+
+# @bp.route("/merchant-customers/<merchant_customer_id>", methods=("POST",))
+# def get_payment_tokens_by_merchant_customer_id(merchant_customer_id):
+#     """Retrieve all payment tokens for the customer with the given ID.
+
+#     Wrapper for Vault.get_payment_tokens.
+#     """
+
+#     data = request.get_json()
+#     data["merchant-customer-id"] = merchant_customer_id
+#     data_filtered = {key: value for key, value in data.items() if value}
+#     current_app.logger.info(
+#         f"Getting the payment tokens of a customer with (filtered) data = {json.dumps(data_filtered, indent=2)}"
+#     )
+
+#     vault = Vault(**data)
+#     resp = vault.get_payment_tokens_by_merchant_customer_id()
+
+#     return jsonify(resp)
