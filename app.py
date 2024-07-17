@@ -6,8 +6,6 @@ from config import PartnerConfig, MerchantConfig
 
 from config import AliceFastlaneConfig as FastlaneConfig
 
-# from config import ConnectedPathFastlaneConfig as FastlaneConfig
-# from config import IndependentFastlaneConfig as FastlaneConfig
 from src import create_app
 
 from src.logs import FilterNoStatic
