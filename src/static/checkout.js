@@ -64,6 +64,35 @@ async function getIdToken() {
   return idToken
 }
 
+/** Get an SDK token to be included in the JS SDK's script tag for Fastlane. */
+async function getSdkToken() {
+  console.groupCollapsed("Requesting SDK token...")
+
+  let endpoint = "/api/identity/sdk-token"
+  const partnerMerchantInfo = getPartnerMerchantInfo()
+
+  if (partnerMerchantInfo['partner-id'] != partnerMerchantInfo['merchant-id']) {
+    endpoint += "?include-auth-assertion=true"
+  }
+
+  console.log('partnerMerchantInfo', partnerMerchantInfo)
+
+  const sdkTokenResponse = await fetch(endpoint, {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify(partnerMerchantInfo),
+  })
+  const sdkTokenData = await sdkTokenResponse.json()
+  const { formatted, sdkToken } = sdkTokenData
+
+  addApiCalls(formatted, false)
+
+  console.log('SDK token:', sdkToken)
+  console.groupEnd()
+
+  return sdkToken
+}
+
 async function buildScriptElement(onload, checkoutMethod) {
   const {
     intent,
@@ -103,6 +132,9 @@ async function buildScriptElement(onload, checkoutMethod) {
     case 'hosted-fields-v2':
       components = 'card-fields'
       break
+    case 'fastlane':
+      components = 'fastlane'
+      break
   }
   if (components) {
     query.set('components', components)
@@ -129,9 +161,13 @@ async function buildScriptElement(onload, checkoutMethod) {
   }
 
   const isReturnBuyerExperience = options['vault-flow'] === 'return-buyer'
+  const isFastlane = checkoutMethod === 'fastlane'
   if (isReturnBuyerExperience) {
     const idToken = await getIdToken()
     scriptElement.setAttribute('data-user-id-token', idToken)
+  } else if (isFastlane) {
+    const sdkToken = await getSdkToken()
+    scriptElement.setAttribute('data-user-id-token', sdkToken)
   }
 
   const BNCode = options['partner-bn-code']

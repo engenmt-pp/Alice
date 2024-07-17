@@ -31,6 +31,7 @@ class Order:
 
         self.auth_header = kwargs.get("auth-header")
         self.payment_source_type = kwargs.get("payment-source", None)
+        self.single_use_token = kwargs.get("single-use-token", None)
 
         self.currency_code = kwargs.get("currency-code", "USD")
         self.intent = kwargs.get("intent")
@@ -52,7 +53,9 @@ class Order:
         try:
             self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
         except KeyError:
-            self.include_auth_assertion = self.vault_level == "MERCHANT"
+            self.include_auth_assertion = (self.vault_level == "MERCHANT") or (
+                self.single_use_token is not None
+            )
         self.include_payee = not self.include_auth_assertion
         self.include_request_id = (
             True  # This is required to specify `experience_context`.
@@ -91,6 +94,8 @@ class Order:
 
         if self.client_id == current_app.config["PARTNER_CLIENT_ID"]:
             self.secret = current_app.config["PARTNER_SECRET"]
+        if self.client_id == current_app.config["FASTLANE_CLIENT_ID"]:
+            self.secret = current_app.config["FASTLANE_SECRET"]
 
     def to_amount_dict(self, amount):
         if isinstance(amount, str):
@@ -338,6 +343,14 @@ class Order:
             }
             return payment_source
 
+        if self.single_use_token:
+            payment_source = {
+                "card": {
+                    "single_use_token": self.single_use_token,
+                },
+            }
+            return payment_source
+
         payment_source_body = {}
         attributes = {}
 
@@ -438,26 +451,41 @@ class Order:
             return return_val
 
         try:
-            auth_id = response_data["purchase_units"][0]["payments"]["authorizations"][
-                0
-            ]["id"]
+            order_id = response_data["id"]
+        except (KeyError, IndexError) as exc:
+            current_app.logger.error(
+                f"Encountered generic exception unpacking order ID: {exc}"
+            )
+        else:
+            return_val["orderId"] = order_id
+
+        try:
+            authorization = response_data["purchase_units"][0]["payments"][
+                "authorizations"
+            ][0]
+            auth_id = authorization["id"]
+            auth_status = authorization["status"]
         except (KeyError, IndexError) as exc:
             current_app.logger.info(
                 f"Unable to extract auth_id from {json.dumps(response_data, indent=2)}"
             )
         else:
             return_val["authId"] = auth_id
+            return_val["authStatus"] = auth_status
 
         try:
-            order_id = response_data["id"]
-        except Exception as exc:
-            current_app.logger.error(
-                f"Encountered generic exception unpacking order ID: {exc}"
+            capture = response_data["purchase_units"][0]["payments"]["captures"][0]
+            capture_id = capture["id"]
+            capture_status = capture["status"]
+        except (KeyError, IndexError) as exc:
+            current_app.logger.info(
+                f"Unable to extract capture_id from {json.dumps(response_data, indent=2)}"
             )
         else:
-            return_val["orderId"] = order_id
-        finally:
-            return return_val
+            return_val["captureId"] = capture_id
+            return_val["captureStatus"] = capture_status
+
+        return return_val
 
     def capture(self):
         """Capture the order using the the POST /v2/checkout/orders/{order_id}/capture endpoint.
