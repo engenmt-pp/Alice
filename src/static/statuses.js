@@ -176,24 +176,6 @@ async function getPaymentTokens() {
   addApiCalls(formatted)
 }
 
-// async function getPaymentTokensByMerchantCustomerId() {
-//   const options = getPartnerMerchantInfo()
-
-//   const id = 'include-auth-assertion'
-//   options[id] = document.getElementById(id).value
-
-//   const merchantCustomerId = document.getElementById('status-merchant-customer-id').value
-//   const getResp = await fetch(`/api/vault/merchant-customers/${merchantCustomerId}`, {
-//     headers: { 'Content-Type': 'application/json' },
-//     method: 'POST',
-//     body: JSON.stringify(options)
-//   })
-//   const getData = await getResp.json()
-//   const { formatted, authHeader } = getData
-//   setAuthHeader(authHeader)
-//   addApiCalls(formatted)
-// }
-
 async function deletePaymentToken() {
   const options = getPartnerMerchantInfo()
 
@@ -240,6 +222,5 @@ export {
   getBaDetails,
   deletePaymentToken,
   getPaymentTokens,
-  getPaymentTokensByMerchantCustomerId,
   getPaymentTokenDetails,
 }
