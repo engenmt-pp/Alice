@@ -51,12 +51,17 @@ class Order:
         self.permit_multiple_payment_tokens = bool(
             kwargs.get("permit-multiple-payment-tokens", "true")
         )
+
         try:
-            self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
+            if self.merchant_id == self.partner_id:
+                self.include_auth_assertion = False
+            else:
+                self.include_auth_assertion = bool(kwargs["include-auth-assertion"])
         except KeyError:
             self.include_auth_assertion = (self.vault_level == "MERCHANT") or (
                 self.single_use_token is not None
             )
+
         self.include_payee = not self.include_auth_assertion
         self.include_request_id = (
             True  # This is required to specify `experience_context`.
@@ -95,8 +100,10 @@ class Order:
 
         if self.client_id == current_app.config["PARTNER_CLIENT_ID"]:
             self.secret = current_app.config["PARTNER_SECRET"]
-        if self.client_id == current_app.config["FASTLANE_CLIENT_ID"]:
-            self.secret = current_app.config["FASTLANE_SECRET"]
+        if self.client_id == current_app.config["FASTLANE_PARTNER_CLIENT_ID"]:
+            self.secret = current_app.config["FASTLANE_PARTNER_SECRET"]
+        if self.client_id == current_app.config["FASTLANE_MERCHANT_CLIENT_ID"]:
+            self.secret = current_app.config["FASTLANE_MERCHANT_SECRET"]
 
     def to_amount_dict(self, amount):
         if isinstance(amount, str):

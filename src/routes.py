@@ -3,22 +3,29 @@ from flask import Blueprint, current_app, render_template, request
 bp = Blueprint("routes", __name__, url_prefix="/")
 
 
-def get_partner_and_merchant_config(is_fastlane=False):
+def get_partner_and_merchant_config(is_fastlane=False, is_direct_merchant=False):
     if is_fastlane:
-        partner_and_merchant_config = {
-            "partner_id": current_app.config["FASTLANE_ID"],
-            "partner_client_id": current_app.config["FASTLANE_CLIENT_ID"],
-            "partner_bn_code": current_app.config["FASTLANE_BN_CODE"],
-            "merchant_id": current_app.config["FASTLANE_MERCHANT_ID"],
-        }
+        if is_direct_merchant:
+            return {
+                "partner_id": current_app.config["FASTLANE_MERCHANT_ID"],
+                "partner_client_id": current_app.config["FASTLANE_MERCHANT_CLIENT_ID"],
+                "partner_bn_code": current_app.config["FASTLANE_MERCHANT_BN_CODE"],
+                "merchant_id": current_app.config["FASTLANE_MERCHANT_ID"],
+            }
+        else:
+            return {
+                "partner_id": current_app.config["FASTLANE_PARTNER_ID"],
+                "partner_client_id": current_app.config["FASTLANE_PARTNER_CLIENT_ID"],
+                "partner_bn_code": current_app.config["FASTLANE_PARTNER_BN_CODE"],
+                "merchant_id": current_app.config["FASTLANE_MERCHANT_ID"],
+            }
     else:
-        partner_and_merchant_config = {
+        return {
             "partner_id": current_app.config["PARTNER_ID"],
             "partner_client_id": current_app.config["PARTNER_CLIENT_ID"],
             "partner_bn_code": current_app.config["PARTNER_BN_CODE"],
             "merchant_id": current_app.config["MERCHANT_ID"],
         }
-    return partner_and_merchant_config
 
 
 @bp.route("onboarding/")
@@ -103,7 +110,11 @@ def checkout_fastlane():
     """Return the rendered Fastlane checkout page from its template."""
 
     template = "checkout-fastlane.html"
-    partner_and_merchant_config = get_partner_and_merchant_config(is_fastlane=True)
+
+    is_direct_merchant = request.args.get("PPCP") == "direct-merchant"
+    partner_and_merchant_config = get_partner_and_merchant_config(
+        is_fastlane=True, is_direct_merchant=is_direct_merchant
+    )
 
     return render_template(
         template,
