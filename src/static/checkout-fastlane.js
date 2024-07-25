@@ -179,33 +179,53 @@ async function setUpGuestBuyerCheckout() {
         phoneNumber: { prefill: "8882211161" },
         cardholderName: { prefill: "Noauthgary Cardholder" }
     }
-    // const shippingAddress = {
-    //     firstName: "Comp",
-    //     lastName: "Smith",
-    //     addressLine1: "1 East 1st St",
-    //     addressLine2: "5th Floor",
-    //     adminArea2: "Bartlett",
-    //     adminArea1: "IL", // must be sent in 2-letter format
-    //     postalCode: "60103",
-    //     countryCode: "US"
-    // }
-    const shippingAddress = {
-        firstName: "Comp",
-        lastName: "Smith",
-        streetAddress: "1 East 1st St",
-        extendedAddress: "5th Floor",
-        locality: "Bartlett",
-        region: "IL", // must be sent in 2-letter format
-        postalCode: "60103",
-        countryCodeAlpha2: "US"
-    }
 
+    const shippingAddress = (() => {
+        const style = 2
+        if (style == 1) {
+            return {
+                firstName: "Comp",
+                lastName: "Smith",
+                streetAddress: "1 East 1st St",
+                extendedAddress: "5th Floor",
+                locality: "Bartlett",
+                region: "IL", // must be sent in 2-letter format
+                postalCode: "60103",
+                countryCodeAlpha2: "US"
+            }
+        } else if (style == 2) {
+            return {
+                firstName: "Comp",
+                lastName: "Smith",
+                addressLine1: "1 East 1st St",
+                addressLine2: "5th Floor",
+                adminArea2: "Bartlett",
+                adminArea1: "IL", // must be sent in 2-letter format
+                postalCode: "60103",
+                countryCode: "US"
+            }
+        } else {
+            return {
+                name: {
+                    fullName: "Comp Smith"
+                },
+                address: {
+                    addressLine1: "123 Main St",
+                    addressLine2: "Unit 114",
+                    adminArea2: "Beverly Hills",
+                    adminArea1: "CA",
+                    postalCode: "90210",
+                    countryCode: "US"
+                }
+            }
+        }
+    })()
     const options = {
         styles,
         fields,
         shippingAddress
     }
-    console.log("Initializing guest buyer checkout with options:", options)
+    console.log("Initializing guest buyer checkout... with options:", options)
 
     fastlanePaymentComponent = await fastlane.FastlanePaymentComponent(options)
     console.groupEnd()
