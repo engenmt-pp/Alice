@@ -3,6 +3,23 @@
 {% block vault_options %}
 {% endblock vault_options %}
 
+{% block inner_preamble_options %}
+{{ super() }}
+  <div>
+    <label for="ppcp-type">PPCP Type</label>
+    <select name="ppcp-type" id="ppcp-type">
+      <option
+      value="partner"
+      {{ "selected" if partner_id != merchant_id else "" }}
+      >Partner</option>
+      <option
+      value="direct-merchant"
+      {{ "selected" if partner_id == merchant_id else "" }}
+      >Direct merchant</option>
+    </select>
+  </div>
+{% endblock inner_preamble_options %}
+
 {% block checkout_div %}
 <script type="module">
   import {
@@ -25,13 +42,24 @@
     setupEventListeners(() => {
       buildScriptElement(loadFastlane, 'fastlane')
     })
+
+    document.getElementById('ppcp-type').addEventListener('change', (event) => {
+      console.log('change', event)
+      if (document.querySelector("#ppcp-type > option[value='partner']:checked")) {
+        console.log("Partner time!")
+        saveOptionsAndReloadPage()
+      } else {
+        console.log("Direct merchant time!")
+        saveOptionsAndReloadPage('direct-merchant')
+      }
+    })
   })
 </script>
 <div>
   <form id="fastlane-form">
     <fieldset id="fastlane-email-container">
       <label for="fastlane-email-input">Email</label>
-      <input id="fastlane-email-input" name="fastlane-email-input" type="email" value="dogsWithBlogs@dogspot.com">
+      <input id="fastlane-email-input" name="fastlane-email-input" type="email" value="kite@lute.biz">
       <button type="button" id="fastlane-email-button" class='disabled'>Look Up Email</button>
     </fieldset>
 

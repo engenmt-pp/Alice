@@ -14,7 +14,8 @@
 
 
 {% block preamble_options %}
-<fieldset id="fieldset-checkout-method">
+<fieldset id="fieldset-preamble-options">
+  {% block inner_preamble_options %}
   <div>
     <label for="checkout-method">
       Checkout Method
@@ -46,6 +47,7 @@
       </optgroup>
     </select>
   </div>
+  {% endblock inner_preamble_options %}
 </fieldset>
 {% endblock preamble_options %}
 

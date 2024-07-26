@@ -18,47 +18,37 @@ class TestingConfig(SandboxConfig):
 class PartnerConfig(TestingConfig):
     PARTNER_CLIENT_ID = os.environ.get("PARTNER_CLIENT_ID")
     PARTNER_SECRET = os.environ.get("PARTNER_SECRET")
-    PARTNER_ID = os.environ.get("PARTNER_ID")
     PARTNER_BN_CODE = os.environ.get("PARTNER_BN_CODE")
-
-    WEBHOOK_ID = os.environ.get("WEBHOOK_ID")
-
-    SFTP_USERNAME = os.environ.get("SFTP_USERNAME")
-    SFTP_PASSWORD = os.environ.get("SFTP_PASSWORD")
+    PARTNER_ID = os.environ.get("PARTNER_ID")
 
 
 class MerchantConfig(TestingConfig):
-    MERCHANT_CLIENT_ID = os.environ.get("MERCHANT_CLIENT_ID")
-    MERCHANT_SECRET = os.environ.get("MERCHANT_SECRET")
+    # MERCHANT_CLIENT_ID = os.environ.get("MERCHANT_CLIENT_ID")
+    # MERCHANT_SECRET = os.environ.get("MERCHANT_SECRET")
     MERCHANT_ID = os.environ.get("MERCHANT_ID")
 
 
-class AliceFastlaneConfig(TestingConfig):
-    FASTLANE_CLIENT_ID = os.environ.get("PARTNER_CLIENT_ID")
-    FASTLANE_BN_CODE = os.environ.get("PARTNER_BN_CODE")
-    FASTLANE_SECRET = os.environ.get("PARTNER_SECRET")
-    FASTLANE_ID = os.environ.get("PARTNER_ID")
-    FASTLANE_MERCHANT_ID = os.environ.get("PARTNER_ID")
+class FastlanePartnerConfig(TestingConfig):
+    FASTLANE_PARTNER_CLIENT_ID = os.environ.get("FASTLANE_PARTNER_CLIENT_ID")
+    FASTLANE_PARTNER_SECRET = os.environ.get("FASTLANE_PARTNER_SECRET")
+    FASTLANE_PARTNER_BN_CODE = os.environ.get("FASTLANE_PARTNER_BN_CODE")
+    FASTLANE_PARTNER_ID = os.environ.get("FASTLANE_PARTNER_ID")
 
 
-class ConnectedPathFastlaneConfig(TestingConfig):
-    FASTLANE_CLIENT_ID = os.environ.get("PARTNER_CLIENT_ID")
-    FASTLANE_BN_CODE = os.environ.get("PARTNER_BN_CODE")
-    FASTLANE_SECRET = os.environ.get("PARTNER_SECRET")
-    FASTLANE_ID = os.environ.get("PARTNER_ID")
+class FastlaneMerchantConfig(TestingConfig):
+    FASTLANE_MERCHANT_CLIENT_ID = os.environ.get("FASTLANE_MERCHANT_CLIENT_ID")
+    FASTLANE_MERCHANT_SECRET = os.environ.get("FASTLANE_MERCHANT_SECRET")
+    FASTLANE_MERCHANT_BN_CODE = os.environ.get("FASTLANE_MERCHANT_BN_CODE")
     FASTLANE_MERCHANT_ID = os.environ.get("FASTLANE_MERCHANT_ID")
 
 
-class IndependentFastlaneConfig(TestingConfig):
-    FASTLANE_CLIENT_ID = os.environ.get("FASTLANE_CLIENT_ID")
-    FASTLANE_BN_CODE = os.environ.get("FASTLANE_BN_CODE")
-    FASTLANE_SECRET = os.environ.get("FASTLANE_SECRET")
-    FASTLANE_ID = os.environ.get("FASTLANE_PARTNER_ID")
-    FASTLANE_MERCHANT_ID = os.environ.get("FASTLANE_MERCHANT_ID")
+class PartnerFastlanePartnerConfig(TestingConfig):
+    """Load the 'Fastlane partner' credentials into the 'regular partner' credentials.
 
+    This isn't used except to occasionally onboard merchants onto the 'Fastlane partner' account.
+    """
 
-# class FastlaneConfig(TestingConfig):
-#     FASTLANE_CLIENT_ID = os.environ.get("FASTLANE_CLIENT_ID")
-#     FASTLANE_BN_CODE = os.environ.get("FASTLANE_BN_CODE")
-#     FASTLANE_SECRET = os.environ.get("FASTLANE_SECRET")
-#     FASTLANE_ID = os.environ.get("FASTLANE_ID")
+    PARTNER_CLIENT_ID = os.environ.get("FASTLANE_PARTNER_CLIENT_ID")
+    PARTNER_SECRET = os.environ.get("FASTLANE_PARTNER_SECRET")
+    PARTNER_BN_CODE = os.environ.get("FASTLANE_PARTNER_BN_CODE")
+    PARTNER_ID = os.environ.get("FASTLANE_PARTNER_ID")

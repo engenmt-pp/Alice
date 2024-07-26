@@ -179,26 +179,19 @@ async function setUpGuestBuyerCheckout() {
         phoneNumber: { prefill: "8882211161" },
         cardholderName: { prefill: "Noauthgary Cardholder" }
     }
+
     const shippingAddress = {
-        firstName: "Comp",
-        lastName: "Smith",
-        addressLine1: "1 East 1st St",
-        addressLine2: "5th Floor",
-        adminArea2: "Bartlett",
-        adminArea1: "IL", //must be sent in 2-letter format
-        postalCode: "60103",
-        countryCode: "US"
+        name: {
+            fullName: "Kat Z."
+        },
+        address: {
+            addressLine1: "205 E Houston St",
+            adminArea2: "New York",
+            adminArea1: "NY",
+            postalCode: "10002",
+            countryCode: "US"
+        }
     }
-    // const shippingAddress = {
-    //     firstName: "Comp",
-    //     lastName: "Smith",
-    //     streetAddress: "1 East 1st St",
-    //     extendedAddress: "5th Floor",
-    //     locality: "Bartlett",
-    //     region: "IL", //must be sent in 2-letter format
-    //     postalCode: "60103",
-    //     countryCodeAlpha2: "US"
-    // }
 
     const options = {
         styles,

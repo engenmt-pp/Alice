@@ -3,17 +3,18 @@ import logging
 from logging.config import dictConfig
 
 from config import PartnerConfig, MerchantConfig
-
-from config import AliceFastlaneConfig as FastlaneConfig
+from config import FastlanePartnerConfig, FastlaneMerchantConfig
 
 from src import create_app
-
 from src.logs import FilterNoStatic
 
 app = create_app()
+
 app.config.from_object(PartnerConfig)
 app.config.from_object(MerchantConfig)
-app.config.from_object(FastlaneConfig)
+
+app.config.from_object(FastlanePartnerConfig)
+app.config.from_object(FastlaneMerchantConfig)
 
 
 if __name__ == "__main__":

@@ -48,10 +48,19 @@ function getPartnerMerchantInfo() {
   return info
 }
 
-function saveOptionsAndReloadPage() {
+function saveOptionsAndReloadPage(ppcp) {
   saveOptions()
   console.log(JSON.stringify(window.sessionStorage, null, 2))
-  location.reload()
+  console.log('PPCP?', ppcp)
+  let newURL
+  if (ppcp) {
+    newURL = new URL(location.href)
+    newURL.searchParams.set('PPCP', ppcp)
+  } else {
+    newURL = new URL(location.href)
+    newURL.searchParams.delete('PPCP')
+  }
+  location.replace(newURL)
 }
 
 function createTabPanel(contents) {
