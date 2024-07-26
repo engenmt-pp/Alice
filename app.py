@@ -3,14 +3,9 @@ import logging
 from logging.config import dictConfig
 
 from config import PartnerConfig, MerchantConfig
-
 from config import FastlanePartnerConfig, FastlaneMerchantConfig
 
-# from config import PartnerFastlanePartnerConfig
-# app.config.from_object(PartnerFastlanePartnerConfig)
-
 from src import create_app
-
 from src.logs import FilterNoStatic
 
 app = create_app()
