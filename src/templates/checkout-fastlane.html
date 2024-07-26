@@ -3,6 +3,29 @@
 {% block vault_options %}
 {% endblock vault_options %}
 
+{% block preamble_options %}
+{{ super() }}
+<fieldset id="ppcp-type">
+  <legend>PPCP type</legend>
+  <input
+  autocomplete="false"
+  type="radio"
+  name="ppcp"
+  id="ppcp-partner"
+  {{ "checked" if partner_id != merchant_id else "" }}
+  />
+  <label for="ppcp-partner">Partner</label>
+  <input
+  autocomplete="false"
+  type="radio"
+  name="ppcp"
+  id="ppcp-direct-merchant"
+  {{ "checked" if partner_id == merchant_id else "" }}
+  />
+  <label for="ppcp-direct-merchant">Direct merchant</label>
+</fieldset>
+{% endblock preamble_options %}
+
 {% block checkout_div %}
 <script type="module">
   import {
@@ -24,6 +47,17 @@
     buildScriptElement(loadFastlane, 'fastlane')
     setupEventListeners(() => {
       buildScriptElement(loadFastlane, 'fastlane')
+    })
+
+    document.getElementById('ppcp-type').addEventListener('change', (event) => {
+      console.log('change', event)
+      if (event.target.getAttribute('id') == 'ppcp-partner') {
+        console.log("Partner time!")
+        saveOptionsAndReloadPage()
+      } else {
+        console.log("Direct merchant time!")
+        saveOptionsAndReloadPage('direct-merchant')
+      }
     })
   })
 </script>

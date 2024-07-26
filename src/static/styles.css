@@ -324,6 +324,16 @@ fieldset {
         }
     }
 
+    &#ppcp-type {
+        display: flex;
+        &> input {
+            display: none;
+        }
+        &> input[checked] + label {
+            text-decoration: underline;
+        }
+    }
+
     &#vault-options {
 
         & > details > div + div {
