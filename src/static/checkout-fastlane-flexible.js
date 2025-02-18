@@ -174,9 +174,13 @@ class FastlaneFlexibleCheckout {
     console.group("Rendering guest (Gary) Fastlane flow...");
 
     const fields = {
+      number: {
+        placeholder: "4111111111111111",
+      },
       phoneNumber: {
-        prefill: "8882211161",
-        enabled: false,
+        placeholder: "3528675309",
+        // prefill: "888-221-1162",
+        // enabled: false,
       },
       cardholderName: {
         prefill: "Noauthgary Cardholder",

@@ -7,7 +7,8 @@ Alice is a tool for testing PayPal Commerce Platform (PPCP) features and functio
 ### Set up `.env` file
 
 To run Alice locally, first load partner and merchant credentials into a file named `.env` in the following format:
-```
+
+```env
 PARTNER_CLIENT_ID = AWjz...
 PARTNER_SECRET = ECLx...
 PARTNER_ID = UB8L...

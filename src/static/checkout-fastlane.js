@@ -69,7 +69,11 @@ let identity, profile;
 const styles = {
   // root: { backgroundColorPrimary: "#FAFAFA" }
   // root: { backgroundColorPrimary: "#FFF" }
-  root: { backgroundColorPrimary: "transparent" },
+  root: {
+    backgroundColorPrimary: "transparent",
+    primaryColor: "green",
+    fontFamily: "Georgia",
+  },
 };
 
 async function attemptCheckout() {
@@ -107,7 +111,7 @@ async function setUpCheckout() {
     emailContainer.setAttribute("hidden", true);
     emailContainer.setAttribute("disabled", true);
     emailInput.setAttribute("disabled", true);
-    emailButton.classList.toggle("disabled");
+    emailButton.classList.toggle("disabled", false);
 
     const { customerContextId } = await identity.lookupCustomerByEmail(emailAddress);
 
@@ -128,6 +132,7 @@ async function setUpCheckout() {
 
     const payButton = document.getElementById("pay-button");
     payButton.classList.toggle("disabled");
+    payButton.removeAttribute("disabled");
   }
 }
 
@@ -162,8 +167,19 @@ async function initializeGuestBuyerCheckout() {
   console.group("Setting up guest buyer (Gary) flow...");
 
   const fields = {
-    phoneNumber: { prefill: "8882211161" },
-    cardholderName: { prefill: "Noauthgary Cardholder" },
+    phoneNumber: {
+      prefill: "888-221-1161",
+    },
+    cardholderName: {
+      // prefill: "Noauthgary Cardholder",
+      placeholder: "Name",
+    },
+    expirationDate: {
+      placeholder: "YY/MM",
+    },
+    number: {
+      placeholder: "Number",
+    },
   };
 
   const shippingAddress = {
@@ -248,7 +264,7 @@ async function displayShippingAddress(shippingAddress) {
 }
 
 async function loadFastlane() {
-  const cardOptions = { allowedBrands: ["VISA"] };
+  const cardOptions = { allowedBrands: ["VISA", "AMEX"] };
   const fastlaneConfig = { cardOptions };
   console.log("Instantiating paypal.Fastlane with this config:", fastlaneConfig);
   fastlane = await paypal.Fastlane({ cardOptions });
@@ -264,7 +280,8 @@ async function loadFastlane() {
 
   const emailLookupButton = document.getElementById("fastlane-email-button");
   emailLookupButton.addEventListener("click", setUpCheckout);
-  emailLookupButton.classList.toggle("disabled");
+  // emailLookupButton.classList.toggle("disabled", false);
+  emailLookupButton.removeAttribute("disabled");
 
   document.getElementById("pay-button").addEventListener("click", attemptCheckout);
 }
